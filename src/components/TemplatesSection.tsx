@@ -1,5 +1,6 @@
 import SquarePostTemplate from "./templates/SquarePostTemplate";
 import StoryTemplate from "./templates/StoryTemplate";
+import CarouselTemplate from "./templates/CarouselTemplate";
 
 const TemplatesSection = () => {
   return (
@@ -54,17 +55,21 @@ const TemplatesSection = () => {
             </div>
           </div>
 
-          {/* Carrossel Placeholder */}
+          {/* Carrossel Template */}
           <div className="group">
-            <div className="relative overflow-hidden rounded-xl bg-card border border-dashed border-border aspect-square flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-2xl">🖼️</span>
-                </div>
-                <h4 className="font-display font-semibold text-foreground mb-2">Carrossel</h4>
-                <p className="text-sm text-muted-foreground">Múltiplas imagens</p>
-                <span className="inline-block mt-3 text-xs text-accent font-medium">Em breve</span>
+            <div className="relative overflow-hidden rounded-xl">
+              <div className="max-w-[320px] mx-auto">
+                <CarouselTemplate />
               </div>
+              <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-xl">
+                <button className="bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-lg hover:bg-accent/90 transition-colors">
+                  Usar Template
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <h4 className="font-display font-semibold text-foreground">Carrossel</h4>
+              <p className="text-sm text-muted-foreground">Múltiplas imagens · Instagram</p>
             </div>
           </div>
         </div>
