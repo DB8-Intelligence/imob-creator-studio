@@ -1,4 +1,5 @@
 import SquarePostTemplate from "./templates/SquarePostTemplate";
+import StoryTemplate from "./templates/StoryTemplate";
 
 const TemplatesSection = () => {
   return (
@@ -16,8 +17,8 @@ const TemplatesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {/* Template Preview Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+          {/* Post Quadrado Template */}
           <div className="group">
             <div className="relative overflow-hidden rounded-xl">
               <div className="max-w-[320px] mx-auto">
@@ -35,20 +36,25 @@ const TemplatesSection = () => {
             </div>
           </div>
 
-          {/* Placeholder for more templates */}
+          {/* Story Template */}
           <div className="group">
-            <div className="relative overflow-hidden rounded-xl bg-card border border-dashed border-border aspect-square flex items-center justify-center">
-              <div className="text-center p-6">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-2xl">📐</span>
-                </div>
-                <h4 className="font-display font-semibold text-foreground mb-2">Stories</h4>
-                <p className="text-sm text-muted-foreground">1080 × 1920px</p>
-                <span className="inline-block mt-3 text-xs text-accent font-medium">Em breve</span>
+            <div className="relative overflow-hidden rounded-xl">
+              <div className="max-w-[200px] mx-auto">
+                <StoryTemplate />
               </div>
+              <div className="absolute inset-0 bg-primary/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-xl">
+                <button className="bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-lg hover:bg-accent/90 transition-colors">
+                  Usar Template
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <h4 className="font-display font-semibold text-foreground">Stories</h4>
+              <p className="text-sm text-muted-foreground">1080 × 1920px · Instagram/TikTok</p>
             </div>
           </div>
 
+          {/* Carrossel Placeholder */}
           <div className="group">
             <div className="relative overflow-hidden rounded-xl bg-card border border-dashed border-border aspect-square flex items-center justify-center">
               <div className="text-center p-6">
