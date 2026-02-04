@@ -12,18 +12,14 @@ const SquarePostTemplate: React.FC<SquarePostTemplateProps> = ({
   ctaText = "Agende sua visita",
 }) => {
   return (
-    <div className="template-post bg-card p-6 rounded-lg w-full aspect-square flex flex-col justify-between shadow-elevated border border-border">
+    <div className="w-full max-w-[1080px] aspect-square bg-card rounded-xl shadow-elevated p-6 flex flex-col justify-between text-card-foreground font-body">
       <div>
-        <h3 className="text-xl font-bold text-card-foreground font-display">
-          {title}
-        </h3>
-        <p className="text-sm text-muted-foreground mt-2 font-body">
-          {details}
-        </p>
+        <h1 className="text-3xl font-bold mb-2">{title}</h1>
+        <p className="text-lg text-muted-foreground">{details}</p>
       </div>
 
-      <div className="mt-auto text-right">
-        <button className="bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-full hover:bg-accent/90 transition-colors shadow-soft font-body">
+      <div className="text-right">
+        <button className="bg-accent text-accent-foreground font-semibold px-6 py-2 rounded-full hover:bg-accent/90 transition-colors">
           {ctaText}
         </button>
       </div>
