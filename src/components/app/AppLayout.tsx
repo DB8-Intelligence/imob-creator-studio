@@ -1,0 +1,196 @@
+import { ReactNode, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Home,
+  Upload,
+  LayoutGrid,
+  Edit3,
+  Library,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  Sparkles,
+  Moon,
+  Sun
+} from "lucide-react";
+
+interface AppLayoutProps {
+  children: ReactNode;
+}
+
+const navItems = [
+  { icon: Home, label: "Dashboard", path: "/dashboard" },
+  { icon: Upload, label: "Upload", path: "/upload" },
+  { icon: LayoutGrid, label: "Templates", path: "/templates" },
+  { icon: Edit3, label: "Editor", path: "/editor" },
+  { icon: Library, label: "Biblioteca", path: "/library" },
+  { icon: Settings, label: "Configurações", path: "/settings" },
+];
+
+const AppLayout = ({ children }: AppLayoutProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+    document.documentElement.classList.toggle("dark");
+  };
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
+        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+          <Menu className="w-5 h-5" />
+        </Button>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <Home className="w-4 h-4 text-accent-foreground" />
+          </div>
+          <span className="font-display font-bold text-foreground">
+            ImobCreator<span className="text-accent">AI</span>
+          </span>
+        </div>
+        <Avatar className="w-8 h-8">
+          <AvatarFallback>MC</AvatarFallback>
+        </Avatar>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-foreground/50 z-50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`
+        fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50
+        transform transition-transform duration-300 lg:translate-x-0
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+      `}>
+        <div className="flex flex-col h-full">
+          {/* Logo */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+            <Link to="/dashboard" className="flex items-center gap-2">
+              <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-sm">
+                <Home className="w-5 h-5 text-accent-foreground" />
+              </div>
+              <span className="font-display font-bold text-foreground">
+                Imob<span className="text-accent">Creator</span>
+              </span>
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 p-4 space-y-1">
+            {navItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                    ${isActive 
+                      ? "bg-accent text-accent-foreground font-medium" 
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }
+                  `}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Credits Card */}
+          <div className="p-4">
+            <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl p-4 border border-accent/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium text-foreground">Créditos</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">47</p>
+              <p className="text-xs text-muted-foreground mb-3">de 100 disponíveis</p>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-accent rounded-full" style={{ width: "47%" }} />
+              </div>
+              <Button variant="outline" size="sm" className="w-full mt-3">
+                Comprar mais
+              </Button>
+            </div>
+          </div>
+
+          {/* User Menu */}
+          <div className="p-4 border-t border-border">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
+                  <Avatar className="w-9 h-9">
+                    <AvatarImage src="/placeholder.svg" />
+                    <AvatarFallback>MC</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-left">
+                    <p className="text-sm font-medium text-foreground">Maria Costa</p>
+                    <p className="text-xs text-muted-foreground">Pro Plan</p>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={toggleDarkMode}>
+                  {darkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+                  {darkMode ? "Modo Claro" : "Modo Escuro"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Configurações
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate("/auth")} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <div className="p-4 lg:p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AppLayout;
