@@ -24,6 +24,8 @@ import {
   Moon,
   Sun
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -41,12 +43,28 @@ const navItems = [
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile, signOut } = useAuth();
+  const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark");
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    toast({
+      title: "Até logo!",
+      description: "Você saiu da sua conta.",
+    });
+    navigate("/auth");
+  };
+
+  const getInitials = (name: string | null) => {
+    if (!name) return "U";
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   return (
@@ -65,7 +83,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </span>
         </div>
         <Avatar className="w-8 h-8">
-          <AvatarFallback>MC</AvatarFallback>
+          <AvatarImage src={profile?.avatar_url || undefined} />
+          <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
         </Avatar>
       </header>
 
@@ -152,12 +171,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
               <DropdownMenuTrigger asChild>
                 <button className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
                   <Avatar className="w-9 h-9">
-                    <AvatarImage src="/placeholder.svg" />
-                    <AvatarFallback>MC</AvatarFallback>
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-foreground">Maria Costa</p>
-                    <p className="text-xs text-muted-foreground">Pro Plan</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {profile?.full_name || "Usuário"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Plano Gratuito</p>
                   </div>
                 </button>
               </DropdownMenuTrigger>
@@ -173,7 +194,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   Configurações
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/auth")} className="text-destructive">
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
                 </DropdownMenuItem>
