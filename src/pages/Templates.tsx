@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -61,12 +62,14 @@ const styles = [
 
 const Templates = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const propertyId = (location.state as { propertyId?: string })?.propertyId ?? null;
   const [selectedFormat, setSelectedFormat] = useState("feed");
   const [selectedType, setSelectedType] = useState("sale");
   const [selectedStyle, setSelectedStyle] = useState("express");
 
   const handleContinue = () => {
-    navigate("/editor");
+    navigate("/editor", { state: { propertyId, selectedFormat, selectedType, selectedStyle } });
   };
 
   return (
