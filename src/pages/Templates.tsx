@@ -5,9 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/app/AppLayout";
-import SquarePostTemplate from "@/components/templates/SquarePostTemplate";
-import StoryTemplate from "@/components/templates/StoryTemplate";
-import CarouselTemplate from "@/components/templates/CarouselTemplate";
+import MockupPreviewGallery from "@/components/templates/MockupPreviewGallery";
+import { mockupsByFormat } from "@/data/templateMockups";
 import { 
   ArrowRight, 
   Square, 
@@ -201,11 +200,10 @@ const Templates = () => {
               <CardContent className="p-4">
                 <h3 className="font-semibold text-foreground mb-4">Preview</h3>
                 <div className="flex justify-center">
-                  <div className={`${selectedFormat === 'story' ? 'max-w-[200px]' : 'max-w-[280px]'}`}>
-                    {selectedFormat === "feed" && <SquarePostTemplate />}
-                    {selectedFormat === "story" && <StoryTemplate />}
-                    {selectedFormat === "carousel" && <CarouselTemplate />}
-                  </div>
+                  <MockupPreviewGallery
+                    mockups={mockupsByFormat[selectedFormat] || []}
+                    isVertical={selectedFormat !== "feed"}
+                  />
                 </div>
                 <div className="mt-4 text-center">
                   <Badge variant="outline">
