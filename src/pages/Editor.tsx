@@ -8,39 +8,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/app/AppLayout";
+import { useAIGeneration } from "@/hooks/useAIGeneration";
 import { 
   ArrowRight, 
   Sparkles, 
   RefreshCw,
-  Download,
   Copy,
   Check,
   Wand2,
   Type,
   Palette,
-  ImageIcon
+  ImageIcon,
+  Loader2
 } from "lucide-react";
-
-// Sample generated caption
-const sampleCaption = `🏡 Casa de Alto Padrão no Alphaville
-
-📍 Alphaville 2, Santana de Parnaíba
-📐 630m² | 5 suítes | 4 vagas
-
-Viva o sonho de morar em um dos condomínios mais exclusivos de São Paulo. Esta residência oferece acabamentos de primeira linha, piscina aquecida e vista panorâmica.
-
-💰 R$ 3.200.000
-
-📲 Agende sua visita exclusiva!
-WhatsApp: (11) 99999-9999
-
-#alphaville #casadeluxo #imoveisaltoppadrao #db8imoveis #imoveissp #casaavenda #corretordeimoveis #imoveldeluxo #alphaville2 #santanadeparnaiba`;
 
 const Editor = () => {
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [caption, setCaption] = useState(sampleCaption);
+  const [caption, setCaption] = useState("");
   const [formData, setFormData] = useState({
     title: "🏡 Casa Moderna no Alphaville",
     subtitle: "5 suítes · 630m² · Condomínio com segurança 24h",
@@ -49,27 +34,37 @@ const Editor = () => {
     aiPrompt: ""
   });
 
+  const { isGenerating, generateCaption, adjustTexts, regenerateCaption } = useAIGeneration();
+
   const handleCopyCaption = () => {
     navigator.clipboard.writeText(caption);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleGenerateVariations = () => {
-    setIsGenerating(true);
-    setTimeout(() => setIsGenerating(false), 2000);
+  const handleGenerateCaption = async () => {
+    const result = await generateCaption(formData);
+    if (result) setCaption(result);
   };
 
-  const handleApplyAI = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      setFormData({
-        ...formData,
-        title: "✨ Oportunidade Única - Alphaville",
-        cta: "Não perca! Agende agora"
-      });
-      setIsGenerating(false);
-    }, 1500);
+  const handleRegenerateCaption = async () => {
+    const result = await regenerateCaption(formData);
+    if (result) setCaption(result);
+  };
+
+  const handleApplyAI = async () => {
+    if (!formData.aiPrompt.trim()) return;
+    const result = await adjustTexts(formData, formData.aiPrompt);
+    if (result) {
+      setFormData(prev => ({
+        ...prev,
+        title: result.title || prev.title,
+        subtitle: result.subtitle || prev.subtitle,
+        price: result.price || prev.price,
+        cta: result.cta || prev.cta,
+        aiPrompt: ""
+      }));
+    }
   };
 
   return (
@@ -105,15 +100,6 @@ const Editor = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-foreground">Preview</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleGenerateVariations}
-                  disabled={isGenerating}
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isGenerating ? 'animate-spin' : ''}`} />
-                  Gerar Variações
-                </Button>
               </div>
 
               {/* Main Preview */}
@@ -172,39 +158,19 @@ const Editor = () => {
                   <CardContent className="p-4 space-y-4">
                     <div>
                       <Label htmlFor="title">Título</Label>
-                      <Input 
-                        id="title"
-                        value={formData.title}
-                        onChange={(e) => setFormData({...formData, title: e.target.value})}
-                        className="mt-1"
-                      />
+                      <Input id="title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="mt-1" />
                     </div>
                     <div>
                       <Label htmlFor="subtitle">Subtítulo/Detalhes</Label>
-                      <Input 
-                        id="subtitle"
-                        value={formData.subtitle}
-                        onChange={(e) => setFormData({...formData, subtitle: e.target.value})}
-                        className="mt-1"
-                      />
+                      <Input id="subtitle" value={formData.subtitle} onChange={(e) => setFormData({...formData, subtitle: e.target.value})} className="mt-1" />
                     </div>
                     <div>
                       <Label htmlFor="price">Preço</Label>
-                      <Input 
-                        id="price"
-                        value={formData.price}
-                        onChange={(e) => setFormData({...formData, price: e.target.value})}
-                        className="mt-1"
-                      />
+                      <Input id="price" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="mt-1" />
                     </div>
                     <div>
                       <Label htmlFor="cta">Botão CTA</Label>
-                      <Input 
-                        id="cta"
-                        value={formData.cta}
-                        onChange={(e) => setFormData({...formData, cta: e.target.value})}
-                        className="mt-1"
-                      />
+                      <Input id="cta" value={formData.cta} onChange={(e) => setFormData({...formData, cta: e.target.value})} className="mt-1" />
                     </div>
                   </CardContent>
                 </Card>
@@ -250,10 +216,13 @@ const Editor = () => {
                     <Button 
                       className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
                       onClick={handleApplyAI}
-                      disabled={isGenerating}
+                      disabled={isGenerating || !formData.aiPrompt.trim()}
                     >
-                      <Wand2 className="w-4 h-4 mr-2" />
-                      {isGenerating ? "Aplicando..." : "Aplicar IA"}
+                      {isGenerating ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Aplicando...</>
+                      ) : (
+                        <><Wand2 className="w-4 h-4 mr-2" />Aplicar IA</>
+                      )}
                     </Button>
                     
                     <div className="border-t pt-4">
@@ -282,38 +251,45 @@ const Editor = () => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-accent" />
-                    <Label>Legenda Gerada</Label>
+                    <Label>Legenda Gerada por IA</Label>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleCopyCaption}
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-4 h-4 mr-1 text-green-500" />
-                        Copiado!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-1" />
-                        Copiar
-                      </>
-                    )}
-                  </Button>
+                  {caption && (
+                    <Button variant="ghost" size="sm" onClick={handleCopyCaption}>
+                      {copied ? (
+                        <><Check className="w-4 h-4 mr-1 text-green-500" />Copiado!</>
+                      ) : (
+                        <><Copy className="w-4 h-4 mr-1" />Copiar</>
+                      )}
+                    </Button>
+                  )}
                 </div>
-                <div className="bg-muted rounded-lg p-3 max-h-48 overflow-y-auto">
-                  <pre className="text-sm text-foreground whitespace-pre-wrap font-body">
-                    {caption}
-                  </pre>
-                </div>
+
+                {caption ? (
+                  <div className="bg-muted rounded-lg p-3 max-h-48 overflow-y-auto">
+                    <pre className="text-sm text-foreground whitespace-pre-wrap font-body">{caption}</pre>
+                  </div>
+                ) : (
+                  <div className="bg-muted rounded-lg p-6 flex flex-col items-center justify-center text-center">
+                    <Sparkles className="w-8 h-8 text-muted-foreground/40 mb-2" />
+                    <p className="text-sm text-muted-foreground">Clique em "Gerar Legenda" para criar uma legenda com IA</p>
+                  </div>
+                )}
+
                 <div className="flex gap-2 mt-3">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <RefreshCw className="w-4 h-4 mr-1" />
-                    Regenerar
-                  </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    Editar
+                  <Button 
+                    variant={caption ? "outline" : "default"}
+                    size="sm" 
+                    className={caption ? "flex-1" : "flex-1 bg-accent text-accent-foreground hover:bg-accent/90"}
+                    onClick={caption ? handleRegenerateCaption : handleGenerateCaption}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Gerando...</>
+                    ) : caption ? (
+                      <><RefreshCw className="w-4 h-4 mr-1" />Regenerar</>
+                    ) : (
+                      <><Sparkles className="w-4 h-4 mr-1" />Gerar Legenda</>
+                    )}
                   </Button>
                 </div>
               </CardContent>
