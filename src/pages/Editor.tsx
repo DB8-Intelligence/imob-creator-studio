@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/app/AppLayout";
 import { useAIGeneration } from "@/hooks/useAIGeneration";
+import { usePropertyWithCover } from "@/hooks/usePropertyWithCover";
 import { 
   ArrowRight, 
   Sparkles, 
@@ -22,8 +23,17 @@ import {
   Loader2
 } from "lucide-react";
 
+const formatPrice = (price: number | null) => {
+  if (!price) return "Consulte";
+  return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+};
+
 const Editor = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { propertyId } = (location.state as { propertyId?: string } | null) ?? {};
+  const { data: property, isLoading } = usePropertyWithCover(propertyId ?? null);
+
   const [copied, setCopied] = useState(false);
   const [caption, setCaption] = useState("");
   const [formData, setFormData] = useState({
@@ -33,6 +43,24 @@ const Editor = () => {
     cta: "Agende sua Visita",
     aiPrompt: ""
   });
+
+  // Pre-fill form with property data when loaded
+  useEffect(() => {
+    if (property) {
+      const details = [
+        property.bedrooms ? `${property.bedrooms} quartos` : null,
+        property.area_sqm ? `${property.area_sqm}m²` : null,
+        property.city || null,
+      ].filter(Boolean).join(" · ");
+
+      setFormData(prev => ({
+        ...prev,
+        title: property.title || prev.title,
+        subtitle: details || prev.subtitle,
+        price: formatPrice(property.price),
+      }));
+    }
+  }, [property]);
 
   const { isGenerating, generateCaption, adjustTexts, regenerateCaption } = useAIGeneration();
 
@@ -66,6 +94,8 @@ const Editor = () => {
       }));
     }
   };
+
+  const coverUrl = property?.coverUrl;
 
   return (
     <AppLayout>
@@ -104,10 +134,23 @@ const Editor = () => {
 
               {/* Main Preview */}
               <div className="bg-muted rounded-xl p-8 flex items-center justify-center min-h-[400px]">
-                <div className="w-full max-w-[320px] aspect-square bg-card rounded-xl shadow-elevated p-6 flex flex-col justify-between text-card-foreground">
-                  <div className="h-[45%] bg-muted rounded-lg flex items-center justify-center">
-                    <ImageIcon className="w-12 h-12 text-muted-foreground/50" />
-                  </div>
+                <div className="w-full max-w-[320px] aspect-square bg-card rounded-xl shadow-elevated p-6 flex flex-col justify-between text-card-foreground overflow-hidden">
+                  {/* Cover Image or Placeholder */}
+                  {isLoading ? (
+                    <div className="h-[45%] bg-muted rounded-lg flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 text-muted-foreground/50 animate-spin" />
+                    </div>
+                  ) : coverUrl ? (
+                    <img
+                      src={coverUrl}
+                      alt="Imagem do imóvel"
+                      className="h-[45%] w-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="h-[45%] bg-muted rounded-lg flex items-center justify-center">
+                      <ImageIcon className="w-12 h-12 text-muted-foreground/50" />
+                    </div>
+                  )}
                   <div>
                     <h2 className="text-xl font-bold mb-1">{formData.title}</h2>
                     <p className="text-sm text-muted-foreground">{formData.subtitle}</p>
@@ -126,9 +169,13 @@ const Editor = () => {
                 {[1, 2, 3].map((i) => (
                   <div 
                     key={i} 
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg border-2 ${i === 1 ? 'border-accent' : 'border-transparent'} bg-muted flex items-center justify-center cursor-pointer hover:border-accent/50 transition-colors`}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg border-2 ${i === 1 ? 'border-accent' : 'border-transparent'} bg-muted flex items-center justify-center cursor-pointer hover:border-accent/50 transition-colors overflow-hidden`}
                   >
-                    <span className="text-xs text-muted-foreground">V{i}</span>
+                    {i === 1 && coverUrl ? (
+                      <img src={coverUrl} alt="Thumbnail" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">V{i}</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -190,9 +237,9 @@ const Editor = () => {
                     <div>
                       <Label>Cores da Marca</Label>
                       <div className="flex gap-2 mt-2">
-                        <div className="w-10 h-10 rounded-lg bg-[#18181B] border-2 border-accent" />
-                        <div className="w-10 h-10 rounded-lg bg-[#FACC15]" />
-                        <div className="w-10 h-10 rounded-lg bg-white border" />
+                        <div className="w-10 h-10 rounded-lg bg-primary border-2 border-accent" />
+                        <div className="w-10 h-10 rounded-lg bg-accent" />
+                        <div className="w-10 h-10 rounded-lg bg-background border" />
                       </div>
                     </div>
                   </CardContent>
