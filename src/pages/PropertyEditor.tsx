@@ -10,7 +10,7 @@ import ImageCarousel from "@/components/inbox/ImageCarousel";
 import EditorForm from "@/components/inbox/EditorForm";
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, Save, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
 
 async function fetchAllProperties(): Promise<InboxProperty[]> {
   const res = await supabase.functions.invoke("inbox-proxy", { method: "GET" });
@@ -26,6 +26,14 @@ async function patchProperty(id: string, body: Record<string, unknown>): Promise
   if (res.error) throw new Error(res.error.message);
 }
 
+async function publishProperty(id: string): Promise<void> {
+  const res = await supabase.functions.invoke("inbox-proxy", {
+    method: "POST",
+    body: { _method: "POST", _path: `/properties/${id}/publish` },
+  });
+  if (res.error) throw new Error(res.error.message);
+}
+
 const PropertyEditor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -33,6 +41,7 @@ const PropertyEditor = () => {
   const [property, setProperty] = useState<InboxProperty | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Editable fields
@@ -103,6 +112,23 @@ const PropertyEditor = () => {
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const handlePublish = async () => {
+    if (!id) return;
+    setIsPublishing(true);
+    try {
+      await publishProperty(id);
+      setProperty((prev) => prev ? { ...prev, status: "approved" as PropertyStatus } : prev);
+      toast({ title: "Imóvel aprovado para publicação" });
+      navigate("/inbox");
+    } catch (err: any) {
+      toast({ title: "Erro ao aprovar", description: err.message, variant: "destructive" });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const isApprovedOrPublished = property?.status === "approved" || property?.status === "published";
 
   if (isLoading) {
     return (
@@ -182,6 +208,19 @@ const PropertyEditor = () => {
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
             ) : (
               <><Save className="w-4 h-4 mr-2" /> Salvar alterações</>
+            )}
+          </Button>
+          <Button
+            onClick={handlePublish}
+            disabled={isPublishing || isApprovedOrPublished}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          >
+            {isPublishing ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Aprovando...</>
+            ) : isApprovedOrPublished ? (
+              <><CheckCircle2 className="w-4 h-4 mr-2" /> Aprovado</>
+            ) : (
+              <><CheckCircle2 className="w-4 h-4 mr-2" /> Aprovar e Postar</>
             )}
           </Button>
         </div>
