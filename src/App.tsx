@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import Templates from "./pages/Templates";
 import Editor from "./pages/Editor";
+import PropertyEditor from "./pages/PropertyEditor";
 import Export from "./pages/Export";
 import Library from "./pages/Library";
 import Settings from "./pages/Settings";
@@ -65,6 +66,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/inbox" element={<Inbox />} />
+            <Route path="/editor/:id" element={<PropertyEditor />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
