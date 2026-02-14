@@ -150,16 +150,15 @@ const PropertyEditor = () => {
     }
   };
 
-  // Step 2: Confirm publication
+  // Step 2: Confirm publication → send to n8n, then poll for status
   const handleConfirmPublication = async () => {
     if (!id) return;
     setIsConfirming(true);
     try {
       await confirmPublication(id);
-      setProperty((prev) => prev ? { ...prev, status: "published" as PropertyStatus } : prev);
-      toast({ title: "Imóvel publicado com sucesso!" });
+      toast({ title: "Post enviado para publicação automática" });
       setShowPreview(false);
-      navigate("/inbox");
+      navigate("/posts", { state: { pollingId: id } });
     } catch (err: any) {
       toast({ title: "Erro ao publicar", description: err.message, variant: "destructive" });
     } finally {
