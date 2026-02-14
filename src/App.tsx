@@ -15,6 +15,7 @@ import Export from "./pages/Export";
 import Library from "./pages/Library";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Inbox from "./pages/Inbox";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const App = () => (
                 <Settings />
               </ProtectedRoute>
             } />
+            <Route path="/inbox" element={<Inbox />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
