@@ -8,9 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import StatusBadge, { type PropertyStatus } from "@/components/inbox/StatusBadge";
 import ImageCarousel from "@/components/inbox/ImageCarousel";
 import EditorForm from "@/components/inbox/EditorForm";
+import PublishPreviewModal from "@/components/inbox/PublishPreviewModal";
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
+
+// --- API helpers ---
 
 async function fetchAllProperties(): Promise<InboxProperty[]> {
   const res = await supabase.functions.invoke("inbox-proxy", { method: "GET" });
@@ -26,13 +29,30 @@ async function patchProperty(id: string, body: Record<string, unknown>): Promise
   if (res.error) throw new Error(res.error.message);
 }
 
-async function publishProperty(id: string): Promise<void> {
+interface PublishResponse {
+  image_path?: string;
+  status?: string;
+  message?: string;
+}
+
+async function publishProperty(id: string): Promise<PublishResponse> {
   const res = await supabase.functions.invoke("inbox-proxy", {
     method: "POST",
     body: { _method: "POST", _path: `/properties/${id}/publish` },
   });
   if (res.error) throw new Error(res.error.message);
+  return res.data as PublishResponse;
 }
+
+async function confirmPublication(id: string): Promise<void> {
+  const res = await supabase.functions.invoke("inbox-proxy", {
+    method: "POST",
+    body: { _method: "POST", _path: `/properties/${id}/confirm-publication` },
+  });
+  if (res.error) throw new Error(res.error.message);
+}
+
+// --- Component ---
 
 const PropertyEditor = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +62,7 @@ const PropertyEditor = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Editable fields
@@ -49,6 +70,10 @@ const PropertyEditor = () => {
   const [description, setDescription] = useState("");
   const [cta, setCta] = useState("Agende sua visita");
   const [images, setImages] = useState<string[]>([]);
+
+  // Publish preview modal
+  const [showPreview, setShowPreview] = useState(false);
+  const [generatedArtUrl, setGeneratedArtUrl] = useState<string | null>(null);
 
   const statusPatched = useRef(false);
 
@@ -95,12 +120,7 @@ const PropertyEditor = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await patchProperty(id, {
-        title,
-        description,
-        images,
-        status: "editing",
-      });
+      await patchProperty(id, { title, description, images, status: "editing" });
       toast({ title: "Alterações salvas com sucesso!" });
     } catch (err: any) {
       toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
@@ -113,18 +133,37 @@ const PropertyEditor = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Step 1: Generate art and show preview
   const handlePublish = async () => {
     if (!id) return;
     setIsPublishing(true);
+    setGeneratedArtUrl(null);
     try {
-      await publishProperty(id);
-      setProperty((prev) => prev ? { ...prev, status: "approved" as PropertyStatus } : prev);
-      toast({ title: "Imóvel aprovado para publicação" });
-      navigate("/inbox");
+      const result = await publishProperty(id);
+      setProperty((prev) => prev ? { ...prev, status: (result.status || "approved") as PropertyStatus } : prev);
+      setGeneratedArtUrl(result.image_path || null);
+      setShowPreview(true);
     } catch (err: any) {
-      toast({ title: "Erro ao aprovar", description: err.message, variant: "destructive" });
+      toast({ title: "Erro ao gerar arte", description: err.message, variant: "destructive" });
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  // Step 2: Confirm publication
+  const handleConfirmPublication = async () => {
+    if (!id) return;
+    setIsConfirming(true);
+    try {
+      await confirmPublication(id);
+      setProperty((prev) => prev ? { ...prev, status: "published" as PropertyStatus } : prev);
+      toast({ title: "Imóvel publicado com sucesso!" });
+      setShowPreview(false);
+      navigate("/inbox");
+    } catch (err: any) {
+      toast({ title: "Erro ao publicar", description: err.message, variant: "destructive" });
+    } finally {
+      setIsConfirming(false);
     }
   };
 
@@ -216,7 +255,7 @@ const PropertyEditor = () => {
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isPublishing ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Aprovando...</>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando arte...</>
             ) : isApprovedOrPublished ? (
               <><CheckCircle2 className="w-4 h-4 mr-2" /> Aprovado</>
             ) : (
@@ -225,6 +264,16 @@ const PropertyEditor = () => {
           </Button>
         </div>
       </div>
+
+      {/* Publish Preview Modal */}
+      <PublishPreviewModal
+        open={showPreview}
+        onClose={() => setShowPreview(false)}
+        onConfirm={handleConfirmPublication}
+        isConfirming={isConfirming}
+        imageUrl={generatedArtUrl}
+        propertyTitle={title}
+      />
     </InboxLayout>
   );
 };
