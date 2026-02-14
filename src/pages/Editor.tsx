@@ -116,7 +116,7 @@ const Editor = () => {
             </Button>
             <Button 
               className="bg-accent text-accent-foreground hover:bg-accent/90"
-              onClick={() => navigate("/export")}
+              onClick={() => navigate("/export", { state: { formData, coverUrl, caption } })}
             >
               Exportar
               <ArrowRight className="w-4 h-4 ml-2" />
