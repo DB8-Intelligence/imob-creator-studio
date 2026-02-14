@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const API_BASE_URL = "https://automacao.db8intelligence.com.br";
+const API_BASE_URL = "https://automacao.db8intelligence.com.br/webhook";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
