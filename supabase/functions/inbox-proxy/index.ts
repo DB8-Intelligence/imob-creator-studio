@@ -20,12 +20,14 @@ serve(async (req) => {
 
     if (req.method === "POST") {
       const json = await req.json();
-      // Support proxied PATCH via _method/_path
-      if (json._method === "PATCH" && json._path) {
+
+      if (json._method && json._path) {
         apiPath = json._path;
-        method = "PATCH";
+        method = json._method;
         const { _method, _path, ...rest } = json;
-        body = JSON.stringify(rest);
+        if (Object.keys(rest).length > 0) {
+          body = JSON.stringify(rest);
+        }
       } else {
         method = "POST";
         body = JSON.stringify(json);

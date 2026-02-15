@@ -12,6 +12,8 @@ import PublishPreviewModal from "@/components/inbox/PublishPreviewModal";
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
+import TemplateSelect from "@/components/brand/TemplateSelect";
+import { Label } from "@/components/ui/label";
 
 // --- API helpers ---
 
@@ -70,7 +72,7 @@ const PropertyEditor = () => {
   const [description, setDescription] = useState("");
   const [cta, setCta] = useState("Agende sua visita");
   const [images, setImages] = useState<string[]>([]);
-
+  const [templateId, setTemplateId] = useState<string | undefined>(undefined);
   // Publish preview modal
   const [showPreview, setShowPreview] = useState(false);
   const [generatedArtUrl, setGeneratedArtUrl] = useState<string | null>(null);
@@ -94,6 +96,7 @@ const PropertyEditor = () => {
         setTitle(found.title || "");
         setDescription(found.description || "");
         setImages(found.images || []);
+        setTemplateId((found as any).template_id || undefined);
       } catch (err: any) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -120,7 +123,7 @@ const PropertyEditor = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await patchProperty(id, { title, description, images, status: "editing" });
+      await patchProperty(id, { title, description, images, template_id: templateId, status: "editing" });
       toast({ title: "Alterações salvas com sucesso!" });
     } catch (err: any) {
       toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
@@ -232,6 +235,10 @@ const PropertyEditor = () => {
                 onChangeDescription={setDescription}
                 onChangeCta={setCta}
               />
+              <div className="mt-4 space-y-2">
+                <Label>Template (Brand Kit)</Label>
+                <TemplateSelect value={templateId} onChange={(v) => setTemplateId(v)} />
+              </div>
             </CardContent>
           </Card>
         </div>

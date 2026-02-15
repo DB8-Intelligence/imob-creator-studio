@@ -16,8 +16,8 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { icon: Inbox, label: "Inbox", path: "/inbox" },
   { icon: Send, label: "Publicações", path: "/posts" },
+  { icon: LayoutGrid, label: "Templates", path: "/brand-templates" },
   { icon: FileText, label: "Biblioteca", path: "/library" },
-  { icon: LayoutGrid, label: "Templates", path: "#", disabled: true },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
@@ -78,11 +78,10 @@ const InboxLayout = ({ children }: InboxLayoutProps) => {
               return (
                 <Link
                   key={item.path + item.label}
-                  to={item.disabled ? "#" : item.path}
+                  to={item.path}
                   onClick={() => setOpen(false)}
                   className={cn(
                     "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                    item.disabled && "opacity-40 pointer-events-none",
                     isActive
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
