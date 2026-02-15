@@ -34,13 +34,25 @@ serve(async (req) => {
       }
     }
 
+    // For PATCH requests, move "status" from body to query parameter (Railway API requirement)
+    let finalPath = apiPath;
+    if (method === "PATCH" && body) {
+      const parsed = JSON.parse(body);
+      if (parsed.status) {
+        const separator = finalPath.includes("?") ? "&" : "?";
+        finalPath = `${finalPath}${separator}status=${encodeURIComponent(parsed.status)}`;
+        delete parsed.status;
+        body = Object.keys(parsed).length > 0 ? JSON.stringify(parsed) : undefined;
+      }
+    }
+
     const fetchOptions: RequestInit = {
       method,
       headers: { "Content-Type": "application/json" },
     };
     if (body) fetchOptions.body = body;
 
-    const response = await fetch(`${API_BASE_URL}${apiPath}`, fetchOptions);
+    const response = await fetch(`${API_BASE_URL}${finalPath}`, fetchOptions);
     const data = await response.text();
 
     return new Response(data, {
