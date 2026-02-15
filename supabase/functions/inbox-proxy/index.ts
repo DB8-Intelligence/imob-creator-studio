@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    let apiPath = "/webhook/properties";
+    let apiPath = "/properties";
     let method = "GET";
     let body: string | undefined;
 
@@ -22,7 +22,7 @@ serve(async (req) => {
       const json = await req.json();
 
       if (json._method && json._path) {
-        apiPath = `/webhook${json._path}`;
+        apiPath = json._path;
         method = json._method;
         const { _method, _path, ...rest } = json;
         if (Object.keys(rest).length > 0) {
