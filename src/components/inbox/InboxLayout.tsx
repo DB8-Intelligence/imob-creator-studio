@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Inbox,
   FileText,
+  Send,
   LayoutGrid,
   Settings,
   Menu,
@@ -14,7 +15,8 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Inbox, label: "Inbox", path: "/inbox" },
-  { icon: FileText, label: "Posts", path: "/library" },
+  { icon: Send, label: "Publicações", path: "/posts" },
+  { icon: FileText, label: "Biblioteca", path: "/library" },
   { icon: LayoutGrid, label: "Templates", path: "#", disabled: true },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
