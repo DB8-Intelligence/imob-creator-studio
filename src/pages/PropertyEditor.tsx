@@ -11,9 +11,11 @@ import EditorForm from "@/components/inbox/EditorForm";
 import PublishPreviewModal from "@/components/inbox/PublishPreviewModal";
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
 import { Label } from "@/components/ui/label";
+import { useUserPlan, useDecrementCredit } from "@/hooks/useUserPlan";
+import { fetchUserPlan } from "@/services/userPlanApi";
 
 // --- API helpers ---
 
@@ -153,12 +155,35 @@ const PropertyEditor = () => {
     }
   };
 
-  // Step 2: Confirm publication → send to n8n, then poll for status
+  // Step 2: Confirm publication → validate credits, send to n8n, then poll
+  const { data: userPlan } = useUserPlan();
+  const decrementCredit = useDecrementCredit();
+
+  const noCredits = userPlan?.user_plan === "credits" && (userPlan?.credits_remaining ?? 0) <= 0;
+
   const handleConfirmPublication = async () => {
     if (!id) return;
+
+    // Validate credits before publishing
+    try {
+      const freshPlan = await fetchUserPlan();
+      if (freshPlan.user_plan === "credits" && freshPlan.credits_remaining <= 0) {
+        toast({ title: "Sem créditos", description: "Adquira mais créditos para publicar.", variant: "destructive" });
+        return;
+      }
+    } catch {
+      // If we can't check, proceed anyway
+    }
+
     setIsConfirming(true);
     try {
       await confirmPublication(id);
+
+      // Decrement credit after successful confirmation
+      if (userPlan?.user_plan === "credits") {
+        decrementCredit.mutate();
+      }
+
       toast({ title: "Post enviado para publicação automática" });
       setShowPreview(false);
       navigate("/posts", { state: { pollingId: id } });
@@ -243,6 +268,14 @@ const PropertyEditor = () => {
           </Card>
         </div>
 
+        {/* No credits warning */}
+        {noCredits && (
+          <div className="flex items-center gap-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            Sem créditos disponíveis. Adquira mais créditos para publicar.
+          </div>
+        )}
+
         {/* Bottom actions */}
         <div className="flex justify-end gap-3 pb-6">
           <Button variant="outline" onClick={() => navigate("/inbox")}>
@@ -257,7 +290,7 @@ const PropertyEditor = () => {
           </Button>
           <Button
             onClick={handlePublish}
-            disabled={isPublishing || isApprovedOrPublished}
+            disabled={isPublishing || isApprovedOrPublished || noCredits}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isPublishing ? (

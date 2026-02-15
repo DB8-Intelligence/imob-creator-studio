@@ -10,6 +10,7 @@ import {
   Menu,
   X,
   Building2,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ const navItems = [
   { icon: Send, label: "Publicações", path: "/posts" },
   { icon: LayoutGrid, label: "Templates", path: "/brand-templates" },
   { icon: FileText, label: "Biblioteca", path: "/library" },
+  { icon: CreditCard, label: "Plano", path: "/plano" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
