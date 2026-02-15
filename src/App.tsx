@@ -18,6 +18,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
+import BrandTemplates from "./pages/BrandTemplates";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,7 @@ const App = () => (
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/editor/:id" element={<PropertyEditor />} />
             <Route path="/posts" element={<Posts />} />
+            <Route path="/brand-templates" element={<BrandTemplates />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
