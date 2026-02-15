@@ -1,19 +1,37 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import InboxLayout from "@/components/inbox/InboxLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import PostCard from "@/components/inbox/PostCard";
+import FiltersBar, { type FilterOption } from "@/components/inbox/FiltersBar";
 import { Skeleton } from "@/components/ui/skeleton";
-import StatusBadge from "@/components/inbox/StatusBadge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, ImageIcon, ExternalLink, AlertCircle } from "lucide-react";
+import type { PropertyStatus } from "@/components/inbox/StatusBadge";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+
+const RELEVANT_STATUSES: PropertyStatus[] = ["approved", "published", "error"];
+
+const POST_FILTERS: FilterOption[] = [
+  { label: "Todos", value: "all" },
+  { label: "Aprovados", value: "approved" },
+  { label: "Publicados", value: "published" },
+  { label: "Erros", value: "error" },
+];
 
 async function fetchAllProperties(): Promise<InboxProperty[]> {
   const res = await supabase.functions.invoke("inbox-proxy", { method: "GET" });
   if (res.error) throw new Error(res.error.message);
   return res.data as InboxProperty[];
+}
+
+async function retryPublication(id: string): Promise<void> {
+  const res = await supabase.functions.invoke("inbox-proxy", {
+    method: "POST",
+    body: { _method: "POST", _path: `/properties/${id}/confirm-publication` },
+  });
+  if (res.error) throw new Error(res.error.message);
 }
 
 const PostsPage = () => {
@@ -23,27 +41,26 @@ const PostsPage = () => {
 
   const [properties, setProperties] = useState<InboxProperty[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState<PropertyStatus | "all">("all");
+  const [retryingId, setRetryingId] = useState<string | null>(null);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const loadProperties = async () => {
+  const loadProperties = useCallback(async () => {
     try {
       const all = await fetchAllProperties();
-      const relevant = all.filter(
-        (p) => p.status === "approved" || p.status === "published" || p.status === "error"
-      );
+      const relevant = all.filter((p) => RELEVANT_STATUSES.includes(p.status));
       setProperties(relevant);
       return all;
     } catch {
       return [];
     }
-  };
-
-  // Initial load
-  useEffect(() => {
-    loadProperties().finally(() => setIsLoading(false));
   }, []);
 
-  // Polling for status changes when redirected from confirm
+  useEffect(() => {
+    loadProperties().finally(() => setIsLoading(false));
+  }, [loadProperties]);
+
+  // Polling when redirected from confirm
   useEffect(() => {
     if (!pollingId) return;
 
@@ -67,16 +84,32 @@ const PostsPage = () => {
     return () => {
       if (pollingRef.current) clearInterval(pollingRef.current);
     };
-  }, [pollingId]);
+  }, [pollingId, loadProperties]);
+
+  const handleRetry = async (id: string) => {
+    setRetryingId(id);
+    try {
+      await retryPublication(id);
+      toast({ title: "Post reenviado para publicação automática" });
+      await loadProperties();
+    } catch (err: any) {
+      toast({ title: "Erro ao reenviar", description: err.message, variant: "destructive" });
+    } finally {
+      setRetryingId(null);
+    }
+  };
+
+  const filtered = filter === "all" ? properties : properties.filter((p) => p.status === filter);
 
   return (
     <InboxLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Posts</h1>
+            <h1 className="text-2xl font-bold text-foreground">Publicações</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Imóveis aprovados e publicados
+              Acompanhe o status dos seus posts
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate("/inbox")}>
@@ -84,6 +117,7 @@ const PostsPage = () => {
           </Button>
         </div>
 
+        {/* Polling indicator */}
         {pollingId && (
           <div className="flex items-center gap-2 bg-amber-500/10 text-amber-700 border border-amber-500/30 rounded-lg p-3 text-sm">
             <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -91,50 +125,42 @@ const PostsPage = () => {
           </div>
         )}
 
+        {/* Filters */}
+        <FiltersBar active={filter} onChange={setFilter} filters={POST_FILTERS} />
+
+        {/* Loading */}
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={i} className="h-64 rounded-lg" />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-72 rounded-lg" />
             ))}
           </div>
         )}
 
-        {!isLoading && properties.length === 0 && (
+        {/* Empty */}
+        {!isLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-muted-foreground text-center">
             <ExternalLink className="w-12 h-12 mb-3 opacity-40" />
-            <p className="font-medium">Nenhum post ainda</p>
-            <p className="text-xs mt-1">Imóveis aprovados e publicados aparecerão aqui.</p>
+            <p className="font-medium">Nenhum post encontrado</p>
+            <p className="text-xs mt-1">
+              {filter === "all"
+                ? "Imóveis aprovados e publicados aparecerão aqui."
+                : "Nenhum resultado para o filtro selecionado."}
+            </p>
           </div>
         )}
 
-        {!isLoading && properties.length > 0 && (
+        {/* Grid */}
+        {!isLoading && filtered.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {properties.map((p) => (
-              <Card key={p.id} className={`overflow-hidden ${p.id === pollingId ? "ring-2 ring-primary" : ""}`}>
-                <div className="relative aspect-video bg-muted">
-                  {p.images?.[0] ? (
-                    <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                      <ImageIcon className="w-10 h-10" />
-                    </div>
-                  )}
-                </div>
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-sm text-foreground line-clamp-1">{p.title}</h3>
-                    <StatusBadge status={p.status} />
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {p.description || "Sem descrição"}
-                  </p>
-                  {p.status === "error" && (
-                    <div className="flex items-center gap-1 text-xs text-destructive">
-                      <AlertCircle className="w-3 h-3" /> Erro na publicação
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            {filtered.map((p) => (
+              <PostCard
+                key={p.id}
+                property={p}
+                isHighlighted={p.id === pollingId}
+                isRetrying={retryingId === p.id}
+                onRetry={handleRetry}
+              />
             ))}
           </div>
         )}

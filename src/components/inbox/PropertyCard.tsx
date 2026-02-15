@@ -12,6 +12,8 @@ export interface InboxProperty {
   status: PropertyStatus;
   images?: string[];
   created_at?: string;
+  final_image?: string;
+  instagram_url?: string;
 }
 
 interface PropertyCardProps {
