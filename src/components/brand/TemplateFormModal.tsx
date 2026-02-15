@@ -156,26 +156,59 @@ const TemplateFormModal = ({ open, onClose, onSubmit, isSubmitting, initial }: T
             </div>
           </div>
 
-          {/* Preview */}
-          {(form.logo_url || form.frame_url) && (
-            <div className="relative w-32 h-32 mx-auto rounded-lg border border-border overflow-hidden bg-muted">
+          {/* Live Preview */}
+          <div className="space-y-2">
+            <Label>Preview da Arte</Label>
+            <div
+              className="relative w-full aspect-square max-w-[320px] mx-auto rounded-xl border border-border overflow-hidden"
+              style={{ backgroundColor: form.primary_color || "#1a1a2e" }}
+            >
+              {/* Simulated property image placeholder */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center space-y-2 px-6">
+                  <div className="w-20 h-14 mx-auto rounded bg-white/10 flex items-center justify-center">
+                    <span className="text-white/40 text-xs">Foto do imóvel</span>
+                  </div>
+                  <p className="text-xs font-semibold" style={{ color: form.secondary_color || "#e2b93b" }}>
+                    Apartamento 3 quartos
+                  </p>
+                  <p className="text-[10px] text-white/60">Centro, São Paulo • R$ 850.000</p>
+                </div>
+              </div>
+
+              {/* Frame overlay */}
               {form.frame_url && (
-                <img src={form.frame_url} alt="Frame" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={form.frame_url} alt="Frame" className="absolute inset-0 w-full h-full object-cover pointer-events-none" />
               )}
+
+              {/* Logo */}
               {form.logo_url && (
                 <img
                   src={form.logo_url}
                   alt="Logo"
-                  className={`absolute w-8 h-8 object-contain ${
-                    form.logo_position === "top-left" ? "top-1 left-1" :
-                    form.logo_position === "top-right" ? "top-1 right-1" :
-                    form.logo_position === "bottom-left" ? "bottom-1 left-1" :
-                    "bottom-1 right-1"
+                  className={`absolute w-12 h-12 object-contain drop-shadow-md ${
+                    form.logo_position === "top-left" ? "top-3 left-3" :
+                    form.logo_position === "top-right" ? "top-3 right-3" :
+                    form.logo_position === "bottom-left" ? "bottom-8 left-3" :
+                    "bottom-8 right-3"
                   }`}
                 />
               )}
+
+              {/* Footer bar */}
+              <div
+                className="absolute bottom-0 left-0 right-0 px-3 py-1.5 text-center"
+                style={{ backgroundColor: form.secondary_color || "#e2b93b" }}
+              >
+                <span className="text-[10px] font-semibold" style={{ color: form.primary_color || "#1a1a2e" }}>
+                  {form.footer_text || "Seu texto de rodapé aqui"}
+                </span>
+              </div>
             </div>
-          )}
+            <p className="text-[11px] text-muted-foreground text-center">
+              Simulação da arte final • 1080×1080
+            </p>
+          </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
