@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, Upload, X, ImageIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { BrandTemplate, BrandTemplateInput } from "@/types/brandTemplate";
 import { useBrandAssetUpload } from "@/hooks/useBrandAssetUpload";
 import { toast } from "@/hooks/use-toast";
+import AssetDropZone from "./AssetDropZone";
 
 const LOGO_POSITIONS = [
   { value: "bottom-right", label: "Inferior direito" },
@@ -49,8 +50,6 @@ interface TemplateFormModalProps {
 const TemplateFormModal = ({ open, onClose, onSubmit, isSubmitting, initial }: TemplateFormModalProps) => {
   const [form, setForm] = useState<BrandTemplateInput>(emptyForm);
   const { upload, isUploading } = useBrandAssetUpload();
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  const frameInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (initial) {
@@ -113,135 +112,27 @@ const TemplateFormModal = ({ open, onClose, onSubmit, isSubmitting, initial }: T
           {/* Logo upload */}
           <div className="space-y-2">
             <Label>Logo</Label>
-            <div className="flex items-center gap-3">
-              {form.logo_url ? (
-                <div className="relative w-16 h-16 rounded-lg border border-border overflow-hidden bg-muted flex-shrink-0">
-                  <img src={form.logo_url} alt="Logo" className="w-full h-full object-contain" />
-                  <button
-                    type="button"
-                    onClick={() => set("logo_url", "")}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/50 flex-shrink-0">
-                  <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                </div>
-              )}
-              <div className="flex-1 space-y-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isUploading}
-                  onClick={() => logoInputRef.current?.click()}
-                >
-                  {isUploading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Upload className="w-4 h-4 mr-1" />}
-                  Upload Logo
-                </Button>
-                <p className="text-xs text-muted-foreground">ou cole uma URL abaixo</p>
-                <Input
-                  value={form.logo_url}
-                  onChange={(e) => set("logo_url", e.target.value)}
-                  placeholder="https://..."
-                  className="h-8 text-xs"
-                />
-              </div>
-              <input
-                ref={logoInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleFileUpload(f, "logo_url", "logos");
-                  e.target.value = "";
-                }}
-              />
-            </div>
+            <AssetDropZone
+              label="Logo"
+              value={form.logo_url || ""}
+              accept="image/*"
+              isUploading={isUploading}
+              onChange={(v) => set("logo_url", v)}
+              onFileSelect={(f) => handleFileUpload(f, "logo_url", "logos")}
+            />
           </div>
 
           {/* Frame upload */}
           <div className="space-y-2">
             <Label>Frame Overlay (PNG 1080×1080)</Label>
-            <div className="flex items-center gap-3">
-              {form.frame_url ? (
-                <div className="relative w-16 h-16 rounded-lg border border-border overflow-hidden bg-muted flex-shrink-0">
-                  <img src={form.frame_url} alt="Frame" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => set("frame_url", "")}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/50 flex-shrink-0">
-                  <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                </div>
-              )}
-              <div className="flex-1 space-y-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={isUploading}
-                  onClick={() => frameInputRef.current?.click()}
-                >
-                  {isUploading ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Upload className="w-4 h-4 mr-1" />}
-                  Upload Frame
-                </Button>
-                <p className="text-xs text-muted-foreground">ou cole uma URL abaixo</p>
-                <Input
-                  value={form.frame_url}
-                  onChange={(e) => set("frame_url", e.target.value)}
-                  placeholder="https://..."
-                  className="h-8 text-xs"
-                />
-              </div>
-              <input
-                ref={frameInputRef}
-                type="file"
-                accept="image/png"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleFileUpload(f, "frame_url", "frames");
-                  e.target.value = "";
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Colors */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Cor Primária</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={form.primary_color}
-                  onChange={(e) => set("primary_color", e.target.value)}
-                  className="w-10 h-10 rounded border border-border cursor-pointer"
-                />
-                <Input value={form.primary_color} onChange={(e) => set("primary_color", e.target.value)} className="flex-1" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Cor Secundária</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={form.secondary_color}
-                  onChange={(e) => set("secondary_color", e.target.value)}
-                  className="w-10 h-10 rounded border border-border cursor-pointer"
-                />
-                <Input value={form.secondary_color} onChange={(e) => set("secondary_color", e.target.value)} className="flex-1" />
-              </div>
-            </div>
+            <AssetDropZone
+              label="Frame"
+              value={form.frame_url || ""}
+              accept="image/png"
+              isUploading={isUploading}
+              onChange={(v) => set("frame_url", v)}
+              onFileSelect={(f) => handleFileUpload(f, "frame_url", "frames")}
+            />
           </div>
 
           {/* Footer + Position */}
