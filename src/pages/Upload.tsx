@@ -137,7 +137,7 @@ const Upload = () => {
   const handleContinue = async () => {
     const property = await createPropertyWithMedia(propertyData, files);
     if (property) {
-      navigate("/templates", { state: { propertyId: property.id } });
+      navigate("/inbox");
     }
   };
 
