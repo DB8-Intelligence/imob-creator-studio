@@ -11,7 +11,7 @@ import EditorForm, { type EditorFormData } from "@/components/inbox/EditorForm";
 
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle2, Building2 } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
 import { Label } from "@/components/ui/label";
 
@@ -251,21 +251,36 @@ const PropertyEditor = () => {
             </CardContent>
           </Card>
 
-          {/* Form */}
+          {/* Template */}
           <Card>
             <CardContent className="p-4">
-              <h3 className="font-semibold text-foreground mb-3">Informações</h3>
-              <EditorForm
-                data={formData}
-                onChange={(field, value) => setFormData(prev => ({ ...prev, [field]: value }))}
-              />
-              <div className="mt-4 space-y-2">
+              <h3 className="font-semibold text-foreground mb-3">Template</h3>
+              <div className="space-y-2">
                 <Label>Template (Brand Kit)</Label>
                 <TemplateSelect value={templateId} onChange={(v) => setTemplateId(v)} />
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Dados Inteligentes */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Building2 className="w-5 h-5 text-accent" />
+              <h2 className="text-lg font-semibold text-foreground">
+                Dados Inteligentes do Imóvel
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-5">
+              Esses dados alimentam a IA para gerar legendas e criativos otimizados
+            </p>
+            <EditorForm
+              data={formData}
+              onChange={(field, value) => setFormData(prev => ({ ...prev, [field]: value }))}
+            />
+          </CardContent>
+        </Card>
 
         {/* Bottom actions */}
         <div className="flex justify-end gap-3 pb-6">
