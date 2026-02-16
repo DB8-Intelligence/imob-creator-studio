@@ -11,6 +11,13 @@ interface PropertyFormData {
   bathrooms: string;
   area: string;
   description: string;
+  property_type?: string;
+  property_standard?: string;
+  city?: string;
+  neighborhood?: string;
+  investment_value?: string;
+  built_area_m2?: string;
+  highlights?: string;
 }
 
 interface UploadedMedia {
@@ -56,6 +63,13 @@ export function usePropertyUpload() {
           bathrooms: propertyData.bathrooms ? parseInt(propertyData.bathrooms) : null,
           area_sqm: propertyData.area ? parseFloat(propertyData.area) : null,
           description: propertyData.description || null,
+          property_type: propertyData.property_type || "apartamento",
+          property_standard: propertyData.property_standard || "medio",
+          city: propertyData.city || null,
+          neighborhood: propertyData.neighborhood || null,
+          investment_value: propertyData.investment_value ? parseFloat(propertyData.investment_value) : null,
+          built_area_m2: propertyData.built_area_m2 ? parseFloat(propertyData.built_area_m2) : null,
+          highlights: propertyData.highlights || null,
         })
         .select()
         .single();
