@@ -8,14 +8,12 @@ import { supabase } from "@/integrations/supabase/client";
 import StatusBadge, { type PropertyStatus } from "@/components/inbox/StatusBadge";
 import ImageCarousel from "@/components/inbox/ImageCarousel";
 import EditorForm from "@/components/inbox/EditorForm";
-import PublishPreviewModal from "@/components/inbox/PublishPreviewModal";
+
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, Save, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle2 } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
 import { Label } from "@/components/ui/label";
-import { useUserPlan, useDecrementCredit } from "@/hooks/useUserPlan";
-import { fetchUserPlan } from "@/services/userPlanApi";
 
 // --- API helpers ---
 
@@ -35,12 +33,34 @@ async function patchProperty(id: string, body: Record<string, unknown>): Promise
 
 // --- Component ---
 
-async function approveProperty(id: string): Promise<void> {
-  await patchProperty(id, { status: "approved" });
+interface PublishResult {
+  instagram_url?: string;
+  final_image?: string;
 }
 
-async function publishPropertyStatus(id: string): Promise<void> {
-  await patchProperty(id, { status: "published" });
+async function publishProperty(id: string): Promise<PublishResult> {
+  const res = await supabase.functions.invoke("inbox-proxy", {
+    method: "POST",
+    body: { _method: "POST", _path: `/properties/${id}/publish` },
+  });
+
+  // supabase client sets error for non-2xx; check if it's a 403 (no credits)
+  if (res.error) {
+    const msg = res.error.message || "";
+    if (msg.includes("403") || (res.data && typeof res.data === "object" && res.data.status === 403)) {
+      throw new CreditError("Sem créditos disponíveis. Adquira mais créditos para publicar.");
+    }
+    throw new Error(msg || "Erro ao publicar");
+  }
+
+  return (res.data || {}) as PublishResult;
+}
+
+class CreditError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CreditError";
+  }
 }
 
 // --- Component ---
@@ -53,7 +73,7 @@ const PropertyEditor = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
+  
   const [error, setError] = useState<string | null>(null);
 
   // Editable fields
@@ -62,8 +82,6 @@ const PropertyEditor = () => {
   const [cta, setCta] = useState("Agende sua visita");
   const [images, setImages] = useState<string[]>([]);
   const [templateId, setTemplateId] = useState<string | undefined>(undefined);
-  // Publish preview modal
-  const [showPreview, setShowPreview] = useState(false);
   const [generatedArtUrl, setGeneratedArtUrl] = useState<string | null>(null);
 
   const statusPatched = useRef(false);
@@ -125,58 +143,25 @@ const PropertyEditor = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Step 1: Approve and show preview
+  // Single-step publish: POST /properties/{id}/publish
   const handlePublish = async () => {
     if (!id) return;
     setIsPublishing(true);
     setGeneratedArtUrl(null);
     try {
-      await approveProperty(id);
-      setProperty((prev) => prev ? { ...prev, status: "approved" as PropertyStatus } : prev);
-      setShowPreview(true);
-    } catch (err: any) {
-      toast({ title: "Erro ao aprovar", description: err.message, variant: "destructive" });
-    } finally {
-      setIsPublishing(false);
-    }
-  };
-
-  // Step 2: Confirm publication → validate credits, update status
-  const { data: userPlan } = useUserPlan();
-  const decrementCredit = useDecrementCredit();
-
-  const noCredits = userPlan?.user_plan === "credits" && (userPlan?.credits_remaining ?? 0) <= 0;
-
-  const handleConfirmPublication = async () => {
-    if (!id) return;
-
-    // Validate credits before publishing
-    try {
-      const freshPlan = await fetchUserPlan();
-      if (freshPlan.user_plan === "credits" && freshPlan.credits_remaining <= 0) {
-        toast({ title: "Sem créditos", description: "Adquira mais créditos para publicar.", variant: "destructive" });
-        return;
-      }
-    } catch {
-      // If we can't check, proceed anyway
-    }
-
-    setIsConfirming(true);
-    try {
-      await publishPropertyStatus(id);
-
-      // Decrement credit after successful confirmation
-      if (userPlan?.user_plan === "credits") {
-        decrementCredit.mutate();
-      }
-
-      toast({ title: "Post enviado para publicação automática" });
-      setShowPreview(false);
+      const result = await publishProperty(id);
+      setProperty((prev) => prev ? { ...prev, status: "published" as PropertyStatus, instagram_url: result.instagram_url, final_image: result.final_image } : prev);
+      if (result.final_image) setGeneratedArtUrl(result.final_image);
+      toast({ title: "Post publicado com sucesso!" });
       navigate("/posts", { state: { pollingId: id } });
     } catch (err: any) {
-      toast({ title: "Erro ao publicar", description: err.message, variant: "destructive" });
+      if (err instanceof CreditError) {
+        toast({ title: "Sem créditos", description: err.message, variant: "destructive" });
+      } else {
+        toast({ title: "Erro ao publicar", description: err.message, variant: "destructive" });
+      }
     } finally {
-      setIsConfirming(false);
+      setIsPublishing(false);
     }
   };
 
@@ -254,14 +239,6 @@ const PropertyEditor = () => {
           </Card>
         </div>
 
-        {/* No credits warning */}
-        {noCredits && (
-          <div className="flex items-center gap-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            Sem créditos disponíveis. Adquira mais créditos para publicar.
-          </div>
-        )}
-
         {/* Bottom actions */}
         <div className="flex justify-end gap-3 pb-6">
           <Button variant="outline" onClick={() => navigate("/inbox")}>
@@ -276,29 +253,19 @@ const PropertyEditor = () => {
           </Button>
           <Button
             onClick={handlePublish}
-            disabled={isPublishing || isApprovedOrPublished || noCredits}
+            disabled={isPublishing || isApprovedOrPublished}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isPublishing ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Gerando arte...</>
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Publicando...</>
             ) : isApprovedOrPublished ? (
-              <><CheckCircle2 className="w-4 h-4 mr-2" /> Aprovado</>
+              <><CheckCircle2 className="w-4 h-4 mr-2" /> Publicado</>
             ) : (
               <><CheckCircle2 className="w-4 h-4 mr-2" /> Aprovar e Postar</>
             )}
           </Button>
         </div>
       </div>
-
-      {/* Publish Preview Modal */}
-      <PublishPreviewModal
-        open={showPreview}
-        onClose={() => setShowPreview(false)}
-        onConfirm={handleConfirmPublication}
-        isConfirming={isConfirming}
-        imageUrl={generatedArtUrl}
-        propertyTitle={title}
-      />
     </InboxLayout>
   );
 };
