@@ -18,16 +18,29 @@ serve(async (req) => {
     let userPrompt = "";
 
     if (type === "caption") {
-      systemPrompt = `Você é um especialista em marketing imobiliário brasileiro. Gere legendas profissionais para posts de imóveis no Instagram/Facebook. 
-Inclua emojis relevantes, hashtags populares do mercado imobiliário, e um call-to-action. 
+      systemPrompt = `Você é especialista em marketing imobiliário no Brasil. Crie descrições persuasivas para Instagram com foco em conversão.
+
+Regras de tom conforme o padrão do imóvel:
+- Baixo padrão → foco em custo-benefício, oportunidade, financiamento.
+- Médio padrão → foco em conforto, localização, praticidade.
+- Luxo → foco em sofisticação, exclusividade e status.
+
+Estrutura obrigatória da resposta:
+1. Título chamativo com emoji
+2. Descrição envolvente (2-3 frases)
+3. Bullet points com diferenciais (use ✅ ou similares)
+4. CTA forte direcionando para WhatsApp
+5. 5 a 8 hashtags locais e imobiliárias
+
 Formate com espaçamento visual agradável. Responda APENAS com a legenda, sem explicações.`;
 
       userPrompt = `Gere uma legenda completa para o seguinte imóvel:
+Tipo: Apartamento
 Título: ${propertyData.title || "Imóvel"}
 Detalhes: ${propertyData.subtitle || ""}
 Preço: ${propertyData.price || "Consulte"}
 CTA: ${propertyData.cta || "Agende sua visita"}
-${aiPrompt ? `\nInstrução adicional: ${aiPrompt}` : ""}`;
+${aiPrompt ? `\nInstrução adicional do corretor: ${aiPrompt}` : ""}`;
     } else if (type === "adjust-text") {
       systemPrompt = `Você é um copywriter especialista em marketing imobiliário. Ajuste os textos do criativo conforme solicitado. 
 Responda em JSON com os campos: title, subtitle, price, cta. Mantenha os textos curtos e impactantes.`;
