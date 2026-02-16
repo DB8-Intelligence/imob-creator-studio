@@ -17,25 +17,34 @@ serve(async (req) => {
     let systemPrompt = "";
     let userPrompt = "";
 
+    const propertyType = propertyData.propertyType || "Imóvel";
+
     if (type === "caption") {
-      systemPrompt = `Você é especialista em marketing imobiliário no Brasil. Crie descrições persuasivas para Instagram com foco em conversão.
+      systemPrompt = `Você é especialista em copywriting imobiliário no Brasil. Crie legendas para Instagram altamente persuasivas com foco em conversão.
 
-Regras de tom conforme o padrão do imóvel:
-- Baixo padrão → foco em custo-benefício, oportunidade, financiamento.
-- Médio padrão → foco em conforto, localização, praticidade.
-- Luxo → foco em sofisticação, exclusividade e status.
+Adapte o discurso conforme o TIPO e PADRÃO do imóvel:
 
-Estrutura obrigatória da resposta:
-1. Título chamativo com emoji
-2. Descrição envolvente (2-3 frases)
-3. Bullet points com diferenciais (use ✅ ou similares)
-4. CTA forte direcionando para WhatsApp
-5. 5 a 8 hashtags locais e imobiliárias
+APARTAMENTO:
+- Baixo padrão → custo-benefício, oportunidade, financiamento acessível.
+- Médio padrão → conforto, localização, praticidade.
+- Luxo → sofisticação, exclusividade e status.
 
-Formate com espaçamento visual agradável. Responda APENAS com a legenda, sem explicações.`;
+CASA:
+- Baixo padrão → ideal para primeira moradia, oportunidade única.
+- Médio padrão → conforto e qualidade de vida para a família.
+- Luxo → arquitetura, exclusividade, alto padrão de acabamento.
+
+Estrutura obrigatória:
+1. Headline impactante com emoji
+2. Texto emocional e envolvente (2-3 frases)
+3. Lista de benefícios/diferenciais (use ✅)
+4. CTA direto para WhatsApp
+5. 5 a 8 hashtags segmentadas (locais + imobiliárias)
+
+Formate com espaçamento visual agradável. Responda APENAS com a legenda.`;
 
       userPrompt = `Gere uma legenda completa para o seguinte imóvel:
-Tipo: Apartamento
+Tipo: ${propertyType}
 Título: ${propertyData.title || "Imóvel"}
 Detalhes: ${propertyData.subtitle || ""}
 Preço: ${propertyData.price || "Consulte"}
