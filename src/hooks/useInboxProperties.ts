@@ -25,6 +25,8 @@ export function useInboxProperties() {
   return useQuery({
     queryKey: ["inbox-properties"],
     queryFn: fetchProperties,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
   });
 }
 
