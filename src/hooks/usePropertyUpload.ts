@@ -51,39 +51,14 @@ export function usePropertyUpload() {
     setProgress(0);
 
     try {
-      // 1. Create the property
-      const { data: property, error: propError } = await supabase
-        .from("properties")
-        .insert({
-          user_id: user.id,
-          title: propertyData.title,
-          address: propertyData.address || null,
-          price: propertyData.price ? parseFloat(propertyData.price.replace(/\D/g, "")) : null,
-          bedrooms: propertyData.bedrooms ? parseInt(propertyData.bedrooms) : null,
-          bathrooms: propertyData.bathrooms ? parseInt(propertyData.bathrooms) : null,
-          area_sqm: propertyData.area ? parseFloat(propertyData.area) : null,
-          description: propertyData.description || null,
-          property_type: propertyData.property_type || "apartamento",
-          property_standard: propertyData.property_standard || "medio",
-          city: propertyData.city || null,
-          neighborhood: propertyData.neighborhood || null,
-          investment_value: propertyData.investment_value ? parseFloat(propertyData.investment_value) : null,
-          built_area_m2: propertyData.built_area_m2 ? parseFloat(propertyData.built_area_m2) : null,
-          highlights: propertyData.highlights || null,
-        })
-        .select()
-        .single();
-
-      if (propError) throw propError;
-
-      setProgress(20);
-
-      // 2. Upload files to storage and create media records
+      // 1. Upload files to Supabase Storage and collect public URLs
+      const imageUrls: string[] = [];
       const totalFiles = files.length;
+
       for (let i = 0; i < totalFiles; i++) {
         const file = files[i];
         const fileExt = file.name.split(".").pop();
-        const filePath = `${user.id}/${property.id}/${crypto.randomUUID()}.${fileExt}`;
+        const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from("property-media")
@@ -101,19 +76,38 @@ export function usePropertyUpload() {
           .from("property-media")
           .getPublicUrl(filePath);
 
-        await supabase.from("property_media").insert({
-          property_id: property.id,
-          file_url: urlData.publicUrl,
-          file_type: file.type,
-          file_name: file.name,
-          file_size: file.file.size,
-          is_cover: i === 0,
-          sort_order: i,
-        });
-
-        setProgress(20 + ((i + 1) / totalFiles) * 80);
+        imageUrls.push(urlData.publicUrl);
+        setProgress(((i + 1) / totalFiles) * 60);
       }
 
+      setProgress(65);
+
+      // 2. POST property to Railway via inbox-proxy
+      const body: Record<string, unknown> = {
+        _method: "POST",
+        _path: "/properties",
+        title: propertyData.title,
+        description: propertyData.description || null,
+        property_type: propertyData.property_type || "apartamento",
+        property_standard: propertyData.property_standard || "medio",
+        city: propertyData.city || null,
+        neighborhood: propertyData.neighborhood || null,
+        investment_value: propertyData.investment_value ? Number(propertyData.investment_value) : null,
+        built_area_m2: propertyData.built_area_m2 ? Number(propertyData.built_area_m2) : null,
+        highlights: propertyData.highlights || null,
+        images: imageUrls,
+      };
+
+      const res = await supabase.functions.invoke("inbox-proxy", {
+        method: "POST",
+        body,
+      });
+
+      if (res.error) throw new Error(res.error.message);
+
+      setProgress(100);
+
+      const property = res.data;
       toast({ title: "Imóvel salvo!", description: `${totalFiles} arquivo(s) enviado(s) com sucesso.` });
       return property;
     } catch (error: any) {
