@@ -41,6 +41,13 @@ LANÇAMENTO:
 - Mencionar construtora se fornecida.
 - Estrutura: título chamando para investimento, texto com foco em oportunidade, destaques do projeto, CTA urgente, hashtags estratégicas.
 
+TERRENO:
+- Foco em potencial construtivo e investimento.
+- Destacar segurança jurídica e valorização da região.
+- Diferenciar entre condomínio, loteamento e rural.
+- Incluir diferenciais técnicos (metragem, topografia, infraestrutura).
+- Estrutura: título forte, texto focado em investimento, diferenciais técnicos, CTA direto, hashtags imobiliárias.
+
 Estrutura obrigatória:
 1. Headline impactante com emoji
 2. Texto emocional e envolvente (2-3 frases)
