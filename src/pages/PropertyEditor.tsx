@@ -14,6 +14,7 @@ import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ArrowLeft, Save, Loader2, CheckCircle2, Building2 } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
 import { Label } from "@/components/ui/label";
+import { useUserPlan } from "@/hooks/useUserPlan";
 
 // --- API helpers ---
 
@@ -68,6 +69,7 @@ class CreditError extends Error {
 const PropertyEditor = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { data: userPlan } = useUserPlan();
 
   const [property, setProperty] = useState<InboxProperty | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -178,6 +180,13 @@ const PropertyEditor = () => {
   // Single-step publish: POST /properties/{id}/publish
   const handlePublish = async () => {
     if (!id) return;
+
+    // Client-side credit validation
+    if (userPlan?.user_plan === "credits" && (userPlan.credits_remaining ?? 0) <= 0) {
+      toast({ title: "Sem créditos", description: "Seus créditos acabaram. Adquira mais créditos para publicar.", variant: "destructive" });
+      return;
+    }
+
     setIsPublishing(true);
     setGeneratedArtUrl(null);
     try {
