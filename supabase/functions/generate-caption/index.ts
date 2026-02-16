@@ -66,9 +66,13 @@ Formate com espaçamento visual agradável. Responda APENAS com a legenda.`;
 
       userPrompt = `Gere uma legenda completa para o seguinte imóvel:
 Tipo: ${propertyType}
+Padrão: ${propertyData.propertyStandard || "medio"}
 Título: ${propertyData.title || "Imóvel"}
-Detalhes: ${propertyData.subtitle || ""}
-Preço: ${propertyData.price || "Consulte"}
+Cidade: ${propertyData.city || ""}
+Bairro: ${propertyData.neighborhood || ""}
+Valor: ${propertyData.price || propertyData.investmentValue || "Consulte"}
+Área: ${propertyData.builtAreaM2 ? propertyData.builtAreaM2 + " m²" : (propertyData.subtitle || "")}
+Diferenciais: ${propertyData.highlights || ""}
 CTA: ${propertyData.cta || "Agende sua visita"}
 ${aiPrompt ? `\nInstrução adicional do corretor: ${aiPrompt}` : ""}`;
     } else if (type === "adjust-text") {

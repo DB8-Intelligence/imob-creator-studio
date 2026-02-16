@@ -14,6 +14,13 @@ export interface InboxProperty {
   created_at?: string;
   final_image?: string;
   instagram_url?: string;
+  property_type?: string;
+  property_standard?: string;
+  city?: string;
+  neighborhood?: string;
+  investment_value?: number | null;
+  built_area_m2?: number | null;
+  highlights?: string;
 }
 
 interface PropertyCardProps {

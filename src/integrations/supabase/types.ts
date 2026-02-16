@@ -178,13 +178,19 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           brand_id: string | null
+          built_area_m2: number | null
           city: string | null
           created_at: string
           description: string | null
           features: string[] | null
+          highlights: string | null
           id: string
+          investment_value: number | null
+          neighborhood: string | null
           price: number | null
           price_type: string | null
+          property_standard: string | null
+          property_type: string | null
           state: string | null
           status: string | null
           title: string
@@ -197,13 +203,19 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           brand_id?: string | null
+          built_area_m2?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
           features?: string[] | null
+          highlights?: string | null
           id?: string
+          investment_value?: number | null
+          neighborhood?: string | null
           price?: number | null
           price_type?: string | null
+          property_standard?: string | null
+          property_type?: string | null
           state?: string | null
           status?: string | null
           title: string
@@ -216,13 +228,19 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           brand_id?: string | null
+          built_area_m2?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
           features?: string[] | null
+          highlights?: string | null
           id?: string
+          investment_value?: number | null
+          neighborhood?: string | null
           price?: number | null
           price_type?: string | null
+          property_standard?: string | null
+          property_type?: string | null
           state?: string | null
           status?: string | null
           title?: string
