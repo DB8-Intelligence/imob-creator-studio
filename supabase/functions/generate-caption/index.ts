@@ -48,6 +48,13 @@ TERRENO:
 - Incluir diferenciais técnicos (metragem, topografia, infraestrutura).
 - Estrutura: título forte, texto focado em investimento, diferenciais técnicos, CTA direto, hashtags imobiliárias.
 
+OPORTUNIDADE:
+- Forte gatilho de escassez e urgência.
+- Destacar preço abaixo do mercado e motivo da oportunidade (desconto, venda urgente, etc.).
+- Criar senso de alta procura e "não perder essa chance".
+- Incluir comparação de valor quando possível.
+- Estrutura: título impactante, texto direto e urgente, comparação de valor, CTA urgente, hashtags.
+
 Estrutura obrigatória:
 1. Headline impactante com emoji
 2. Texto emocional e envolvente (2-3 frases)
