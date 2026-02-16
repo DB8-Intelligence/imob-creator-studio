@@ -7,7 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import StatusBadge, { type PropertyStatus } from "@/components/inbox/StatusBadge";
 import ImageCarousel from "@/components/inbox/ImageCarousel";
-import EditorForm from "@/components/inbox/EditorForm";
+import EditorForm, { type EditorFormData } from "@/components/inbox/EditorForm";
 
 import InboxLayout from "@/components/inbox/InboxLayout";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
@@ -77,9 +77,18 @@ const PropertyEditor = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Editable fields
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [cta, setCta] = useState("Agende sua visita");
+  const [formData, setFormData] = useState<EditorFormData>({
+    title: "",
+    description: "",
+    cta: "Agende sua visita",
+    property_type: "apartamento",
+    property_standard: "medio",
+    city: "",
+    neighborhood: "",
+    investment_value: "",
+    built_area_m2: "",
+    highlights: "",
+  });
   const [images, setImages] = useState<string[]>([]);
   const [templateId, setTemplateId] = useState<string | undefined>(undefined);
   const [generatedArtUrl, setGeneratedArtUrl] = useState<string | null>(null);
@@ -100,8 +109,18 @@ const PropertyEditor = () => {
         if (cancelled) return;
 
         setProperty(found);
-        setTitle(found.title || "");
-        setDescription(found.description || "");
+        setFormData({
+          title: found.title || "",
+          description: found.description || "",
+          cta: "Agende sua visita",
+          property_type: found.property_type || "apartamento",
+          property_standard: found.property_standard || "medio",
+          city: found.city || "",
+          neighborhood: found.neighborhood || "",
+          investment_value: found.investment_value != null ? String(found.investment_value) : "",
+          built_area_m2: found.built_area_m2 != null ? String(found.built_area_m2) : "",
+          highlights: found.highlights || "",
+        });
         setImages(found.images || []);
         setTemplateId((found as any).template_id || undefined);
       } catch (err: any) {
@@ -130,7 +149,20 @@ const PropertyEditor = () => {
     if (!id) return;
     setIsSaving(true);
     try {
-      await patchProperty(id, { title, description, images, template_id: templateId, status: "editing" });
+      await patchProperty(id, {
+        title: formData.title,
+        description: formData.description,
+        property_type: formData.property_type,
+        property_standard: formData.property_standard,
+        city: formData.city,
+        neighborhood: formData.neighborhood,
+        investment_value: formData.investment_value ? Number(formData.investment_value) : null,
+        built_area_m2: formData.built_area_m2 ? Number(formData.built_area_m2) : null,
+        highlights: formData.highlights,
+        images,
+        template_id: templateId,
+        status: "editing",
+      });
       toast({ title: "Alterações salvas com sucesso!" });
     } catch (err: any) {
       toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
@@ -224,12 +256,8 @@ const PropertyEditor = () => {
             <CardContent className="p-4">
               <h3 className="font-semibold text-foreground mb-3">Informações</h3>
               <EditorForm
-                title={title}
-                description={description}
-                cta={cta}
-                onChangeTitle={setTitle}
-                onChangeDescription={setDescription}
-                onChangeCta={setCta}
+                data={formData}
+                onChange={(field, value) => setFormData(prev => ({ ...prev, [field]: value }))}
               />
               <div className="mt-4 space-y-2">
                 <Label>Template (Brand Kit)</Label>
