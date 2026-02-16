@@ -33,27 +33,14 @@ async function patchProperty(id: string, body: Record<string, unknown>): Promise
   if (res.error) throw new Error(res.error.message);
 }
 
-interface PublishResponse {
-  image_path?: string;
-  status?: string;
-  message?: string;
+// --- Component ---
+
+async function approveProperty(id: string): Promise<void> {
+  await patchProperty(id, { status: "approved" });
 }
 
-async function publishProperty(id: string): Promise<PublishResponse> {
-  const res = await supabase.functions.invoke("inbox-proxy", {
-    method: "POST",
-    body: { _method: "POST", _path: `/properties/${id}/publish` },
-  });
-  if (res.error) throw new Error(res.error.message);
-  return res.data as PublishResponse;
-}
-
-async function confirmPublication(id: string): Promise<void> {
-  const res = await supabase.functions.invoke("inbox-proxy", {
-    method: "POST",
-    body: { _method: "POST", _path: `/properties/${id}/confirm-publication` },
-  });
-  if (res.error) throw new Error(res.error.message);
+async function publishPropertyStatus(id: string): Promise<void> {
+  await patchProperty(id, { status: "published" });
 }
 
 // --- Component ---
@@ -138,24 +125,23 @@ const PropertyEditor = () => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Step 1: Generate art and show preview
+  // Step 1: Approve and show preview
   const handlePublish = async () => {
     if (!id) return;
     setIsPublishing(true);
     setGeneratedArtUrl(null);
     try {
-      const result = await publishProperty(id);
-      setProperty((prev) => prev ? { ...prev, status: (result.status || "approved") as PropertyStatus } : prev);
-      setGeneratedArtUrl(result.image_path || null);
+      await approveProperty(id);
+      setProperty((prev) => prev ? { ...prev, status: "approved" as PropertyStatus } : prev);
       setShowPreview(true);
     } catch (err: any) {
-      toast({ title: "Erro ao gerar arte", description: err.message, variant: "destructive" });
+      toast({ title: "Erro ao aprovar", description: err.message, variant: "destructive" });
     } finally {
       setIsPublishing(false);
     }
   };
 
-  // Step 2: Confirm publication → validate credits, send to n8n, then poll
+  // Step 2: Confirm publication → validate credits, update status
   const { data: userPlan } = useUserPlan();
   const decrementCredit = useDecrementCredit();
 
@@ -177,7 +163,7 @@ const PropertyEditor = () => {
 
     setIsConfirming(true);
     try {
-      await confirmPublication(id);
+      await publishPropertyStatus(id);
 
       // Decrement credit after successful confirmation
       if (userPlan?.user_plan === "credits") {
