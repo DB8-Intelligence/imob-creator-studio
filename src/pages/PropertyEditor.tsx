@@ -10,6 +10,7 @@ import ImageCarousel from "@/components/inbox/ImageCarousel";
 import EditorForm, { type EditorFormData } from "@/components/inbox/EditorForm";
 
 import InboxLayout from "@/components/inbox/InboxLayout";
+import CreditsBanner from "@/components/inbox/CreditsBanner";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ArrowLeft, Save, Loader2, CheckCircle2, Building2 } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
@@ -246,6 +247,8 @@ const PropertyEditor = () => {
             <StatusBadge status={property.status} />
           </div>
         </div>
+
+        <CreditsBanner userPlan={userPlan} />
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* Images */}
