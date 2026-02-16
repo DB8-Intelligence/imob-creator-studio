@@ -1,4 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import { AlertTriangle, Coins } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { UserPlanInfo } from "@/types/userPlan";
 
 interface CreditsBannerProps {
@@ -6,6 +8,7 @@ interface CreditsBannerProps {
 }
 
 export default function CreditsBanner({ userPlan }: CreditsBannerProps) {
+  const navigate = useNavigate();
   if (!userPlan || userPlan.user_plan !== "credits") return null;
 
   const credits = userPlan.credits_remaining ?? 0;
@@ -21,6 +24,7 @@ export default function CreditsBanner({ userPlan }: CreditsBannerProps) {
           <p className="text-xs text-muted-foreground">Adquira mais créditos para continuar publicando.</p>
         </div>
         <span className="rounded-full bg-destructive/20 px-3 py-1 text-sm font-bold text-destructive">0</span>
+        <Button size="sm" variant="destructive" onClick={() => navigate("/plan")}>Comprar créditos</Button>
       </div>
     );
   }
@@ -47,6 +51,9 @@ export default function CreditsBanner({ userPlan }: CreditsBannerProps) {
       }`}>
         {credits}
       </span>
+      {isLow && (
+        <Button size="sm" variant="outline" onClick={() => navigate("/plan")}>Comprar créditos</Button>
+      )}
     </div>
   );
 }
