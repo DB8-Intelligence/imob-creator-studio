@@ -34,6 +34,13 @@ CASA:
 - Médio padrão → conforto e qualidade de vida para a família.
 - Luxo → arquitetura, exclusividade, alto padrão de acabamento.
 
+LANÇAMENTO:
+- Foco em valorização futura e potencial de investimento.
+- Destacar condições especiais de pré-lançamento.
+- Criar senso de antecipação de mercado e escassez.
+- Mencionar construtora se fornecida.
+- Estrutura: título chamando para investimento, texto com foco em oportunidade, destaques do projeto, CTA urgente, hashtags estratégicas.
+
 Estrutura obrigatória:
 1. Headline impactante com emoji
 2. Texto emocional e envolvente (2-3 frases)
