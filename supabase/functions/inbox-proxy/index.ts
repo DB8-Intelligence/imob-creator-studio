@@ -46,6 +46,11 @@ serve(async (req) => {
       }
     }
 
+    // For POST requests with no body remaining, ensure we don't send empty content
+    if (method === "POST" && !body) {
+      body = JSON.stringify({});
+    }
+
     const fetchOptions: RequestInit = {
       method,
       headers: { "Content-Type": "application/json" },
