@@ -186,6 +186,36 @@ export type Database = {
         }
         Relationships: []
       }
+      prompt_templates: {
+        Row: {
+          category: string
+          category_value: string
+          created_at: string
+          id: string
+          prompt_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          category_value: string
+          created_at?: string
+          id?: string
+          prompt_text?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          category_value?: string
+          created_at?: string
+          id?: string
+          prompt_text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address: string | null
