@@ -2,9 +2,8 @@ import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  Home,
   Inbox,
-  CheckSquare,
+  FileText,
   Send,
   LayoutGrid,
   Settings,
@@ -16,13 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Home, label: "Dashboard", path: "/app" },
-  { icon: Inbox, label: "Inbox", path: "/app/inbox" },
-  { icon: CheckSquare, label: "Aprovações", path: "/app/aprovacoes" },
+  { icon: Inbox, label: "Inbox", path: "/inbox" },
   { icon: Send, label: "Publicações", path: "/posts" },
-  { icon: LayoutGrid, label: "Templates", path: "/app/templates" },
-  { icon: CreditCard, label: "Créditos", path: "/app/creditos" },
-  { icon: Settings, label: "Configurações", path: "/app/configuracoes" },
+  { icon: LayoutGrid, label: "Templates", path: "/brand-templates" },
+  { icon: FileText, label: "Biblioteca", path: "/library" },
+  { icon: CreditCard, label: "Plano", path: "/plano" },
+  { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
 interface InboxLayoutProps {

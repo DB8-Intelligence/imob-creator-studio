@@ -5,35 +5,23 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-
-// Marketing pages
-import Home from "./pages/marketing/Home";
-import ComoFunciona from "./pages/marketing/ComoFunciona";
-import Planos from "./pages/marketing/Planos";
-import Resultados from "./pages/marketing/Resultados";
-import FAQ from "./pages/marketing/FAQ";
-import Contato from "./pages/marketing/Contato";
-
-// Auth
+import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-
-// App pages (logged-in)
-import AppDashboard from "./pages/app/AppDashboard";
-import AppCreditos from "./pages/app/AppCreditos";
-import AppAprovacoes from "./pages/app/AppAprovacoes";
-import Inbox from "./pages/Inbox";
-import Posts from "./pages/Posts";
-import BrandTemplates from "./pages/BrandTemplates";
-import PropertyEditor from "./pages/PropertyEditor";
-import SettingsProfile from "./pages/SettingsProfile";
-import SettingsPrompts from "./pages/SettingsPrompts";
-import Settings from "./pages/Settings";
+import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import Templates from "./pages/Templates";
 import Editor from "./pages/Editor";
+import PropertyEditor from "./pages/PropertyEditor";
 import Export from "./pages/Export";
 import Library from "./pages/Library";
+import Settings from "./pages/Settings";
+import SettingsProfile from "./pages/SettingsProfile";
+import SettingsPrompts from "./pages/SettingsPrompts";
 import NotFound from "./pages/NotFound";
+import Inbox from "./pages/Inbox";
+import Posts from "./pages/Posts";
+import BrandTemplates from "./pages/BrandTemplates";
+import PlanPage from "./pages/PlanPage";
 
 const queryClient = new QueryClient();
 
@@ -45,43 +33,59 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            {/* Public marketing pages */}
-            <Route path="/" element={<Home />} />
-            <Route path="/como-funciona" element={<ComoFunciona />} />
-            <Route path="/planos" element={<Planos />} />
-            <Route path="/resultados" element={<Resultados />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/contato" element={<Contato />} />
+            <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-
-            {/* App (logged-in) routes */}
-            <Route path="/app" element={<ProtectedRoute><AppDashboard /></ProtectedRoute>} />
-            <Route path="/app/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
-            <Route path="/app/aprovacoes" element={<ProtectedRoute><AppAprovacoes /></ProtectedRoute>} />
-            <Route path="/app/creditos" element={<ProtectedRoute><AppCreditos /></ProtectedRoute>} />
-            <Route path="/app/templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
-            <Route path="/app/configuracoes" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/app/configuracoes/profile" element={<ProtectedRoute><SettingsProfile /></ProtectedRoute>} />
-            <Route path="/app/configuracoes/prompts" element={<ProtectedRoute><SettingsPrompts /></ProtectedRoute>} />
-
-            {/* Legacy/utility routes */}
-            <Route path="/editor/:id" element={<ProtectedRoute><PropertyEditor /></ProtectedRoute>} />
-            <Route path="/posts" element={<ProtectedRoute><Posts /></ProtectedRoute>} />
-            <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
-            <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
-            <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
-            <Route path="/export" element={<ProtectedRoute><Export /></ProtectedRoute>} />
-            <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
-
-            {/* Legacy redirects */}
-            <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><AppDashboard /></ProtectedRoute>} />
-            <Route path="/plano" element={<ProtectedRoute><AppCreditos /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            <Route path="/settings/profile" element={<ProtectedRoute><SettingsProfile /></ProtectedRoute>} />
-            <Route path="/settings/prompts" element={<ProtectedRoute><SettingsPrompts /></ProtectedRoute>} />
-            <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
-
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/upload" element={
+              <ProtectedRoute>
+                <Upload />
+              </ProtectedRoute>
+            } />
+            <Route path="/templates" element={
+              <ProtectedRoute>
+                <Templates />
+              </ProtectedRoute>
+            } />
+            <Route path="/editor" element={
+              <ProtectedRoute>
+                <Editor />
+              </ProtectedRoute>
+            } />
+            <Route path="/export" element={
+              <ProtectedRoute>
+                <Export />
+              </ProtectedRoute>
+            } />
+            <Route path="/library" element={
+              <ProtectedRoute>
+                <Library />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings/profile" element={
+              <ProtectedRoute>
+                <SettingsProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings/prompts" element={
+              <ProtectedRoute>
+                <SettingsPrompts />
+              </ProtectedRoute>
+            } />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/editor/:id" element={<PropertyEditor />} />
+            <Route path="/posts" element={<Posts />} />
+            <Route path="/brand-templates" element={<BrandTemplates />} />
+            <Route path="/plano" element={<PlanPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
