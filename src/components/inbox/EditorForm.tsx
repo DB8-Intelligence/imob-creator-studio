@@ -36,8 +36,9 @@ const PROPERTY_TYPES = [
 ];
 
 const PROPERTY_STANDARDS = [
-  { value: "baixo", label: "Baixo" },
+  { value: "economico", label: "Econômico" },
   { value: "medio", label: "Médio" },
+  { value: "alto", label: "Alto" },
   { value: "luxo", label: "Luxo" },
 ];
 
@@ -47,7 +48,7 @@ const EditorForm = ({ data, onChange }: EditorFormProps) => {
       {/* Tipo e Padrão */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Tipo do imóvel *</Label>
+          <Label>Tipo de Criativo *</Label>
           <Select value={data.property_type} onValueChange={(v) => onChange("property_type", v)}>
             <SelectTrigger className="mt-1">
               <SelectValue placeholder="Selecione" />
