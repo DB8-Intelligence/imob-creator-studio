@@ -1,73 +1,69 @@
-# Welcome to your Lovable project
+# ImobCreator Studio
 
-## Project info
+Plataforma SaaS para criação automatizada de posts imobiliários com IA.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Stack
 
-## How can I edit this code?
+- **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui
+- **Backend proxy:** Supabase Edge Functions (Deno)
+- **Backend principal:** Railway (`db8-agent-production.up.railway.app`)
+- **Auth / DB / Storage:** Supabase (Lovable Cloud)
 
-There are several ways of editing your application.
+## Rodar localmente
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+npm install
+npm run dev        # http://localhost:8080
+npm run build      # produção
 ```
 
-**Edit a file directly in GitHub**
+Copie `.env.example` para `.env` e preencha as variáveis.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Rotas principais
 
-**Use GitHub Codespaces**
+| Rota | Descrição |
+|------|-----------|
+| `/` | Landing page pública |
+| `/auth` | Login / Cadastro |
+| `/dashboard` | Dashboard (protegida) |
+| `/inbox` | Inbox de propriedades |
+| `/editor/:id` | Editor de propriedade |
+| `/posts` | Lista de posts |
+| `/upload` | Upload de imóvel |
+| `/templates` | Galeria de templates |
+| `/brand-templates` | Templates da marca |
+| `/settings/profile` | Perfil do corretor |
+| `/settings/prompts` | Prompts customizados |
+| `/plano` | Página de planos |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Endpoints Railway esperados
 
-## What technologies are used for this project?
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/health` | Health check |
+| `GET` | `/properties` | Listar propriedades |
+| `POST` | `/properties` | Criar propriedade |
+| `PATCH` | `/properties/{id}?status=X` | Atualizar propriedade |
+| `GET` | `/me` | Info do plano do usuário |
+| `PATCH` | `/me` | Atualizar créditos/plano |
+| `POST` | `/generate-caption` | Gerar legenda com IA |
+| `GET` | `/templates` | Listar templates de marca |
+| `POST` | `/templates` | Criar template |
+| `PATCH` | `/templates/{id}` | Atualizar template |
+| `DELETE` | `/templates/{id}` | Excluir template |
 
-This project is built with:
+## Edge Functions (proxy)
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `inbox-proxy` — Proxy genérico para Railway (GET/POST/PATCH/DELETE)
+- `generate-caption` — Proxy para geração de legendas com prompts customizados
+- `generate-art` — Proxy para geração de arte
 
-## How can I deploy this project?
+## Variáveis de ambiente obrigatórias
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+| Variável | Onde | Descrição |
+|----------|------|-----------|
+| `VITE_SUPABASE_URL` | `.env` | URL do projeto Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env` | Anon key do Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret (edge fn) | Service role para queries admin |
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+> **Nota:** Segredos e tokens do Railway ficam hardcoded nas edge functions (URL base). Nunca expor chaves privadas no frontend.
