@@ -138,34 +138,49 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city: string | null
           company_name: string | null
           created_at: string
           creci: string | null
           full_name: string | null
           id: string
+          instagram: string | null
+          language_style: string | null
           phone: string | null
+          state: string | null
+          target_audience: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
           company_name?: string | null
           created_at?: string
           creci?: string | null
           full_name?: string | null
           id?: string
+          instagram?: string | null
+          language_style?: string | null
           phone?: string | null
+          state?: string | null
+          target_audience?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
           company_name?: string | null
           created_at?: string
           creci?: string | null
           full_name?: string | null
           id?: string
+          instagram?: string | null
+          language_style?: string | null
           phone?: string | null
+          state?: string | null
+          target_audience?: string | null
           updated_at?: string
           user_id?: string
         }

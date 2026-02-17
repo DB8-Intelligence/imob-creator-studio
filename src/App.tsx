@@ -15,6 +15,7 @@ import PropertyEditor from "./pages/PropertyEditor";
 import Export from "./pages/Export";
 import Library from "./pages/Library";
 import Settings from "./pages/Settings";
+import SettingsProfile from "./pages/SettingsProfile";
 import NotFound from "./pages/NotFound";
 import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
@@ -66,6 +67,11 @@ const App = () => (
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings/profile" element={
+              <ProtectedRoute>
+                <SettingsProfile />
               </ProtectedRoute>
             } />
             <Route path="/inbox" element={<Inbox />} />
