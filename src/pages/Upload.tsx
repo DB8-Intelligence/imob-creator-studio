@@ -447,7 +447,7 @@ const Upload = () => {
             {isUploading ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Salvando...</>
             ) : (
-              <>Salvar e Escolher Template<ArrowRight className="w-4 h-4 ml-2" /></>
+              <>Salvar e Ir para Inbox<ArrowRight className="w-4 h-4 ml-2" /></>
             )}
           </Button>
         </div>
