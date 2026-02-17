@@ -16,6 +16,7 @@ import Export from "./pages/Export";
 import Library from "./pages/Library";
 import Settings from "./pages/Settings";
 import SettingsProfile from "./pages/SettingsProfile";
+import SettingsPrompts from "./pages/SettingsPrompts";
 import NotFound from "./pages/NotFound";
 import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
@@ -72,6 +73,11 @@ const App = () => (
             <Route path="/settings/profile" element={
               <ProtectedRoute>
                 <SettingsProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings/prompts" element={
+              <ProtectedRoute>
+                <SettingsPrompts />
               </ProtectedRoute>
             } />
             <Route path="/inbox" element={<Inbox />} />
