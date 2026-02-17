@@ -11,6 +11,7 @@ interface PropertyData {
   property_standard?: string;
   city?: string;
   neighborhood?: string;
+  state?: string;
   investment_value?: string | number | null;
   built_area_m2?: string | number | null;
   highlights?: string;
@@ -29,6 +30,7 @@ export function useAIGeneration() {
     propertyStandard: propertyData.property_standard,
     city: propertyData.city,
     neighborhood: propertyData.neighborhood,
+    state: propertyData.state,
     investmentValue: propertyData.investment_value,
     builtAreaM2: propertyData.built_area_m2,
     highlights: propertyData.highlights,
