@@ -15,6 +15,7 @@ export interface EditorFormData {
   cta: string;
   property_type: string;
   property_standard: string;
+  state: string;
   city: string;
   neighborhood: string;
   investment_value: string;
@@ -40,6 +41,11 @@ const PROPERTY_STANDARDS = [
   { value: "medio", label: "Médio" },
   { value: "alto", label: "Alto" },
   { value: "luxo", label: "Luxo" },
+];
+
+const ESTADOS_BR = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
 ];
 
 const EditorForm = ({ data, onChange }: EditorFormProps) => {
@@ -86,8 +92,21 @@ const EditorForm = ({ data, onChange }: EditorFormProps) => {
         />
       </div>
 
-      {/* Cidade e Bairro */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Estado, Cidade e Bairro */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <Label>Estado</Label>
+          <Select value={data.state} onValueChange={(v) => onChange("state", v)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="UF" />
+            </SelectTrigger>
+            <SelectContent>
+              {ESTADOS_BR.map((uf) => (
+                <SelectItem key={uf} value={uf}>{uf}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div>
           <Label htmlFor="prop-city">Cidade *</Label>
           <Input
