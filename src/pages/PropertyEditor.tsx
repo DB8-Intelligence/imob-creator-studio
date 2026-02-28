@@ -11,6 +11,7 @@ import EditorForm, { type EditorFormData } from "@/components/inbox/EditorForm";
 
 import InboxLayout from "@/components/inbox/InboxLayout";
 import CreditsBanner from "@/components/inbox/CreditsBanner";
+import ArtGenerationPanel from "@/components/inbox/ArtGenerationPanel";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ArrowLeft, Save, Loader2, CheckCircle2, Building2 } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
@@ -253,7 +254,7 @@ const PropertyEditor = () => {
 
         <CreditsBanner userPlan={userPlan} />
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div className="grid lg:grid-cols-3 gap-6">
           {/* Images */}
           <Card>
             <CardContent className="p-4">
@@ -276,6 +277,18 @@ const PropertyEditor = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Art Generation */}
+          <div className="lg:row-span-2">
+            <ArtGenerationPanel
+              propertyId={id!}
+              images={images}
+              title={formData.title}
+              description={formData.description}
+              brandId={undefined}
+              templateId={templateId}
+            />
+          </div>
         </div>
 
         {/* Dados Inteligentes */}

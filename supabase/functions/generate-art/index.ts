@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { propertyId, imageUrl, title, description, brandId } = await req.json();
+    const { propertyId, imageUrl, title, description, brandId, format, customPrompt } = await req.json();
 
     if (!imageUrl) {
       return new Response(JSON.stringify({ error: "imageUrl is required" }), {
@@ -29,22 +29,38 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Extract user from JWT
+    let userId: string | null = null;
+    const authHeader = req.headers.get("authorization");
+    if (authHeader) {
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const anonClient = createClient(supabaseUrl, anonKey);
+      const token = authHeader.replace("Bearer ", "");
+      const { data: userData } = await anonClient.auth.getUser(token);
+      userId = userData?.user?.id ?? null;
+    }
+
     // Fetch brand info
     let brand = { name: "Imobiliária", primary_color: "#1E3A5F", secondary_color: "#D4AF37", logo_url: null as string | null, slogan: "" };
     if (brandId) {
       const { data: brandData } = await supabase.from("brands").select("*").eq("id", brandId).single();
-      if (brandData) {
-        brand = brandData;
-      }
+      if (brandData) brand = brandData;
     }
 
-    // Build prompt for art generation
-    const prompt = `Create a professional real estate social media post image (1080x1080 square format).
+    // Determine dimensions based on format
+    const selectedFormat = format || "feed";
+    let dimensions = "1080x1080 square";
+    if (selectedFormat === "story" || selectedFormat === "reels") {
+      dimensions = "1080x1920 vertical (9:16 aspect ratio)";
+    }
+
+    // Build prompt
+    let prompt = `Create a professional real estate social media post image (${dimensions} format).
 
 The image should feature:
 - The property photo as the main visual element
 - A sleek, modern frame/border using brand colors: primary ${brand.primary_color} and accent ${brand.secondary_color}
-- The brand name "${brand.name}" displayed prominently at the top or bottom
+- The brand name "${brand.name}" displayed prominently
 ${brand.slogan ? `- The slogan "${brand.slogan}" in smaller text` : ""}
 - Property title: "${title || "Imóvel Exclusivo"}"
 ${description ? `- Brief description overlay: "${description.substring(0, 80)}"` : ""}
@@ -54,9 +70,13 @@ ${description ? `- Brief description overlay: "${description.substring(0, 80)}"`
 
 Style: Premium real estate marketing material, Instagram-ready, high contrast text on overlays for readability.`;
 
-    console.log("Generating art with prompt for brand:", brand.name);
+    // Append custom prompt if provided
+    if (customPrompt) {
+      prompt += `\n\nAdditional instructions from the user: ${customPrompt}`;
+    }
 
-    // Call Lovable AI image generation
+    console.log("Generating art:", { format: selectedFormat, brand: brand.name, hasCustomPrompt: !!customPrompt });
+
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -112,14 +132,13 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
     const imageFormat = base64Match[1];
     const base64Data = base64Match[2];
 
-    // Decode base64 to Uint8Array
     const binaryStr = atob(base64Data);
     const bytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) {
       bytes[i] = binaryStr.charCodeAt(i);
     }
 
-    const fileName = `art-${propertyId || "unknown"}-${Date.now()}.${imageFormat === "jpeg" ? "jpg" : imageFormat}`;
+    const fileName = `art-${propertyId || "unknown"}-${selectedFormat}-${Date.now()}.${imageFormat === "jpeg" ? "jpg" : imageFormat}`;
     const filePath = `generated/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -134,9 +153,31 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
       throw new Error(`Upload failed: ${uploadError.message}`);
     }
 
-    // Get public URL
     const { data: urlData } = supabase.storage.from("creatives").getPublicUrl(filePath);
     const publicUrl = urlData.publicUrl;
+
+    // Save to creatives table if we have a user
+    let creativeId: string | null = null;
+    if (userId && propertyId) {
+      const { data: creative, error: insertError } = await supabase
+        .from("creatives")
+        .insert({
+          user_id: userId,
+          property_id: propertyId,
+          brand_id: brandId || null,
+          name: `Arte ${selectedFormat} - ${title || "Imóvel"}`,
+          format: selectedFormat,
+          exported_url: publicUrl,
+          status: "draft",
+          content_data: { customPrompt: customPrompt || null },
+        })
+        .select("id")
+        .single();
+
+      if (!insertError && creative) {
+        creativeId = creative.id;
+      }
+    }
 
     console.log("Art generated and uploaded:", publicUrl);
 
@@ -145,6 +186,8 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
         success: true,
         artUrl: publicUrl,
         fileName,
+        format: selectedFormat,
+        creativeId,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
