@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import AppLayout from "@/components/app/AppLayout";
+import CreativeSpotlight from "@/components/library/CreativeSpotlight";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -412,6 +413,20 @@ const Library = () => {
                 </p>
                 {!searchQuery && activeTab === "all" && (
                   <Button className="mt-4" onClick={() => navigate("/upload")}>
+                    Criar primeiro criativo
+                  </Button>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppLayout>
+  );
+};
+
+export default Library;
+=> navigate("/upload")}>
                     Criar primeiro criativo
                   </Button>
                 )}

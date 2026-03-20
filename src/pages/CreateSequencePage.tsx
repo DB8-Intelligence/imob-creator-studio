@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Layers, Sparkles } from "lucide-react";
+import { ArrowRight, Layers, Sparkles, Eye } from "lucide-react";
 import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
 import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
 
@@ -26,13 +26,21 @@ const CreateSequencePage = () => {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
-          <h1 className="text-3xl font-display font-bold text-foreground">Criar Sequência</h1>
-          <p className="text-muted-foreground mt-1">
-            Monte carrosséis imobiliários com narrativa, número de slides e CTA mais claros.
-          </p>
-        </div>
+        <section className="rounded-3xl border border-accent/20 bg-gradient-to-br from-card to-muted/40 p-8">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
+              <h1 className="text-3xl font-display font-bold text-foreground">Criar Sequência</h1>
+              <p className="text-muted-foreground mt-1 max-w-2xl">
+                Monte carrosséis imobiliários com narrativa, número de slides e CTA mais claros.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4 min-w-[220px]">
+              <p className="text-xs text-muted-foreground">Preview premium</p>
+              <p className="text-lg font-semibold text-foreground mt-1">Estrutura pronta para retenção</p>
+            </div>
+          </div>
+        </section>
 
         <ModuleValueStrip creditsCost={2} estimatedOutput="carrossel/sequência de maior retenção" upgradeHint="Volume recorrente pede plano Pro ou superior." />
 
@@ -42,7 +50,7 @@ const CreateSequencePage = () => {
           { label: "Objetivo", value: "Retenção", description: "Mais espaço para storytelling e CTA final." },
         ]} />
 
-        <div className="grid xl:grid-cols-[1fr,360px] gap-6">
+        <div className="grid xl:grid-cols-[1fr,380px] gap-6">
           <Card>
             <CardContent className="p-6 space-y-5">
               <div>
@@ -82,29 +90,33 @@ const CreateSequencePage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Preview estrutural</h3>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-5 border-b border-border/60 bg-gradient-to-br from-accent/10 to-transparent">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-accent" />
+                  <h3 className="font-semibold text-foreground">Preview estrutural</h3>
+                </div>
               </div>
-              <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
-                <p className="font-medium text-foreground">{form.headline}</p>
-                <p className="text-sm text-muted-foreground mt-2">{form.theme}</p>
-              </div>
-              <div className="space-y-2">
-                {previewSlides.map((_, index) => (
-                  <div key={index} className="rounded-xl border border-border/60 p-3 bg-muted/30">
-                    <p className="text-xs text-muted-foreground">Slide {index + 1}</p>
-                    <p className="text-sm font-medium text-foreground mt-1">
-                      {index === previewSlides.length - 1 ? form.cta : `Ponto ${index + 1} da narrativa`}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
-                <Sparkles className="w-4 h-4 text-accent mb-2" />
-                Esse MVP já deixa sequência como recurso real com briefing e handoff para o editor.
+              <div className="p-5 space-y-4">
+                <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4">
+                  <p className="font-medium text-foreground">{form.headline}</p>
+                  <p className="text-sm text-muted-foreground mt-2">{form.theme}</p>
+                </div>
+                <div className="space-y-2">
+                  {previewSlides.map((_, index) => (
+                    <div key={index} className="rounded-xl border border-border/60 p-3 bg-muted/30">
+                      <p className="text-xs text-muted-foreground">Slide {index + 1}</p>
+                      <p className="text-sm font-medium text-foreground mt-1">
+                        {index === previewSlides.length - 1 ? form.cta : `Ponto ${index + 1} da narrativa`}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
+                  <Sparkles className="w-4 h-4 text-accent mb-2" />
+                  Esse MVP já deixa sequência como recurso real com briefing e handoff para o editor.
+                </div>
               </div>
             </CardContent>
           </Card>

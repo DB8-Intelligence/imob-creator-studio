@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, ImageIcon, MousePointerClick } from "lucide-react";
+import { ArrowRight, ImageIcon, MousePointerClick, Eye } from "lucide-react";
 import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
 import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
 
@@ -23,13 +23,21 @@ const CreateThumbnailPage = () => {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
-          <h1 className="text-3xl font-display font-bold text-foreground">Criar Thumbnail</h1>
-          <p className="text-muted-foreground mt-1">
-            Monte capas orientadas por clique para anúncios, reels covers e campanhas visuais.
-          </p>
-        </div>
+        <section className="rounded-3xl border border-accent/20 bg-gradient-to-br from-card to-muted/40 p-8">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
+              <h1 className="text-3xl font-display font-bold text-foreground">Criar Thumbnail</h1>
+              <p className="text-muted-foreground mt-1 max-w-2xl">
+                Monte capas orientadas por clique para anúncios, reels covers e campanhas visuais.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4 min-w-[220px]">
+              <p className="text-xs text-muted-foreground">Percepção</p>
+              <p className="text-lg font-semibold text-foreground mt-1">Mais contraste, mais atenção</p>
+            </div>
+          </div>
+        </section>
 
         <ModuleValueStrip creditsCost={1} estimatedOutput="thumbnail/capa orientada por clique" upgradeHint="Bom para operações com muito volume de criativo curto." />
 
@@ -39,7 +47,7 @@ const CreateThumbnailPage = () => {
           { label: "Destino", value: "Campanhas", description: "Útil para anúncios, covers e chamadas fortes." },
         ]} />
 
-        <div className="grid xl:grid-cols-[1fr,360px] gap-6">
+        <div className="grid xl:grid-cols-[1fr,380px] gap-6">
           <Card>
             <CardContent className="p-6 space-y-5">
               <div>
@@ -74,24 +82,28 @@ const CreateThumbnailPage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Preview de estrutura</h3>
-              </div>
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground flex flex-col justify-between">
-                <div>
-                  <Badge className="bg-accent text-accent-foreground">{form.emphasis}</Badge>
-                </div>
-                <div>
-                  <p className="text-2xl font-display font-bold leading-tight">{form.headline}</p>
-                  <p className="text-sm text-primary-foreground/70 mt-2">{form.subheadline}</p>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-5 border-b border-border/60 bg-gradient-to-br from-accent/10 to-transparent">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-accent" />
+                  <h3 className="font-semibold text-foreground">Preview de estrutura</h3>
                 </div>
               </div>
-              <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
-                <MousePointerClick className="w-4 h-4 text-accent mb-2" />
-                Esse MVP já permite estruturar uma thumbnail real e reutilizar isso no editor/export.
+              <div className="p-5 space-y-4">
+                <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground flex flex-col justify-between shadow-elevated">
+                  <div>
+                    <Badge className="bg-accent text-accent-foreground">{form.emphasis}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-display font-bold leading-tight">{form.headline}</p>
+                    <p className="text-sm text-primary-foreground/70 mt-2">{form.subheadline}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
+                  <MousePointerClick className="w-4 h-4 text-accent mb-2" />
+                  Esse MVP já permite estruturar uma thumbnail real e reutilizar isso no editor/export.
+                </div>
               </div>
             </CardContent>
           </Card>
