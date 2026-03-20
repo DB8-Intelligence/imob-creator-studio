@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { propertyId, imageUrl, title, description, brandId, format, customPrompt } = await req.json();
+    const { propertyId, imageUrl, title, description, brandId, format, customPrompt, workspaceId } = await req.json();
 
     if (!imageUrl) {
       return new Response(JSON.stringify({ error: "imageUrl is required" }), {
@@ -198,6 +198,11 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
+  }
+});
+" },
       }
     );
   }

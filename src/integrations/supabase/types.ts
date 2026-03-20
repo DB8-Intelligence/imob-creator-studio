@@ -74,6 +74,7 @@ export type Database = {
           template_id: string | null
           updated_at: string
           user_id: string
+          workspace_id: string | null
         }
         Insert: {
           brand_id?: string | null
@@ -92,6 +93,7 @@ export type Database = {
           template_id?: string | null
           updated_at?: string
           user_id: string
+          workspace_id?: string | null
         }
         Update: {
           brand_id?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           template_id?: string | null
           updated_at?: string
           user_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -399,6 +402,77 @@ export type Database = {
           },
         ]
       }
+      workspace_memberships: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          status: string
+          updated_at: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_memberships_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          owner_user_id: string | null
+          plan: string
+          slug: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          owner_user_id?: string | null
+          plan?: string
+          slug: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          owner_user_id?: string | null
+          plan?: string
+          slug?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -526,6 +600,18 @@ export type CompositeTypes<
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const
+ternals
 }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
