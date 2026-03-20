@@ -84,6 +84,8 @@ const BrandTemplatesPage = () => {
           </div>
         )}
 
+        <StylePresetPanel />
+
         {!isLoading && !isError && templates && templates.length > 0 && (
           <TemplateTable
             templates={templates}
@@ -104,5 +106,7 @@ const BrandTemplatesPage = () => {
     </InboxLayout>
   );
 };
+
+export default BrandTemplatesPage;
 
 export default BrandTemplatesPage;
