@@ -77,6 +77,7 @@ const BrandTemplatesPage = () => {
             <Palette className="w-12 h-12 mb-3 opacity-40" />
             <p className="font-medium">Nenhum template criado</p>
             <p className="text-xs mt-1">Crie seu primeiro brand kit para começar a gerar artes personalizadas.</p>
+            <p className="text-xs mt-3 max-w-md">Esse é o passo que ajuda a padronizar sua operação e reduzir retrabalho visual em cada novo imóvel.</p>
             <Button className="mt-4" onClick={handleNew}>
               <Plus className="w-4 h-4 mr-1" /> Criar Template
             </Button>

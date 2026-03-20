@@ -147,6 +147,9 @@ const PostsPage = () => {
                 ? "Imóveis aprovados e publicados aparecerão aqui."
                 : "Nenhum resultado para o filtro selecionado."}
             </p>
+            <p className="text-xs mt-3 max-w-md">
+              Avance o fluxo no inbox para aprovação/publicação e use esta tela como painel de acompanhamento operacional.
+            </p>
           </div>
         )}
 
