@@ -31,6 +31,7 @@ interface UploadedMedia {
 
 export function usePropertyUpload() {
   const { user } = useAuth();
+  const { workspaceId } = useWorkspaceContext();
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -52,7 +53,6 @@ export function usePropertyUpload() {
     setProgress(0);
 
     try {
-      // 1. Upload files to Supabase Storage and collect public URLs
       const imageUrls: string[] = [];
       const totalFiles = files.length;
 
@@ -83,11 +83,15 @@ export function usePropertyUpload() {
 
       setProgress(65);
 
-      // 2. POST property to Railway via inbox-proxy
       const body: Record<string, unknown> = {
         _method: "POST",
         _path: "/properties",
         title: propertyData.title,
+        address: propertyData.address || null,
+        price: propertyData.price ? Number(propertyData.price) : null,
+        bedrooms: propertyData.bedrooms ? Number(propertyData.bedrooms) : null,
+        bathrooms: propertyData.bathrooms ? Number(propertyData.bathrooms) : null,
+        area: propertyData.area ? Number(propertyData.area) : null,
         description: propertyData.description || null,
         property_type: propertyData.property_type || "apartamento",
         property_standard: propertyData.property_standard || "medio",
@@ -96,6 +100,7 @@ export function usePropertyUpload() {
         investment_value: propertyData.investment_value ? Number(propertyData.investment_value) : null,
         built_area_m2: propertyData.built_area_m2 ? Number(propertyData.built_area_m2) : null,
         highlights: propertyData.highlights || null,
+        workspace_id: workspaceId,
         images: imageUrls,
       };
 
