@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clapperboard, Video } from "lucide-react";
+import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
+import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
 
 const AnimateCreativePage = () => {
   const navigate = useNavigate();

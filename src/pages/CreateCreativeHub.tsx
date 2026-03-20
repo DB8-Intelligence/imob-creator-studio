@@ -19,6 +19,14 @@ const CreateCreativeHub = () => {
           </p>
         </div>
 
+        <ModuleValueStrip creditsCost={1} estimatedOutput="post imobiliário pronto para operação" upgradeHint="Planos maiores destravam volume e recorrência." />
+
+        <ModuleMetricCards items={[
+          { label: "Custo", value: "1 crédito", description: "Melhor entrada para iniciar produção rápida." },
+          { label: "Tempo", value: "2-5 min", description: "Fluxo guiado para reduzir fricção de criação." },
+          { label: "Destino", value: "Inbox", description: "Segue para operação, revisão e publicação." },
+        ]} />
+
         <div className="grid md:grid-cols-3 gap-4">
           {[
             {

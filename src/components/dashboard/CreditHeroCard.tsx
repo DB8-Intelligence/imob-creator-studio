@@ -39,8 +39,17 @@ const CreditHeroCard = ({ credits, firstName }: CreditHeroCardProps) => {
             </div>
             <p className="text-4xl font-bold">{credits ?? 0}</p>
             <p className="text-sm text-primary-foreground/70 mt-1">créditos disponíveis para gerar novas peças</p>
+            <div className="rounded-xl border border-white/10 bg-black/10 p-3 mt-4">
+              <p className="text-xs text-primary-foreground/70">Custo médio por ação</p>
+              <div className="grid grid-cols-2 gap-2 mt-2 text-sm">
+                <div>Post: <span className="font-semibold">1 crédito</span></div>
+                <div>Sequência: <span className="font-semibold">2 créditos</span></div>
+                <div>Thumbnail: <span className="font-semibold">1 crédito</span></div>
+                <div>Animação: <span className="font-semibold">3 créditos</span></div>
+              </div>
+            </div>
             <div className="flex gap-3 mt-5">
-              <Button className="bg-accent text-accent-foreground hover:bg-accent/90 flex-1" onClick={() => navigate("/upload")}>
+              <Button className="bg-accent text-accent-foreground hover:bg-accent/90 flex-1" onClick={() => navigate("/create")}>
                 <Zap className="w-4 h-4 mr-2" />
                 Criar agora
               </Button>
