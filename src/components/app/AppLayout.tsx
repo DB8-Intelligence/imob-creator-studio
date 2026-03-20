@@ -47,7 +47,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { data: plan } = useUserPlan();
-  const { workspaceName, workspaceRole } = useWorkspaceContext();
+  const { workspaceName, workspaceRole, workspaceId, workspaces, setActiveWorkspaceId } = useWorkspaceContext();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -216,6 +216,27 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <Settings className="w-4 h-4 mr-2" />
                   Configurações
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </aside>
+
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <div className="p-4 lg:p-8">{children}</div>
+      </main>
+    </div>
+  );
+};
+
+export default AppLayout;
+          Configurações
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
