@@ -55,7 +55,7 @@ const WhatsAppAutomationSection = () => {
               variant="hero"
               size="lg"
               className="group"
-              onClick={() => navigate("/planos")}
+              onClick={() => navigate("/plano")}
             >
               👉 Quero ativar essa automação
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
