@@ -86,12 +86,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <Menu className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <Home className="w-4 h-4 text-accent-foreground" />
-          </div>
-          <span className="font-display font-bold text-foreground">
-            ImobCreator<span className="text-accent">AI</span>
-          </span>
+          <img src="/logo.png" alt="ImobCreator AI" className="h-8 w-auto" />
         </div>
         <Avatar className="w-8 h-8">
           <AvatarImage src={profile?.avatar_url || undefined} />
@@ -117,12 +112,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <div className="min-h-16 flex items-start justify-between px-4 py-3 border-b border-border">
             <div>
               <Link to="/dashboard" className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-sm">
-                  <Home className="w-5 h-5 text-accent-foreground" />
-                </div>
-                <span className="font-display font-bold text-foreground">
-                  Imob<span className="text-accent">Creator</span>
-                </span>
+                <img src="/logo.png" alt="ImobCreator AI" className="h-10 w-auto" />
               </Link>
               <div className="mt-2 pl-12">
                 <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Workspace ativo</p>
