@@ -103,7 +103,7 @@ const SettingsProfile = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground">Perfil do Corretor</h1>
-            <p className="text-muted-foreground mt-1">Configure seu perfil para personalizar prompts e copy</p>
+            <p className="text-muted-foreground mt-1">Configure seu perfil para personalizar prompts, copy e a futura estrutura do workspace</p>
           </div>
           <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleSave} disabled={saving}>
             {saved ? <><Check className="w-4 h-4 mr-2" />Salvo!</> :
