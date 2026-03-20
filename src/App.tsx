@@ -122,19 +122,3 @@ const App = () => (
 );
 
 export default App;
-te path="/plano" element={
-              <ProtectedRoute>
-                <PlanPage />
-              </ProtectedRoute>
-            } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </WorkspaceProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
-
-export default App;

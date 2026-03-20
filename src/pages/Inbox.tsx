@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import InboxLayout from "@/components/inbox/InboxLayout";
 import FiltersBar from "@/components/inbox/FiltersBar";
 import PropertyCard from "@/components/inbox/PropertyCard";
@@ -64,17 +65,6 @@ const InboxPage = () => {
                 property={property}
                 onUpdateStatus={(id, status) => updateStatus.mutate({ id, status })}
                 isUpdating={updateStatus.isPending}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </InboxLayout>
-  );
-};
-
-export default InboxPage;
-pdating={updateStatus.isPending}
               />
             ))}
           </div>
