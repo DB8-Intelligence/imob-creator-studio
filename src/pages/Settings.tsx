@@ -118,6 +118,12 @@ const Settings = () => {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="workspace" className="mt-6 space-y-6">
+            <WorkspaceSettingsCard />
+            <WorkspaceMembersCard />
+            <BackendEnforcementCard />
+          </TabsContent>
+
           {/* Brand Settings */}
           <TabsContent value="brand" className="mt-6 space-y-6">
             {/* Brand Selector */}
