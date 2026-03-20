@@ -108,5 +108,3 @@ const BrandTemplatesPage = () => {
 };
 
 export default BrandTemplatesPage;
-
-export default BrandTemplatesPage;
