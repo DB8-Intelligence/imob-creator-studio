@@ -426,17 +426,3 @@ const Library = () => {
 };
 
 export default Library;
-=> navigate("/upload")}>
-                    Criar primeiro criativo
-                  </Button>
-                )}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </AppLayout>
-  );
-};
-
-export default Library;
