@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/app/AppLayout";
+import TenantWorkspaceCard from "@/components/app/TenantWorkspaceCard";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
+import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
 import { 
   Plus, 
   Image, 
