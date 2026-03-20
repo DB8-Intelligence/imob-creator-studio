@@ -9,6 +9,7 @@ import type { PropertyStatus } from "@/components/inbox/StatusBadge";
 import ApiErrorBanner from "@/components/inbox/ApiErrorBanner";
 
 const InboxPage = () => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState<PropertyStatus | "all">("all");
   const { data: properties, isLoading, isError, error, refetch, isRefetching } = useInboxProperties();
   const updateStatus = useUpdatePropertyStatus();
@@ -63,6 +64,17 @@ const InboxPage = () => {
                 property={property}
                 onUpdateStatus={(id, status) => updateStatus.mutate({ id, status })}
                 isUpdating={updateStatus.isPending}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </InboxLayout>
+  );
+};
+
+export default InboxPage;
+pdating={updateStatus.isPending}
               />
             ))}
           </div>

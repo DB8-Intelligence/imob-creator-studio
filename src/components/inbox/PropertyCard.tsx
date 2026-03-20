@@ -74,7 +74,19 @@ const PropertyCard = ({ property, onUpdateStatus, isUpdating }: PropertyCardProp
 
         <p className="text-xs text-muted-foreground leading-relaxed">{truncatedDesc}</p>
 
-        <p className="text-[11px] text-muted-foreground/70">{formattedDate}</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] text-muted-foreground/70">{formattedDate}</p>
+          {property.city && (
+            <p className="text-[11px] text-muted-foreground/70">{property.city}</p>
+          )}
+        </div>
+
+        {property.highlights && (
+          <div className="rounded-lg border border-border/60 bg-muted/30 p-2">
+            <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Destaque</p>
+            <p className="text-xs text-foreground mt-1 line-clamp-2">{property.highlights}</p>
+          </div>
+        )}
 
         <div className="flex gap-2 pt-1">
           <Button
