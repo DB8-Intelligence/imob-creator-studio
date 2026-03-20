@@ -19,6 +19,14 @@ const CreateThumbnailPage = () => {
           </p>
         </div>
 
+        <ModuleValueStrip creditsCost={1} estimatedOutput="thumbnail/capa orientada por clique" upgradeHint="Bom para operações com muito volume de criativo curto." />
+
+        <ModuleMetricCards items={[
+          { label: "Custo", value: "1 crédito", description: "Entrada leve para capas e peças de atenção." },
+          { label: "Objetivo", value: "Clique", description: "Mais contraste, texto curto e impacto visual." },
+          { label: "Destino", value: "Campanhas", description: "Útil para anúncios, covers e chamadas fortes." },
+        ]} />
+
         <div className="grid md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-6 space-y-4">

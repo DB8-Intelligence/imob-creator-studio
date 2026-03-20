@@ -19,6 +19,14 @@ const CreateSequencePage = () => {
           </p>
         </div>
 
+        <ModuleValueStrip creditsCost={2} estimatedOutput="carrossel/sequência de maior retenção" upgradeHint="Volume recorrente pede plano Pro ou superior." />
+
+        <ModuleMetricCards items={[
+          { label: "Custo", value: "2 créditos", description: "Mais valor quando há vários slides e narrativa." },
+          { label: "Uso ideal", value: "Carrossel", description: "Perfeito para diferenciais e explicação do imóvel." },
+          { label: "Objetivo", value: "Retenção", description: "Mais espaço para storytelling e CTA final." },
+        ]} />
+
         <div className="grid md:grid-cols-2 gap-4">
           <Card>
             <CardContent className="p-6 space-y-4">
