@@ -8,6 +8,12 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 
+function appendQuery(path: string, key: string, value: unknown) {
+  if (value === undefined || value === null || value === "") return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -24,7 +30,12 @@ serve(async (req) => {
       if (json._method && json._path) {
         apiPath = json._path;
         method = json._method;
-        const { _method, _path, ...rest } = json;
+        const { _method, _path, workspace_id, ...rest } = json;
+
+        if (workspace_id) {
+          apiPath = appendQuery(apiPath, "workspace_id", workspace_id);
+        }
+
         if (Object.keys(rest).length > 0) {
           body = JSON.stringify(rest);
         }
@@ -34,19 +45,16 @@ serve(async (req) => {
       }
     }
 
-    // For PATCH requests, move "status" from body to query parameter (Railway API requirement)
     let finalPath = apiPath;
     if (method === "PATCH" && body) {
       const parsed = JSON.parse(body);
       if (parsed.status) {
-        const separator = finalPath.includes("?") ? "&" : "?";
-        finalPath = `${finalPath}${separator}status=${encodeURIComponent(parsed.status)}`;
+        finalPath = appendQuery(finalPath, "status", parsed.status);
         delete parsed.status;
         body = Object.keys(parsed).length > 0 ? JSON.stringify(parsed) : undefined;
       }
     }
 
-    // For POST requests with no body remaining, ensure we don't send empty content
     if (method === "POST" && !body) {
       body = JSON.stringify({});
     }
