@@ -46,6 +46,19 @@ const Dashboard = () => {
       <div className="space-y-8">
         <CreditHeroCard credits={credits} firstName={firstName} />
         <ActionCardsSection />
+        <div className="grid md:grid-cols-4 gap-4">
+          {[
+            ["Criar Criativo", "Fluxo guiado principal"],
+            ["Criar Sequência", "Carrossel e narrativa"],
+            ["Criar Thumbnail", "Capas e peças de clique"],
+            ["Animar Criativo", "Base para vídeo e reels"],
+          ].map(([title, desc]) => (
+            <div key={title} className="rounded-2xl border border-border/60 bg-card p-4">
+              <p className="font-medium text-foreground">{title}</p>
+              <p className="text-sm text-muted-foreground mt-1">{desc}</p>
+            </div>
+          ))}
+        </div>
         <RecentOperationsSection items={recentCreatives} />
         <TenantWorkspaceCard />
         <OnboardingChecklist />

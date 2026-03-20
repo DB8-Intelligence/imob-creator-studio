@@ -35,7 +35,7 @@ interface AppLayoutProps {
 
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
-  { icon: Upload, label: "Upload", path: "/upload" },
+  { icon: Upload, label: "Criar Criativo", path: "/create" },
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
