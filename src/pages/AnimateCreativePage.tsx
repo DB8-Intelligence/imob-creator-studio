@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowRight, Clapperboard, Video } from "lucide-react";
+import { ArrowRight, Clapperboard, Video, Eye } from "lucide-react";
 import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
 import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
 
@@ -15,7 +15,7 @@ const AnimateCreativePage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     duration: "15",
-    rhythm: "dinamico",
+    rhythm: "dinâmico",
     prompt: "Transformar o criativo em reels com zooms suaves, cortes rápidos e CTA final.",
     cta: "Agende sua visita agora",
   });
@@ -23,13 +23,21 @@ const AnimateCreativePage = () => {
   return (
     <AppLayout>
       <div className="max-w-6xl mx-auto space-y-8">
-        <div>
-          <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
-          <h1 className="text-3xl font-display font-bold text-foreground">Animar Criativo</h1>
-          <p className="text-muted-foreground mt-1">
-            Transforme peças estáticas em ativos para reels, vídeo curto e campanhas com mais retenção.
-          </p>
-        </div>
+        <section className="rounded-3xl border border-accent/20 bg-gradient-to-br from-card to-muted/40 p-8">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
+              <h1 className="text-3xl font-display font-bold text-foreground">Animar Criativo</h1>
+              <p className="text-muted-foreground mt-1 max-w-2xl">
+                Transforme peças estáticas em ativos para reels, vídeo curto e campanhas com mais retenção.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-accent/20 bg-accent/5 p-4 min-w-[220px]">
+              <p className="text-xs text-muted-foreground">Resultado esperado</p>
+              <p className="text-lg font-semibold text-foreground mt-1">Mais movimento, mais atenção</p>
+            </div>
+          </div>
+        </section>
 
         <ModuleValueStrip creditsCost={3} estimatedOutput="ativo em movimento para reels/vídeo curto" upgradeHint="Esse módulo tende a exigir mais créditos e plano com escala." />
 
@@ -39,7 +47,7 @@ const AnimateCreativePage = () => {
           { label: "Destino", value: "Vídeo", description: "Base para reels, anúncio curto e teaser do imóvel." },
         ]} />
 
-        <div className="grid xl:grid-cols-[1fr,360px] gap-6">
+        <div className="grid xl:grid-cols-[1fr,380px] gap-6">
           <Card>
             <CardContent className="p-6 space-y-5">
               <div>
@@ -74,29 +82,29 @@ const AnimateCreativePage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-2">
-                <Clapperboard className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Resumo do render</h3>
-              </div>
-              <div className="space-y-3">
-                <div className="rounded-xl border border-border/60 p-4 bg-muted/30">
-                  <p className="text-xs text-muted-foreground">Duração</p>
-                  <p className="font-medium text-foreground mt-1">{form.duration}s</p>
-                </div>
-                <div className="rounded-xl border border-border/60 p-4 bg-muted/30">
-                  <p className="text-xs text-muted-foreground">Ritmo</p>
-                  <p className="font-medium text-foreground mt-1 capitalize">{form.rhythm}</p>
-                </div>
-                <div className="rounded-xl border border-border/60 p-4 bg-muted/30">
-                  <p className="text-xs text-muted-foreground">CTA final</p>
-                  <p className="font-medium text-foreground mt-1">{form.cta}</p>
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-5 border-b border-border/60 bg-gradient-to-br from-accent/10 to-transparent">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-5 h-5 text-accent" />
+                  <h3 className="font-semibold text-foreground">Resumo do render</h3>
                 </div>
               </div>
-              <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
-                <Video className="w-4 h-4 text-accent mb-2" />
-                Esse MVP já deixa animação com briefing real e handoff operacional para a próxima etapa.
+              <div className="p-5 space-y-3">
+                <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground min-h-[220px] flex flex-col justify-between shadow-elevated">
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-accent text-accent-foreground">{form.duration}s</Badge>
+                    <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">{form.rhythm}</Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-primary-foreground/70">Preview de handoff</p>
+                    <p className="text-lg font-display font-bold mt-2">{form.cta}</p>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
+                  <Video className="w-4 h-4 text-accent mb-2" />
+                  Esse MVP já deixa animação com briefing real e handoff operacional para a próxima etapa.
+                </div>
               </div>
             </CardContent>
           </Card>
