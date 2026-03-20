@@ -125,6 +125,9 @@ const PostsPage = () => {
           </div>
         )}
 
+        <PublicationPipelineHero />
+        <PublicationStatsRow items={properties} />
+
         {/* Filters */}
         <FiltersBar active={filter} onChange={setFilter} filters={POST_FILTERS} />
 
