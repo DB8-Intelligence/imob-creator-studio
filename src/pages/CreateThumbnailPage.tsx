@@ -1,21 +1,33 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight, ImageIcon, MousePointerClick } from "lucide-react";
+import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
+import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
 
 const CreateThumbnailPage = () => {
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    headline: "Casa moderna com 5 suítes em Alphaville",
+    subheadline: "Tour completo + área gourmet + condomínio premium",
+    emphasis: "ALTO PADRÃO",
+    notes: "Manter contraste forte, texto grande e foco em clique.",
+  });
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         <div>
           <Badge className="bg-accent text-accent-foreground mb-3">Módulo dedicado</Badge>
           <h1 className="text-3xl font-display font-bold text-foreground">Criar Thumbnail</h1>
           <p className="text-muted-foreground mt-1">
-            Organize capas com mais impacto para anúncios, reels covers e campanhas de clique.
+            Monte capas orientadas por clique para anúncios, reels covers e campanhas visuais.
           </p>
         </div>
 
@@ -27,29 +39,60 @@ const CreateThumbnailPage = () => {
           { label: "Destino", value: "Campanhas", description: "Útil para anúncios, covers e chamadas fortes." },
         ]} />
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid xl:grid-cols-[1fr,360px] gap-6">
           <Card>
-            <CardContent className="p-6 space-y-4">
-              <ImageIcon className="w-6 h-6 text-accent" />
+            <CardContent className="p-6 space-y-5">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">Thumbnail orientada por clique</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Use títulos curtos, contraste e expressão visual forte para aumentar atenção.
-                </p>
+                <h2 className="text-xl font-semibold text-foreground">Briefing da thumbnail</h2>
+                <p className="text-sm text-muted-foreground mt-1">Defina a mensagem principal e leve isso para template/editor.</p>
               </div>
-              <Button onClick={() => navigate("/brand-templates")}>Abrir templates<ArrowRight className="w-4 h-4 ml-2" /></Button>
+              <div className="space-y-4">
+                <div>
+                  <Label>Headline principal</Label>
+                  <Input className="mt-1" value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Subheadline</Label>
+                  <Input className="mt-1" value={form.subheadline} onChange={(e) => setForm({ ...form, subheadline: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Texto de destaque</Label>
+                  <Input className="mt-1" value={form.emphasis} onChange={(e) => setForm({ ...form, emphasis: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Notas para IA</Label>
+                  <Textarea className="mt-1" rows={4} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => navigate("/brand-templates")}>Abrir templates</Button>
+                <Button onClick={() => navigate("/editor", { state: { thumbnailMode: true, thumbnailBrief: form } })}>
+                  Levar para editor
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
+
           <Card>
             <CardContent className="p-6 space-y-4">
-              <MousePointerClick className="w-6 h-6 text-accent" />
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Próxima evolução</h3>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Etapa futura: fluxo dedicado com headline, subtítulo, imagens e custo por ação.
-                </p>
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-accent" />
+                <h3 className="font-semibold text-foreground">Preview de estrutura</h3>
               </div>
-              <Button variant="outline" onClick={() => navigate("/dashboard")}>Voltar ao dashboard</Button>
+              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-5 text-primary-foreground flex flex-col justify-between">
+                <div>
+                  <Badge className="bg-accent text-accent-foreground">{form.emphasis}</Badge>
+                </div>
+                <div>
+                  <p className="text-2xl font-display font-bold leading-tight">{form.headline}</p>
+                  <p className="text-sm text-primary-foreground/70 mt-2">{form.subheadline}</p>
+                </div>
+              </div>
+              <div className="rounded-xl border border-border/60 p-4 bg-muted/30 text-sm text-muted-foreground">
+                <MousePointerClick className="w-4 h-4 text-accent mb-2" />
+                Esse MVP já permite estruturar uma thumbnail real e reutilizar isso no editor/export.
+              </div>
             </CardContent>
           </Card>
         </div>
