@@ -402,6 +402,7 @@ const Settings = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Plano Atual</CardTitle>
+                <CardDescription>Organize seu crescimento por estágio operacional.</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between p-4 bg-accent/10 rounded-lg">

@@ -118,6 +118,29 @@ const PlanPage = () => {
               </div>
             )}
 
+            <Card>
+              <CardContent className="p-6 space-y-3">
+                <h2 className="text-lg font-semibold text-foreground">Evolução operacional</h2>
+                <p className="text-sm text-muted-foreground">
+                  Use Créditos para validar, Pro para ganhar recorrência e VIP para estruturar múltiplos fluxos, contas e governança.
+                </p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">Créditos</p>
+                    <p className="text-xs text-muted-foreground mt-1">Entrada rápida para validar o fluxo e gerar os primeiros criativos.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">Pro</p>
+                    <p className="text-xs text-muted-foreground mt-1">Padrão ideal para produção frequente com templates e histórico.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">VIP</p>
+                    <p className="text-xs text-muted-foreground mt-1">Base para operação mais robusta, múltiplas contas e evolução SaaS.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Comparison table */}
             <Card>
               <CardContent className="p-0">

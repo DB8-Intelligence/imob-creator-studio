@@ -25,6 +25,7 @@ import {
   Sun
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 
 interface AppLayoutProps {
@@ -178,7 +179,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                     <p className="text-sm font-medium text-foreground">
                       {profile?.full_name || "Usuário"}
                     </p>
-                    <p className="text-xs text-muted-foreground">Plano Gratuito</p>
+                    <p className="text-xs text-muted-foreground">Plano {plan?.user_plan?.toUpperCase?.() || "CRÉDITOS"}</p>
                   </div>
                 </button>
               </DropdownMenuTrigger>
@@ -199,6 +200,23 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+        <div className="p-4 lg:p-8">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AppLayout;
+        </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
