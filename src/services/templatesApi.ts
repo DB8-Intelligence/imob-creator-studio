@@ -10,18 +10,27 @@ async function proxyCall<T>(opts: { method: string; path: string; body?: Record<
   return res.data as T;
 }
 
-export async function fetchTemplates(): Promise<BrandTemplate[]> {
-  return proxyCall<BrandTemplate[]>({ method: "GET", path: "/templates" });
+export async function fetchTemplates(workspaceId?: string | null): Promise<BrandTemplate[]> {
+  const suffix = workspaceId ? `?workspace_id=${encodeURIComponent(workspaceId)}` : "";
+  return proxyCall<BrandTemplate[]>({ method: "GET", path: `/templates${suffix}` });
 }
 
-export async function createTemplate(data: BrandTemplateInput): Promise<BrandTemplate> {
-  return proxyCall<BrandTemplate>({ method: "POST", path: "/templates", body: data as unknown as Record<string, unknown> });
+export async function createTemplate(data: BrandTemplateInput, workspaceId?: string | null): Promise<BrandTemplate> {
+  return proxyCall<BrandTemplate>({
+    method: "POST",
+    path: "/templates",
+    body: { ...(data as unknown as Record<string, unknown>), workspace_id: workspaceId ?? null },
+  });
 }
 
-export async function updateTemplate(id: string, data: Partial<BrandTemplateInput>): Promise<BrandTemplate> {
-  return proxyCall<BrandTemplate>({ method: "PATCH", path: `/templates/${id}`, body: data as unknown as Record<string, unknown> });
+export async function updateTemplate(id: string, data: Partial<BrandTemplateInput>, workspaceId?: string | null): Promise<BrandTemplate> {
+  return proxyCall<BrandTemplate>({
+    method: "PATCH",
+    path: `/templates/${id}`,
+    body: { ...(data as unknown as Record<string, unknown>), workspace_id: workspaceId ?? null },
+  });
 }
 
-export async function deleteTemplate(id: string): Promise<void> {
-  await proxyCall<void>({ method: "DELETE", path: `/templates/${id}` });
+export async function deleteTemplate(id: string, workspaceId?: string | null): Promise<void> {
+  await proxyCall<void>({ method: "DELETE", path: `/templates/${id}${workspaceId ? `?workspace_id=${encodeURIComponent(workspaceId)}` : ""}` });
 }

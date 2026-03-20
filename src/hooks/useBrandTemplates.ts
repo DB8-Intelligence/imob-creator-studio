@@ -35,6 +35,7 @@ export function useUpdateTemplate() {
 
 export function useDeleteTemplate() {
   const qc = useQueryClient();
+  const { workspaceId } = useWorkspaceContext();
   return useMutation({
     mutationFn: (id: string) => deleteTemplate(id),
     onSuccess: () => {
