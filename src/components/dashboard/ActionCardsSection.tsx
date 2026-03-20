@@ -10,28 +10,28 @@ const actions = [
     description: "Gere posts imobiliários com IA, template e CTA em um fluxo guiado.",
     badge: "Principal",
     icon: Sparkles,
-    href: "/upload",
+    href: "/create",
   },
   {
     title: "Criar Sequência",
     description: "Monte carrosséis e narrativas visuais para destacar benefícios do imóvel.",
     badge: "Carrossel",
     icon: LayoutTemplate,
-    href: "/templates",
+    href: "/create/sequence",
   },
   {
     title: "Criar Thumbnail",
     description: "Prepare capas para anúncios, vídeos e peças com maior taxa de clique.",
     badge: "Conversão",
     icon: ImageIcon,
-    href: "/brand-templates",
+    href: "/create/thumbnail",
   },
   {
     title: "Animar Criativo",
     description: "Evolua o criativo em reels e assets em movimento para ampliar impacto.",
     badge: "Vídeo",
     icon: Clapperboard,
-    href: "/library",
+    href: "/create/animate",
   },
 ];
 

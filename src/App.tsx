@@ -9,6 +9,10 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import CreateCreativeHub from "./pages/CreateCreativeHub";
+import CreateSequencePage from "./pages/CreateSequencePage";
+import CreateThumbnailPage from "./pages/CreateThumbnailPage";
+import AnimateCreativePage from "./pages/AnimateCreativePage";
 import Upload from "./pages/Upload";
 import Templates from "./pages/Templates";
 import Editor from "./pages/Editor";
@@ -103,6 +107,22 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/plano" element={
+              <ProtectedRoute>
+                <PlanPage />
+              </ProtectedRoute>
+            } />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </WorkspaceProvider>
+    </AuthProvider>
+  </QueryClientProvider>
+);
+
+export default App;
+te path="/plano" element={
               <ProtectedRoute>
                 <PlanPage />
               </ProtectedRoute>
