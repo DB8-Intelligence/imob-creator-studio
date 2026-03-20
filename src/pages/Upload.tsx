@@ -150,7 +150,7 @@ const Upload = () => {
             Upload de Mídia
           </h1>
           <p className="text-muted-foreground mt-1">
-            Envie as fotos e vídeos do imóvel para criar seu criativo
+            Envie as fotos e vídeos do imóvel para criar seu criativo e alimentar o fluxo de IA com mais contexto.
           </p>
         </div>
 

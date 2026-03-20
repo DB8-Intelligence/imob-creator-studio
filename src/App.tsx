@@ -80,11 +80,31 @@ const App = () => (
                 <SettingsPrompts />
               </ProtectedRoute>
             } />
-            <Route path="/inbox" element={<Inbox />} />
-            <Route path="/editor/:id" element={<PropertyEditor />} />
-            <Route path="/posts" element={<Posts />} />
-            <Route path="/brand-templates" element={<BrandTemplates />} />
-            <Route path="/plano" element={<PlanPage />} />
+            <Route path="/inbox" element={
+              <ProtectedRoute>
+                <Inbox />
+              </ProtectedRoute>
+            } />
+            <Route path="/editor/:id" element={
+              <ProtectedRoute>
+                <PropertyEditor />
+              </ProtectedRoute>
+            } />
+            <Route path="/posts" element={
+              <ProtectedRoute>
+                <Posts />
+              </ProtectedRoute>
+            } />
+            <Route path="/brand-templates" element={
+              <ProtectedRoute>
+                <BrandTemplates />
+              </ProtectedRoute>
+            } />
+            <Route path="/plano" element={
+              <ProtectedRoute>
+                <PlanPage />
+              </ProtectedRoute>
+            } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -81,7 +81,7 @@ const Templates = () => {
             Escolha o Template
           </h1>
           <p className="text-muted-foreground mt-1">
-            Selecione o formato, tipo e estilo do seu criativo
+            Selecione o formato, tipo e estilo do seu criativo para manter consistência e acelerar a aprovação.
           </p>
         </div>
 
