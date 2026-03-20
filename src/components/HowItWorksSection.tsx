@@ -4,20 +4,20 @@ const steps = [
   {
     number: "01",
     icon: Upload,
-    title: "Envie suas Fotos",
-    description: "Faça upload das fotos do imóvel diretamente pelo navegador ou celular.",
+    title: "Receba o imóvel",
+    description: "Centralize fotos e dados do imóvel no sistema para iniciar a produção com mais velocidade.",
   },
   {
     number: "02",
     icon: Palette,
-    title: "Personalize",
-    description: "Escolha templates, adicione texto e aplique melhorias automáticas com IA.",
+    title: "IA monta o criativo",
+    description: "Aplique template, gere legenda com CTA e prepare a peça para aprovação sem retrabalho manual.",
   },
   {
     number: "03",
     icon: Download,
-    title: "Exporte e Compartilhe",
-    description: "Baixe em alta qualidade para usar em anúncios, redes sociais e impressão.",
+    title: "Aprove e publique",
+    description: "Revise o conteúdo e publique no Instagram com um fluxo mais previsível e escalável.",
   },
 ];
 

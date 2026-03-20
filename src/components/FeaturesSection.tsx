@@ -3,33 +3,33 @@ import { Camera, Wand2, Share2, Sparkles, Layers, Zap } from "lucide-react";
 const features = [
   {
     icon: Camera,
-    title: "Upload Simples",
-    description: "Envie suas fotos de imóveis e deixe nossa tecnologia fazer a mágica.",
+    title: "Entrada rápida do imóvel",
+    description: "Receba fotos e informações do imóvel pelo navegador, painel interno ou fluxo conectado ao WhatsApp.",
   },
   {
     icon: Wand2,
-    title: "Edição Inteligente",
-    description: "Ajuste automático de cores, iluminação e composição para fotos perfeitas.",
+    title: "Legenda com IA",
+    description: "Gere copy persuasiva com CTA, contexto comercial e linguagem adaptada ao mercado imobiliário.",
   },
   {
     icon: Layers,
-    title: "Templates Premium",
-    description: "Mais de 50 templates profissionais para apresentações impactantes.",
+    title: "Templates de marca",
+    description: "Aplique layouts padronizados para feed, story e reels sem refazer design a cada anúncio.",
   },
   {
     icon: Sparkles,
-    title: "Melhoria com IA",
-    description: "Inteligência artificial que transforma fotos comuns em imagens extraordinárias.",
+    title: "Criativo automatizado",
+    description: "Transforme material bruto em peça pronta para aprovação com visual profissional e rapidez operacional.",
   },
   {
     icon: Zap,
-    title: "Resultados Rápidos",
-    description: "Gere materiais profissionais em segundos, não em horas.",
+    title: "Produção em escala",
+    description: "Reduza o tempo entre captar o imóvel e ter o post pronto para publicar.",
   },
   {
     icon: Share2,
-    title: "Compartilhe Fácil",
-    description: "Exporte em alta qualidade para redes sociais, portais e impressão.",
+    title: "Aprovação e publicação",
+    description: "Revise antes de publicar e evolua para uma operação mais automática no Instagram.",
   },
 ];
 
