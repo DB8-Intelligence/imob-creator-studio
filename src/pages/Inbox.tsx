@@ -24,7 +24,7 @@ const InboxPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Inbox</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Imóveis recebidos via WhatsApp
+            Imóveis recebidos via WhatsApp no workspace atual
           </p>
         </div>
 

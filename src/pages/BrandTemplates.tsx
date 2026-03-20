@@ -50,7 +50,7 @@ const BrandTemplatesPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Templates</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Gerencie seus brand kits para artes
+              Gerencie seus brand kits para artes dentro do workspace ativo
             </p>
           </div>
           <Button onClick={handleNew}>

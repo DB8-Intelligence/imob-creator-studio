@@ -22,10 +22,11 @@ import {
   X,
   Sparkles,
   Moon,
-  Sun
+  Sun,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 
 interface AppLayoutProps {
@@ -45,6 +46,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
+  const { data: plan } = useUserPlan();
+  const { workspaceName, workspaceRole } = useWorkspaceContext();
   const { toast } = useToast();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
@@ -65,12 +68,19 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   const getInitials = (name: string | null) => {
     if (!name) return "U";
-    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
+
+  const creditsRemaining = plan?.credits_remaining ?? 47;
+  const isUnlimited = plan?.user_plan === "pro" || plan?.user_plan === "vip";
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
         <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
           <Menu className="w-5 h-5" />
@@ -89,34 +99,44 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </Avatar>
       </header>
 
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-foreground/50 z-50"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`
-        fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50
-        transform transition-transform duration-300 lg:translate-x-0
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-      `}>
+      <aside
+        className={`
+          fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50
+          transform transition-transform duration-300 lg:translate-x-0
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
         <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="h-16 flex items-center justify-between px-4 border-b border-border">
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-sm">
-                <Home className="w-5 h-5 text-accent-foreground" />
+          <div className="min-h-16 flex items-start justify-between px-4 py-3 border-b border-border">
+            <div>
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center shadow-sm">
+                  <Home className="w-5 h-5 text-accent-foreground" />
+                </div>
+                <span className="font-display font-bold text-foreground">
+                  Imob<span className="text-accent">Creator</span>
+                </span>
+              </Link>
+              <div className="mt-2 pl-12">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Workspace ativo</p>
+                <p className="text-sm font-medium text-foreground line-clamp-1">
+                  {workspaceName || "Workspace não carregado"}
+                </p>
+                <p className="text-[11px] text-muted-foreground">
+                  {workspaceRole ? `Role: ${workspaceRole}` : "Sem role definida"}
+                </p>
               </div>
-              <span className="font-display font-bold text-foreground">
-                Imob<span className="text-accent">Creator</span>
-              </span>
-            </Link>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
               className="lg:hidden"
               onClick={() => setSidebarOpen(false)}
             >
@@ -124,7 +144,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -135,9 +154,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   onClick={() => setSidebarOpen(false)}
                   className={`
                     flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                    ${isActive 
-                      ? "bg-accent text-accent-foreground font-medium" 
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ${
+                      isActive
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }
                   `}
                 >
@@ -148,25 +168,28 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             })}
           </nav>
 
-          {/* Credits Card */}
           <div className="p-4">
             <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl p-4 border border-accent/20">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-accent" />
                 <span className="text-sm font-medium text-foreground">Créditos</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">47</p>
-              <p className="text-xs text-muted-foreground mb-3">de 100 disponíveis</p>
+              <p className="text-2xl font-bold text-foreground">{isUnlimited ? "∞" : creditsRemaining}</p>
+              <p className="text-xs text-muted-foreground mb-3">
+                {isUnlimited ? "créditos com operação expandida" : "créditos restantes no plano atual"}
+              </p>
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-accent rounded-full" style={{ width: "47%" }} />
+                <div
+                  className="h-full bg-accent rounded-full"
+                  style={{ width: `${Math.min((creditsRemaining / 100) * 100, 100)}%` }}
+                />
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-3">
-                Comprar mais
+              <Button variant="outline" size="sm" className="w-full mt-3" onClick={() => navigate("/plano")}>
+                Ver plano / upgrade
               </Button>
             </div>
           </div>
 
-          {/* User Menu */}
           <div className="p-4 border-t border-border">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -176,10 +199,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                     <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-foreground">
-                      {profile?.full_name || "Usuário"}
+                    <p className="text-sm font-medium text-foreground">{profile?.full_name || "Usuário"}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Plano {plan?.user_plan?.toUpperCase?.() || "CRÉDITOS"}
                     </p>
-                    <p className="text-xs text-muted-foreground">Plano {plan?.user_plan?.toUpperCase?.() || "CRÉDITOS"}</p>
                   </div>
                 </button>
               </DropdownMenuTrigger>
@@ -205,28 +228,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
-        <div className="p-4 lg:p-8">
-          {children}
-        </div>
-      </main>
-    </div>
-  );
-};
-
-export default AppLayout;
-        </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
-        <div className="p-4 lg:p-8">
-          {children}
-        </div>
+        <div className="p-4 lg:p-8">{children}</div>
       </main>
     </div>
   );
