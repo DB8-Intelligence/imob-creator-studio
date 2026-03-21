@@ -10,6 +10,7 @@ import { Home, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
+import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const Auth = () => {
         title: "Conta criada!",
         description: "Verifique seu email para confirmar sua conta.",
       });
+      dispatchN8nEvent("new_user", { email: signupEmail, name: signupName });
     }
 
     setIsLoading(false);
