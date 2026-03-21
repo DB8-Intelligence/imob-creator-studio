@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { useVideoModuleOverview } from "@/hooks/useVideoModule";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import {
   Check,
   X,
@@ -200,6 +202,8 @@ const COMPARISON = [
 const VideosPricingPage = () => {
   const navigate = useNavigate();
   const { data: plan } = useUserPlan();
+  const { workspaceId } = useWorkspaceContext();
+  const { data: overview } = useVideoModuleOverview(workspaceId);
   const [billing, setBilling] = useState<Billing>("monthly");
 
   const currentPlan = plan?.user_plan;
@@ -249,6 +253,15 @@ const VideosPricingPage = () => {
               {billing === "yearly" ? "Até 2 meses grátis" : "Economize no anual"}
             </span>
           </div>
+        </div>
+
+        <div className="max-w-3xl mx-auto rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            Add-on ativo: <span className="font-semibold text-foreground">{overview?.addOn?.addon_type?.toUpperCase?.() ?? "N/D"}</span>
+            {overview?.addOn?.credits_total === null
+              ? " · créditos ilimitados"
+              : ` · ${Math.max((overview?.addOn?.credits_total ?? 0) - (overview?.addOn?.credits_used ?? 0), 0)} créditos restantes de ${(overview?.addOn?.credits_total ?? 0)}`}
+          </p>
         </div>
 
         {/* Plan cards */}

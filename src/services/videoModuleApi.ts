@@ -72,31 +72,60 @@ export async function fetchVideoModuleOverview(workspaceId: string): Promise<Vid
   return { jobs, addOn };
 }
 
+export async function consumeVideoCredit(workspaceId: string): Promise<VideoPlanAddon> {
+  const { data, error } = await supabase.rpc("consume_video_credit" as never, {
+    target_workspace_id: workspaceId,
+  } as never);
+
+  if (error) throw error;
+  return mapAddon(data);
+}
+
+export async function releaseVideoCredit(workspaceId: string): Promise<VideoPlanAddon> {
+  const { data, error } = await supabase.rpc("release_video_credit" as never, {
+    target_workspace_id: workspaceId,
+  } as never);
+
+  if (error) throw error;
+  return mapAddon(data);
+}
+
 export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJob> {
   const userResult = await supabase.auth.getUser();
   if (userResult.error) throw userResult.error;
 
-  const { data, error } = await supabase
-    .from("video_jobs" as never)
-    .insert({
-      workspace_id: input.workspaceId,
-      property_id: input.propertyId ?? null,
-      title: input.title,
-      style: input.style,
-      format: input.format,
-      duration_seconds: input.durationSeconds,
-      resolution: input.resolution ?? "4K Ultra HD",
-      status: "queued",
-      photos_count: input.photosCount,
-      credits_used: input.photosCount > 0 ? 5 : 0,
-      metadata: input.metadata ?? null,
-      created_by: userResult.data.user?.id ?? null,
-    } as never)
-    .select("*")
-    .single();
+  const consumedAddon = await consumeVideoCredit(input.workspaceId);
 
-  if (error) throw error;
-  return mapJob(data);
+  try {
+    const { data, error } = await supabase
+      .from("video_jobs" as never)
+      .insert({
+        workspace_id: input.workspaceId,
+        property_id: input.propertyId ?? null,
+        title: input.title,
+        style: input.style,
+        format: input.format,
+        duration_seconds: input.durationSeconds,
+        resolution: input.resolution ?? "4K Ultra HD",
+        status: "queued",
+        photos_count: input.photosCount,
+        credits_used: consumedAddon.credits_total === null ? 0 : 1,
+        metadata: {
+          ...(input.metadata ?? {}),
+          consumed_addon_type: consumedAddon.addon_type,
+          billing_cycle: consumedAddon.billing_cycle,
+        },
+        created_by: userResult.data.user?.id ?? null,
+      } as never)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return mapJob(data);
+  } catch (error) {
+    await releaseVideoCredit(input.workspaceId);
+    throw error;
+  }
 }
 
 export async function updateVideoJobStatus(id: string, status: VideoJob["status"], outputUrl?: string | null) {

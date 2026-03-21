@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createVideoJob, fetchVideoJobs, fetchVideoModuleOverview, updateVideoJobStatus } from "@/services/videoModuleApi";
+import { createVideoJob, fetchVideoJobs, fetchVideoModuleOverview, releaseVideoCredit, updateVideoJobStatus } from "@/services/videoModuleApi";
 import type { CreateVideoJobInput, VideoJob } from "@/types/video";
 
 export function useVideoJobs(workspaceId: string | null) {
@@ -41,6 +41,17 @@ export function useUpdateVideoJobStatus(workspaceId: string | null) {
       updateVideoJobStatus(id, status, outputUrl),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["video-jobs", workspaceId] });
+      qc.invalidateQueries({ queryKey: ["video-module-overview", workspaceId] });
+    },
+  });
+}
+
+export function useReleaseVideoCredit(workspaceId: string | null) {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => releaseVideoCredit(workspaceId as string),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["video-module-overview", workspaceId] });
     },
   });

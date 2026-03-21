@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
-import { useCreateVideoJob, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
+import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
 import { renderVideoJob } from "@/services/videoModuleApi";
 import {
   Upload,
@@ -122,6 +122,7 @@ const VideoCreatorPage = () => {
   const { workspaceId } = useWorkspaceContext();
   const createVideoJobMutation = useCreateVideoJob(workspaceId);
   const updateVideoJobStatusMutation = useUpdateVideoJobStatus(workspaceId);
+  const releaseVideoCreditMutation = useReleaseVideoCredit(workspaceId);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
@@ -226,6 +227,12 @@ const VideoCreatorPage = () => {
       if (jobId) {
         try {
           await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "failed" });
+        } catch {
+          // noop
+        }
+      } else if (workspaceId) {
+        try {
+          await releaseVideoCreditMutation.mutateAsync();
         } catch {
           // noop
         }
