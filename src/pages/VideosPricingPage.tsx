@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useActivateVideoAddon, useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -17,8 +16,9 @@ import {
   ChevronRight,
   ToggleLeft,
   ToggleRight,
-  MessageCircle,
   CheckCircle2,
+  ChevronDown,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,178 +27,242 @@ type Billing = "monthly" | "yearly";
 const PLANS = {
   monthly: [
     {
-      id: "starter",
+      id: "standard",
       icon: Zap,
-      name: "Vídeo Starter",
-      badge: "Add-on",
-      price: "R$ 97",
+      name: "Standard",
+      badge: null,
+      price: "R$ 297",
       period: "/mês",
       saving: null,
-      description: "Para corretores que querem experimentar vídeo IA com baixo volume e custo de entrada.",
-      requires: "Requer plano Créditos",
-      videos: "5 vídeos/mês",
-      resolution: "1080p Full HD",
+      description: "Para corretores que querem começar a criar vídeos imobiliários com IA.",
+      credits: "300 créditos/mês",
+      resolution: "720p HD",
       features: [
-        { label: "5 vídeos por mês", ok: true },
-        { label: "1080p Full HD", ok: true },
+        { label: "300 créditos por mês", ok: true },
+        { label: "Vídeos em 720p HD", ok: true },
+        { label: "Até 10 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA (título + CTA)", ok: true },
-        { label: "4K Ultra HD", ok: false },
-        { label: "Suporte prioritário", ok: false },
-        { label: "Volume customizado", ok: false },
+        { label: "1080p Full HD", ok: false },
+        { label: "Renderização prioritária", ok: false },
       ],
-      cta: "Contratar add-on",
+      cta: "Assinar",
       featured: false,
       enterpriseContact: false,
     },
     {
-      id: "pro",
+      id: "plus",
       icon: Star,
-      name: "Vídeo Pro",
+      name: "Plus",
       badge: "Mais escolhido",
       price: "R$ 497",
       period: "/mês",
       saving: null,
-      description: "Incluído no plano Pro. Volume e qualidade profissional para operação de conteúdo frequente.",
-      requires: "Incluído no plano Pro",
-      videos: "20 vídeos/mês",
-      resolution: "4K Ultra HD",
+      description: "Qualidade profissional em Full HD para corretores e pequenas imobiliárias.",
+      credits: "600 créditos/mês",
+      resolution: "1080p Full HD",
       features: [
-        { label: "20 vídeos por mês", ok: true },
-        { label: "4K Ultra HD", ok: true },
+        { label: "600 créditos por mês", ok: true },
+        { label: "Vídeos em 1080p Full HD", ok: true },
+        { label: "Até 15 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA (título + CTA)", ok: true },
-        { label: "Histórico de vídeos", ok: true },
-        { label: "Suporte prioritário", ok: true },
-        { label: "Volume customizado", ok: false },
+        { label: "4K Ultra HD", ok: false },
+        { label: "Renderização prioritária", ok: false },
       ],
-      cta: "Ver plano Pro",
+      cta: "Assinar",
       featured: true,
       enterpriseContact: false,
     },
     {
-      id: "enterprise",
+      id: "premium",
       icon: Crown,
-      name: "Vídeo Enterprise",
-      badge: "Imobiliárias",
-      price: "Sob proposta",
-      period: "",
+      name: "Premium",
+      badge: null,
+      price: "R$ 1.697",
+      period: "/mês",
       saving: null,
-      description: "Para imobiliárias com alto volume. Vídeos ilimitados em 4K, multi-workspace e suporte dedicado.",
-      requires: "Requer plano VIP",
-      videos: "Volume customizado",
-      resolution: "4K + suporte dedicado",
+      description: "Para imobiliárias com alto volume. Vídeos 4K com renderização prioritária.",
+      credits: "800 créditos/mês",
+      resolution: "4K Ultra HD",
       features: [
-        { label: "Volume customizado de vídeos", ok: true },
-        { label: "4K Ultra HD garantido", ok: true },
+        { label: "800 créditos por mês", ok: true },
+        { label: "Vídeos em 4K Ultra HD", ok: true },
+        { label: "Até 20 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA avançada", ok: true },
-        { label: "Histórico completo", ok: true },
+        { label: "Renderização prioritária", ok: true },
         { label: "Suporte dedicado", ok: true },
-        { label: "SLA e implantação", ok: true },
       ],
-      cta: "Falar com especialista",
+      cta: "Assinar",
       featured: false,
-      enterpriseContact: true,
+      enterpriseContact: false,
     },
   ],
   yearly: [
     {
-      id: "starter",
+      id: "standard",
       icon: Zap,
-      name: "Vídeo Starter",
-      badge: "1 mês grátis",
-      price: "R$ 970",
+      name: "Standard",
+      badge: "2 meses grátis",
+      price: "R$ 2.970",
       period: "/ano",
-      saving: "Economia de R$194",
-      description: "Add-on anual com custo reduzido para testar vídeo IA com consistência.",
-      requires: "Requer plano Créditos",
-      videos: "5 vídeos/mês",
-      resolution: "1080p Full HD",
+      saving: "Economia de R$ 594",
+      description: "Plano anual com custo reduzido para começar a criar vídeos com consistência.",
+      credits: "300 créditos/mês",
+      resolution: "720p HD",
       features: [
-        { label: "5 vídeos por mês", ok: true },
-        { label: "1080p Full HD", ok: true },
+        { label: "300 créditos por mês", ok: true },
+        { label: "Vídeos em 720p HD", ok: true },
+        { label: "Até 10 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA (título + CTA)", ok: true },
-        { label: "4K Ultra HD", ok: false },
-        { label: "Suporte prioritário", ok: false },
-        { label: "Volume customizado", ok: false },
+        { label: "1080p Full HD", ok: false },
+        { label: "Renderização prioritária", ok: false },
       ],
-      cta: "Assinar anual",
+      cta: "Assinar",
       featured: false,
       enterpriseContact: false,
     },
     {
-      id: "pro",
+      id: "plus",
       icon: Star,
-      name: "Vídeo Pro",
-      badge: "2 meses grátis",
+      name: "Plus",
+      badge: "Mais escolhido",
       price: "R$ 4.970",
       period: "/ano",
-      saving: "Economia de R$994",
-      description: "Melhor custo por vídeo. Ideal para times que geram conteúdo toda semana.",
-      requires: "Incluído no plano Pro anual",
-      videos: "20 vídeos/mês",
-      resolution: "4K Ultra HD",
+      saving: "Economia de R$ 994",
+      description: "Melhor custo por crédito. Ideal para times que geram conteúdo toda semana.",
+      credits: "600 créditos/mês",
+      resolution: "1080p Full HD",
       features: [
-        { label: "20 vídeos por mês", ok: true },
-        { label: "4K Ultra HD", ok: true },
+        { label: "600 créditos por mês", ok: true },
+        { label: "Vídeos em 1080p Full HD", ok: true },
+        { label: "Até 15 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA (título + CTA)", ok: true },
-        { label: "Histórico de vídeos", ok: true },
-        { label: "Suporte prioritário", ok: true },
-        { label: "Volume customizado", ok: false },
+        { label: "4K Ultra HD", ok: false },
+        { label: "Renderização prioritária", ok: false },
       ],
-      cta: "Garantir anual",
+      cta: "Assinar",
       featured: true,
       enterpriseContact: false,
     },
     {
-      id: "enterprise",
+      id: "premium",
       icon: Crown,
-      name: "Vídeo Enterprise",
-      badge: "Implantação estratégica",
-      price: "Sob proposta",
-      period: "",
-      saving: null,
-      description: "Contrato anual com escopo enterprise, SLA, multi-tenant e vídeos em volume.",
-      requires: "Requer plano VIP anual",
-      videos: "Volume customizado",
-      resolution: "4K + SLA dedicado",
+      name: "Premium",
+      badge: "2 meses grátis",
+      price: "R$ 16.970",
+      period: "/ano",
+      saving: "Economia de R$ 3.394",
+      description: "Contrato anual com 4K, renderização prioritária e suporte dedicado.",
+      credits: "800 créditos/mês",
+      resolution: "4K Ultra HD",
       features: [
-        { label: "Volume customizado de vídeos", ok: true },
-        { label: "4K Ultra HD garantido", ok: true },
+        { label: "800 créditos por mês", ok: true },
+        { label: "Vídeos em 4K Ultra HD", ok: true },
+        { label: "Até 20 fotos por vídeo", ok: true },
+        { label: "Logo + texto overlay", ok: true },
         { label: "3 estilos visuais", ok: true },
         { label: "Reels, Feed e YouTube", ok: true },
-        { label: "Overlay IA avançada", ok: true },
-        { label: "Histórico completo", ok: true },
-        { label: "Suporte dedicado + SLA", ok: true },
-        { label: "Implantação e consultoria", ok: true },
+        { label: "Renderização prioritária", ok: true },
+        { label: "Suporte dedicado", ok: true },
       ],
-      cta: "Montar proposta",
+      cta: "Assinar",
       featured: false,
-      enterpriseContact: true,
+      enterpriseContact: false,
     },
   ],
 } as const;
 
 // Feature comparison rows
 const COMPARISON = [
-  { label: "Vídeos / mês", starter: "5", pro: "20", enterprise: "Ilimitado" },
-  { label: "Resolução máxima", starter: "1080p", pro: "4K", enterprise: "4K" },
-  { label: "Estilos visuais", starter: "3", pro: "3", enterprise: "3" },
-  { label: "Formatos (Reels/Feed/YT)", starter: true, pro: true, enterprise: true },
-  { label: "Overlay IA (título + CTA)", starter: true, pro: true, enterprise: true },
-  { label: "Histórico de vídeos", starter: false, pro: true, enterprise: true },
-  { label: "Suporte prioritário", starter: false, pro: true, enterprise: true },
-  { label: "SLA e implantação", starter: false, pro: false, enterprise: true },
-  { label: "Volume enterprise", starter: false, pro: false, enterprise: true },
+  { label: "Créditos / mês", standard: "300", plus: "600", premium: "800" },
+  { label: "Resolução máxima", standard: "720p", plus: "1080p", premium: "4K" },
+  { label: "Fotos por vídeo", standard: "até 10", plus: "até 15", premium: "até 20" },
+  { label: "Estilos visuais", standard: "3", plus: "3", premium: "3" },
+  { label: "Formatos (Reels/Feed/YT)", standard: true, plus: true, premium: true },
+  { label: "Logo + texto overlay", standard: true, plus: true, premium: true },
+  { label: "Renderização prioritária", standard: false, plus: false, premium: true },
+  { label: "Suporte dedicado", standard: false, plus: false, premium: true },
 ];
+
+// FAQ items
+const VIDEO_FAQS = [
+  {
+    question: "O que é o ImobCreatorVideo?",
+    answer:
+      "É uma plataforma que transforma suas fotos de imóveis em vídeos profissionais de forma automática, usando inteligência artificial.",
+  },
+  {
+    question: "Preciso ter conhecimento em edição de vídeo?",
+    answer:
+      "Não! Nossa plataforma é totalmente automatizada. Você só precisa enviar as fotos e escolher o estilo desejado.",
+  },
+  {
+    question: "Como funcionam os créditos?",
+    answer:
+      "Cada vídeo gerado consome 100 créditos (planos Standard e Plus) ou 200 créditos (plano Premium com qualidade 4K). Seus créditos são renovados a cada ciclo de cobrança.",
+  },
+  {
+    question: "Os créditos acumulam?",
+    answer:
+      "Sim! Os créditos não utilizados permanecem na sua conta mesmo após o cancelamento da assinatura.",
+  },
+  {
+    question: "Quanto tempo leva para gerar um vídeo?",
+    answer:
+      "Em média, um vídeo é gerado em 2 a 5 minutos, dependendo da quantidade de fotos e da duração escolhida.",
+  },
+  {
+    question: "Posso editar o vídeo depois de pronto?",
+    answer:
+      "Atualmente não oferecemos edição pós-geração, mas você pode criar um novo vídeo com configurações diferentes quantas vezes quiser (dentro do seu saldo de créditos).",
+  },
+  {
+    question: "Posso trocar de plano a qualquer momento?",
+    answer:
+      "Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. O valor será calculado proporcionalmente ao período restante.",
+  },
+  {
+    question: "Como funciona o plano anual?",
+    answer:
+      "No plano anual você paga 10 meses e ganha 2 meses grátis, economizando aproximadamente 17% em relação ao plano mensal. O valor é cobrado à vista e o acesso liberado imediatamente por 12 meses.",
+  },
+];
+
+// Accordion item
+const FAQItem = ({ question, answer }: { question: string; answer: string }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-border rounded-2xl overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-muted/40 transition-colors"
+      >
+        <span className="font-medium text-foreground">{question}</span>
+        <ChevronDown
+          className={cn(
+            "w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform duration-200",
+            open && "rotate-180"
+          )}
+        />
+      </button>
+      {open && (
+        <div className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border/50 pt-4">
+          {answer}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const VideosPricingPage = () => {
   const navigate = useNavigate();
@@ -223,7 +287,7 @@ const VideosPricingPage = () => {
             Planos de Vídeo para ImobCreator AI
           </h1>
           <p className="text-muted-foreground">
-            Add-ons de geração de vídeo para cada tamanho de operação. Disponíveis nos planos Créditos, Pro e VIP.
+            Gere vídeos imobiliários cinematográficos com IA. Escolha o plano ideal para o seu volume de produção.
           </p>
         </div>
 
@@ -253,23 +317,33 @@ const VideosPricingPage = () => {
               Anual
             </button>
             <span className="rounded-full bg-emerald-500/10 text-emerald-600 px-3 py-1 text-xs font-semibold">
-              {billing === "yearly" ? "Até 2 meses grátis" : "Economize no anual"}
+              {billing === "yearly" ? "2 meses grátis · -17%" : "Economize no anual"}
             </span>
           </div>
         </div>
 
+        {/* Current plan info */}
         <div className="max-w-3xl mx-auto rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center space-y-2">
           <p className="text-sm text-muted-foreground">
-            Workspace: <span className="font-semibold text-foreground">{workspaceName ?? "N/D"}</span> · plano base <span className="font-semibold text-foreground uppercase">{workspacePlan ?? currentPlan ?? "N/D"}</span>
+            Workspace: <span className="font-semibold text-foreground">{workspaceName ?? "N/D"}</span> · plano base{" "}
+            <span className="font-semibold text-foreground uppercase">{workspacePlan ?? currentPlan ?? "N/D"}</span>
           </p>
           <p className="text-sm text-muted-foreground">
-            Add-on ativo: <span className="font-semibold text-foreground">{overview?.addOn?.addon_type?.toUpperCase?.() ?? "N/D"}</span>
+            Add-on ativo:{" "}
+            <span className="font-semibold text-foreground">
+              {overview?.addOn?.addon_type?.toUpperCase?.() ?? "N/D"}
+            </span>
             {overview?.addOn?.credits_total === null
               ? " · créditos ilimitados"
-              : ` · ${Math.max((overview?.addOn?.credits_total ?? 0) - (overview?.addOn?.credits_used ?? 0), 0)} créditos restantes de ${(overview?.addOn?.credits_total ?? 0)}`}
+              : ` · ${Math.max(
+                  (overview?.addOn?.credits_total ?? 0) - (overview?.addOn?.credits_used ?? 0),
+                  0
+                )} créditos restantes de ${overview?.addOn?.credits_total ?? 0}`}
           </p>
           {!isAdminWorkspace && (
-            <p className="text-xs text-muted-foreground">Somente owner/admin do workspace pode ativar ou trocar o add-on de vídeo.</p>
+            <p className="text-xs text-muted-foreground">
+              Somente owner/admin do workspace pode ativar ou trocar o add-on de vídeo.
+            </p>
           )}
         </div>
 
@@ -278,11 +352,6 @@ const VideosPricingPage = () => {
           {activePlans.map((p) => {
             const Icon = p.icon;
             const isCurrent = overview?.addOn?.addon_type === p.id;
-            const canActivate =
-              isAdminWorkspace &&
-              ((p.id === "starter") ||
-                (p.id === "pro" && (workspacePlan === "pro" || workspacePlan === "vip" || currentPlan === "pro" || currentPlan === "vip")) ||
-                (p.id === "enterprise" && (workspacePlan === "vip" || currentPlan === "vip")));
             return (
               <div
                 key={p.id}
@@ -290,7 +359,7 @@ const VideosPricingPage = () => {
                   "rounded-3xl border p-8 flex flex-col transition-all",
                   p.featured
                     ? "border-accent/40 bg-primary text-primary-foreground shadow-xl scale-[1.01]"
-                    : p.id === "enterprise"
+                    : p.id === "premium"
                     ? "border-amber-400/30 bg-gradient-to-b from-card to-amber-500/5"
                     : "border-border bg-card"
                 )}
@@ -302,7 +371,7 @@ const VideosPricingPage = () => {
                       "w-12 h-12 rounded-xl flex items-center justify-center",
                       p.featured
                         ? "bg-accent text-primary"
-                        : p.id === "enterprise"
+                        : p.id === "premium"
                         ? "bg-amber-500/10 text-amber-600"
                         : "bg-accent/10 text-accent"
                     )}
@@ -315,18 +384,20 @@ const VideosPricingPage = () => {
                         Plano atual
                       </span>
                     )}
-                    <span
-                      className={cn(
-                        "text-xs font-semibold px-3 py-1 rounded-full",
-                        p.featured
-                          ? "bg-accent text-primary"
-                          : p.id === "enterprise"
-                          ? "bg-amber-500/10 text-amber-600"
-                          : "bg-accent/10 text-accent"
-                      )}
-                    >
-                      {p.badge}
-                    </span>
+                    {p.badge && (
+                      <span
+                        className={cn(
+                          "text-xs font-semibold px-3 py-1 rounded-full",
+                          p.featured
+                            ? "bg-accent text-primary"
+                            : p.id === "premium"
+                            ? "bg-amber-500/10 text-amber-600"
+                            : "bg-accent/10 text-accent"
+                        )}
+                      >
+                        {p.badge}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -346,21 +417,22 @@ const VideosPricingPage = () => {
                   {p.saving && (
                     <span className="text-xs text-emerald-500 font-semibold">{p.saving}</span>
                   )}
-                  <p className={cn("text-xs mt-1", p.featured ? "text-primary-foreground/50" : "text-muted-foreground/60")}>
-                    {p.requires}
-                  </p>
                 </div>
 
                 {/* Quick specs */}
                 <div className={cn("rounded-xl p-3 mb-5 flex gap-4", p.featured ? "bg-white/5" : "bg-muted/50")}>
                   <div className="text-center flex-1">
-                    <p className="font-bold text-sm">{p.videos}</p>
-                    <p className={cn("text-[10px]", p.featured ? "text-primary-foreground/50" : "text-muted-foreground")}>volume</p>
+                    <p className="font-bold text-sm">{p.credits}</p>
+                    <p className={cn("text-[10px]", p.featured ? "text-primary-foreground/50" : "text-muted-foreground")}>
+                      créditos
+                    </p>
                   </div>
                   <div className="w-px bg-border" />
                   <div className="text-center flex-1">
                     <p className="font-bold text-sm">{p.resolution}</p>
-                    <p className={cn("text-[10px]", p.featured ? "text-primary-foreground/50" : "text-muted-foreground")}>qualidade</p>
+                    <p className={cn("text-[10px]", p.featured ? "text-primary-foreground/50" : "text-muted-foreground")}>
+                      qualidade
+                    </p>
                   </div>
                 </div>
 
@@ -377,7 +449,9 @@ const VideosPricingPage = () => {
                         className={cn(
                           "text-sm",
                           f.ok
-                            ? p.featured ? "text-primary-foreground/90" : "text-foreground/80"
+                            ? p.featured
+                              ? "text-primary-foreground/90"
+                              : "text-foreground/80"
                             : "text-muted-foreground/40"
                         )}
                       >
@@ -388,47 +462,35 @@ const VideosPricingPage = () => {
                 </ul>
 
                 {/* CTA */}
-                {p.enterpriseContact && !canActivate ? (
+                {isCurrent ? (
                   <Button
-                    variant={p.featured ? "hero" : "outline"}
+                    variant="outline"
                     size="lg"
                     className="w-full"
-                    onClick={() => window.open("https://wa.me/5511999999999?text=Tenho+interesse+no+plano+enterprise+de+vídeo", "_blank")}
+                    onClick={() => navigate("/video-dashboard")}
                   >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    {p.cta}
-                  </Button>
-                ) : isCurrent ? (
-                  <Button variant="outline" size="lg" className="w-full" onClick={() => navigate("/video-dashboard")}>
                     <CheckCircle2 className="w-4 h-4 mr-2" />
                     Add-on ativo
-                  </Button>
-                ) : canActivate ? (
-                  <Button
-                    variant={p.featured ? "hero" : "default"}
-                    size="lg"
-                    className="w-full group"
-                    disabled={activateAddonMutation.isPending}
-                    onClick={() =>
-                      activateAddonMutation.mutate(
-                        { addonType: p.id as "starter" | "pro" | "enterprise", billingCycle: billing },
-                        {
-                          onSuccess: () => navigate("/video-dashboard"),
-                        },
-                      )
-                    }
-                  >
-                    Ativar add-on
-                    <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                   </Button>
                 ) : (
                   <Button
                     variant={p.featured ? "hero" : "default"}
                     size="lg"
                     className="w-full group"
-                    onClick={() => navigate("/plano")}
+                    disabled={activateAddonMutation.isPending}
+                    onClick={() =>
+                      isAdminWorkspace
+                        ? activateAddonMutation.mutate(
+                            {
+                              addonType: p.id as "standard" | "plus" | "premium",
+                              billingCycle: billing,
+                            },
+                            { onSuccess: () => navigate("/video-dashboard") }
+                          )
+                        : navigate("/plano")
+                    }
                   >
-                    {p.id === "starter" ? "Ver condições" : "Fazer upgrade do plano base"}
+                    {p.cta}
                     <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                   </Button>
                 )}
@@ -436,6 +498,15 @@ const VideosPricingPage = () => {
             );
           })}
         </div>
+
+        {/* Legal disclaimer */}
+        <p className="text-center text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          Ao clicar em "Assinar", você declara que leu e concorda com nossos{" "}
+          <span className="underline cursor-pointer">Termos de Uso</span>,{" "}
+          <span className="underline cursor-pointer">Política de Privacidade</span>,{" "}
+          <span className="underline cursor-pointer">Política de Reembolso</span> e{" "}
+          <span className="underline cursor-pointer">Política de Cancelamento</span>.
+        </p>
 
         {/* Comparison table */}
         <div>
@@ -446,15 +517,19 @@ const VideosPricingPage = () => {
                 <thead>
                   <tr className="border-b border-border bg-muted/30">
                     <th className="text-left p-4 text-muted-foreground font-medium">Recurso</th>
-                    {(["starter", "pro", "enterprise"] as const).map((id) => (
+                    {(["standard", "plus", "premium"] as const).map((id) => (
                       <th key={id} className="p-4 text-center min-w-[120px]">
-                        <span className={cn(
-                          "text-xs font-semibold px-2 py-0.5 rounded-full",
-                          id === "pro" ? "bg-accent text-accent-foreground" :
-                          id === "enterprise" ? "bg-amber-500/10 text-amber-600" :
-                          "bg-muted text-muted-foreground"
-                        )}>
-                          {id === "starter" ? "Starter" : id === "pro" ? "Pro" : "Enterprise"}
+                        <span
+                          className={cn(
+                            "text-xs font-semibold px-2 py-0.5 rounded-full",
+                            id === "plus"
+                              ? "bg-accent text-accent-foreground"
+                              : id === "premium"
+                              ? "bg-amber-500/10 text-amber-600"
+                              : "bg-muted text-muted-foreground"
+                          )}
+                        >
+                          {id === "standard" ? "Standard" : id === "plus" ? "Plus" : "Premium"}
                         </span>
                       </th>
                     ))}
@@ -462,16 +537,21 @@ const VideosPricingPage = () => {
                 </thead>
                 <tbody>
                   {COMPARISON.map((row, i) => (
-                    <tr key={row.label} className={cn("border-b border-border last:border-0", i % 2 === 0 && "bg-muted/20")}>
+                    <tr
+                      key={row.label}
+                      className={cn("border-b border-border last:border-0", i % 2 === 0 && "bg-muted/20")}
+                    >
                       <td className="p-4 font-medium text-foreground">{row.label}</td>
-                      {(["starter", "pro", "enterprise"] as const).map((id) => {
+                      {(["standard", "plus", "premium"] as const).map((id) => {
                         const val = row[id];
                         return (
                           <td key={id} className="p-4 text-center">
                             {typeof val === "boolean" ? (
-                              val
-                                ? <Check className="w-4 h-4 text-emerald-500 mx-auto" />
-                                : <X className="w-4 h-4 text-muted-foreground/30 mx-auto" />
+                              val ? (
+                                <Check className="w-4 h-4 text-emerald-500 mx-auto" />
+                              ) : (
+                                <X className="w-4 h-4 text-muted-foreground/30 mx-auto" />
+                              )
                             ) : (
                               <span className="text-sm text-muted-foreground">{val}</span>
                             )}
@@ -486,12 +566,48 @@ const VideosPricingPage = () => {
           </div>
         </div>
 
+        {/* FAQ Section */}
+        <div>
+          <div className="text-center mb-8">
+            <h2 className="font-display text-2xl font-bold text-foreground mb-2">Perguntas frequentes</h2>
+            <p className="text-muted-foreground">Tire suas dúvidas sobre nossos planos</p>
+          </div>
+          <div className="space-y-3 max-w-3xl mx-auto">
+            {VIDEO_FAQS.map((faq) => (
+              <FAQItem key={faq.question} question={faq.question} answer={faq.answer} />
+            ))}
+          </div>
+
+          {/* Still have questions CTA */}
+          <div className="mt-10 rounded-3xl border border-border bg-muted/30 p-8 text-center max-w-3xl mx-auto">
+            <h3 className="font-display text-lg font-bold text-foreground mb-2">Ainda tem dúvidas?</h3>
+            <p className="text-muted-foreground text-sm mb-5">
+              Nossa equipe está disponível para ajudar você a escolher o plano ideal.
+            </p>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() =>
+                window.open(
+                  "https://wa.me/5511999999999?text=Olá!+Tenho+dúvidas+sobre+os+planos+de+vídeo+IA",
+                  "_blank"
+                )
+              }
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Entre em contato
+            </Button>
+          </div>
+        </div>
+
         {/* Bottom CTA */}
         <div className="rounded-3xl border border-accent/20 bg-gradient-to-br from-accent/5 to-transparent p-8 text-center">
           <Film className="w-10 h-10 text-accent mx-auto mb-4" />
-          <h3 className="font-display text-xl font-bold text-foreground mb-2">Pronto para criar seu primeiro vídeo?</h3>
+          <h3 className="font-display text-xl font-bold text-foreground mb-2">
+            Pronto para criar seu primeiro vídeo?
+          </h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Upload das fotos, escolha o estilo e em menos de 3 minutos seu vídeo está em 4K pronto para publicar.
+            Upload das fotos, escolha o estilo e em menos de 3 minutos seu vídeo está pronto para publicar.
           </p>
           <Button
             size="lg"
