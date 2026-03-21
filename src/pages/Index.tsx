@@ -4,6 +4,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import TemplatesSection from "@/components/TemplatesSection";
 import VideoGenerationSection from "@/components/VideoGenerationSection";
+import VideoModuleComparisonSection from "@/components/VideoModuleComparisonSection";
 import WhatsAppAutomationSection from "@/components/WhatsAppAutomationSection";
 import SocialProofSection from "@/components/SocialProofSection";
 import PricingSection from "@/components/PricingSection";
@@ -20,6 +21,7 @@ const Index = () => {
       <HowItWorksSection />
       <TemplatesSection />
       <VideoGenerationSection />
+      <VideoModuleComparisonSection />
       <WhatsAppAutomationSection />
       <SocialProofSection />
       <PricingSection />

@@ -21,6 +21,9 @@ const Header = () => {
           <a href="#como-funciona" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Como funciona
           </a>
+          <a href="#videos-ia" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+            Vídeos IA
+          </a>
           <a href="#precos" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
             Planos
           </a>
