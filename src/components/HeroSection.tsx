@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Sparkles, Video } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroProperty from "@/assets/hero-property.jpg";
 
@@ -24,20 +24,31 @@ const HeroSection = () => {
 
       <div className="relative container mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center">
         <div className="opacity-0 animate-fade-up">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground/80 text-sm font-medium backdrop-blur-sm mb-8">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground/80 text-sm font-medium backdrop-blur-sm mb-4">
             <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            WhatsApp → IA → aprovação → Instagram
+            Dashboard → IA → aprovação → Instagram
           </span>
         </div>
 
-        <h1 className="opacity-0 animate-fade-up animation-delay-100 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground max-w-5xl leading-tight mb-6">
-          Gere <span className="text-gradient">posts e reels imobiliários</span> com IA
+        <div className="opacity-0 animate-fade-up animation-delay-100 mb-6 flex flex-wrap items-center justify-center gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-2 text-sm font-semibold text-accent">
+            <Sparkles className="w-4 h-4" />
+            Posts, reels e copy com IA
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 px-4 py-2 text-sm font-semibold text-primary-foreground/80">
+            <Video className="w-4 h-4" />
+            Novo add-on: vídeos de imóveis com IA
+          </span>
+        </div>
+
+        <h1 className="opacity-0 animate-fade-up animation-delay-100 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground max-w-6xl leading-tight mb-6">
+          Gere <span className="text-gradient">criativos, copy e vídeos imobiliários</span> com IA
           <br className="hidden md:block" />
-          sem depender de processo manual
+          em uma única operação
         </h1>
 
-        <p className="opacity-0 animate-fade-up animation-delay-200 text-lg sm:text-xl text-primary-foreground/70 max-w-3xl mb-10 font-body">
-          Receba fotos e informações do imóvel, gere criativos com template profissional, legenda com CTA e publique com aprovação. Uma operação mais rápida para corretores e imobiliárias.
+        <p className="opacity-0 animate-fade-up animation-delay-200 text-lg sm:text-xl text-primary-foreground/70 max-w-4xl mb-10 font-body">
+          Centralize upload, análise de imagem, geração de copy, aprovação e publicação. E agora adicione vídeos prontos para Reels, Feed e YouTube direto no ImobCreator AI.
         </p>
 
         <div className="opacity-0 animate-fade-up animation-delay-300 flex flex-col sm:flex-row items-center gap-4">
@@ -48,9 +59,9 @@ const HeroSection = () => {
             </Link>
           </Button>
           <Button asChild variant="heroOutline" size="xl" className="group">
-            <a href="#como-funciona">
+            <a href="#videos-ia">
               <Play className="w-5 h-5" />
-              Ver fluxo da automação
+              Ver módulo de vídeo
             </a>
           </Button>
         </div>
@@ -58,15 +69,19 @@ const HeroSection = () => {
         <div className="opacity-0 animate-fade-up animation-delay-400 flex flex-wrap justify-center gap-8 sm:gap-16 mt-16 pt-8 border-t border-primary-foreground/10">
           <div className="text-center">
             <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">&lt; 5 min</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">do WhatsApp ao post pronto</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">para gerar criativo e copy</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">3 formatos</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">Feed, Story e Reels</p>
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">4 formatos</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">Feed, Story, Reels e vídeo</p>
           </div>
           <div className="text-center">
             <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">100% IA</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">legenda + template + aprovação</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">copy, visual e fluxo de aprovação</p>
+          </div>
+          <div className="text-center">
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">Nova receita</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">vídeos IA como add-on vendável</p>
           </div>
         </div>
       </div>
