@@ -373,6 +373,104 @@ const PoliticaPrivacidade = () => (
   </div>
 );
 
+const PoliticaReembolso = () => (
+  <div>
+    <div className="mb-8 p-4 rounded-2xl bg-accent/5 border border-accent/20">
+      <p className="text-sm text-muted-foreground">
+        <Highlight>Última atualização:</Highlight> 04/03/2026
+      </p>
+    </div>
+
+    <Section number={0} title="Aceite automático ao comprar/assinar">
+      <p>
+        Ao clicar em <Highlight>"Comprar"</Highlight>, <Highlight>"Assinar"</Highlight> ou{" "}
+        <Highlight>"Finalizar compra"</Highlight>, você aceita esta Política de Reembolso e os demais
+        documentos legais do IMOVIE.
+      </p>
+    </Section>
+
+    <Section number={1} title="Regra base">
+      <p>
+        Créditos são consumíveis. Se houver uso efetivo, entende-se que o serviço foi prestado.
+      </p>
+    </Section>
+
+    <Section number={2} title='Definição de "uso efetivo"'>
+      <p>Considera-se uso efetivo:</p>
+      <List
+        items={[
+          "Iniciar processamento;",
+          "Consumir créditos;",
+          "Baixar/gerar/visualizar arquivo final;",
+          "Ou qualquer execução de job.",
+        ]}
+      />
+    </Section>
+
+    <Section number={3} title="Garantia de 7 dias (assinatura)">
+      <p>Reembolso em até 7 dias da contratação/renovação somente se:</p>
+      <List
+        items={[
+          "Não houver uso efetivo;",
+          "Não houver consumo de créditos;",
+          "Não houver violação dos Termos.",
+        ]}
+      />
+    </Section>
+
+    <Section number={4} title="Quando há reembolso">
+      <List
+        items={[
+          "Cobrança duplicada/indevida: reembolso do valor cobrado indevidamente após verificação;",
+          "Falha técnica: créditos podem ser estornados automaticamente (ver histórico).",
+        ]}
+      />
+    </Section>
+
+    <Section number={5} title="Créditos extras (avulsos)">
+      <List
+        items={[
+          "Não reembolsáveis;",
+          "Expiram em 30 dias.",
+        ]}
+      />
+    </Section>
+
+    <Section number={6} title="Contestação/chargeback">
+      <p>Em caso de contestação/chargeback, a conta pode ser suspensa:</p>
+      <List
+        items={[
+          "O usuário mantém acesso aos arquivos já gerados (quando tecnicamente possível);",
+          "Fica bloqueada a criação de novos trabalhos/processamentos até a resolução.",
+        ]}
+      />
+      <p className="mt-3">
+        Podemos enviar ao Stripe evidências técnicas e de entrega (IP, logs, datas/horários,
+        autenticação, histórico de uso, jobs, consumo, downloads e visualizações).
+      </p>
+      <p className="mt-2">
+        Se houver uso efetivo, o reembolso poderá ser negado.
+      </p>
+    </Section>
+
+    <Section number={7} title="Como solicitar">
+      <p>
+        <Highlight>E-mail:</Highlight>{" "}
+        <a
+          href="mailto:suporteimovie@imobcreatorai.com.br"
+          className="text-accent underline hover:text-accent/80"
+        >
+          suporteimovie@imobcreatorai.com.br
+        </a>
+      </p>
+      <p className="mt-2">
+        <Highlight>Enviar:</Highlight> e-mail da conta, ID da cobrança (Stripe), data, motivo e
+        prints se houver.
+      </p>
+    </Section>
+  </div>
+);
+
 const ComingSoon = ({ label }: { label: string }) => (
   <div className="flex flex-col items-center justify-center py-24 text-center">
     <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
@@ -460,7 +558,7 @@ const TermsPage = () => {
         <div className="max-w-2xl">
           {activeTab === "termos" && <TermosDeUso />}
           {activeTab === "privacidade" && <PoliticaPrivacidade />}
-          {activeTab === "reembolso" && <ComingSoon label="Política de Reembolso" />}
+          {activeTab === "reembolso" && <PoliticaReembolso />}
           {activeTab === "cancelamento" && <ComingSoon label="Política de Cancelamento" />}
         </div>
       </main>
