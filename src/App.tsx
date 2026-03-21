@@ -27,6 +27,7 @@ import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
+import VideoCreatorPage from "./pages/VideoCreatorPage";
 
 const queryClient = new QueryClient();
 
@@ -109,6 +110,11 @@ const App = () => (
             <Route path="/plano" element={
               <ProtectedRoute>
                 <PlanPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/video-creator" element={
+              <ProtectedRoute>
+                <VideoCreatorPage />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

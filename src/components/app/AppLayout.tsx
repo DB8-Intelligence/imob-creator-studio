@@ -23,6 +23,7 @@ import {
   Sparkles,
   Moon,
   Sun,
+  Film,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -36,6 +37,7 @@ interface AppLayoutProps {
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: Upload, label: "Criar Criativo", path: "/create" },
+  { icon: Film, label: "Vídeos IA", path: "/video-creator", badge: "Novo" },
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
@@ -152,7 +154,12 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   `}
                 >
                   <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <span className="flex-1">{item.label}</span>
+                  {"badge" in item && item.badge && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground leading-none">
+                      {item.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
