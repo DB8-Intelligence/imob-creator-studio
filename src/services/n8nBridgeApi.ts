@@ -15,7 +15,8 @@ export type N8nEventType =
   | "video_completed"
   | "video_failed"
   | "creative_ready"
-  | "new_user";
+  | "new_user"
+  | "video_addon_activated";
 
 export async function dispatchN8nEvent(
   eventType: N8nEventType,
