@@ -223,9 +223,14 @@ const VideoCreatorPage = () => {
       setGenerated(true);
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
-      // Signal n8n that this creative is ready for review / scheduling
-      dispatchN8nEvent("creative_ready", { job_id: jobId, output_url: result.videoUrl, workspace_id: workspaceId });
-      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage e registrado na biblioteca." });
+      await dispatchN8nEvent("video_completed", {
+        workspace_id: workspaceId,
+        video_job_id: jobId,
+        output_url: result.videoUrl,
+        status: "completed",
+        addon_type: plan?.user_plan === "vip" ? "enterprise" : "pro",
+      });
+      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage, registrado na biblioteca e enviado para automação." });
     } catch (e: unknown) {
       if (jobId) {
         try {
@@ -239,6 +244,15 @@ const VideoCreatorPage = () => {
         } catch {
           // noop
         }
+      }
+      if (workspaceId) {
+        await dispatchN8nEvent("video_failed", {
+          workspace_id: workspaceId,
+          video_job_id: jobId,
+          status: "failed",
+          error_type: "render_or_pipeline",
+          message: e instanceof Error ? e.message : "Tente novamente.",
+        });
       }
       toast({
         title: "Erro ao gerar vídeo",

@@ -21,6 +21,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 
 type Billing = "monthly" | "yearly";
 
@@ -485,7 +486,19 @@ const VideosPricingPage = () => {
                               addonType: p.id as "standard" | "plus" | "premium",
                               billingCycle: billing,
                             },
-                            { onSuccess: () => navigate("/video-dashboard") }
+                            {
+                              onSuccess: async () => {
+                                if (workspaceId) {
+                                  await dispatchN8nEvent("video_addon_activated", {
+                                    workspace_id: workspaceId,
+                                    addon_type: p.id,
+                                    billing_cycle: billing,
+                                    workspace_plan: workspacePlan ?? currentPlan ?? null,
+                                  });
+                                }
+                                navigate("/video-dashboard");
+                              },
+                            }
                           )
                         : navigate("/plano")
                     }
