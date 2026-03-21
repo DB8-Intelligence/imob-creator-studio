@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
-import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
+import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { renderVideoJob } from "@/services/videoModuleApi";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import {
@@ -32,7 +32,7 @@ import {
 
 type Style = "cinematic" | "moderno" | "luxury";
 type Format = "reels" | "feed" | "youtube";
-type Duration = "15" | "30" | "60";
+type Duration = "15" | "30" | "60" | "90";
 
 interface UploadedPhoto {
   id: string;
@@ -58,6 +58,7 @@ const DURATIONS: { id: Duration; label: string; ideal: string }[] = [
   { id: "15", label: "15 segundos", ideal: "Reels rápido, Story" },
   { id: "30", label: "30 segundos", ideal: "Feed, anúncio curto" },
   { id: "60", label: "60 segundos", ideal: "YouTube, apresentação" },
+  { id: "90", label: "90 segundos", ideal: "Apresentação premium / inventário de alto valor" },
 ];
 
 const STEPS = ["Upload de fotos", "Estilo & formato", "Gerar vídeo"];
@@ -72,10 +73,10 @@ const PlanGate = () => {
         <Lock className="w-9 h-9 text-accent" />
       </div>
       <h2 className="font-display text-2xl font-bold text-foreground mb-3">
-        Geração de vídeo disponível no Pro e VIP
+        Geração de vídeo disponível nos add-ons Pro e Enterprise
       </h2>
       <p className="text-muted-foreground mb-8 leading-relaxed">
-        Este módulo transforma fotos de imóveis em vídeos cinematográficos em 4K com IA. Disponível a partir do plano Pro.
+        Este módulo transforma fotos de imóveis em vídeos profissionais com IA, com evolução de 30s até 90s conforme o plano ativo.
       </p>
       <div className="grid sm:grid-cols-2 gap-4 mb-8">
         <div className="rounded-2xl border border-border p-5 text-left">
@@ -84,23 +85,23 @@ const PlanGate = () => {
             <span className="font-semibold text-foreground">Pro</span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ 20 vídeos/mês</li>
-            <li>✓ Até 4K Ultra HD</li>
-            <li>✓ Reels, Feed e YouTube</li>
-            <li>✓ 3 estilos visuais</li>
+            <li>✓ 20 vídeos por ciclo</li>
+            <li>✓ Até 60 segundos</li>
+            <li>✓ Full HD</li>
+            <li>✓ Até 20 fotos por vídeo</li>
           </ul>
         </div>
         <div className="rounded-2xl border border-accent/40 bg-accent/5 p-5 text-left">
           <div className="flex items-center gap-2 mb-3">
             <Crown className="w-5 h-5 text-amber-500" />
-            <span className="font-semibold text-foreground">VIP</span>
-            <Badge className="bg-amber-500/10 text-amber-600 text-xs">Ilimitado</Badge>
+            <span className="font-semibold text-foreground">Enterprise</span>
+            <Badge className="bg-amber-500/10 text-amber-600 text-xs">90s + 4K</Badge>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ Vídeos ilimitados</li>
-            <li>✓ 4K Ultra HD garantido</li>
-            <li>✓ Todos os formatos</li>
-            <li>✓ Trilha personalizada</li>
+            <li>✓ Volume alto ou ilimitado</li>
+            <li>✓ Até 90 segundos</li>
+            <li>✓ 4K Ultra HD</li>
+            <li>✓ Render prioritário</li>
           </ul>
         </div>
       </div>
@@ -121,6 +122,7 @@ const VideoCreatorPage = () => {
   const { toast } = useToast();
   const { data: plan } = useUserPlan();
   const { workspaceId } = useWorkspaceContext();
+  const { data: overview } = useVideoModuleOverview(workspaceId);
   const createVideoJobMutation = useCreateVideoJob(workspaceId);
   const updateVideoJobStatusMutation = useUpdateVideoJobStatus(workspaceId);
   const releaseVideoCreditMutation = useReleaseVideoCredit(workspaceId);
@@ -138,6 +140,11 @@ const VideoCreatorPage = () => {
 
   // Plan gate: Credits users can't access
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
+  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "enterprise" : plan?.user_plan === "pro" ? "pro" : "starter");
+  const maxPhotosAllowed = activeAddonType === "starter" ? 10 : 20;
+  const maxDurationAllowed: Duration = activeAddonType === "enterprise" ? "90" : activeAddonType === "pro" ? "60" : "30";
+  const resolutionLabel = activeAddonType === "enterprise" ? "4K Ultra HD" : activeAddonType === "pro" ? "Full HD" : "HD / 1080p básico";
+
   if (plan && !hasVideoAccess) {
     return (
       <AppLayout>
@@ -159,7 +166,7 @@ const VideoCreatorPage = () => {
       file,
       preview: URL.createObjectURL(file),
     }));
-    setPhotos((prev) => [...prev, ...newPhotos].slice(0, 20));
+    setPhotos((prev) => [...prev, ...newPhotos].slice(0, maxPhotosAllowed));
   };
 
   const removePhoto = (id: string) => {
@@ -199,7 +206,7 @@ const VideoCreatorPage = () => {
         format,
         durationSeconds: Number(duration),
         photosCount: photos.length,
-        resolution: plan?.user_plan === "vip" ? "4K Ultra HD" : "1080p / 4K conforme plano",
+        resolution: resolutionLabel,
         metadata: {
           source: "video-creator-page",
           photoNames: photos.map((photo) => photo.file.name),
@@ -280,14 +287,14 @@ const VideoCreatorPage = () => {
               <Badge className="bg-accent text-accent-foreground mb-3">Novo módulo</Badge>
               <h1 className="text-3xl font-display font-bold text-foreground">Criador de Vídeos IA</h1>
               <p className="text-muted-foreground mt-1 max-w-xl">
-                Transforme fotos do imóvel em vídeos cinematográficos prontos para Reels, YouTube e Feed em menos de 3 minutos.
+                Transforme fotos do imóvel em vídeos profissionais para Reels, YouTube e Feed com regras claras por plano, duração e resolução.
               </p>
             </div>
             <div className="grid grid-cols-3 gap-4 text-center">
               {[
                 { value: "< 3 min", label: "por vídeo" },
-                { value: "4K Ultra HD", label: "resolução" },
-                { value: "100% IA", label: "sem edição" },
+                { value: resolutionLabel, label: "resolução do plano" },
+                { value: `${maxDurationAllowed}s`, label: "duração máxima" },
               ].map((m) => (
                 <div key={m.label} className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3">
                   <p className="text-base font-bold text-foreground">{m.value}</p>
@@ -330,7 +337,7 @@ const VideoCreatorPage = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">Suba as fotos do imóvel</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Mínimo 6 fotos · máximo 20 fotos · formatos JPG, PNG, WEBP · max 200MB por arquivo
+                    Mínimo recomendado 6 fotos · máximo {maxPhotosAllowed} fotos neste plano · formatos JPG, PNG, WEBP · max 200MB por arquivo
                   </p>
                 </div>
 
@@ -364,7 +371,7 @@ const VideoCreatorPage = () => {
                 >
                   <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                   <p className="font-medium text-foreground">Arraste e solte ou clique para selecionar</p>
-                  <p className="text-sm text-muted-foreground mt-1">Até 20 fotos do imóvel</p>
+                  <p className="text-sm text-muted-foreground mt-1">Até {maxPhotosAllowed} fotos neste plano</p>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -380,7 +387,7 @@ const VideoCreatorPage = () => {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-sm font-medium text-foreground">
-                        {photos.length}/20 fotos {photos.length < 6 && <span className="text-amber-500">(mínimo 6)</span>}
+                        {photos.length}/{maxPhotosAllowed} fotos {photos.length < 6 && <span className="text-amber-500">(mínimo recomendado 6)</span>}
                       </p>
                       <Button variant="ghost" size="sm" className="text-destructive text-xs" onClick={() => setPhotos([])}>
                         Remover todas
@@ -398,7 +405,7 @@ const VideoCreatorPage = () => {
                           </button>
                         </div>
                       ))}
-                      {photos.length < 20 && (
+                      {photos.length < maxPhotosAllowed && (
                         <button
                           className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-accent/50 flex items-center justify-center text-muted-foreground hover:text-accent transition-colors"
                           onClick={() => fileInputRef.current?.click()}
@@ -485,23 +492,31 @@ const VideoCreatorPage = () => {
                 {/* Duration */}
                 <div>
                   <Label className="text-base font-semibold">Duração do vídeo</Label>
-                  <p className="text-sm text-muted-foreground mb-4">Mais fotos permitem vídeos mais longos com mais detalhes.</p>
-                  <div className="grid grid-cols-3 gap-3">
-                    {DURATIONS.map((d) => (
-                      <button
-                        key={d.id}
-                        onClick={() => setDuration(d.id)}
-                        className={[
-                          "rounded-xl border p-4 text-left transition-all",
-                          duration === d.id
-                            ? "border-accent bg-accent/10 ring-1 ring-accent"
-                            : "border-border hover:border-accent/40",
-                        ].join(" ")}
-                      >
-                        <p className="font-semibold text-foreground">{d.label}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{d.ideal}</p>
-                      </button>
-                    ))}
+                  <p className="text-sm text-muted-foreground mb-4">Seu plano atual permite até {maxDurationAllowed}s e saída em {resolutionLabel}.</p>
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    {DURATIONS.map((d) => {
+                      const disabled = Number(d.id) > Number(maxDurationAllowed);
+                      return (
+                        <button
+                          key={d.id}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => !disabled && setDuration(d.id)}
+                          className={[
+                            "rounded-xl border p-4 text-left transition-all",
+                            disabled
+                              ? "border-border bg-muted/40 opacity-50 cursor-not-allowed"
+                              : duration === d.id
+                              ? "border-accent bg-accent/10 ring-1 ring-accent"
+                              : "border-border hover:border-accent/40",
+                          ].join(" ")}
+                        >
+                          <p className="font-semibold text-foreground">{d.label}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{d.ideal}</p>
+                          {disabled && <p className="text-[11px] text-amber-600 mt-2">Disponível em um plano superior</p>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </CardContent>
@@ -614,7 +629,7 @@ const VideoCreatorPage = () => {
                           <p className="font-display text-lg font-bold mt-1">
                             {FORMATS.find((f) => f.id === format)?.label}
                           </p>
-                          <p className="text-xs text-primary-foreground/40 mt-1">{photos.length} fotos · 4K Ultra HD</p>
+                          <p className="text-xs text-primary-foreground/40 mt-1">{photos.length} fotos · {resolutionLabel}</p>
                         </div>
                       </div>
                     )}
@@ -646,7 +661,7 @@ const VideoCreatorPage = () => {
                           <div>
                             <p className="font-display font-bold">Vídeo pronto!</p>
                             <p className="text-sm text-white/70">
-                              {duration}s · {FORMATS.find((f) => f.id === format)?.label} · 4K
+                              {duration}s · {FORMATS.find((f) => f.id === format)?.label} · {resolutionLabel}
                             </p>
                           </div>
                         </div>
@@ -687,8 +702,7 @@ const VideoCreatorPage = () => {
                         <div className="rounded-xl border border-border/60 p-3 bg-muted/30 text-xs text-muted-foreground flex gap-2">
                           <Zap className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
                           <span>
-                            Cada vídeo consome <strong className="text-foreground">100 créditos</strong> (planos Standard e Plus) ou{" "}
-                            <strong className="text-foreground">200 créditos</strong> (Premium · 4K). Créditos do plano acumulam enquanto a assinatura estiver ativa.
+                            Cada vídeo consome créditos do add-on ativo. Starter libera vídeos curtos, Pro amplia duração e volume, e Enterprise desbloqueia 90s, 4K e operação premium.
                           </span>
                         </div>
                         <p className="text-[11px] text-muted-foreground/60 leading-relaxed px-1">

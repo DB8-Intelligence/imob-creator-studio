@@ -93,7 +93,7 @@ const PlanGate = () => {
         Módulo de Vídeo disponível no Pro e VIP
       </h2>
       <p className="text-muted-foreground mb-8 leading-relaxed">
-        Gere vídeos cinematográficos em 4K para Reels, Feed e YouTube com IA. A partir do plano Pro.
+        Gere vídeos profissionais para Reels, Feed e YouTube com limites claros por plano, duração e resolução.
       </p>
       <div className="grid sm:grid-cols-2 gap-4 mb-8 text-left">
         <div className="rounded-2xl border border-border p-5">
@@ -170,9 +170,12 @@ const VideosDashboardPage = () => {
     return FALLBACK_VIDEOS;
   }, [overview?.jobs]);
 
-  const videoLimit = overview?.addOn?.credits_total ?? (plan?.user_plan === "vip" ? null : 20);
+  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "enterprise" : plan?.user_plan === "pro" ? "pro" : "starter");
+  const videoLimit = overview?.addOn?.credits_total ?? (activeAddonType === "starter" ? 5 : activeAddonType === "pro" ? 20 : null);
   const videosUsed = overview?.addOn?.credits_used ?? videos.length;
   const pct = videoLimit ? Math.min((videosUsed / videoLimit) * 100, 100) : 0;
+  const maxDurationLabel = activeAddonType === "enterprise" ? "90s" : activeAddonType === "pro" ? "60s" : "30s";
+  const maxPhotosLabel = activeAddonType === "starter" ? "10 fotos" : "20 fotos";
 
   const filtered = videos.filter((v) => activeTab === "all" || v.format === activeTab);
 
@@ -234,15 +237,15 @@ const VideosDashboardPage = () => {
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                {videoLimit ? `${Math.max(videoLimit - videosUsed, 0)} restantes` : "VIP — ilimitado"}
+                {videoLimit ? `${Math.max(videoLimit - videosUsed, 0)} restantes` : "Enterprise — volume alto / ilimitado"}
               </p>
             </CardContent>
           </Card>
 
           {[
             { icon: Clock, label: "Minutos renderizados", value: "2h 45min", sub: "este mês" },
-            { icon: TrendingUp, label: "Formatos usados", value: "3 de 3", sub: "Reels · Feed · YouTube" },
-            { icon: Zap, label: "Qualidade máxima", value: "4K Ultra HD", sub: "disponível no plano atual" },
+            { icon: TrendingUp, label: "Capacidade atual", value: maxDurationLabel, sub: maxPhotosLabel },
+            { icon: Zap, label: "Qualidade máxima", value: activeAddonType === "enterprise" ? "4K Ultra HD" : activeAddonType === "pro" ? "Full HD" : "HD / 1080p", sub: "disponível no plano atual" },
           ].map((s) => (
             <Card key={s.label}>
               <CardContent className="p-5">
