@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
+import { useCreateVideoJob, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
 import {
   Upload,
   X,
@@ -112,17 +114,23 @@ const PlanGate = () => {
 
 const VideoCreatorPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = (location.state ?? {}) as { style?: Style; format?: Format; duration?: Duration };
   const { toast } = useToast();
   const { data: plan } = useUserPlan();
+  const { workspaceId } = useWorkspaceContext();
+  const createVideoJobMutation = useCreateVideoJob(workspaceId);
+  const updateVideoJobStatusMutation = useUpdateVideoJobStatus(workspaceId);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [style, setStyle] = useState<Style>("cinematic");
-  const [format, setFormat] = useState<Format>("reels");
-  const [duration, setDuration] = useState<Duration>("30");
+  const [style, setStyle] = useState<Style>(locationState.style ?? "cinematic");
+  const [format, setFormat] = useState<Format>(locationState.format ?? "reels");
+  const [duration, setDuration] = useState<Duration>(locationState.duration ?? "30");
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
 
   // Plan gate: Credits users can't access
@@ -166,12 +174,79 @@ const VideoCreatorPage = () => {
   };
 
   const handleGenerate = async () => {
+    if (!workspaceId) {
+      toast({
+        title: "Workspace não disponível",
+        description: "Carregue o workspace antes de gerar o vídeo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGenerating(true);
-    // Simulate AI video generation (replace with real API call)
-    await new Promise((r) => setTimeout(r, 3500));
-    setGenerating(false);
-    setGenerated(true);
-    toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo está pronto para download." });
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+    setVideoUrl(null);
+
+    let jobId: string | null = null;
+
+    try {
+      const createdJob = await createVideoJobMutation.mutateAsync({
+        title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+        style,
+        format,
+        durationSeconds: Number(duration),
+        photosCount: photos.length,
+        resolution: plan?.user_plan === "vip" ? "4K Ultra HD" : "1080p / 4K conforme plano",
+        metadata: {
+          source: "video-creator-page",
+          photoNames: photos.map((photo) => photo.file.name),
+        },
+      });
+      jobId = createdJob.id;
+
+      await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
+
+      const formData = new FormData();
+      photos.forEach((p) => formData.append("photos", p.file));
+      formData.append("style", style);
+      formData.append("format", format);
+      formData.append("duration", duration);
+      formData.append("workspaceId", workspaceId);
+      formData.append("videoJobId", jobId);
+
+      const res = await fetch("https://api.db8intelligence.com.br/generate-video", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Erro desconhecido" }));
+        throw new Error(err.detail ?? "Erro ao gerar vídeo");
+      }
+
+      const blob = await res.blob();
+      const localUrl = URL.createObjectURL(blob);
+      setVideoUrl(localUrl);
+      setGenerated(true);
+
+      await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed" });
+      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo está pronto para download e registrado na biblioteca." });
+    } catch (e: unknown) {
+      if (jobId) {
+        try {
+          await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "failed" });
+        } catch {
+          // noop
+        }
+      }
+      toast({
+        title: "Erro ao gerar vídeo",
+        description: e instanceof Error ? e.message : "Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const canProceedStep0 = photos.length >= 6;
@@ -529,26 +604,48 @@ const VideoCreatorPage = () => {
 
                     {generated && (
                       <div className="space-y-3">
-                        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-6 text-white min-h-[200px] flex flex-col items-center justify-center gap-3 shadow-elevated">
-                          <CheckCircle2 className="w-12 h-12" />
-                          <div className="text-center">
-                            <p className="font-display text-xl font-bold">Vídeo pronto!</p>
-                            <p className="text-sm text-white/70 mt-1">
+                        {videoUrl && (
+                          <video
+                            src={videoUrl}
+                            controls
+                            className="w-full rounded-xl bg-black"
+                          />
+                        )}
+                        <div className="rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 text-white flex items-center gap-3 shadow-elevated">
+                          <CheckCircle2 className="w-8 h-8 flex-shrink-0" />
+                          <div>
+                            <p className="font-display font-bold">Vídeo pronto!</p>
+                            <p className="text-sm text-white/70">
                               {duration}s · {FORMATS.find((f) => f.id === format)?.label} · 4K
                             </p>
                           </div>
                         </div>
-                        <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
-                          <Download className="w-4 h-4 mr-2" />
-                          Baixar vídeo
-                        </Button>
+                        {videoUrl ? (
+                          <a href={videoUrl} download={`video-imob-${format}-${duration}s.mp4`} className="block">
+                            <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
+                              <Download className="w-4 h-4 mr-2" />
+                              Baixar vídeo
+                            </Button>
+                          </a>
+                        ) : (
+                          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg" disabled>
+                            <Download className="w-4 h-4 mr-2" />
+                            Baixar vídeo
+                          </Button>
+                        )}
                         <Button variant="outline" className="w-full" onClick={() => navigate("/library")}>
                           Ver na Biblioteca
                         </Button>
                         <Button
                           variant="ghost"
                           className="w-full text-sm"
-                          onClick={() => { setGenerated(false); setPhotos([]); setStep(0); }}
+                          onClick={() => {
+                            if (videoUrl) URL.revokeObjectURL(videoUrl);
+                            setVideoUrl(null);
+                            setGenerated(false);
+                            setPhotos([]);
+                            setStep(0);
+                          }}
                         >
                           Criar outro vídeo
                         </Button>

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -28,6 +28,9 @@ import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
 import VideoCreatorPage from "./pages/VideoCreatorPage";
+import VideosDashboardPage from "./pages/VideosDashboardPage";
+import VideosPricingPage from "./pages/VideosPricingPage";
+import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
 
 const queryClient = new QueryClient();
 
@@ -35,90 +38,39 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <WorkspaceProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/upload" element={
-              <ProtectedRoute>
-                <Upload />
-              </ProtectedRoute>
-            } />
-            <Route path="/templates" element={
-              <ProtectedRoute>
-                <Templates />
-              </ProtectedRoute>
-            } />
-            <Route path="/editor" element={
-              <ProtectedRoute>
-                <Editor />
-              </ProtectedRoute>
-            } />
-            <Route path="/export" element={
-              <ProtectedRoute>
-                <Export />
-              </ProtectedRoute>
-            } />
-            <Route path="/library" element={
-              <ProtectedRoute>
-                <Library />
-              </ProtectedRoute>
-            } />
-            <Route path="/settings" element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            } />
-            <Route path="/settings/profile" element={
-              <ProtectedRoute>
-                <SettingsProfile />
-              </ProtectedRoute>
-            } />
-            <Route path="/settings/prompts" element={
-              <ProtectedRoute>
-                <SettingsPrompts />
-              </ProtectedRoute>
-            } />
-            <Route path="/inbox" element={
-              <ProtectedRoute>
-                <Inbox />
-              </ProtectedRoute>
-            } />
-            <Route path="/editor/:id" element={
-              <ProtectedRoute>
-                <PropertyEditor />
-              </ProtectedRoute>
-            } />
-            <Route path="/posts" element={
-              <ProtectedRoute>
-                <Posts />
-              </ProtectedRoute>
-            } />
-            <Route path="/brand-templates" element={
-              <ProtectedRoute>
-                <BrandTemplates />
-              </ProtectedRoute>
-            } />
-            <Route path="/plano" element={
-              <ProtectedRoute>
-                <PlanPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/video-creator" element={
-              <ProtectedRoute>
-                <VideoCreatorPage />
-              </ProtectedRoute>
-            } />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/create" element={<ProtectedRoute><CreateCreativeHub /></ProtectedRoute>} />
+              <Route path="/create/sequence" element={<ProtectedRoute><CreateSequencePage /></ProtectedRoute>} />
+              <Route path="/create/thumbnail" element={<ProtectedRoute><CreateThumbnailPage /></ProtectedRoute>} />
+              <Route path="/create/animate" element={<ProtectedRoute><AnimateCreativePage /></ProtectedRoute>} />
+              <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
+              <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
+              <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+              <Route path="/editor/:id" element={<ProtectedRoute><PropertyEditor /></ProtectedRoute>} />
+              <Route path="/export" element={<ProtectedRoute><Export /></ProtectedRoute>} />
+              <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+              <Route path="/settings/profile" element={<ProtectedRoute><SettingsProfile /></ProtectedRoute>} />
+              <Route path="/settings/prompts" element={<ProtectedRoute><SettingsPrompts /></ProtectedRoute>} />
+              <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+              <Route path="/posts" element={<ProtectedRoute><Posts /></ProtectedRoute>} />
+              <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
+              <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
+
+              <Route path="/video-dashboard" element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />
+              <Route path="/video-creator" element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} />
+              <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
+              <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
+
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

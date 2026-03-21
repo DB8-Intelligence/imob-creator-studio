@@ -24,6 +24,9 @@ import {
   Moon,
   Sun,
   Film,
+  LayoutDashboard,
+  Palette,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -37,10 +40,16 @@ interface AppLayoutProps {
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
   { icon: Upload, label: "Criar Criativo", path: "/create" },
-  { icon: Film, label: "Vídeos IA", path: "/video-creator", badge: "Novo" },
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
+  // ── Vídeos IA ──
+  { divider: true, label: "Vídeos IA" },
+  { icon: Film, label: "Criar Vídeo", path: "/video-creator", badge: "Novo" },
+  { icon: LayoutDashboard, label: "Dashboard Vídeo", path: "/video-dashboard" },
+  { icon: Palette, label: "Catálogo Estilos", path: "/video-styles" },
+  { icon: CreditCard, label: "Planos Vídeo", path: "/video-plans" },
+  // ────────────────
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
@@ -136,8 +145,18 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
 
-          <nav className="flex-1 p-4 space-y-1">
-            {navItems.map((item) => {
+          <nav className="flex-1 p-4 space-y-0.5">
+            {navItems.map((item, idx) => {
+              if ("divider" in item && item.divider) {
+                return (
+                  <div key={`divider-${idx}`} className="pt-4 pb-1 px-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                      {item.label}
+                    </p>
+                  </div>
+                );
+              }
+              if (!("path" in item)) return null;
               const isActive = location.pathname === item.path;
               return (
                 <Link
