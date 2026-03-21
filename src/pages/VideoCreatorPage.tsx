@@ -313,8 +313,23 @@ const VideoCreatorPage = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-foreground">Suba as fotos do imóvel</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Mínimo 6 fotos · máximo 20 fotos · formatos JPG, PNG, WEBP
+                    Mínimo 6 fotos · máximo 20 fotos · formatos JPG, PNG, WEBP · max 200MB por arquivo
                   </p>
+                </div>
+
+                {/* Content prohibition notice */}
+                <div className="rounded-xl border border-amber-400/30 bg-amber-500/5 p-4 flex gap-3">
+                  <Lock className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="font-semibold text-foreground mb-1">Conteúdo proibido — leia antes de fazer upload</p>
+                    <p>
+                      Não envie fotos com <strong>pessoas identificáveis</strong> (rosto/corpo), <strong>documentos</strong> (CPF, RG, CNH, contratos), <strong>dados pessoais/sensíveis</strong> ou qualquer conteúdo ilegal/ofensivo.
+                      Violações podem resultar em suspensão da conta sem reembolso.{" "}
+                      <a href="/termos" target="_blank" className="underline text-accent hover:text-accent/80">
+                        Ver Termos de Uso
+                      </a>
+                    </p>
+                  </div>
                 </div>
 
                 {/* Drop zone */}
@@ -651,9 +666,20 @@ const VideoCreatorPage = () => {
                     )}
 
                     {!generated && (
-                      <div className="rounded-xl border border-border/60 p-3 bg-muted/30 text-xs text-muted-foreground flex gap-2">
-                        <Zap className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                        <span>Cada vídeo gerado consome 5 créditos. Planos Pro e VIP têm volume mensal expandido.</span>
+                      <div className="space-y-2">
+                        <div className="rounded-xl border border-border/60 p-3 bg-muted/30 text-xs text-muted-foreground flex gap-2">
+                          <Zap className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                          <span>
+                            Cada vídeo consome <strong className="text-foreground">100 créditos</strong> (planos Standard e Plus) ou{" "}
+                            <strong className="text-foreground">200 créditos</strong> (Premium · 4K). Créditos do plano acumulam enquanto a assinatura estiver ativa.
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground/60 leading-relaxed px-1">
+                          Ao gerar, você confirma que possui os direitos sobre as fotos enviadas e que elas não contêm pessoas identificáveis, documentos ou dados pessoais/sensíveis, conforme os{" "}
+                          <a href="/termos" target="_blank" className="underline hover:text-accent transition-colors">
+                            Termos de Uso
+                          </a>.
+                        </p>
                       </div>
                     )}
                   </div>
