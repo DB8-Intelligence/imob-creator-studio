@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const API_BASE_URL = "https://db8-agent-production.up.railway.app";
+const API_BASE_URL = "https://api.db8intelligence.com.br";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
