@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
 import { renderVideoJob } from "@/services/videoModuleApi";
+import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import {
   Upload,
   X,
@@ -222,6 +223,8 @@ const VideoCreatorPage = () => {
       setGenerated(true);
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
+      // Signal n8n that this creative is ready for review / scheduling
+      dispatchN8nEvent("creative_ready", { job_id: jobId, output_url: result.videoUrl, workspace_id: workspaceId });
       toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage e registrado na biblioteca." });
     } catch (e: unknown) {
       if (jobId) {
