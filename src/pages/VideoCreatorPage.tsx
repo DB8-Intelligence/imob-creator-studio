@@ -9,6 +9,7 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useUpdateVideoJobStatus } from "@/hooks/useVideoModule";
+import { renderVideoJob } from "@/services/videoModuleApi";
 import {
   Upload,
   X,
@@ -206,31 +207,21 @@ const VideoCreatorPage = () => {
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
 
-      const formData = new FormData();
-      photos.forEach((p) => formData.append("photos", p.file));
-      formData.append("style", style);
-      formData.append("format", format);
-      formData.append("duration", duration);
-      formData.append("workspaceId", workspaceId);
-      formData.append("videoJobId", jobId);
-
-      const res = await fetch("https://api.db8intelligence.com.br/generate-video", {
-        method: "POST",
-        body: formData,
+      const result = await renderVideoJob({
+        workspaceId,
+        videoJobId: jobId,
+        title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+        style,
+        format,
+        duration,
+        photos: photos.map((photo) => photo.file),
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Erro desconhecido" }));
-        throw new Error(err.detail ?? "Erro ao gerar vídeo");
-      }
-
-      const blob = await res.blob();
-      const localUrl = URL.createObjectURL(blob);
-      setVideoUrl(localUrl);
+      setVideoUrl(result.videoUrl);
       setGenerated(true);
 
-      await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed" });
-      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo está pronto para download e registrado na biblioteca." });
+      await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
+      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage e registrado na biblioteca." });
     } catch (e: unknown) {
       if (jobId) {
         try {
