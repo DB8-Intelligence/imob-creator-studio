@@ -236,6 +236,143 @@ const TermosDeUso = () => (
   </div>
 );
 
+const PoliticaPrivacidade = () => (
+  <div>
+    <div className="mb-8 p-4 rounded-2xl bg-accent/5 border border-accent/20">
+      <p className="text-sm text-muted-foreground">
+        <Highlight>Última atualização:</Highlight> 04/03/2026
+      </p>
+    </div>
+
+    <Section number={0} title="Aceite automático ao comprar/assinar">
+      <p>
+        Ao clicar em <Highlight>"Comprar"</Highlight>, <Highlight>"Assinar"</Highlight> ou{" "}
+        <Highlight>"Finalizar compra"</Highlight>, você aceita esta Política de Privacidade e os demais
+        documentos legais do IMOVIE disponíveis em{" "}
+        <span className="text-accent">imobcreatorai.com.br</span>.
+      </p>
+    </Section>
+
+    <Section number={1} title="Controladora e contato">
+      <p>
+        <Highlight>Controladora:</Highlight> DB8 INTERPRACE LTDA, CNPJ 31.982.768/0001-31, nome fantasia{" "}
+        <Highlight>DB8 INTELLIGENCE AI</Highlight>, Brasil.
+      </p>
+      <ul className="space-y-1 mt-2">
+        <li>
+          <Highlight>Contato:</Highlight>{" "}
+          <a
+            href="mailto:suporteimovie@imobcreatorai.com.br"
+            className="text-accent underline hover:text-accent/80"
+          >
+            suporteimovie@imobcreatorai.com.br
+          </a>
+        </li>
+        <li>
+          <Highlight>Site:</Highlight>{" "}
+          <span className="text-accent">imobcreatorai.com.br</span>
+        </li>
+      </ul>
+    </Section>
+
+    <Section number={2} title="Escopo">
+      <p>Esta Política se aplica ao uso do IMOVIE no Brasil, sob a LGPD.</p>
+    </Section>
+
+    <Section number={3} title="Dados coletados">
+      <div className="space-y-4">
+        <div>
+          <p className="font-semibold text-foreground mb-1">3.1 Dados fornecidos</p>
+          <List
+            items={[
+              "Cadastro/conta: e-mail e credenciais (senha e/ou Google);",
+              "Conteúdo: fotos de imóveis enviadas para geração de vídeo e/ou upscale;",
+              "Suporte: mensagens e dados enviados ao atendimento (inclusive via IA).",
+            ]}
+          />
+        </div>
+        <div>
+          <p className="font-semibold text-foreground mb-1">3.2 Dados técnicos (logs)</p>
+          <p>
+            Podemos coletar: IP, data/hora, dispositivo/navegador, identificadores de sessão,
+            páginas/ações, histórico de jobs, erros e performance, para segurança e auditoria.
+          </p>
+        </div>
+        <div>
+          <p className="font-semibold text-foreground mb-1">3.3 Pagamento</p>
+          <p>
+            Pagamentos via Stripe. Não armazenamos dados completos do cartão. Guardamos
+            identificadores de cobrança (IDs/status/histórico) para conciliação e suporte.
+          </p>
+        </div>
+      </div>
+    </Section>
+
+    <Section number={4} title="Finalidades e bases legais (LGPD)">
+      <List
+        items={[
+          "Execução do contrato (fornecer serviço e processamentos);",
+          "Cumprimento legal/regulatório;",
+          "Legítimo interesse (segurança, antifraude, auditoria, melhoria);",
+          "Exercício regular de direitos (defesa em disputas/chargebacks).",
+        ]}
+      />
+    </Section>
+
+    <Section number={5} title="Conteúdo proibido e segurança">
+      <p>
+        É proibido enviar fotos com pessoas identificáveis, documentos e dados pessoais/sensíveis.
+        Podemos bloquear processamento, remover conteúdo, suspender conta e preservar logs.
+      </p>
+    </Section>
+
+    <Section number={6} title="Compartilhamento com terceiros">
+      <p>Compartilhamos dados apenas para operar a Plataforma:</p>
+      <List
+        items={[
+          "Stripe (pagamentos/antifraude);",
+          "Provedores de infraestrutura/banco/armazenamento;",
+          "Provedores de renderização de vídeo;",
+          "Provedores de infraestrutura/segurança (quando aplicável).",
+        ]}
+      />
+    </Section>
+
+    <Section number={7} title="Retenção e exclusão">
+      <List
+        items={[
+          "Arquivos (fotos/vídeos): armazenados até o usuário deletar;",
+          "Logs/registros: retidos por prazo razoável para segurança, antifraude, suporte e obrigações legais.",
+        ]}
+      />
+    </Section>
+
+    <Section number={8} title="Direitos do titular (LGPD)">
+      <p>
+        <Highlight>Solicitações:</Highlight> acesso, correção, exclusão (quando aplicável),
+        portabilidade (quando aplicável) e informações de compartilhamento.
+      </p>
+      <p className="mt-2">
+        <Highlight>Canal:</Highlight>{" "}
+        <a
+          href="mailto:suporteimovie@imobcreatorai.com.br"
+          className="text-accent underline hover:text-accent/80"
+        >
+          suporteimovie@imobcreatorai.com.br
+        </a>{" "}
+        (assunto: <Highlight>"LGPD – IMOVIE"</Highlight>).
+      </p>
+    </Section>
+
+    <Section number={9} title="Alterações">
+      <p>
+        A versão vigente estará em{" "}
+        <span className="text-accent">imobcreatorai.com.br/privacidade</span>.
+      </p>
+    </Section>
+  </div>
+);
+
 const ComingSoon = ({ label }: { label: string }) => (
   <div className="flex flex-col items-center justify-center py-24 text-center">
     <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
@@ -322,7 +459,7 @@ const TermsPage = () => {
       <main className="container mx-auto px-6 max-w-4xl py-12">
         <div className="max-w-2xl">
           {activeTab === "termos" && <TermosDeUso />}
-          {activeTab === "privacidade" && <ComingSoon label="Política de Privacidade" />}
+          {activeTab === "privacidade" && <PoliticaPrivacidade />}
           {activeTab === "reembolso" && <ComingSoon label="Política de Reembolso" />}
           {activeTab === "cancelamento" && <ComingSoon label="Política de Cancelamento" />}
         </div>
