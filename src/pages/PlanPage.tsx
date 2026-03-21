@@ -1,9 +1,12 @@
 import InboxLayout from "@/components/inbox/InboxLayout";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { useVideoModuleOverview } from "@/hooks/useVideoModule";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, X, Crown, Zap, Star, AlertCircle } from "lucide-react";
+import { Check, X, Crown, Zap, Star, AlertCircle, Film, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserPlan } from "@/types/userPlan";
 
@@ -41,6 +44,8 @@ const FeatureCell = ({ value }: { value: boolean | string }) => {
 
 const PlanPage = () => {
   const { data: plan, isLoading, isError } = useUserPlan();
+  const { workspaceId, workspaceName, workspacePlan } = useWorkspaceContext();
+  const { data: videoOverview } = useVideoModuleOverview(workspaceId);
 
   const planConfig = plan ? PLAN_LABELS[plan.user_plan] : null;
   const PlanIcon = planConfig?.icon || Zap;
@@ -139,6 +144,50 @@ const PlanPage = () => {
                   <div className="rounded-xl border border-border p-4 bg-muted/30">
                     <p className="font-medium text-foreground">VIP</p>
                     <p className="text-xs text-muted-foreground mt-1">Base para operação mais robusta, múltiplas contas e evolução SaaS.</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Film className="w-5 h-5 text-accent" />
+                      <h2 className="text-lg font-semibold text-foreground">Onboarding do módulo de vídeo</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Workspace <span className="font-medium text-foreground">{workspaceName ?? "N/D"}</span> · plano base <span className="font-medium text-foreground uppercase">{workspacePlan ?? plan.user_plan}</span>
+                    </p>
+                  </div>
+                  <Button onClick={() => window.location.assign('/video-plans')} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    Gerenciar add-on de vídeo
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </div>
+
+                <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Add-on ativo: <span className="font-semibold text-foreground">{videoOverview?.addOn?.addon_type?.toUpperCase?.() ?? 'N/D'}</span>
+                    {videoOverview?.addOn?.credits_total === null
+                      ? ' · ilimitado'
+                      : ` · ${Math.max((videoOverview?.addOn?.credits_total ?? 0) - (videoOverview?.addOn?.credits_used ?? 0), 0)} créditos restantes`}
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">1. Escolha o add-on</p>
+                    <p className="text-xs text-muted-foreground mt-1">Starter para validar, Pro para operação constante, Enterprise para escala.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">2. Ative no workspace</p>
+                    <p className="text-xs text-muted-foreground mt-1">Owner/admin habilita o módulo e libera o dashboard de vídeo para o time.</p>
+                  </div>
+                  <div className="rounded-xl border border-border p-4 bg-muted/30">
+                    <p className="font-medium text-foreground">3. Gere e acompanhe</p>
+                    <p className="text-xs text-muted-foreground mt-1">O time acessa catálogo, criador, biblioteca e consumo de créditos em tempo real.</p>
                   </div>
                 </div>
               </CardContent>
