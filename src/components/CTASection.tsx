@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const CTASection = () => {
@@ -17,24 +17,32 @@ const CTASection = () => {
 
             <div className="relative">
               <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
-                Pronto para acelerar sua <span className="text-gradient">operação imobiliária com IA</span>?
+                Pronto para publicar seu próximo imóvel{" "}
+                <span className="text-gradient">em menos de 5 minutos</span>?
               </h2>
 
               <p className="text-primary-foreground/70 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
-                Entre, teste o fluxo e comece a transformar imóveis em posts e reels com mais velocidade, padronização e escala.
+                Entre, conecte seu WhatsApp e comece a gerar posts e reels imobiliários com template profissional, legenda com IA e aprovação antes de publicar.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
                 <Button asChild variant="hero" size="xl" className="group">
                   <Link to="/auth">
                     Começar gratuitamente
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <p className="text-primary-foreground/50 text-sm">
-                  Fluxo guiado • aprovação antes da publicação
-                </p>
+                <Button asChild variant="heroOutline" size="xl" className="group">
+                  <a href="https://wa.me/5511999999999" target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="w-5 h-5" />
+                    Falar com especialista
+                  </a>
+                </Button>
               </div>
+
+              <p className="text-primary-foreground/40 text-sm">
+                Fluxo guiado · sem contrato · aprovação antes de publicar
+              </p>
             </div>
           </div>
         </div>

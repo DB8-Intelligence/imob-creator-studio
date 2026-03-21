@@ -57,16 +57,16 @@ const HeroSection = () => {
 
         <div className="opacity-0 animate-fade-up animation-delay-400 flex flex-wrap justify-center gap-8 sm:gap-16 mt-16 pt-8 border-t border-primary-foreground/10">
           <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">1 fluxo</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">do WhatsApp ao Instagram</p>
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">&lt; 5 min</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">do WhatsApp ao post pronto</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">IA + templates</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">para acelerar produção</p>
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">3 formatos</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">Feed, Story e Reels</p>
           </div>
           <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">Aprovação</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">antes de publicar</p>
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">100% IA</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">legenda + template + aprovação</p>
           </div>
         </div>
       </div>
