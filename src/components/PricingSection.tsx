@@ -122,10 +122,25 @@ const PricingSection = () => {
                     <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
+
+                <p className={[
+                  "text-xs text-center mt-3",
+                  plan.featured ? "text-primary-foreground/40" : "text-muted-foreground/60"
+                ].join(" ")}>
+                  Sem fidelidade · cancele quando quiser
+                </p>
               </div>
             );
           })}
         </div>
+
+        <p className="text-center text-xs text-muted-foreground/50 mt-10">
+          Ao prosseguir, você concorda com os{" "}
+          <a href="#" className="underline hover:text-muted-foreground">Termos de Uso</a>,{" "}
+          <a href="#" className="underline hover:text-muted-foreground">Política de Privacidade</a>{" "}
+          e{" "}
+          <a href="#" className="underline hover:text-muted-foreground">Política de Cancelamento</a>.
+        </p>
       </div>
     </section>
   );

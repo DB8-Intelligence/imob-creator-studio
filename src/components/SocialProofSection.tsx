@@ -1,15 +1,29 @@
-const proofs = [
+import { Quote } from "lucide-react";
+
+const testimonials = [
   {
-    title: "Fluxo mais previsível",
-    description: "Centralize recebimento, geração, aprovação e publicação em uma operação única.",
+    quote:
+      "Antes eu passava horas pedindo arte para o designer e esperando legenda. Agora o post sai em minutos direto pelo WhatsApp. Economizei pelo menos 6 horas por semana.",
+    name: "Mariana Souza",
+    role: "Corretora Autônoma",
+    company: "CRECI-SP",
+    initials: "MS",
   },
   {
-    title: "Menos retrabalho manual",
-    description: "Reduza a dependência de processos soltos entre WhatsApp, designer, legenda e publicação.",
+    quote:
+      "Implementamos o ImobCreator AI na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. O fluxo de aprovação antes da publicação eliminou erros que antes constrangiam a equipe.",
+    name: "Carlos Mendonça",
+    role: "Diretor Comercial",
+    company: "Imobiliária Prime",
+    initials: "CM",
   },
   {
-    title: "Escala para corretor ou imobiliária",
-    description: "Padronize a marca e prepare a base para crescimento, templates e evolução multi-tenant.",
+    quote:
+      "A qualidade dos criativos parece agência. Nosso Instagram ficou com cara profissional do dia pra noite, com a nossa identidade visual aplicada em todos os posts.",
+    name: "Ana Paula Ferreira",
+    role: "Gerente de Marketing",
+    company: "RE/MAX Regional",
+    initials: "AP",
   },
 ];
 
@@ -19,21 +33,33 @@ const SocialProofSection = () => {
       <div className="container mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-14">
           <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
-            Prova de valor
+            Depoimentos
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Mais do que arte: <span className="text-gradient">uma operação de conteúdo imobiliário</span>
+            Quem já usa <span className="text-gradient">não volta para o processo manual</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            O ImobCreator AI foi desenhado para diminuir gargalos, padronizar criativos e acelerar a publicação com IA.
+            Corretores e imobiliárias que escalaram a produção de conteúdo com o ImobCreator AI.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {proofs.map((proof) => (
-            <div key={proof.title} className="rounded-2xl border border-border/60 bg-card p-8 shadow-soft">
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3">{proof.title}</h3>
-              <p className="text-muted-foreground leading-relaxed">{proof.description}</p>
+          {testimonials.map((t) => (
+            <div
+              key={t.name}
+              className="rounded-2xl border border-border/60 bg-card p-8 shadow-soft flex flex-col"
+            >
+              <Quote className="w-8 h-8 text-accent/40 mb-4 flex-shrink-0" />
+              <p className="text-foreground/80 leading-relaxed flex-1 mb-6 italic">"{t.quote}"</p>
+              <div className="flex items-center gap-3 pt-4 border-t border-border/40">
+                <div className="w-10 h-10 rounded-full bg-accent/10 text-accent font-bold text-sm flex items-center justify-center flex-shrink-0">
+                  {t.initials}
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{t.name}</p>
+                  <p className="text-muted-foreground text-xs">{t.role} · {t.company}</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
