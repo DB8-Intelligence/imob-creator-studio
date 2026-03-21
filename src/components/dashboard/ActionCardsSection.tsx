@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clapperboard, ImageIcon, LayoutTemplate, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Clapperboard, Film, ImageIcon, LayoutTemplate, Sparkles, Wand2 } from "lucide-react";
 
 const actions = [
   {
@@ -32,6 +32,13 @@ const actions = [
     badge: "Vídeo",
     icon: Clapperboard,
     href: "/create/animate",
+  },
+  {
+    title: "Criar Vídeo IA",
+    description: "Transforme fotos de imóveis em vídeos para Reels, Feed e YouTube com IA.",
+    badge: "Add-on",
+    icon: Film,
+    href: "/video-dashboard",
   },
 ];
 
