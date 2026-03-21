@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { useVideoModuleOverview } from "@/hooks/useVideoModule";
+import { useActivateVideoAddon, useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import {
   Check,
@@ -18,6 +18,7 @@ import {
   ToggleLeft,
   ToggleRight,
   MessageCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -202,12 +203,14 @@ const COMPARISON = [
 const VideosPricingPage = () => {
   const navigate = useNavigate();
   const { data: plan } = useUserPlan();
-  const { workspaceId } = useWorkspaceContext();
+  const { workspaceId, workspaceRole, workspacePlan, workspaceName } = useWorkspaceContext();
   const { data: overview } = useVideoModuleOverview(workspaceId);
+  const activateAddonMutation = useActivateVideoAddon(workspaceId);
   const [billing, setBilling] = useState<Billing>("monthly");
 
   const currentPlan = plan?.user_plan;
   const activePlans = PLANS[billing];
+  const isAdminWorkspace = workspaceRole === "owner" || workspaceRole === "admin";
 
   return (
     <AppLayout>
@@ -255,22 +258,31 @@ const VideosPricingPage = () => {
           </div>
         </div>
 
-        <div className="max-w-3xl mx-auto rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center">
+        <div className="max-w-3xl mx-auto rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Workspace: <span className="font-semibold text-foreground">{workspaceName ?? "N/D"}</span> · plano base <span className="font-semibold text-foreground uppercase">{workspacePlan ?? currentPlan ?? "N/D"}</span>
+          </p>
           <p className="text-sm text-muted-foreground">
             Add-on ativo: <span className="font-semibold text-foreground">{overview?.addOn?.addon_type?.toUpperCase?.() ?? "N/D"}</span>
             {overview?.addOn?.credits_total === null
               ? " · créditos ilimitados"
               : ` · ${Math.max((overview?.addOn?.credits_total ?? 0) - (overview?.addOn?.credits_used ?? 0), 0)} créditos restantes de ${(overview?.addOn?.credits_total ?? 0)}`}
           </p>
+          {!isAdminWorkspace && (
+            <p className="text-xs text-muted-foreground">Somente owner/admin do workspace pode ativar ou trocar o add-on de vídeo.</p>
+          )}
         </div>
 
         {/* Plan cards */}
         <div className="grid lg:grid-cols-3 gap-6">
           {activePlans.map((p) => {
             const Icon = p.icon;
-            const isCurrent =
-              (p.id === "pro" && currentPlan === "pro") ||
-              (p.id === "enterprise" && currentPlan === "vip");
+            const isCurrent = overview?.addOn?.addon_type === p.id;
+            const canActivate =
+              isAdminWorkspace &&
+              ((p.id === "starter") ||
+                (p.id === "pro" && (workspacePlan === "pro" || workspacePlan === "vip" || currentPlan === "pro" || currentPlan === "vip")) ||
+                (p.id === "enterprise" && (workspacePlan === "vip" || currentPlan === "vip")));
             return (
               <div
                 key={p.id}
@@ -376,7 +388,7 @@ const VideosPricingPage = () => {
                 </ul>
 
                 {/* CTA */}
-                {p.enterpriseContact ? (
+                {p.enterpriseContact && !canActivate ? (
                   <Button
                     variant={p.featured ? "hero" : "outline"}
                     size="lg"
@@ -386,14 +398,37 @@ const VideosPricingPage = () => {
                     <MessageCircle className="w-4 h-4 mr-2" />
                     {p.cta}
                   </Button>
+                ) : isCurrent ? (
+                  <Button variant="outline" size="lg" className="w-full" onClick={() => navigate("/video-dashboard")}>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />
+                    Add-on ativo
+                  </Button>
+                ) : canActivate ? (
+                  <Button
+                    variant={p.featured ? "hero" : "default"}
+                    size="lg"
+                    className="w-full group"
+                    disabled={activateAddonMutation.isPending}
+                    onClick={() =>
+                      activateAddonMutation.mutate(
+                        { addonType: p.id as "starter" | "pro" | "enterprise", billingCycle: billing },
+                        {
+                          onSuccess: () => navigate("/video-dashboard"),
+                        },
+                      )
+                    }
+                  >
+                    Ativar add-on
+                    <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+                  </Button>
                 ) : (
                   <Button
                     variant={p.featured ? "hero" : "default"}
                     size="lg"
                     className="w-full group"
-                    onClick={() => navigate(p.id === "pro" ? "/plano" : "/plano")}
+                    onClick={() => navigate("/plano")}
                   >
-                    {p.cta}
+                    {p.id === "starter" ? "Ver condições" : "Fazer upgrade do plano base"}
                     <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
                   </Button>
                 )}

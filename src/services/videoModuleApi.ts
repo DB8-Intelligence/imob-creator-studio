@@ -90,6 +90,21 @@ export async function releaseVideoCredit(workspaceId: string): Promise<VideoPlan
   return mapAddon(data);
 }
 
+export async function activateVideoAddon(params: {
+  workspaceId: string;
+  addonType: "starter" | "pro" | "enterprise";
+  billingCycle: "monthly" | "yearly";
+}): Promise<VideoPlanAddon> {
+  const { data, error } = await supabase.rpc("activate_video_addon" as never, {
+    target_workspace_id: params.workspaceId,
+    target_addon_type: params.addonType,
+    target_billing_cycle: params.billingCycle,
+  } as never);
+
+  if (error) throw error;
+  return mapAddon(data);
+}
+
 export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJob> {
   const userResult = await supabase.auth.getUser();
   if (userResult.error) throw userResult.error;
