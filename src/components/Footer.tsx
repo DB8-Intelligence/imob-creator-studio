@@ -16,7 +16,7 @@ const Footer = () => {
               </span>
             </div>
             <p className="text-primary-foreground/60 max-w-md leading-relaxed">
-              Automação de conteúdo imobiliário com IA para gerar posts, reels, templates de marca e fluxos mais escaláveis do WhatsApp ao Instagram.
+              Automação de conteúdo imobiliário com IA para gerar posts, reels e vídeos cinematográficos — tudo pelo dashboard, do upload ao Instagram.
             </p>
           </div>
 
@@ -46,12 +46,12 @@ const Footer = () => {
             © 2026 ImobCreator AI. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
+            <Link to="/termos" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
               Termos de Uso
-            </a>
-            <a href="#" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
+            </Link>
+            <Link to="/termos" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
               Privacidade
-            </a>
+            </Link>
           </div>
         </div>
       </div>

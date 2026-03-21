@@ -4,7 +4,7 @@ const features = [
   {
     icon: Camera,
     title: "Entrada rápida do imóvel",
-    description: "Receba fotos e informações do imóvel pelo navegador, painel interno ou fluxo conectado ao WhatsApp.",
+    description: "Faça upload das fotos e informações do imóvel diretamente pelo dashboard, sem etapas extras.",
   },
   {
     icon: Wand2,
