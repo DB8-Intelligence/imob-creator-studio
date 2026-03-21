@@ -1,11 +1,11 @@
-import feedImg1 from "@/assets/templates/template_post_feed_2.png";
-import feedImg2 from "@/assets/templates/template_post_feed_3.png";
-import feedImg3 from "@/assets/templates/exemplo_criativo_db8.png";
-import storyImg1 from "@/assets/templates/template_story_1.png";
-import storyImg2 from "@/assets/templates/template_story_2.png";
-import storyImg3 from "@/assets/templates/template_story_3.png";
-import reelsImg1 from "@/assets/templates/template_reels_1.png";
-import reelsImg2 from "@/assets/templates/template_reels_2.png";
+import feedImg1 from "@/assets/templates/template_post_feed_2.jpg";
+import feedImg2 from "@/assets/templates/template_post_feed_3.jpg";
+import feedImg3 from "@/assets/templates/exemplo_criativo_db8.jpg";
+import storyImg1 from "@/assets/templates/template_story_1.jpg";
+import storyImg2 from "@/assets/templates/template_story_2.jpg";
+import storyImg3 from "@/assets/templates/template_story_3.jpg";
+import reelsImg1 from "@/assets/templates/template_reels_1.jpg";
+import reelsImg2 from "@/assets/templates/template_reels_2.jpg";
 
 export interface TemplateMockup {
   src: string;
