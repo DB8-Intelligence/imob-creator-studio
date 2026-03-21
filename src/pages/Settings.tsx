@@ -8,9 +8,10 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/app/AppLayout";
-import { 
-  Palette, 
-  Type, 
+import { Link } from "react-router-dom";
+import {
+  Palette,
+  Type,
   Image as ImageIcon,
   Upload,
   Save,
@@ -20,7 +21,15 @@ import {
   Bell,
   Shield,
   CreditCard,
-  User
+  User,
+  FileText,
+  ExternalLink,
+  Mail,
+  AlertTriangle,
+  Info,
+  Trash2,
+  Download,
+  X,
 } from "lucide-react";
 
 // Brand presets
@@ -99,7 +108,7 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="brand">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="brand">
               <Palette className="w-4 h-4 mr-2" />
               Marca
@@ -115,6 +124,10 @@ const Settings = () => {
             <TabsTrigger value="billing">
               <CreditCard className="w-4 h-4 mr-2" />
               Plano
+            </TabsTrigger>
+            <TabsTrigger value="legal">
+              <FileText className="w-4 h-4 mr-2" />
+              Legal
             </TabsTrigger>
           </TabsList>
 
@@ -449,6 +462,197 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Credit policy info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="w-5 h-5 text-accent" />
+                  Regras de créditos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <div className="flex gap-3 p-3 rounded-xl bg-muted/40">
+                  <Check className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                  <p><span className="font-medium text-foreground">Créditos do plano acumulam</span> — Os créditos da sua assinatura acumulam mês a mês enquanto a assinatura estiver ativa e adimplente.</p>
+                </div>
+                <div className="flex gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <p><span className="font-medium text-foreground">Créditos extras expiram em 30 dias</span> — Créditos comprados avulsos são válidos por 30 dias e não são reembolsáveis.</p>
+                </div>
+                <div className="flex gap-3 p-3 rounded-xl bg-muted/40">
+                  <Info className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
+                  <p><span className="font-medium text-foreground">Garantia de 7 dias</span> — Para novas assinaturas sem uso efetivo (sem créditos consumidos e sem processamentos iniciados), solicitações de reembolso são aceitas em até 7 dias da contratação.</p>
+                </div>
+                <p className="text-xs pt-1">
+                  Consulte a{" "}
+                  <Link to="/termos" className="text-accent underline hover:text-accent/80" onClick={() => {}}>
+                    Política de Reembolso completa
+                  </Link>{" "}
+                  para mais detalhes.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Legal & LGPD */}
+          <TabsContent value="legal" className="mt-6 space-y-6">
+
+            {/* Accepted policies */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-accent" />
+                  Documentos aceitos
+                </CardTitle>
+                <CardDescription>
+                  Ao utilizar o IMOVIE você declara ter lido e aceito os documentos abaixo. O aceite é automático ao clicar em "Comprar", "Assinar" ou "Finalizar compra".
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {[
+                  { label: "Termos de Uso", tab: "termos", updated: "04/03/2026", desc: "Regras de uso, conteúdo proibido, responsabilidades e foro" },
+                  { label: "Política de Privacidade (LGPD)", tab: "privacidade", updated: "04/03/2026", desc: "Dados coletados, finalidades, compartilhamento e direitos do titular" },
+                  { label: "Política de Reembolso", tab: "reembolso", updated: "04/03/2026", desc: "Garantia de 7 dias, créditos, chargeback e como solicitar" },
+                  { label: "Política de Cancelamento", tab: "cancelamento", updated: "Em breve", desc: "Processo de cancelamento de assinatura" },
+                ].map((doc) => (
+                  <div key={doc.label} className="flex items-start justify-between gap-4 p-3 rounded-xl border border-border/60 bg-muted/20">
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground text-sm">{doc.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{doc.desc}</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">Atualizado em: {doc.updated}</p>
+                    </div>
+                    <Link
+                      to={`/termos`}
+                      className="flex-shrink-0 flex items-center gap-1 text-xs text-accent hover:text-accent/80 transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Ver
+                    </Link>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Content prohibition */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  Conteúdo proibido
+                </CardTitle>
+                <CardDescription>
+                  De acordo com os Termos de Uso (Seção 5), é proibido enviar:
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {[
+                    "Fotos com pessoas identificáveis (rosto ou corpo)",
+                    "Documentos pessoais (CPF, RG, CNH, contratos, comprovantes)",
+                    "Dados sensíveis, cartões bancários ou informações de pagamento",
+                    "Conteúdo ilegal, ofensivo, discriminatório, sexual explícito ou violento",
+                    "Material que viole direitos de terceiros (autoria, marca, imagem)",
+                  ].map((item) => (
+                    <li key={item} className="flex gap-2.5">
+                      <X className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground mt-4 p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                  <span className="font-semibold text-destructive">Consequências:</span> Bloqueio do processamento, remoção do conteúdo, suspensão e/ou encerramento da conta, sem reembolso.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* LGPD rights */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-accent" />
+                  Seus direitos (LGPD)
+                </CardTitle>
+                <CardDescription>
+                  Como titular de dados sob a Lei Geral de Proteção de Dados, você tem os seguintes direitos:
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-3 text-sm">
+                  {[
+                    { icon: "📋", title: "Acesso", desc: "Solicitar quais dados seus estão armazenados" },
+                    { icon: "✏️", title: "Correção", desc: "Corrigir dados incompletos, inexatos ou desatualizados" },
+                    { icon: "🗑️", title: "Exclusão", desc: "Solicitar a eliminação de dados desnecessários (quando aplicável)" },
+                    { icon: "📦", title: "Portabilidade", desc: "Receber seus dados em formato estruturado (quando aplicável)" },
+                    { icon: "ℹ️", title: "Informação", desc: "Saber com quais terceiros seus dados são compartilhados" },
+                  ].map((right) => (
+                    <div key={right.title} className="flex gap-3 p-3 rounded-xl bg-muted/30">
+                      <span className="text-base">{right.icon}</span>
+                      <div>
+                        <p className="font-medium text-foreground">{right.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{right.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-2 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Para exercer qualquer direito, envie e-mail para{" "}
+                    <a
+                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD – IMOVIE"
+                      className="text-accent underline hover:text-accent/80"
+                    >
+                      suporteimovie@imobcreatorai.com.br
+                    </a>{" "}
+                    com o assunto <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">"LGPD – IMOVIE"</span>.
+                  </p>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <a
+                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Solicitação%20de%20acesso%20aos%20dados"
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Solicitar meus dados
+                    </a>
+                    <a
+                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Solicitação%20de%20exclusão%20de%20dados"
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-destructive/30 hover:bg-destructive/5 transition-colors text-destructive/80 hover:text-destructive"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      Solicitar exclusão de dados
+                    </a>
+                    <a
+                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Dúvida"
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      Entrar em contato
+                    </a>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Company info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Responsável pelo tratamento</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-1">
+                <p><span className="font-medium text-foreground">DB8 INTERPRACE LTDA</span></p>
+                <p>CNPJ 31.982.768/0001-31 · Nome fantasia: DB8 INTELLIGENCE AI</p>
+                <p>Plataforma: IMOVIE · <span className="text-accent">imobcreatorai.com.br</span></p>
+                <p>Foro: Salvador/BA · Lei brasileira</p>
+                <p className="pt-1">
+                  Suporte:{" "}
+                  <a href="mailto:suporteimovie@imobcreatorai.com.br" className="text-accent underline hover:text-accent/80">
+                    suporteimovie@imobcreatorai.com.br
+                  </a>
+                </p>
+              </CardContent>
+            </Card>
+
           </TabsContent>
         </Tabs>
       </div>
