@@ -22,7 +22,7 @@ const CTASection = () => {
               </h2>
 
               <p className="text-primary-foreground/70 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
-                Entre, conecte seu WhatsApp e comece a gerar posts e reels imobiliários com template profissional, legenda com IA e aprovação antes de publicar.
+                Entre no dashboard, faça o upload das fotos e comece a gerar posts e reels imobiliários com template profissional, legenda com IA e aprovação antes de publicar.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">

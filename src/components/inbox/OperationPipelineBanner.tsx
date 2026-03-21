@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Instagram, MessageCircle, Sparkles } from "lucide-react";
+import { CheckCircle2, Instagram, Upload, Sparkles } from "lucide-react";
 
 const steps = [
-  { icon: MessageCircle, title: "WhatsApp", desc: "entrada do imóvel e dos materiais" },
+  { icon: Upload, title: "Dashboard", desc: "upload das fotos e informações do imóvel" },
   { icon: Sparkles, title: "IA", desc: "geração do criativo e copy" },
   { icon: CheckCircle2, title: "Aprovação", desc: "validação antes da publicação" },
   { icon: Instagram, title: "Instagram", desc: "postagem e acompanhamento" },

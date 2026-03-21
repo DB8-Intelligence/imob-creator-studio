@@ -26,7 +26,7 @@ const InboxPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Inbox</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Imóveis recebidos via WhatsApp no workspace atual
+            Imóveis recebidos pelo dashboard no workspace atual
           </p>
         </div>
 
@@ -52,7 +52,7 @@ const InboxPage = () => {
           <div className="flex flex-col items-center justify-center py-20 text-center text-muted-foreground">
             <InboxIcon className="w-12 h-12 mb-3 opacity-40" />
             <p className="font-medium">Nenhum imóvel recebido ainda</p>
-            <p className="text-xs mt-1">Quando novos imóveis chegarem via WhatsApp, eles aparecerão aqui.</p>
+            <p className="text-xs mt-1">Quando novos imóveis forem adicionados pelo dashboard, eles aparecerão aqui.</p>
             <p className="text-xs mt-3 max-w-md">Enquanto isso, você pode subir manualmente seu primeiro imóvel e validar o fluxo interno da operação.</p>
           </div>
         )}

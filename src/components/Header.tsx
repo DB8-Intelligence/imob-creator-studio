@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Menu, X, Film, Sparkles, MessageSquare, LayoutGrid, Zap, Star, Crown, ArrowRight } from "lucide-react";
+import { Building2, ChevronDown, Menu, X, Film, Sparkles, LayoutGrid, Zap, Star, Crown, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // ── Dropdown data ─────────────────────────────────────────────────────────────
@@ -19,13 +19,6 @@ const PRODUCT_ITEMS = [
     href: "#videos-ia",
     accent: true,
     badge: "Novo",
-  },
-  {
-    icon: MessageSquare,
-    label: "Automação WhatsApp",
-    desc: "Receba imóveis e publique sem sair do chat",
-    href: "#whatsapp",
-    accent: false,
   },
   {
     icon: LayoutGrid,
