@@ -1,35 +1,35 @@
-import { Camera, Wand2, Share2, Sparkles, Layers, Zap } from "lucide-react";
+import { Brush, Building2, CheckSquare, Sparkles, Workflow, Zap } from "lucide-react";
 
 const features = [
   {
-    icon: Camera,
-    title: "Entrada rápida do imóvel",
-    description: "Faça upload das fotos e informações do imóvel diretamente pelo dashboard, sem etapas extras.",
+    icon: Zap,
+    title: "Velocidade para produzir",
+    description: "Transforme imagem ou ideia em uma peça profissional em poucos minutos, sem travar sua operação criativa.",
   },
   {
-    icon: Wand2,
-    title: "Legenda com IA",
-    description: "Gere copy persuasiva com CTA, contexto comercial e linguagem adaptada ao mercado imobiliário.",
+    icon: Brush,
+    title: "Design sem complexidade",
+    description: "A IA assume a parte técnica do design para que você foque no conceito, na oferta e na conversão.",
   },
   {
-    icon: Layers,
-    title: "Templates de marca",
-    description: "Aplique layouts padronizados para feed, story e reels sem refazer design a cada anúncio.",
+    icon: Building2,
+    title: "Especializado em imóveis",
+    description: "Criado para corretores e imobiliárias que precisam de materiais visualmente fortes e comercialmente claros.",
   },
   {
     icon: Sparkles,
-    title: "Criativo automatizado",
-    description: "Transforme material bruto em peça pronta para aprovação com visual profissional e rapidez operacional.",
+    title: "Criativo + copy + vídeo",
+    description: "Vá além da arte: gere legendas, variações e vídeos imobiliários no mesmo ecossistema.",
   },
   {
-    icon: Zap,
-    title: "Produção em escala",
-    description: "Reduza o tempo entre captar o imóvel e ter o post pronto para publicar.",
+    icon: CheckSquare,
+    title: "Aprovação antes de publicar",
+    description: "Revise, organize e valide o conteúdo antes da publicação, com mais controle e menos retrabalho.",
   },
   {
-    icon: Share2,
-    title: "Aprovação e publicação",
-    description: "Revise antes de publicar e evolua para uma operação mais automática no Instagram.",
+    icon: Workflow,
+    title: "Dashboard e automação",
+    description: "Centralize produção, biblioteca e operação em um painel que pode evoluir com eventos, workflows e integrações.",
   },
 ];
 
@@ -37,22 +37,18 @@ const FeaturesSection = () => {
   return (
     <section id="recursos" className="py-24 bg-background">
       <div className="container mx-auto px-6">
-        {/* Section header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
             Recursos
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Tudo que você precisa para{" "}
-            <span className="text-gradient">destacar seus imóveis</span>
+            Tudo que você precisa para <span className="text-gradient">criar e escalar conteúdo imobiliário</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Ferramentas poderosas e intuitivas para criar materiais visuais profissionais 
-            que vendem mais e mais rápido.
+            Mantenha a simplicidade que acelera a produção, mas com profundidade suficiente para operar branding, aprovação, vídeo e automação em um único sistema.
           </p>
         </div>
 
-        {/* Features grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <div
@@ -63,12 +59,8 @@ const FeaturesSection = () => {
               <div className="w-14 h-14 rounded-xl bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent-gradient group-hover:shadow-glow transition-all duration-500">
                 <feature.icon className="w-7 h-7 text-accent group-hover:text-primary transition-colors duration-500" />
               </div>
-              <h3 className="font-display text-xl font-semibold text-foreground mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
+              <h3 className="font-display text-xl font-semibold text-foreground mb-3">{feature.title}</h3>
+              <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
