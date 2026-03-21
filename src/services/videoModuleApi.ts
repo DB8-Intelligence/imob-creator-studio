@@ -113,3 +113,29 @@ export async function updateVideoJobStatus(id: string, status: VideoJob["status"
   if (error) throw error;
   return mapJob(data);
 }
+
+export async function renderVideoJob(params: {
+  workspaceId: string;
+  videoJobId: string;
+  title: string;
+  style: string;
+  format: string;
+  duration: string;
+  photos: File[];
+}) {
+  const formData = new FormData();
+  formData.append("workspaceId", params.workspaceId);
+  formData.append("videoJobId", params.videoJobId);
+  formData.append("title", params.title);
+  formData.append("style", params.style);
+  formData.append("format", params.format);
+  formData.append("duration", params.duration);
+  params.photos.forEach((file) => formData.append("photos", file));
+
+  const { data, error } = await supabase.functions.invoke("generate-video", {
+    body: formData,
+  });
+
+  if (error) throw error;
+  return data as { success: boolean; videoUrl: string; outputPath: string; sourcePaths: string[] };
+}

@@ -114,6 +114,41 @@ create trigger update_video_plan_addons_updated_at
   before update on public.video_plan_addons
   for each row execute function public.handle_updated_at();
 
+insert into storage.buckets (id, name, public)
+select 'video-assets', 'video-assets', false
+where not exists (select 1 from storage.buckets where id = 'video-assets');
+
+insert into storage.buckets (id, name, public)
+select 'video-outputs', 'video-outputs', true
+where not exists (select 1 from storage.buckets where id = 'video-outputs');
+
+create policy "Members can view video asset objects"
+  on storage.objects for select
+  using (
+    bucket_id = 'video-assets'
+    and auth.role() = 'authenticated'
+  );
+
+create policy "Authenticated users can upload video asset objects"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'video-assets'
+    and auth.role() = 'authenticated'
+  );
+
+create policy "Members can view video output objects"
+  on storage.objects for select
+  using (
+    bucket_id = 'video-outputs'
+  );
+
+create policy "Authenticated users can upload video output objects"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'video-outputs'
+    and auth.role() = 'authenticated'
+  );
+
 insert into public.video_plan_addons (workspace_id, addon_type, billing_cycle, credits_total, status)
 select id,
        case when plan = 'credits' then 'starter' when plan = 'pro' then 'pro' else 'enterprise' end,
