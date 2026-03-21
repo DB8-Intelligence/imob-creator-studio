@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -502,10 +502,10 @@ const VideosPricingPage = () => {
         {/* Legal disclaimer */}
         <p className="text-center text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           Ao clicar em "Assinar", você declara que leu e concorda com nossos{" "}
-          <span className="underline cursor-pointer">Termos de Uso</span>,{" "}
-          <span className="underline cursor-pointer">Política de Privacidade</span>,{" "}
-          <span className="underline cursor-pointer">Política de Reembolso</span> e{" "}
-          <span className="underline cursor-pointer">Política de Cancelamento</span>.
+          <Link to="/termos" className="underline hover:text-accent transition-colors">Termos de Uso</Link>,{" "}
+          <Link to="/termos#privacidade" className="underline hover:text-accent transition-colors">Política de Privacidade</Link>,{" "}
+          <Link to="/termos#reembolso" className="underline hover:text-accent transition-colors">Política de Reembolso</Link> e{" "}
+          <Link to="/termos#cancelamento" className="underline hover:text-accent transition-colors">Política de Cancelamento</Link>.
         </p>
 
         {/* Comparison table */}

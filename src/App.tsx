@@ -31,6 +31,7 @@ import VideoCreatorPage from "./pages/VideoCreatorPage";
 import VideosDashboardPage from "./pages/VideosDashboardPage";
 import VideosPricingPage from "./pages/VideosPricingPage";
 import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
+import TermsPage from "./pages/TermsPage";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
               <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
 
+              <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
