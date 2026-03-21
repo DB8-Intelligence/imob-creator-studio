@@ -170,7 +170,7 @@ const VideosDashboardPage = () => {
     return FALLBACK_VIDEOS;
   }, [overview?.jobs]);
 
-  const videoLimit = plan?.user_plan === "vip" ? null : overview?.addOn?.credits_total ?? 20;
+  const videoLimit = overview?.addOn?.credits_total ?? (plan?.user_plan === "vip" ? null : 20);
   const videosUsed = overview?.addOn?.credits_used ?? videos.length;
   const pct = videoLimit ? Math.min((videosUsed / videoLimit) * 100, 100) : 0;
 
@@ -195,7 +195,8 @@ const VideosDashboardPage = () => {
             </Button>
             <Button
               size="sm"
-              className="bg-accent text-accent-foreground hover:bg-accent/90"
+              disabled={videoLimit !== null && videosUsed >= videoLimit}
+              className="bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-50"
               onClick={() => navigate("/video-creator")}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -233,7 +234,7 @@ const VideosDashboardPage = () => {
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                {videoLimit ? `${videoLimit - videosUsed} restantes` : "VIP — ilimitado"}
+                {videoLimit ? `${Math.max(videoLimit - videosUsed, 0)} restantes` : "VIP — ilimitado"}
               </p>
             </CardContent>
           </Card>
