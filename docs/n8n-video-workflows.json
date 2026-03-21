@@ -1,0 +1,327 @@
+[
+  {
+    "name": "video.completed.post-processing",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "imobcreator/video/completed",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "Webhook_Completed",
+        "name": "Webhook Completed",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [280, 300],
+        "webhookId": "imobcreator-video-completed"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "completed-check",
+                "leftValue": "={{$json.body.event}}",
+                "rightValue": "video.completed",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        },
+        "id": "If_Completed",
+        "name": "Event is video.completed?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [520, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const body = $json.body || {};\nreturn [{ json: {\n  ok: true,\n  event: body.event,\n  workspace_id: body.workspace_id,\n  video_job_id: body.video_job_id,\n  output_url: body.output_url,\n  status: body.status,\n  addon_type: body.addon_type,\n  processed_at: new Date().toISOString(),\n  next_actions: [\n    'notificar_usuario',\n    'registrar_log_operacional',\n    'encaminhar_para_aprovacao_ou_biblioteca'\n  ]\n}}];"
+        },
+        "id": "Code_NormalizeCompleted",
+        "name": "Normalize Completed Event",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [760, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{$json}}",
+          "options": {}
+        },
+        "id": "Respond_Completed",
+        "name": "Respond Completed",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [1000, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":false,\"message\":\"Evento ignorado\"}",
+          "options": {}
+        },
+        "id": "Respond_Ignored_Completed",
+        "name": "Respond Ignored",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [760, 460]
+      }
+    ],
+    "connections": {
+      "Webhook Completed": {
+        "main": [
+          [
+            {
+              "node": "Event is video.completed?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Event is video.completed?": {
+        "main": [
+          [
+            {
+              "node": "Normalize Completed Event",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Respond Ignored",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Normalize Completed Event": {
+        "main": [
+          [
+            {
+              "node": "Respond Completed",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "name": "video.failed.recovery",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "imobcreator/video/failed",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "Webhook_Failed",
+        "name": "Webhook Failed",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [280, 300],
+        "webhookId": "imobcreator-video-failed"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "failed-check",
+                "leftValue": "={{$json.body.event}}",
+                "rightValue": "video.failed",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        },
+        "id": "If_Failed",
+        "name": "Event is video.failed?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [520, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const body = $json.body || {};\nconst message = body.message || 'Falha não especificada';\nreturn [{ json: {\n  ok: true,\n  event: body.event,\n  workspace_id: body.workspace_id,\n  video_job_id: body.video_job_id,\n  status: body.status,\n  error_type: body.error_type || 'unknown',\n  message,\n  retry_recommended: ['timeout','upstream_api'].includes(body.error_type),\n  processed_at: new Date().toISOString()\n}}];"
+        },
+        "id": "Code_NormalizeFailed",
+        "name": "Normalize Failed Event",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [760, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{$json}}",
+          "options": {}
+        },
+        "id": "Respond_Failed",
+        "name": "Respond Failed",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [1000, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":false,\"message\":\"Evento ignorado\"}",
+          "options": {}
+        },
+        "id": "Respond_Ignored_Failed",
+        "name": "Respond Ignored",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [760, 460]
+      }
+    ],
+    "connections": {
+      "Webhook Failed": {
+        "main": [[{ "node": "Event is video.failed?", "type": "main", "index": 0 }]]
+      },
+      "Event is video.failed?": {
+        "main": [
+          [{ "node": "Normalize Failed Event", "type": "main", "index": 0 }],
+          [{ "node": "Respond Ignored", "type": "main", "index": 0 }]
+        ]
+      },
+      "Normalize Failed Event": {
+        "main": [[{ "node": "Respond Failed", "type": "main", "index": 0 }]]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  },
+  {
+    "name": "video.addon.onboarding",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "imobcreator/video/addon-activated",
+          "httpMethod": "POST",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "id": "Webhook_Addon",
+        "name": "Webhook Addon Activated",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [280, 300],
+        "webhookId": "imobcreator-video-addon-activated"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 2
+            },
+            "conditions": [
+              {
+                "id": "addon-check",
+                "leftValue": "={{$json.body.event}}",
+                "rightValue": "video.addon.activated",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        },
+        "id": "If_Addon",
+        "name": "Event is addon activated?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [520, 300]
+      },
+      {
+        "parameters": {
+          "jsCode": "const body = $json.body || {};\nconst tutorials = {\n  starter: ['abrir dashboard de vídeo','gerar primeiro vídeo','acompanhar saldo de créditos'],\n  pro: ['usar catálogo de estilos','gerar vídeos recorrentes','acompanhar biblioteca e download'],\n  enterprise: ['configurar operação por workspace','treinar equipe','acompanhar uso e governança']\n};\nreturn [{ json: {\n  ok: true,\n  event: body.event,\n  workspace_id: body.workspace_id,\n  addon_type: body.addon_type,\n  billing_cycle: body.billing_cycle,\n  onboarding_steps: tutorials[body.addon_type] || ['abrir módulo de vídeo'],\n  processed_at: new Date().toISOString()\n}}];"
+        },
+        "id": "Code_NormalizeAddon",
+        "name": "Build Onboarding Payload",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [760, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{$json}}",
+          "options": {}
+        },
+        "id": "Respond_Addon",
+        "name": "Respond Addon",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [1000, 300]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={\"ok\":false,\"message\":\"Evento ignorado\"}",
+          "options": {}
+        },
+        "id": "Respond_Ignored_Addon",
+        "name": "Respond Ignored",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.4,
+        "position": [760, 460]
+      }
+    ],
+    "connections": {
+      "Webhook Addon Activated": {
+        "main": [[{ "node": "Event is addon activated?", "type": "main", "index": 0 }]]
+      },
+      "Event is addon activated?": {
+        "main": [
+          [{ "node": "Build Onboarding Payload", "type": "main", "index": 0 }],
+          [{ "node": "Respond Ignored", "type": "main", "index": 0 }]
+        ]
+      },
+      "Build Onboarding Payload": {
+        "main": [[{ "node": "Respond Addon", "type": "main", "index": 0 }]]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    }
+  }
+]
