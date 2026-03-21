@@ -18,7 +18,6 @@ const HeroSection = () => {
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
-
       <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[100px] animate-float" />
       <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-accent/5 rounded-full blur-[80px] animate-float animation-delay-300" />
 
@@ -26,62 +25,62 @@ const HeroSection = () => {
         <div className="opacity-0 animate-fade-up">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground/80 text-sm font-medium backdrop-blur-sm mb-4">
             <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
-            Dashboard → IA → aprovação → Instagram
+            Ideia → criativo → aprovação → publicação
           </span>
         </div>
 
         <div className="opacity-0 animate-fade-up animation-delay-100 mb-6 flex flex-wrap items-center justify-center gap-3">
           <span className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/20 px-4 py-2 text-sm font-semibold text-accent">
             <Sparkles className="w-4 h-4" />
-            Posts, reels e copy com IA
+            Criativo e copy com IA
           </span>
           <span className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/10 border border-primary-foreground/20 px-4 py-2 text-sm font-semibold text-primary-foreground/80">
             <Video className="w-4 h-4" />
-            Novo add-on: vídeos de imóveis com IA
+            Vídeos imobiliários como add-on premium
           </span>
         </div>
 
         <h1 className="opacity-0 animate-fade-up animation-delay-100 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary-foreground max-w-6xl leading-tight mb-6">
-          Gere <span className="text-gradient">criativos, copy e vídeos imobiliários</span> com IA
+          Gere <span className="text-gradient">criativos, copy e vídeos imobiliários</span>
           <br className="hidden md:block" />
-          em uma única operação
+          com IA em minutos
         </h1>
 
         <p className="opacity-0 animate-fade-up animation-delay-200 text-lg sm:text-xl text-primary-foreground/70 max-w-4xl mb-10 font-body">
-          Centralize upload, análise de imagem, geração de copy, aprovação e publicação. E agora adicione vídeos prontos para Reels, Feed e YouTube direto no ImobCreator AI.
+          Transforme fotos e ideias em posts profissionais, reels e materiais prontos para publicar — sem depender de designer, editor ou operação manual fragmentada.
         </p>
 
         <div className="opacity-0 animate-fade-up animation-delay-300 flex flex-col sm:flex-row items-center gap-4">
           <Button asChild variant="hero" size="xl" className="group">
             <Link to="/auth">
-              Começar agora
+              Começar grátis
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
           <Button asChild variant="heroOutline" size="xl" className="group">
-            <a href="#videos-ia">
+            <a href="#como-funciona">
               <Play className="w-5 h-5" />
-              Ver módulo de vídeo
+              Ver demonstração
             </a>
           </Button>
         </div>
 
-        <div className="opacity-0 animate-fade-up animation-delay-400 flex flex-wrap justify-center gap-8 sm:gap-16 mt-16 pt-8 border-t border-primary-foreground/10">
-          <div className="text-center">
+        <div className="opacity-0 animate-fade-up animation-delay-400 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-16 pt-8 border-t border-primary-foreground/10 w-full max-w-5xl">
+          <div className="rounded-2xl bg-primary-foreground/5 border border-primary-foreground/10 p-5">
             <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">&lt; 5 min</p>
             <p className="text-sm text-primary-foreground/60 mt-1">para gerar criativo e copy</p>
           </div>
-          <div className="text-center">
+          <div className="rounded-2xl bg-primary-foreground/5 border border-primary-foreground/10 p-5">
             <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">4 formatos</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">Feed, Story, Reels e vídeo</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">feed, story, reels e vídeo</p>
           </div>
-          <div className="text-center">
+          <div className="rounded-2xl bg-primary-foreground/5 border border-primary-foreground/10 p-5">
             <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">100% IA</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">copy, visual e fluxo de aprovação</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">com revisão e aprovação</p>
           </div>
-          <div className="text-center">
-            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">Nova receita</p>
-            <p className="text-sm text-primary-foreground/60 mt-1">vídeos IA como add-on vendável</p>
+          <div className="rounded-2xl bg-primary-foreground/5 border border-primary-foreground/10 p-5">
+            <p className="text-3xl sm:text-4xl font-display font-bold text-primary-foreground">SaaS + automação</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">dashboard, biblioteca e n8n</p>
           </div>
         </div>
       </div>
