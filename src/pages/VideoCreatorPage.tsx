@@ -217,6 +217,7 @@ const VideoCreatorPage = () => {
         style,
         format,
         duration: String(computedDurationSeconds),
+        addonType: activeAddonType,
         photos: photos.map((photo) => photo.file),
       });
 

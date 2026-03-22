@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { CreateVideoJobInput, VideoJob, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
+import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 
 function mapJob(row: any): VideoJob {
   return {
@@ -111,8 +112,11 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
   if (userResult.error) throw userResult.error;
 
   const consumedAddon = await consumeVideoCredit(input.workspaceId);
+  const planTier = resolveVideoPlanTier(consumedAddon.addon_type);
+  const planRule = getVideoPlanRule(planTier);
+  const uploadSummary = getUploadSummary(input.photosCount, planTier);
 
-  const creditCost = consumedAddon.credits_total === null ? 0 : consumedAddon.addon_type === "premium" ? 200 : 100;
+  const creditCost = consumedAddon.credits_total === null ? 0 : planRule.creditCostPerVideo;
 
   try {
     const { data, error } = await supabase
@@ -123,8 +127,8 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
         title: input.title,
         style: input.style,
         format: input.format,
-        duration_seconds: input.durationSeconds,
-        resolution: input.resolution ?? "4K Ultra HD",
+        duration_seconds: uploadSummary.computedDurationSeconds,
+        resolution: input.resolution ?? planRule.resolution,
         status: "queued",
         photos_count: input.photosCount,
         credits_used: creditCost,
@@ -133,6 +137,13 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
           consumed_addon_type: consumedAddon.addon_type,
           billing_cycle: consumedAddon.billing_cycle,
           credit_cost: creditCost,
+          max_upload_images: planRule.maxUploadImages,
+          max_rendered_segments: planRule.maxRenderedSegments,
+          seconds_per_image: planRule.secondsPerImage,
+          computed_duration_seconds: uploadSummary.computedDurationSeconds,
+          rendered_segments: uploadSummary.renderedSegments,
+          ignored_images: uploadSummary.ignoredImages,
+          has_optimization: uploadSummary.hasOptimization,
         },
         created_by: userResult.data.user?.id ?? null,
       } as never)
@@ -170,6 +181,7 @@ export async function renderVideoJob(params: {
   format: string;
   duration: string;
   photos: File[];
+  addonType?: string;
 }) {
   const formData = new FormData();
   formData.append("workspaceId", params.workspaceId);
@@ -178,6 +190,7 @@ export async function renderVideoJob(params: {
   formData.append("style", params.style);
   formData.append("format", params.format);
   formData.append("duration", params.duration);
+  if (params.addonType) formData.append("addonType", params.addonType);
   params.photos.forEach((file) => formData.append("photos", file));
 
   const { data, error } = await supabase.functions.invoke("generate-video", {
