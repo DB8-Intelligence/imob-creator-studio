@@ -1,7 +1,7 @@
 export type VideoStyle = "cinematic" | "moderno" | "luxury";
 export type VideoFormat = "reels" | "feed" | "youtube";
 export type VideoStatus = "draft" | "queued" | "processing" | "completed" | "failed";
-export type VideoPlanTier = "starter" | "pro" | "enterprise";
+export type VideoPlanTier = "standard" | "plus" | "premium";
 
 export interface VideoJob {
   id: string;

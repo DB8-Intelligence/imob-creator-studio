@@ -73,35 +73,35 @@ const PlanGate = () => {
         <Lock className="w-9 h-9 text-accent" />
       </div>
       <h2 className="font-display text-2xl font-bold text-foreground mb-3">
-        Geração de vídeo disponível nos add-ons Pro e Enterprise
+        Geração de vídeo disponível nos planos Plus e Premium
       </h2>
       <p className="text-muted-foreground mb-8 leading-relaxed">
-        Este módulo transforma fotos de imóveis em vídeos profissionais com IA, com evolução de 30s até 90s conforme o plano ativo.
+        Este módulo transforma fotos de imóveis em vídeos profissionais com IA, respeitando os limites comerciais de Standard, Plus e Premium.
       </p>
       <div className="grid sm:grid-cols-2 gap-4 mb-8">
         <div className="rounded-2xl border border-border p-5 text-left">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-5 h-5 text-accent" />
-            <span className="font-semibold text-foreground">Pro</span>
+            <span className="font-semibold text-foreground">Plus</span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ 20 vídeos por ciclo</li>
-            <li>✓ Até 60 segundos</li>
-            <li>✓ Full HD</li>
-            <li>✓ Até 20 fotos por vídeo</li>
+            <li>✓ 600 créditos por mês</li>
+            <li>✓ Até 15 fotos por vídeo</li>
+            <li>✓ Resolução 1080p Full HD</li>
+            <li>✓ Até 75s por vídeo</li>
           </ul>
         </div>
         <div className="rounded-2xl border border-accent/40 bg-accent/5 p-5 text-left">
           <div className="flex items-center gap-2 mb-3">
             <Crown className="w-5 h-5 text-amber-500" />
-            <span className="font-semibold text-foreground">Enterprise</span>
-            <Badge className="bg-amber-500/10 text-amber-600 text-xs">90s + 4K</Badge>
+            <span className="font-semibold text-foreground">Premium</span>
+            <Badge className="bg-amber-500/10 text-amber-600 text-xs">4K + prioridade</Badge>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ Volume alto ou ilimitado</li>
-            <li>✓ Até 90 segundos</li>
+            <li>✓ 800 créditos por mês</li>
+            <li>✓ Até 20 fotos por vídeo</li>
             <li>✓ 4K Ultra HD</li>
-            <li>✓ Render prioritário</li>
+            <li>✓ Renderização prioritária</li>
           </ul>
         </div>
       </div>
@@ -140,10 +140,10 @@ const VideoCreatorPage = () => {
 
   // Plan gate: Credits users can't access
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
-  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "enterprise" : plan?.user_plan === "pro" ? "pro" : "starter");
-  const maxPhotosAllowed = activeAddonType === "starter" ? 10 : 20;
-  const maxDurationAllowed: Duration = activeAddonType === "enterprise" ? "90" : activeAddonType === "pro" ? "60" : "30";
-  const resolutionLabel = activeAddonType === "enterprise" ? "4K Ultra HD" : activeAddonType === "pro" ? "Full HD" : "HD / 1080p básico";
+  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard");
+  const maxPhotosAllowed = activeAddonType === "standard" ? 10 : activeAddonType === "plus" ? 15 : 20;
+  const maxDurationAllowed: Duration = activeAddonType === "premium" ? "90" : activeAddonType === "plus" ? "60" : "30";
+  const resolutionLabel = activeAddonType === "premium" ? "4K Ultra HD" : activeAddonType === "plus" ? "1080p Full HD" : "720p";
 
   if (plan && !hasVideoAccess) {
     return (
@@ -235,7 +235,7 @@ const VideoCreatorPage = () => {
         video_job_id: jobId,
         output_url: result.videoUrl,
         status: "completed",
-        addon_type: plan?.user_plan === "vip" ? "enterprise" : "pro",
+        addon_type: activeAddonType,
       });
       toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage, registrado na biblioteca e enviado para automação." });
     } catch (e: unknown) {
