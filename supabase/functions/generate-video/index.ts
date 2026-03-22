@@ -48,7 +48,8 @@ serve(async (req) => {
     const formData = await req.formData();
     const style = String(formData.get("style") ?? "cinematic");
     const format = String(formData.get("format") ?? "reels");
-    const duration = String(formData.get("duration") ?? "30");
+    const requestedDuration = Number(formData.get("duration") ?? "30");
+    const addonType = String(formData.get("addonType") ?? "standard");
     const workspaceId = String(formData.get("workspaceId") ?? "");
     const videoJobId = String(formData.get("videoJobId") ?? "");
     const title = String(formData.get("title") ?? "Vídeo imobiliário");
@@ -69,10 +70,22 @@ serve(async (req) => {
       });
     }
 
+    const planRules: Record<string, { maxUploadImages: number; maxRenderedSegments: number; secondsPerImage: number; maxDurationSeconds: number; resolution: string }> = {
+      standard: { maxUploadImages: 10, maxRenderedSegments: 10, secondsPerImage: 5, maxDurationSeconds: 50, resolution: "720p" },
+      plus: { maxUploadImages: 15, maxRenderedSegments: 15, secondsPerImage: 5, maxDurationSeconds: 75, resolution: "1080p Full HD" },
+      premium: { maxUploadImages: 20, maxRenderedSegments: 18, secondsPerImage: 5, maxDurationSeconds: 90, resolution: "4K Ultra HD" },
+    };
+
+    const planRule = planRules[addonType] ?? planRules.standard;
+    const uploadedPhotoCount = Math.min(photos.length, planRule.maxUploadImages);
+    const renderedSegments = Math.min(uploadedPhotoCount, planRule.maxRenderedSegments);
+    const computedDuration = Math.min(renderedSegments * planRule.secondsPerImage, planRule.maxDurationSeconds);
+    const effectivePhotos = photos.slice(0, uploadedPhotoCount);
+
     const inputPaths: string[] = [];
 
-    for (let i = 0; i < photos.length; i++) {
-      const file = photos[i];
+    for (let i = 0; i < effectivePhotos.length; i++) {
+      const file = effectivePhotos[i];
       const arrayBuffer = await file.arrayBuffer();
       const filePath = `${workspaceId}/${videoJobId}/inputs/${String(i + 1).padStart(2, "0")}-${sanitizeFileName(file.name || `photo-${i + 1}.jpg`)}`;
 
@@ -98,18 +111,23 @@ serve(async (req) => {
           source_paths: inputPaths,
           style,
           format,
-          duration,
+          requested_duration: requestedDuration,
+          computed_duration: computedDuration,
+          uploaded_images: photos.length,
+          uploaded_images_accepted: uploadedPhotoCount,
+          rendered_segments: renderedSegments,
           title,
+          addon_type: addonType,
         },
       })
       .eq("id", videoJobId)
       .eq("workspace_id", workspaceId);
 
     const relayForm = new FormData();
-    photos.forEach((file) => relayForm.append("photos", file, file.name));
+    effectivePhotos.forEach((file) => relayForm.append("photos", file, file.name));
     relayForm.append("style", style);
     relayForm.append("format", format);
-    relayForm.append("duration", duration);
+    relayForm.append("duration", String(computedDuration));
     relayForm.append("title", title);
 
     const apiResponse = await fetch(`${API_BASE_URL}/generate-video`, {
@@ -119,7 +137,7 @@ serve(async (req) => {
 
     if (!apiResponse.ok) {
       const text = await apiResponse.text();
-      await admin.from("video_jobs").update({ status: "failed", metadata: { source_paths: inputPaths, upstream_error: text } }).eq("id", videoJobId);
+      await admin.from("video_jobs").update({ status: "failed", metadata: { source_paths: inputPaths, upstream_error: text, requested_duration: requestedDuration, computed_duration: computedDuration, uploaded_images: photos.length, uploaded_images_accepted: uploadedPhotoCount, rendered_segments: renderedSegments, addon_type: addonType } }).eq("id", videoJobId);
       return new Response(text, {
         status: apiResponse.status,
         headers: { ...corsHeaders, "Content-Type": apiResponse.headers.get("Content-Type") || "application/json" },
@@ -154,14 +172,19 @@ serve(async (req) => {
           output_path: outputPath,
           style,
           format,
-          duration,
+          requested_duration: requestedDuration,
+          computed_duration: computedDuration,
+          uploaded_images: photos.length,
+          uploaded_images_accepted: uploadedPhotoCount,
+          rendered_segments: renderedSegments,
           title,
+          addon_type: addonType,
         },
       })
       .eq("id", videoJobId)
       .eq("workspace_id", workspaceId);
 
-    return new Response(JSON.stringify({ success: true, videoUrl: publicUrl, outputPath, sourcePaths: inputPaths }), {
+    return new Response(JSON.stringify({ success: true, videoUrl: publicUrl, outputPath, sourcePaths: inputPaths, computedDuration, renderedSegments, uploadedImages: photos.length, acceptedImages: uploadedPhotoCount }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
