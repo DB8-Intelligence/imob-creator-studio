@@ -218,6 +218,24 @@ export async function createVideoJobSegments(input: CreateVideoJobSegmentsInput)
   return ((data as any[]) ?? []).map(mapSegment);
 }
 
+export async function updateVideoJobSegmentsStatus(params: {
+  videoJobId: string;
+  status: "pending" | "queued" | "processing" | "completed" | "failed" | "skipped";
+  outputClipUrl?: string | null;
+}) {
+  const payload: Record<string, unknown> = { status: params.status };
+  if (params.outputClipUrl !== undefined) payload.output_clip_url = params.outputClipUrl;
+
+  const { data, error } = await supabase
+    .from("video_job_segments" as never)
+    .update(payload as never)
+    .eq("video_job_id", params.videoJobId)
+    .select("*");
+
+  if (error) throw error;
+  return ((data as any[]) ?? []).map(mapSegment);
+}
+
 export async function renderVideoJob(params: {
   workspaceId: string;
   videoJobId: string;
