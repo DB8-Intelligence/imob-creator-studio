@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
+import { getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import {
   Film,
   Plus,
@@ -170,12 +171,13 @@ const VideosDashboardPage = () => {
     return FALLBACK_VIDEOS;
   }, [overview?.jobs]);
 
-  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard");
-  const videoLimit = overview?.addOn?.credits_total ?? (activeAddonType === "standard" ? 300 : activeAddonType === "plus" ? 600 : 800);
+  const activeAddonType = resolveVideoPlanTier(overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard"));
+  const planRule = getVideoPlanRule(activeAddonType);
+  const videoLimit = overview?.addOn?.credits_total ?? planRule.monthlyCredits;
   const videosUsed = overview?.addOn?.credits_used ?? videos.length;
   const pct = videoLimit ? Math.min((videosUsed / videoLimit) * 100, 100) : 0;
-  const maxDurationLabel = activeAddonType === "premium" ? "90s" : activeAddonType === "plus" ? "75s" : "50s";
-  const maxPhotosLabel = activeAddonType === "standard" ? "10 fotos" : activeAddonType === "plus" ? "15 fotos" : "20 fotos";
+  const maxDurationLabel = `${planRule.maxDurationSeconds}s`;
+  const maxPhotosLabel = `${planRule.maxUploadImages} fotos`;
 
   const filtered = videos.filter((v) => activeTab === "all" || v.format === activeTab);
 

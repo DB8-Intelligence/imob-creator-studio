@@ -11,6 +11,7 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { renderVideoJob } from "@/services/videoModuleApi";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
+import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import {
   Upload,
   X,
@@ -32,8 +33,6 @@ import {
 
 type Style = "cinematic" | "moderno" | "luxury";
 type Format = "reels" | "feed" | "youtube";
-type Duration = "15" | "30" | "60" | "90";
-
 interface UploadedPhoto {
   id: string;
   file: File;
@@ -52,13 +51,6 @@ const FORMATS: { id: Format; label: string; ratio: string; platforms: string }[]
   { id: "reels", label: "Reels / TikTok", ratio: "9:16", platforms: "Instagram · TikTok" },
   { id: "feed", label: "Feed Quadrado", ratio: "1:1", platforms: "Instagram · Facebook" },
   { id: "youtube", label: "YouTube / TV", ratio: "16:9", platforms: "YouTube · Stories Landscape" },
-];
-
-const DURATIONS: { id: Duration; label: string; ideal: string }[] = [
-  { id: "15", label: "15 segundos", ideal: "Reels rápido, Story" },
-  { id: "30", label: "30 segundos", ideal: "Feed, anúncio curto" },
-  { id: "60", label: "60 segundos", ideal: "YouTube, apresentação" },
-  { id: "90", label: "90 segundos", ideal: "Apresentação premium / inventário de alto valor" },
 ];
 
 const STEPS = ["Upload de fotos", "Estilo & formato", "Gerar vídeo"];
@@ -118,7 +110,7 @@ const PlanGate = () => {
 const VideoCreatorPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = (location.state ?? {}) as { style?: Style; format?: Format; duration?: Duration };
+  const locationState = (location.state ?? {}) as { style?: Style; format?: Format };
   const { toast } = useToast();
   const { data: plan } = useUserPlan();
   const { workspaceId } = useWorkspaceContext();
@@ -132,7 +124,6 @@ const VideoCreatorPage = () => {
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
   const [style, setStyle] = useState<Style>(locationState.style ?? "cinematic");
   const [format, setFormat] = useState<Format>(locationState.format ?? "reels");
-  const [duration, setDuration] = useState<Duration>(locationState.duration ?? "30");
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -140,10 +131,13 @@ const VideoCreatorPage = () => {
 
   // Plan gate: Credits users can't access
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
-  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard");
-  const maxPhotosAllowed = activeAddonType === "standard" ? 10 : activeAddonType === "plus" ? 15 : 20;
-  const maxDurationAllowed: Duration = activeAddonType === "premium" ? "90" : activeAddonType === "plus" ? "60" : "30";
-  const resolutionLabel = activeAddonType === "premium" ? "4K Ultra HD" : activeAddonType === "plus" ? "1080p Full HD" : "720p";
+  const activeAddonType = resolveVideoPlanTier(overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard"));
+  const planRule = getVideoPlanRule(activeAddonType);
+  const uploadSummary = getUploadSummary(photos.length, activeAddonType);
+  const maxPhotosAllowed = planRule.maxUploadImages;
+  const maxDurationAllowed = planRule.maxDurationSeconds;
+  const resolutionLabel = planRule.resolution;
+  const computedDurationSeconds = uploadSummary.computedDurationSeconds;
 
   if (plan && !hasVideoAccess) {
     return (
@@ -204,7 +198,7 @@ const VideoCreatorPage = () => {
         title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
         style,
         format,
-        durationSeconds: Number(duration),
+        durationSeconds: computedDurationSeconds,
         photosCount: photos.length,
         resolution: resolutionLabel,
         metadata: {
@@ -222,7 +216,7 @@ const VideoCreatorPage = () => {
         title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
         style,
         format,
-        duration,
+        duration: String(computedDurationSeconds),
         photos: photos.map((photo) => photo.file),
       });
 
@@ -294,7 +288,7 @@ const VideoCreatorPage = () => {
               {[
                 { value: "< 3 min", label: "por vídeo" },
                 { value: resolutionLabel, label: "resolução do plano" },
-                { value: `${maxDurationAllowed}s`, label: "duração máxima" },
+                { value: `${computedDurationSeconds || 0}s`, label: "duração estimada" },
               ].map((m) => (
                 <div key={m.label} className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3">
                   <p className="text-base font-bold text-foreground">{m.value}</p>
@@ -491,32 +485,27 @@ const VideoCreatorPage = () => {
 
                 {/* Duration */}
                 <div>
-                  <Label className="text-base font-semibold">Duração do vídeo</Label>
-                  <p className="text-sm text-muted-foreground mb-4">Seu plano atual permite até {maxDurationAllowed}s e saída em {resolutionLabel}.</p>
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    {DURATIONS.map((d) => {
-                      const disabled = Number(d.id) > Number(maxDurationAllowed);
-                      return (
-                        <button
-                          key={d.id}
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => !disabled && setDuration(d.id)}
-                          className={[
-                            "rounded-xl border p-4 text-left transition-all",
-                            disabled
-                              ? "border-border bg-muted/40 opacity-50 cursor-not-allowed"
-                              : duration === d.id
-                              ? "border-accent bg-accent/10 ring-1 ring-accent"
-                              : "border-border hover:border-accent/40",
-                          ].join(" ")}
-                        >
-                          <p className="font-semibold text-foreground">{d.label}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{d.ideal}</p>
-                          {disabled && <p className="text-[11px] text-amber-600 mt-2">Disponível em um plano superior</p>}
-                        </button>
-                      );
-                    })}
+                  <Label className="text-base font-semibold">Duração calculada automaticamente</Label>
+                  <p className="text-sm text-muted-foreground mb-4">Cada imagem gera 5 segundos. Seu plano atual permite até {maxPhotosAllowed} fotos enviadas, até {planRule.maxRenderedSegments} segmentos renderizados e saída em {resolutionLabel}.</p>
+                  <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Imagens enviadas</span>
+                      <span className="font-semibold text-foreground">{photos.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Segmentos usados na montagem</span>
+                      <span className="font-semibold text-foreground">{uploadSummary.renderedSegments}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Duração estimada final</span>
+                      <span className="font-semibold text-foreground">{computedDurationSeconds}s</span>
+                    </div>
+                    {uploadSummary.hasOptimization && (
+                      <p className="text-xs text-amber-600 pt-2 border-t border-border">Seu plano permite enviar {maxPhotosAllowed} imagens, mas a montagem final usa até {planRule.maxRenderedSegments} segmentos para respeitar o teto de {planRule.maxDurationSeconds}s.</p>
+                    )}
+                    {!uploadSummary.hasOptimization && photos.length < 6 && (
+                      <p className="text-xs text-amber-600 pt-2 border-t border-border">Recomendamos pelo menos 6 imagens para uma narrativa visual mais completa.</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -558,7 +547,7 @@ const VideoCreatorPage = () => {
                     </div>
                     <div className="rounded-xl bg-muted/40 p-4 space-y-1">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide">Duração</p>
-                      <p className="font-semibold text-foreground">{DURATIONS.find((d) => d.id === duration)?.label}</p>
+                      <p className="font-semibold text-foreground">{computedDurationSeconds}s calculados automaticamente</p>
                     </div>
                   </div>
 
@@ -619,7 +608,7 @@ const VideoCreatorPage = () => {
                     {!generating && !generated && (
                       <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground min-h-[200px] flex flex-col justify-between shadow-elevated">
                         <div className="flex items-center gap-2">
-                          <Badge className="bg-accent text-primary">{duration}s</Badge>
+                          <Badge className="bg-accent text-primary">{computedDurationSeconds}s</Badge>
                           <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">
                             {STYLES.find((s) => s.id === style)?.label}
                           </Badge>
@@ -661,12 +650,12 @@ const VideoCreatorPage = () => {
                           <div>
                             <p className="font-display font-bold">Vídeo pronto!</p>
                             <p className="text-sm text-white/70">
-                              {duration}s · {FORMATS.find((f) => f.id === format)?.label} · {resolutionLabel}
+                              {computedDurationSeconds}s · {FORMATS.find((f) => f.id === format)?.label} · {resolutionLabel}
                             </p>
                           </div>
                         </div>
                         {videoUrl ? (
-                          <a href={videoUrl} download={`video-imob-${format}-${duration}s.mp4`} className="block">
+                          <a href={videoUrl} download={`video-imob-${format}-${computedDurationSeconds}s.mp4`} className="block">
                             <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90" size="lg">
                               <Download className="w-4 h-4 mr-2" />
                               Baixar vídeo
