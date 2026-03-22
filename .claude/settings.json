@@ -19,5 +19,18 @@
       "Bash(git checkout*)",
       "Bash(git stash*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BRANCH=\"claude/copy-config-imobcreatorai-08yBQ\"; UNPUSHED=$(git log origin/$BRANCH..HEAD --oneline 2>/dev/null | wc -l | tr -d ' '); UNCOMMITTED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' '); if [ \"$UNCOMMITTED\" -gt 0 ]; then echo \"{\\\"systemMessage\\\": \\\"ATENÇÃO: Há $UNCOMMITTED arquivo(s) com alterações não commitadas. Esta não é a máquina oficial — todo código deve ser enviado ao GitHub antes de encerrar! Use: git add . && git commit -m 'msg' && git push -u origin $BRANCH\\\"}\"; elif [ \"$UNPUSHED\" -gt 0 ]; then echo \"{\\\"systemMessage\\\": \\\"ATENÇÃO: Há $UNPUSHED commit(s) locais não enviados ao GitHub (branch: $BRANCH). Execute: git push -u origin $BRANCH\\\"}\"; else echo \"{\\\"systemMessage\\\": \\\"Repositório sincronizado com o GitHub (branch: $BRANCH). Tudo certo!\\\"}\"; fi",
+            "statusMessage": "Verificando sincronização com o GitHub..."
+          }
+        ]
+      }
+    ]
   }
 }
