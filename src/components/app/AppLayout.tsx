@@ -22,6 +22,8 @@ import {
   Moon,
   Sun,
   Wand2,
+  ScanSearch,
+  ZoomIn,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -41,6 +43,8 @@ const navItems = [
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
+  { icon: ScanSearch, label: "Reverse Prompt Lab", path: "/reverse-prompt-lab", badge: "Lab" },
+  { icon: ZoomIn, label: "Upscale de Imagem", path: "/upscale" },
   // ── Vídeos IA (implementação futura — oculto) ──
   // ────────────────
   { icon: Settings, label: "Configurações", path: "/settings" },

@@ -84,6 +84,12 @@ Responda APENAS em JSON válido, sem markdown, sem texto fora do JSON:
 - seed, steps, cfg e sampler não são visíveis nas imagens — indique como "não determinável"
 - Sempre contextualizar os outputs para o mercado **imobiliário brasileiro**
 
-## App standalone disponível
+## Integração com o fluxo de criação
 
-O Reverse Prompt Lab também está disponível como página integrada no iMobCreatorAI em `/reverse-prompt-lab`. O arquivo de referência é `src/pages/ReversePromptLabPage.tsx`.
+Os prompts gerados podem ser **salvos no Lab** (botão "Salvar prompt no Lab") e aparecem automaticamente no Step 2 da página `/create/ideia` no painel **"Prompts do Reverse Prompt Lab"**. O usuário clica em "Usar este prompt como base" para pré-preencher o campo conceito.
+
+**Arquivos relevantes:**
+- `src/pages/ReversePromptLabPage.tsx` — página principal do Lab (rota `/reverse-prompt-lab`)
+- `src/hooks/useSavedPrompts.ts` — hook localStorage para salvar/listar/remover prompts
+- `src/pages/IdeaCreativePage.tsx` — Step 2 com painel de prompts salvos
+- `src/components/app/AppLayout.tsx` — nav items: Reverse Prompt Lab (Lab badge) + Upscale de Imagem

@@ -1,12 +1,13 @@
 import { useState, useRef, useCallback } from "react";
+import AppLayout from "@/components/app/AppLayout";
+import { useSavedPrompts } from "@/hooks/useSavedPrompts";
 
 const STYLES = {
   fonts: `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');`,
 };
 
 const css = `
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
+.rpl-app {
   --bg: #0a0a0f;
   --bg2: #111118;
   --bg3: #18181f;
@@ -19,52 +20,15 @@ const css = `
   --muted: #7a7870;
   --danger: #e05555;
   --success: #4ec994;
-}
-body { background: var(--bg); color: var(--white); font-family: 'DM Sans', sans-serif; }
-.app {
-  min-height: 100vh;
   background: var(--bg);
   background-image:
     radial-gradient(ellipse 60% 40% at 70% -10%, rgba(232,184,75,0.06) 0%, transparent 60%),
     radial-gradient(ellipse 40% 30% at 10% 80%, rgba(232,184,75,0.04) 0%, transparent 50%);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  border-radius: 12px;
 }
-.header {
-  border-bottom: 1px solid var(--border);
-  padding: 24px 40px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(10,10,15,0.8);
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo { display: flex; align-items: baseline; gap: 2px; }
-.logo-i { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--gold); letter-spacing: -1px; }
-.logo-mob { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--white); }
-.logo-creator { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 300; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-left: 4px; }
-.logo-ai { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold); letter-spacing: 2px; border: 1px solid rgba(232,184,75,0.4); padding: 2px 6px; border-radius: 3px; margin-left: 8px; }
-.header-tag {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.header-tag::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--gold);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
-.main { max-width: 1200px; margin: 0 auto; padding: 48px 40px 80px; }
+.main { max-width: 1200px; margin: 0 auto; padding: 40px 40px 80px; }
 .section-label {
   font-family: 'DM Mono', monospace;
   font-size: 10px;
@@ -474,6 +438,7 @@ function UploadZone({
           ref={inputRef}
           type="file"
           accept="image/*"
+          title="Selecionar imagem"
           className="upload-input"
           onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
         />
@@ -508,6 +473,7 @@ function OutputBlock({
 }
 
 export default function ReversePromptLabPage() {
+  const { save: savePrompt } = useSavedPrompts();
   const [initialImg, setInitialImg] = useState<ImageData | null>(null);
   const [finalImg, setFinalImg] = useState<ImageData | null>(null);
   const [form, setForm] = useState({
@@ -520,6 +486,7 @@ export default function ReversePromptLabPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState("");
+  const [saved, setSaved] = useState(false);
 
   const updateField = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -610,20 +577,26 @@ A primeira imagem é o ANTES (original). A segunda imagem é o DEPOIS (gerada pe
     }
   }, [initialImg, finalImg, form]);
 
-  return (
-    <>
-      <style>{STYLES.fonts + css}</style>
-      <div className="app">
-        <header className="header">
-          <div className="logo">
-            <span className="logo-i">i</span>
-            <span className="logo-mob">Mob</span>
-            <span className="logo-creator">Creator</span>
-            <span className="logo-ai">AI</span>
-          </div>
-          <div className="header-tag">Reverse Prompt Lab</div>
-        </header>
+  const handleSave = () => {
+    if (!result) return;
+    savePrompt({
+      style: result.style,
+      model_family: result.model_family,
+      confidence: result.confidence,
+      final_prompt: result.final_prompt,
+      probable_prompt: result.probable_prompt,
+      negative_prompt: result.negative_prompt,
+      cta: result.cta,
+      label: form.selectedOption || result.style,
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
 
+  return (
+    <AppLayout>
+      <style>{STYLES.fonts + css}</style>
+      <div className="rpl-app">
         <main className="main">
           <div className="hero">
             <h1>Descubra o prompt <em>invisível</em><br />do seu concorrente</h1>
@@ -686,6 +659,8 @@ A primeira imagem é o ANTES (original). A segunda imagem é o DEPOIS (gerada pe
               <label>Objetivo do CTA para o iMobCreatorAI</label>
               <input
                 type="text"
+                title="Objetivo do CTA"
+                placeholder="gerar imagens de imóveis com alto impacto visual e apelo comercial"
                 value={form.ctaGoal}
                 onChange={updateField("ctaGoal")}
               />
@@ -783,13 +758,34 @@ A primeira imagem é o ANTES (original). A segunda imagem é o DEPOIS (gerada pe
                 <div className="final-prompt-body">{result.final_prompt}</div>
               </div>
 
-              <p style={{ textAlign: "center", marginTop: 20, fontSize: 12, color: "var(--muted)", fontFamily: "'DM Mono',monospace", letterSpacing: 1 }}>
-                Copie o prompt final e cole diretamente no seu site iMobCreatorAI
-              </p>
+              <div style={{ display: "flex", gap: 12, marginTop: 20, justifyContent: "center", flexWrap: "wrap" }}>
+                <p style={{ textAlign: "center", fontSize: 12, color: "var(--muted)", fontFamily: "'DM Mono',monospace", letterSpacing: 1, lineHeight: "36px" }}>
+                  Copie o prompt final e cole diretamente no seu site iMobCreatorAI
+                </p>
+                <button
+                  onClick={handleSave}
+                  style={{
+                    background: saved ? "rgba(78,201,148,0.15)" : "rgba(232,184,75,0.12)",
+                    border: `1px solid ${saved ? "rgba(78,201,148,0.4)" : "rgba(232,184,75,0.3)"}`,
+                    borderRadius: 8,
+                    color: saved ? "var(--success)" : "var(--gold)",
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 11,
+                    letterSpacing: "1px",
+                    textTransform: "uppercase" as const,
+                    padding: "8px 20px",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    whiteSpace: "nowrap" as const,
+                  }}
+                >
+                  {saved ? "✓ Salvo no Lab" : "⬇ Salvar prompt no Lab"}
+                </button>
+              </div>
             </div>
           )}
         </main>
       </div>
-    </>
+    </AppLayout>
   );
 }
