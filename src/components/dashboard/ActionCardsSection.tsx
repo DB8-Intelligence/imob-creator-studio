@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clapperboard, Film, ImageIcon, LayoutTemplate, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, Clapperboard, Film, ImageIcon, LayoutTemplate, ScanSearch, Sparkles, ZoomIn, Wand2 } from "lucide-react";
 
 const actions = [
   {
@@ -39,6 +39,20 @@ const actions = [
     badge: "Add-on",
     icon: Film,
     href: "/video-dashboard",
+  },
+  {
+    title: "Upscale de Imagem",
+    description: "Amplie e melhore a resolução de fotos de imóveis com IA. 0,3 créditos por imagem.",
+    badge: "0,3 créditos",
+    icon: ZoomIn,
+    href: "/upscale",
+  },
+  {
+    title: "Reverse Prompt Lab",
+    description: "Analise transformações de concorrentes e reconstrua o prompt original com IA.",
+    badge: "Laboratório",
+    icon: ScanSearch,
+    href: "/reverse-prompt-lab",
   },
 ];
 

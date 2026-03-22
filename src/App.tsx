@@ -35,6 +35,8 @@ import PlanPage from "./pages/PlanPage";
 // import VideoLandingPage from "./pages/VideoLandingPage";
 import IdeaCreativePage from "./pages/IdeaCreativePage";
 import TermsPage from "./pages/TermsPage";
+import ReversePromptLabPage from "./pages/ReversePromptLabPage";
+import UpscaleImagePage from "./pages/UpscaleImagePage";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,8 @@ const App = () => (
               <Route path="/posts" element={<ProtectedRoute><Posts /></ProtectedRoute>} />
               <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
               <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
+              <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
+              <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
 
               {/* VIDEO MODULE — rotas mantidas para implementação futura */}
               {/* <Route path="/videos" element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} /> */}
