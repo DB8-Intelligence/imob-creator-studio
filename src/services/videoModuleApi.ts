@@ -81,9 +81,10 @@ export async function consumeVideoCredit(workspaceId: string): Promise<VideoPlan
   return mapAddon(data);
 }
 
-export async function releaseVideoCredit(workspaceId: string): Promise<VideoPlanAddon> {
+export async function releaseVideoCredit(workspaceId: string, creditAmount?: number): Promise<VideoPlanAddon> {
   const { data, error } = await supabase.rpc("release_video_credit" as never, {
     target_workspace_id: workspaceId,
+    credit_amount: creditAmount ?? null,
   } as never);
 
   if (error) throw error;
@@ -92,7 +93,7 @@ export async function releaseVideoCredit(workspaceId: string): Promise<VideoPlan
 
 export async function activateVideoAddon(params: {
   workspaceId: string;
-  addonType: "starter" | "pro" | "enterprise";
+  addonType: "standard" | "plus" | "premium";
   billingCycle: "monthly" | "yearly";
 }): Promise<VideoPlanAddon> {
   const { data, error } = await supabase.rpc("activate_video_addon" as never, {
@@ -111,6 +112,8 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
 
   const consumedAddon = await consumeVideoCredit(input.workspaceId);
 
+  const creditCost = consumedAddon.credits_total === null ? 0 : consumedAddon.addon_type === "premium" ? 200 : 100;
+
   try {
     const { data, error } = await supabase
       .from("video_jobs" as never)
@@ -124,11 +127,12 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
         resolution: input.resolution ?? "4K Ultra HD",
         status: "queued",
         photos_count: input.photosCount,
-        credits_used: consumedAddon.credits_total === null ? 0 : 1,
+        credits_used: creditCost,
         metadata: {
           ...(input.metadata ?? {}),
           consumed_addon_type: consumedAddon.addon_type,
           billing_cycle: consumedAddon.billing_cycle,
+          credit_cost: creditCost,
         },
         created_by: userResult.data.user?.id ?? null,
       } as never)
@@ -138,7 +142,7 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
     if (error) throw error;
     return mapJob(data);
   } catch (error) {
-    await releaseVideoCredit(input.workspaceId);
+    await releaseVideoCredit(input.workspaceId, creditCost);
     throw error;
   }
 }

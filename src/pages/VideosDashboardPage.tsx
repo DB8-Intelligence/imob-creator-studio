@@ -170,12 +170,12 @@ const VideosDashboardPage = () => {
     return FALLBACK_VIDEOS;
   }, [overview?.jobs]);
 
-  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "enterprise" : plan?.user_plan === "pro" ? "pro" : "starter");
-  const videoLimit = overview?.addOn?.credits_total ?? (activeAddonType === "starter" ? 5 : activeAddonType === "pro" ? 20 : null);
+  const activeAddonType = overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard");
+  const videoLimit = overview?.addOn?.credits_total ?? (activeAddonType === "standard" ? 300 : activeAddonType === "plus" ? 600 : 800);
   const videosUsed = overview?.addOn?.credits_used ?? videos.length;
   const pct = videoLimit ? Math.min((videosUsed / videoLimit) * 100, 100) : 0;
-  const maxDurationLabel = activeAddonType === "enterprise" ? "90s" : activeAddonType === "pro" ? "60s" : "30s";
-  const maxPhotosLabel = activeAddonType === "starter" ? "10 fotos" : "20 fotos";
+  const maxDurationLabel = activeAddonType === "premium" ? "90s" : activeAddonType === "plus" ? "75s" : "50s";
+  const maxPhotosLabel = activeAddonType === "standard" ? "10 fotos" : activeAddonType === "plus" ? "15 fotos" : "20 fotos";
 
   const filtered = videos.filter((v) => activeTab === "all" || v.format === activeTab);
 
@@ -237,7 +237,7 @@ const VideosDashboardPage = () => {
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                {videoLimit ? `${Math.max(videoLimit - videosUsed, 0)} restantes` : "Enterprise — volume alto / ilimitado"}
+                {`${Math.max(videoLimit - videosUsed, 0)} créditos restantes`}
               </p>
             </CardContent>
           </Card>
