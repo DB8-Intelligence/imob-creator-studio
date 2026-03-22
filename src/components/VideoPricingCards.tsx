@@ -4,82 +4,70 @@ import { Link } from "react-router-dom";
 
 type Billing = "monthly" | "yearly";
 
-interface VideoPlan {
-  name: string;
-  badge: string | null;
-  description: string;
-  priceMonthly: string;
-  priceYearly: string;
-  resolution: string;
-  credits: string;
-  features: string[];
-  featured: boolean;
-  ctaHref: string;
-}
-
-const VIDEO_PLANS: VideoPlan[] = [
+const VIDEO_PLANS = [
   {
     name: "Standard",
     badge: null,
     description: "Ideal para pequenos imóveis e anúncios simples.",
-    priceMonthly: "R$ 297",
-    priceYearly: "R$ 2.970",
+    priceMonthly: "297",
+    priceYearly: "2.970",
     resolution: "720p",
-    credits: "300 créditos",
+    credits: "300",
     features: ["Até 10 fotos por vídeo", "Resolução 720p", "Logo + texto overlay incluído"],
     featured: false,
+    ctaLabel: "Assinar agora",
     ctaHref: "/video-plans",
   },
   {
     name: "Plus",
-    badge: "Mais escolhido",
+    badge: "🔥 Mais Escolhido",
     description: "O mais escolhido pelos corretores.",
-    priceMonthly: "R$ 497",
-    priceYearly: "R$ 4.970",
+    priceMonthly: "497",
+    priceYearly: "4.970",
     resolution: "1080p",
-    credits: "600 créditos",
+    credits: "600",
     features: ["Até 15 fotos por vídeo", "Resolução 1080p Full HD", "Logo + texto overlay incluído"],
     featured: true,
+    ctaLabel: "🚀 Assinar agora",
     ctaHref: "/video-plans",
   },
   {
     name: "Premium",
     badge: null,
     description: "Para imobiliárias de alto padrão e lançamentos premium.",
-    priceMonthly: "R$ 1.697",
-    priceYearly: "R$ 16.970",
+    priceMonthly: "1.697",
+    priceYearly: "16.970",
     resolution: "4k",
-    credits: "800 créditos",
+    credits: "800",
     features: ["Até 20 fotos por vídeo", "Resolução 4K Ultra HD", "Logo + texto overlay incluído", "Renderização prioritária"],
     featured: false,
+    ctaLabel: "Assinar agora",
     ctaHref: "/video-plans",
   },
 ];
 
 interface VideoPricingCardsProps {
-  /** dark = seção com fundo escuro (landing); light = fundo claro (dashboard) */
   variant?: "dark" | "light";
 }
 
 const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
   const [billing, setBilling] = useState<Billing>("monthly");
-
   const isDark = variant === "dark";
-
-  const textMain = isDark ? "text-primary-foreground" : "text-foreground";
-  const textSub = isDark ? "text-primary-foreground/60" : "text-muted-foreground";
-  const cardBase = isDark ? "border-primary-foreground/15 bg-primary-foreground/5" : "border-border/60 bg-card";
-  const cardFeatured = isDark ? "border-accent/50 bg-white/5 scale-[1.03] shadow-glow" : "border-accent/50 bg-primary text-primary-foreground scale-[1.03] shadow-xl";
 
   return (
     <div className="space-y-8">
+
       {/* Toggle Mensal / Anual */}
       <div className="flex justify-center">
-        <div className={`inline-flex items-center gap-3 rounded-full border px-4 py-2.5 shadow-sm ${isDark ? "border-primary-foreground/15 bg-primary-foreground/5" : "border-border bg-card"}`}>
+        <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 ${isDark ? "border-white/10 bg-white/5" : "border-border bg-card shadow-sm"}`}>
           <button
             type="button"
             onClick={() => setBilling("monthly")}
-            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${billing === "monthly" ? (isDark ? "bg-accent text-primary" : "bg-primary text-primary-foreground") : textSub}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              billing === "monthly"
+                ? "bg-amber-400 text-gray-900 font-bold"
+                : isDark ? "text-white/60 hover:text-white" : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             {billing === "monthly" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
             Mensal
@@ -87,20 +75,24 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
           <button
             type="button"
             onClick={() => setBilling("yearly")}
-            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${billing === "yearly" ? "bg-emerald-500 text-white" : textSub}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+              billing === "yearly"
+                ? "bg-amber-400 text-gray-900 font-bold"
+                : isDark ? "text-white/60 hover:text-white" : "text-muted-foreground hover:text-foreground"
+            }`}
           >
             {billing === "yearly" ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
             Anual
           </button>
-          <span className="rounded-full bg-emerald-500/15 text-emerald-500 px-3 py-1 text-xs font-semibold">
+          <span className="rounded-full bg-emerald-500/15 text-emerald-500 px-3 py-1 text-xs font-semibold whitespace-nowrap">
             1 mês grátis
           </span>
         </div>
       </div>
 
-      {/* Badge Mais escolhido (acima dos cards) */}
+      {/* Badge flutuante acima do card destaque */}
       <div className="flex justify-center">
-        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500 text-white text-xs font-bold">
+        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-400 text-gray-900 text-xs font-bold shadow-lg">
           ✦ Mais escolhido
         </span>
       </div>
@@ -115,43 +107,57 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
           return (
             <div
               key={plan.name}
-              className={`rounded-3xl border p-7 flex flex-col transition-all duration-300 ${isFeatured ? cardFeatured : cardBase}`}
+              className={[
+                "rounded-3xl border p-7 flex flex-col transition-all duration-300",
+                isFeatured
+                  ? "border-amber-400/40 bg-gray-900 scale-[1.03] shadow-[0_0_40px_rgba(251,191,36,0.15)]"
+                  : isDark
+                    ? "border-white/10 bg-white/5 hover:-translate-y-1"
+                    : "border-border/60 bg-card hover:-translate-y-1 hover:shadow-md",
+              ].join(" ")}
             >
+              {/* Badge no topo do card */}
+              {plan.badge && (
+                <span className="inline-block self-start px-3 py-1 rounded-full bg-amber-400 text-gray-900 text-xs font-bold mb-4">
+                  {plan.badge}
+                </span>
+              )}
+
               {/* Nome e descrição */}
-              <h3 className={`font-display text-2xl font-bold mb-1 ${isFeatured && !isDark ? "text-primary-foreground" : textMain}`}>
+              <h3 className={`font-display text-2xl font-bold mb-1 ${isFeatured ? "text-white" : isDark ? "text-white" : "text-foreground"}`}>
                 {plan.name}
               </h3>
-              <p className={`text-sm mb-5 ${isFeatured && !isDark ? "text-primary-foreground/70" : textSub}`}>
+              <p className={`text-sm mb-5 ${isFeatured ? "text-white/60" : isDark ? "text-white/50" : "text-muted-foreground"}`}>
                 {plan.description}
               </p>
 
               {/* Preço */}
-              <div className="mb-5">
-                <span className={`text-sm ${isFeatured && !isDark ? "text-primary-foreground/70" : textSub}`}>R$ </span>
-                <span className={`font-display text-4xl font-bold ${isFeatured && !isDark ? "text-primary-foreground" : textMain}`}>
-                  {price.replace("R$ ", "")}
+              <div className="flex items-baseline gap-1 mb-5">
+                <span className={`text-sm ${isFeatured ? "text-white/70" : isDark ? "text-white/60" : "text-muted-foreground"}`}>R$</span>
+                <span className={`font-display text-4xl font-bold ${isFeatured ? "text-amber-400" : isDark ? "text-white" : "text-foreground"}`}>
+                  {price}
                 </span>
-                <span className={`text-sm ${isFeatured && !isDark ? "text-primary-foreground/60" : textSub}`}>{period}</span>
+                <span className={`text-sm ${isFeatured ? "text-white/60" : isDark ? "text-white/50" : "text-muted-foreground"}`}>{period}</span>
               </div>
 
-              {/* Resolução */}
-              <div className={`rounded-xl p-3 mb-3 border text-center ${isFeatured && !isDark ? "bg-white/10 border-white/15" : isDark ? "bg-primary-foreground/10 border-primary-foreground/10" : "bg-muted/40 border-border/60"}`}>
-                <p className={`text-2xl font-bold ${isFeatured && !isDark ? "text-primary-foreground" : textMain}`}>{plan.resolution}</p>
-                <p className={`text-xs mt-0.5 ${isFeatured && !isDark ? "text-primary-foreground/60" : textSub}`}>resolução</p>
+              {/* Box Resolução */}
+              <div className={`rounded-xl p-3 mb-3 text-center ${isDark || isFeatured ? "bg-white/5 border border-white/10" : "bg-muted/50 border border-border/60"}`}>
+                <p className={`text-2xl font-bold ${isDark || isFeatured ? "text-white" : "text-foreground"}`}>{plan.resolution}</p>
+                <p className={`text-xs mt-0.5 ${isDark || isFeatured ? "text-white/50" : "text-muted-foreground"}`}>resolução</p>
               </div>
 
-              {/* Créditos */}
+              {/* Box Créditos */}
               <div className="rounded-xl p-3 mb-5 bg-emerald-500/10 border border-emerald-500/20 text-center">
-                <p className="text-2xl font-bold text-emerald-500">{plan.credits}</p>
-                <p className="text-xs text-emerald-600/70 mt-0.5">incluídos por mês</p>
+                <p className="text-2xl font-bold text-emerald-400">{plan.credits} créditos</p>
+                <p className="text-xs text-emerald-600/80 mt-0.5">incluídos por mês</p>
               </div>
 
               {/* Features */}
-              <ul className="space-y-2 mb-6 flex-1">
+              <ul className="space-y-2.5 mb-6 flex-1">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className={`text-sm ${isFeatured && !isDark ? "text-primary-foreground/85" : textSub}`}>{f}</span>
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className={`text-sm ${isFeatured ? "text-white/80" : isDark ? "text-white/60" : "text-muted-foreground"}`}>{f}</span>
                   </li>
                 ))}
               </ul>
@@ -159,15 +165,16 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
               {/* CTA */}
               <Link
                 to={plan.ctaHref}
-                className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all ${
+                className={[
+                  "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300",
                   isFeatured
-                    ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                    ? "bg-amber-400 text-gray-900 hover:bg-amber-300 hover:scale-105"
                     : isDark
-                    ? "bg-primary-foreground/10 text-primary-foreground border border-primary-foreground/20 hover:bg-primary-foreground/20"
-                    : "bg-foreground text-background hover:bg-foreground/90"
-                }`}
+                      ? "bg-white/10 text-white border border-white/15 hover:bg-white/20"
+                      : "bg-gray-900 text-white hover:bg-gray-800",
+                ].join(" ")}
               >
-                Assinar agora
+                {plan.ctaLabel}
                 <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -175,13 +182,13 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
         })}
       </div>
 
-      {/* Legal */}
-      <p className={`text-center text-xs ${textSub} max-w-2xl mx-auto leading-relaxed`}>
+      {/* Footer legal */}
+      <p className={`text-center text-xs max-w-2xl mx-auto leading-relaxed ${isDark ? "text-white/30" : "text-muted-foreground/60"}`}>
         Ao clicar em "Assinar", você declara que leu e concorda com nossos{" "}
-        <Link to="/termos" className="underline hover:text-accent transition-colors">Termos de Uso</Link>,{" "}
-        <Link to="/termos" className="underline hover:text-accent transition-colors">Política de Privacidade</Link>,{" "}
-        <Link to="/termos" className="underline hover:text-accent transition-colors">Política de Reembolso</Link> e{" "}
-        <Link to="/termos" className="underline hover:text-accent transition-colors">Política de Cancelamento</Link>.
+        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Termos de Uso</Link>,{" "}
+        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Privacidade</Link>,{" "}
+        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Reembolso</Link> e{" "}
+        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Cancelamento</Link>.
       </p>
     </div>
   );
