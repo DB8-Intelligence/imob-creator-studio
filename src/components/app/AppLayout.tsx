@@ -27,6 +27,8 @@ import {
   LayoutDashboard,
   Palette,
   CreditCard,
+  ImagePlay,
+  Wand2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -39,16 +41,18 @@ interface AppLayoutProps {
 
 const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
-  { icon: Upload, label: "Criar Criativo", path: "/create" },
+  // ── Criativos ──
+  { divider: true, label: "Criativos" },
+  { icon: Wand2, label: "Criar Criativo", path: "/create" },
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
   // ── Vídeos IA ──
   { divider: true, label: "Vídeos IA" },
-  { icon: Film, label: "Criar Vídeo", path: "/video-creator", badge: "Novo" },
-  { icon: LayoutDashboard, label: "Dashboard Vídeo", path: "/video-dashboard" },
-  { icon: Palette, label: "Catálogo Estilos", path: "/video-styles" },
-  { icon: CreditCard, label: "Planos Vídeo", path: "/video-plans" },
+  { icon: ImagePlay, label: "Visão Geral", path: "/videos", badge: "Novo" },
+  { icon: Film, label: "Criar Vídeo", path: "/video-creator" },
+  { icon: LayoutDashboard, label: "Meus Vídeos", path: "/video-dashboard" },
+  { icon: CreditCard, label: "Planos", path: "/video-plans" },
   // ────────────────
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];

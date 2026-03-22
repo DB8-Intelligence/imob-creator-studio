@@ -3,148 +3,279 @@ import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, ImageIcon, LayoutTemplate, Sparkles, Wand2, CheckCircle2 } from "lucide-react";
-import ModuleValueStrip from "@/components/modules/ModuleValueStrip";
-import ModuleMetricCards from "@/components/modules/ModuleMetricCards";
+import {
+  ArrowRight,
+  Wand2,
+  ImageIcon,
+  Zap,
+  Diamond,
+  MousePointer2,
+  CheckCircle2,
+  Users,
+  Clock,
+  TrendingUp,
+} from "lucide-react";
+
+const PILARES = [
+  {
+    icon: Zap,
+    title: "Agilidade Extrema",
+    desc: "Criativos incríveis gerados em questão de segundos. Nunca perca o timing de uma tendência.",
+  },
+  {
+    icon: Diamond,
+    title: "Qualidade Profissional",
+    desc: "Designs de impacto que elevam o padrão da sua presença digital no Instagram e Facebook.",
+  },
+  {
+    icon: MousePointer2,
+    title: "Simplicidade Absoluta",
+    desc: "Interface projetada para empreendedores. Resultados profissionais sem conhecimento técnico.",
+  },
+];
+
+const COMPARATIVO = [
+  { criterio: "Velocidade de Execução", tradicional: "Horas ou dias", ia: "Pronto em segundos" },
+  { criterio: "Barreira Técnica", tradicional: "Exige software e habilidades", ia: "Interface simples, zero técnica" },
+  { criterio: "Custo de Entrada", tradicional: "Alto custo de produção", ia: "Incluído no seu plano" },
+  { criterio: "Consistência", tradicional: "Depende do designer", ia: "Padrão profissional sempre" },
+  { criterio: "Escalabilidade", tradicional: "Mais pessoal = mais volume", ia: "1 gestor → volume massivo" },
+];
+
+const FLUXOS = [
+  {
+    id: "ideia",
+    icon: Wand2,
+    badge: "Mais rápido",
+    badgePrimary: true,
+    title: "A partir de uma ideia",
+    desc: "Digite seu conceito ou ideia. A IA refina o texto e gera o post ou anúncio profissional em segundos — sem precisar saber design.",
+    steps: ["Descreva sua ideia", "Escolha canal e formato", "IA gera o criativo"],
+    cta: "Criar a partir de ideia",
+    path: "/create/ideia",
+  },
+  {
+    id: "imovel",
+    icon: ImageIcon,
+    badge: "Fluxo completo",
+    badgePrimary: false,
+    title: "A partir de um imóvel",
+    desc: "Envie fotos e dados do imóvel. A IA cria posts, anúncios e carrosséis imobiliários com identidade visual profissional.",
+    steps: ["Dados e fotos do imóvel", "Escolha estilo e formato", "IA gera o criativo"],
+    cta: "Criar a partir de imóvel",
+    path: "/upload",
+  },
+];
 
 const CreateCreativeHub = () => {
   const navigate = useNavigate();
 
-  const cards = [
-    {
-      title: "Fluxo guiado",
-      desc: "Objetivo → formato → estilo → assets → texto → envio para operação.",
-      icon: Sparkles,
-      action: () => navigate("/upload"),
-      cta: "Iniciar fluxo",
-      proof: "melhor para primeira criação",
-    },
-    {
-      title: "Escolher preset visual",
-      desc: "Entre direto na biblioteca de estilos imobiliários para acelerar a decisão.",
-      icon: Wand2,
-      action: () => navigate("/templates"),
-      cta: "Abrir presets",
-      proof: "mais rápido para operação recorrente",
-    },
-    {
-      title: "Biblioteca operacional",
-      desc: "Reabra criativos recentes e reutilize o que já foi produzido.",
-      icon: ImageIcon,
-      action: () => navigate("/library"),
-      cta: "Ver biblioteca",
-      proof: "melhor para reaproveitamento",
-    },
-  ];
-
   return (
     <AppLayout>
-      <div className="max-w-6xl mx-auto space-y-8">
-        <section className="rounded-3xl border border-accent/20 bg-gradient-to-br from-primary to-primary/90 text-primary-foreground p-8 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-72 h-72 bg-accent/10 rounded-full blur-[100px]" />
-          <div className="relative grid xl:grid-cols-[1.2fr,420px] gap-6 items-center">
-            <div>
-              <Badge className="bg-accent text-accent-foreground mb-4">Módulo principal</Badge>
-              <h1 className="text-3xl md:text-4xl font-display font-bold leading-tight">
-                Crie peças imobiliárias com <span className="text-accent">cara de campanha pronta</span>
-              </h1>
-              <p className="text-primary-foreground/75 mt-4 max-w-2xl">
-                Um módulo pensado para tirar você da tela em branco e levar direto para criação, operação e publicação com mais clareza visual.
-              </p>
-              <div className="grid sm:grid-cols-3 gap-3 mt-6">
-                {[
-                  ["1 crédito", "custo de entrada"],
-                  ["2-5 min", "tempo médio do fluxo"],
-                  ["Inbox", "destino operacional"],
-                ].map(([value, label]) => (
-                  <div key={value} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-2xl font-bold">{value}</p>
-                    <p className="text-sm text-primary-foreground/70 mt-1">{label}</p>
-                  </div>
-                ))}
+      <div className="max-w-5xl mx-auto space-y-12">
+
+        {/* ── HERO ── */}
+        <section className="text-center space-y-4 pt-4">
+          <Badge className="bg-accent/10 text-accent border border-accent/20">
+            Automação Criativa com IA
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground leading-tight">
+            Do pensamento ao{" "}
+            <span className="text-accent">post profissional</span>
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            A inteligência artificial assume a complexidade técnica. Você fornece a ideia —
+            nós entregamos o criativo pronto em segundos.
+          </p>
+          <div className="flex items-center justify-center gap-6 pt-2 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-pink-500 inline-block" />
+              Instagram
+            </span>
+            <span className="text-muted-foreground/30">•</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />
+              Facebook
+            </span>
+          </div>
+        </section>
+
+        {/* ── DIAGRAMA 3 PASSOS ── */}
+        <section className="grid grid-cols-3 gap-3">
+          {[
+            { step: "01", label: "Sua Ideia", desc: "Digite o conceito ou objetivo" },
+            { step: "02", label: "Automação Criativa (IA)", desc: "Layout, tipografia e cores aplicados automaticamente", highlight: true },
+            { step: "03", label: "Postagem Profissional", desc: "Pronto para Instagram e Facebook" },
+          ].map((item, i) => (
+            <div key={i} className="relative">
+              <div className={`rounded-2xl border p-5 text-center space-y-2 h-full ${
+                item.highlight
+                  ? "bg-accent/5 border-accent/30"
+                  : "bg-card border-border/60"
+              }`}>
+                <p className="text-xs font-mono text-muted-foreground/50">{item.step}</p>
+                <p className="font-semibold text-foreground text-sm">{item.label}</p>
+                <p className="text-xs text-muted-foreground">{item.desc}</p>
               </div>
+              {i < 2 && (
+                <ArrowRight className="w-4 h-4 text-muted-foreground/30 absolute top-1/2 -right-2 -translate-y-1/2 z-10" />
+              )}
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
-              <div className="aspect-[4/5] rounded-2xl bg-gradient-to-br from-white/10 to-transparent p-4 flex flex-col justify-between">
-                <div className="flex items-center justify-between">
-                  <Badge className="bg-accent text-accent-foreground">Luxo Premium</Badge>
-                  <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">Preview</Badge>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-40 rounded-xl bg-white/10 border border-white/10" />
+          ))}
+        </section>
+
+        {/* ── DOIS FLUXOS DE ENTRADA ── */}
+        <section className="space-y-3">
+          <h2 className="text-xl font-semibold text-foreground">Como você quer começar?</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {FLUXOS.map((fluxo) => {
+              const Icon = fluxo.icon;
+              return (
+                <Card
+                  key={fluxo.id}
+                  className="border-border/60 hover:border-accent/40 hover:shadow-elevated transition-all overflow-hidden cursor-pointer"
+                  onClick={() => navigate(fluxo.path)}
+                >
+                  <CardContent className="p-0">
+                    <div className="h-24 bg-gradient-to-br from-accent/10 to-transparent border-b border-border/60 p-5 flex items-start justify-between">
+                      <div className="w-11 h-11 rounded-xl bg-accent/10 text-accent flex items-center justify-center border border-accent/20">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <Badge className={fluxo.badgePrimary
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-muted text-muted-foreground border border-border"
+                      }>
+                        {fluxo.badge}
+                      </Badge>
+                    </div>
+                    <div className="p-5 space-y-4">
+                      <div>
+                        <h3 className="text-base font-semibold text-foreground">{fluxo.title}</h3>
+                        <p className="text-sm text-muted-foreground mt-1">{fluxo.desc}</p>
+                      </div>
+                      <div className="space-y-1.5">
+                        {fluxo.steps.map((s, i) => (
+                          <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                            {s}
+                          </div>
+                        ))}
+                      </div>
+                      <Button
+                        className="w-full"
+                        variant={fluxo.badgePrimary ? "default" : "outline"}
+                        onClick={(e) => { e.stopPropagation(); navigate(fluxo.path); }}
+                      >
+                        {fluxo.cta}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── 3 PILARES ── */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-foreground">Os três pilares da automação criativa</h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            {PILARES.map((p) => {
+              const Icon = p.icon;
+              return (
+                <div key={p.title} className="rounded-2xl border border-border/60 bg-card p-5 space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center border border-accent/20">
+                    <Icon className="w-5 h-5" />
+                  </div>
                   <div>
-                    <p className="text-2xl font-display font-bold">Casa moderna em Alphaville</p>
-                    <p className="text-sm text-primary-foreground/70 mt-1">5 suítes • 630m² • condomínio premium</p>
+                    <p className="font-semibold text-foreground text-sm">{p.title}</p>
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{p.desc}</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <p className="text-xl font-bold text-accent">R$ 3,2 mi</p>
-                    <span className="px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-sm font-semibold">Agendar visita</span>
-                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── COMPARATIVO ── */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-semibold text-foreground">Uma mudança drástica no fluxo de trabalho</h2>
+          <div className="rounded-2xl border border-border/60 overflow-hidden">
+            <div className="grid grid-cols-3 bg-muted/50 border-b border-border/60">
+              <div className="p-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Critério</div>
+              <div className="p-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground border-l border-border/60">Criação Tradicional</div>
+              <div className="p-4 text-xs font-semibold uppercase tracking-wide text-accent border-l border-border/60">Automação com IA</div>
+            </div>
+            {COMPARATIVO.map((row, i) => (
+              <div
+                key={i}
+                className={`grid grid-cols-3 text-sm border-b border-border/40 last:border-0 ${
+                  i % 2 === 0 ? "bg-card" : "bg-muted/20"
+                }`}
+              >
+                <div className="p-4 font-medium text-foreground">{row.criterio}</div>
+                <div className="p-4 border-l border-border/40 text-muted-foreground">{row.tradicional}</div>
+                <div className="p-4 border-l border-border/40 text-accent font-medium flex items-center gap-2">
+                  <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+                  {row.ia}
                 </div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── PROVA SOCIAL ── */}
+        <section className="rounded-2xl bg-gradient-to-br from-accent/5 to-transparent border border-accent/20 p-6">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-shrink-0 text-center">
+              <div className="flex items-center justify-center gap-2">
+                <Users className="w-5 h-5 text-accent" />
+                <span className="text-4xl font-bold text-foreground">+1.000</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-1">profissionais ativos</p>
+            </div>
+            <div className="hidden md:block w-px h-12 bg-border/60" />
+            <div className="grid grid-cols-3 gap-4 flex-1 text-center">
+              {[
+                { icon: Clock, label: "Tempo médio", value: "Segundos" },
+                { icon: TrendingUp, label: "Entregáveis", value: "Posts e Anúncios" },
+                { icon: CheckCircle2, label: "Exigência técnica", value: "Zero" },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={stat.label}>
+                    <Icon className="w-4 h-4 text-accent mx-auto mb-1" />
+                    <p className="text-sm font-semibold text-foreground">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
 
-        <ModuleValueStrip creditsCost={1} estimatedOutput="post imobiliário pronto para operação" upgradeHint="Planos maiores destravam volume e recorrência." />
+        {/* ── CTA FINAL ── */}
+        <section className="text-center space-y-4 pb-8">
+          <h2 className="text-2xl font-bold text-foreground">
+            O futuro do seu marketing está a{" "}
+            <span className="text-accent">uma ideia de distância.</span>
+          </h2>
+          <p className="text-muted-foreground">
+            Comece a gerar criativos incríveis em segundos e escale suas redes sociais com o poder da automação.
+          </p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Button size="lg" onClick={() => navigate("/create/ideia")}>
+              <Wand2 className="w-4 h-4 mr-2" />
+              Criar a partir de ideia
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate("/upload")}>
+              <ImageIcon className="w-4 h-4 mr-2" />
+              Criar a partir de imóvel
+            </Button>
+          </div>
+        </section>
 
-        <ModuleMetricCards items={[
-          { label: "Custo", value: "1 crédito", description: "Melhor entrada para iniciar produção rápida." },
-          { label: "Tempo", value: "2-5 min", description: "Fluxo guiado para reduzir fricção de criação." },
-          { label: "Destino", value: "Inbox", description: "Segue para operação, revisão e publicação." },
-        ]} />
-
-        <div className="grid md:grid-cols-3 gap-4">
-          {cards.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title} className="hover:shadow-elevated transition-all border-border/60 hover:border-accent/40 overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="h-28 bg-gradient-to-br from-accent/10 to-transparent border-b border-border/60 p-6 flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 text-accent flex items-center justify-center border border-accent/20">
-                      <Icon className="w-6 h-6" />
-                    </div>
-                    <Badge variant="outline">{item.proof}</Badge>
-                  </div>
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-foreground">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-2">{item.desc}</p>
-                    </div>
-                    <Button className="w-full" onClick={item.action}>
-                      {item.cta}
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <Card>
-          <CardContent className="p-6 flex items-start gap-4">
-            <LayoutTemplate className="w-6 h-6 text-accent mt-0.5" />
-            <div>
-              <p className="font-semibold text-foreground">Como esse módulo se conecta ao resto do produto</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                O criativo nasce aqui, segue para inbox/aprovação e depois pode virar publicação, biblioteca, sequência, thumbnail ou peça animada.
-              </p>
-              <div className="flex flex-wrap gap-3 mt-4 text-sm">
-                {[
-                  "briefing guiado",
-                  "presets imobiliários",
-                  "aprovação operacional",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-muted-foreground">
-                    <CheckCircle2 className="w-4 h-4 text-accent" />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </AppLayout>
   );
