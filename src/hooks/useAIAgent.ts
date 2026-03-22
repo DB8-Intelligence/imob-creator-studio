@@ -9,7 +9,6 @@
  */
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -45,7 +44,6 @@ export interface AIAgentOption {
 
 export interface AIAgentJob {
   id: string;
-  workspace_id: string;
   user_id: string;
   topic: string;
   subtopic: string | null;
@@ -77,7 +75,6 @@ export interface CreateAIAgentJobInput {
 function mapJob(row: Record<string, unknown>): AIAgentJob {
   return {
     id: row.id as string,
-    workspace_id: row.workspace_id as string,
     user_id: row.user_id as string,
     topic: row.topic as string,
     subtopic: (row.subtopic as string | null) ?? null,
@@ -100,11 +97,11 @@ function mapJob(row: Record<string, unknown>): AIAgentJob {
 
 // ── Queries ───────────────────────────────────────────────────────────────────
 
-async function fetchAIAgentJobs(workspaceId: string): Promise<AIAgentJob[]> {
+async function fetchAIAgentJobs(userId: string): Promise<AIAgentJob[]> {
   const { data, error } = await supabase
     .from("ai_agent_jobs" as never)
     .select("*")
-    .eq("workspace_id", workspaceId)
+    .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(20);
 
@@ -126,16 +123,16 @@ async function fetchAIAgentJob(jobId: string): Promise<AIAgentJob | null> {
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
 /**
- * Fetch a list of AI agent jobs for the current workspace.
+ * Fetch a list of AI agent jobs for the current user.
  * Does NOT poll — use useAIAgentJobPoller for a single live job.
  */
 export function useAIAgentJobs() {
-  const { workspaceId } = useWorkspaceContext();
+  const { user } = useAuth();
 
   return useQuery({
-    queryKey: ["ai-agent-jobs", workspaceId],
-    queryFn: () => fetchAIAgentJobs(workspaceId as string),
-    enabled: Boolean(workspaceId),
+    queryKey: ["ai-agent-jobs", user?.id],
+    queryFn: () => fetchAIAgentJobs(user!.id),
+    enabled: Boolean(user?.id),
     staleTime: 15_000,
   });
 }
@@ -172,12 +169,10 @@ export function useAIAgentJobPoller(jobId: string | null) {
  */
 export function useCreateAIAgentJob() {
   const qc = useQueryClient();
-  const { workspaceId } = useWorkspaceContext();
   const { user, profile } = useAuth();
 
   return useMutation({
     mutationFn: async (input: CreateAIAgentJobInput): Promise<AIAgentJob> => {
-      if (!workspaceId) throw new Error("Workspace não carregado");
       if (!user) throw new Error("Usuário não autenticado");
 
       const brandSnapshot = {
@@ -192,7 +187,6 @@ export function useCreateAIAgentJob() {
       const { data, error } = await supabase
         .from("ai_agent_jobs" as never)
         .insert({
-          workspace_id: workspaceId,
           user_id: user.id,
           topic: input.topic,
           subtopic: input.subtopic ?? null,
@@ -231,7 +225,7 @@ export function useCreateAIAgentJob() {
       return job;
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["ai-agent-jobs", workspaceId] });
+      qc.invalidateQueries({ queryKey: ["ai-agent-jobs", user?.id] });
     },
     onError: (err: Error) => {
       toast({
@@ -248,7 +242,7 @@ export function useCreateAIAgentJob() {
  */
 export function useSelectAIAgentOption() {
   const qc = useQueryClient();
-  const { workspaceId } = useWorkspaceContext();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: async ({
@@ -297,7 +291,7 @@ export function useSelectAIAgentOption() {
     },
     onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ["ai-agent-job", variables.jobId] });
-      qc.invalidateQueries({ queryKey: ["ai-agent-jobs", workspaceId] });
+      qc.invalidateQueries({ queryKey: ["ai-agent-jobs", user?.id] });
     },
     onError: (err: Error) => {
       toast({
