@@ -23,10 +23,10 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold text-primary-foreground mb-4">Produto</h4>
             <ul className="space-y-3">
-              <li><a href="#recursos" className="text-primary-foreground/60 hover:text-accent transition-colors">Recursos</a></li>
-              <li><a href="#precos" className="text-primary-foreground/60 hover:text-accent transition-colors">Planos</a></li>
-              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Entrar</Link></li>
-              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Começar grátis</Link></li>
+              <li><a href="#criativos" className="text-primary-foreground/60 hover:text-accent transition-colors">Imagem Creator AI</a></li>
+              <li><a href="#videos-ia" className="text-primary-foreground/60 hover:text-accent transition-colors">Videos AI</a></li>
+              <li><a href="#planos-criativos" className="text-primary-foreground/60 hover:text-accent transition-colors">Planos</a></li>
+              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Começar Agora</Link></li>
             </ul>
           </div>
 
@@ -34,9 +34,9 @@ const Footer = () => {
             <h4 className="font-semibold text-primary-foreground mb-4">Empresa</h4>
             <ul className="space-y-3">
               <li><a href="#como-funciona" className="text-primary-foreground/60 hover:text-accent transition-colors">Como funciona</a></li>
-              <li><a href="#precos" className="text-primary-foreground/60 hover:text-accent transition-colors">Estrutura de planos</a></li>
-              <li><Link to="/plano" className="text-primary-foreground/60 hover:text-accent transition-colors">Página de plano</Link></li>
-              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Suporte / acesso</Link></li>
+              <li><a href="#contatos" className="text-primary-foreground/60 hover:text-accent transition-colors">Contatos</a></li>
+              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Entrar</Link></li>
+              <li><Link to="/termos" className="text-primary-foreground/60 hover:text-accent transition-colors">Termos de Uso</Link></li>
             </ul>
           </div>
         </div>

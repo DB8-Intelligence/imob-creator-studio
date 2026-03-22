@@ -5,7 +5,7 @@ import heroProperty from "@/assets/hero-property.jpg";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen pt-16 overflow-hidden">
+    <section id="home" className="relative min-h-screen pt-16 overflow-hidden">
       <div className="absolute inset-0 bg-hero" />
 
       <div
