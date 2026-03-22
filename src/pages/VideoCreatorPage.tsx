@@ -12,6 +12,7 @@ import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useV
 import { createVideoJobSegments, renderVideoJob } from "@/services/videoModuleApi";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
+import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
 import {
   Upload,
   X,
@@ -134,6 +135,8 @@ const VideoCreatorPage = () => {
   const activeAddonType = resolveVideoPlanTier(overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard"));
   const planRule = getVideoPlanRule(activeAddonType);
   const uploadSummary = getUploadSummary(photos.length, activeAddonType);
+  const motionPreset = getDefaultVideoMotionPreset();
+  const motionPresetConfig = getVideoMotionPresetConfig(motionPreset);
   const maxPhotosAllowed = planRule.maxUploadImages;
   const maxDurationAllowed = planRule.maxDurationSeconds;
   const resolutionLabel = planRule.resolution;
@@ -201,9 +204,12 @@ const VideoCreatorPage = () => {
         durationSeconds: computedDurationSeconds,
         photosCount: photos.length,
         resolution: resolutionLabel,
+        motionPreset,
         metadata: {
           source: "video-creator-page",
           photoNames: photos.map((photo) => photo.file.name),
+          motion_preset: motionPreset,
+          motion_preset_config: motionPresetConfig,
         },
       });
       jobId = createdJob.id;
@@ -297,6 +303,7 @@ const VideoCreatorPage = () => {
                 { value: "< 3 min", label: "por vídeo" },
                 { value: resolutionLabel, label: "resolução do plano" },
                 { value: `${computedDurationSeconds || 0}s`, label: "duração estimada" },
+                { value: motionPresetConfig.label, label: "movimento padrão IA" },
               ].map((m) => (
                 <div key={m.label} className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-3">
                   <p className="text-base font-bold text-foreground">{m.value}</p>
