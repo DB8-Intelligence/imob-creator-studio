@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { CreateVideoJobInput, VideoJob, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
+import type { CreateVideoJobInput, CreateVideoJobSegmentsInput, VideoJob, VideoJobSegment, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 
 function mapJob(row: any): VideoJob {
@@ -34,6 +34,25 @@ function mapAddon(row: any): VideoPlanAddon {
     credits_used: row.credits_used ?? 0,
     status: row.status,
     expires_at: row.expires_at,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+function mapSegment(row: any): VideoJobSegment {
+  return {
+    id: row.id,
+    video_job_id: row.video_job_id,
+    workspace_id: row.workspace_id,
+    sequence_index: row.sequence_index,
+    source_image_path: row.source_image_path ?? null,
+    source_image_name: row.source_image_name ?? null,
+    clip_duration_seconds: row.clip_duration_seconds ?? 5,
+    status: row.status,
+    output_clip_url: row.output_clip_url ?? null,
+    provider: row.provider ?? null,
+    provider_job_id: row.provider_job_id ?? null,
+    metadata: row.metadata ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -171,6 +190,32 @@ export async function updateVideoJobStatus(id: string, status: VideoJob["status"
 
   if (error) throw error;
   return mapJob(data);
+}
+
+export async function createVideoJobSegments(input: CreateVideoJobSegmentsInput): Promise<VideoJobSegment[]> {
+  const rows = input.imageNames.slice(0, input.renderedSegments).map((imageName, index) => ({
+    video_job_id: input.videoJobId,
+    workspace_id: input.workspaceId,
+    sequence_index: index,
+    source_image_name: imageName,
+    source_image_path: input.sourcePaths?.[index] ?? null,
+    clip_duration_seconds: 5,
+    status: "pending",
+    metadata: {
+      segment_kind: "image_to_clip",
+      source_index: index,
+    },
+  }));
+
+  if (!rows.length) return [];
+
+  const { data, error } = await supabase
+    .from("video_job_segments" as never)
+    .insert(rows as never)
+    .select("*");
+
+  if (error) throw error;
+  return ((data as any[]) ?? []).map(mapSegment);
 }
 
 export async function renderVideoJob(params: {

@@ -9,7 +9,7 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
-import { renderVideoJob } from "@/services/videoModuleApi";
+import { createVideoJobSegments, renderVideoJob } from "@/services/videoModuleApi";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import {
@@ -207,6 +207,13 @@ const VideoCreatorPage = () => {
         },
       });
       jobId = createdJob.id;
+
+      await createVideoJobSegments({
+        videoJobId: jobId,
+        workspaceId,
+        imageNames: photos.map((photo) => photo.file.name),
+        renderedSegments: uploadSummary.renderedSegments,
+      });
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
 
