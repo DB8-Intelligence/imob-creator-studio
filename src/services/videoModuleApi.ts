@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { CreateVideoJobInput, CreateVideoJobSegmentsInput, VideoJob, VideoJobSegment, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
+import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
 
 function mapJob(row: any): VideoJob {
   return {
@@ -134,6 +135,8 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
   const planTier = resolveVideoPlanTier(consumedAddon.addon_type);
   const planRule = getVideoPlanRule(planTier);
   const uploadSummary = getUploadSummary(input.photosCount, planTier);
+  const motionPreset = input.motionPreset ?? getDefaultVideoMotionPreset();
+  const motionPresetConfig = getVideoMotionPresetConfig(motionPreset);
 
   const creditCost = consumedAddon.credits_total === null ? 0 : planRule.creditCostPerVideo;
 
@@ -163,6 +166,8 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
           rendered_segments: uploadSummary.renderedSegments,
           ignored_images: uploadSummary.ignoredImages,
           has_optimization: uploadSummary.hasOptimization,
+          motion_preset: motionPreset,
+          motion_preset_config: motionPresetConfig,
         },
         created_by: userResult.data.user?.id ?? null,
       } as never)
@@ -204,6 +209,7 @@ export async function createVideoJobSegments(input: CreateVideoJobSegmentsInput)
     metadata: {
       segment_kind: "image_to_clip",
       source_index: index,
+      motion_preset: getDefaultVideoMotionPreset(),
     },
   }));
 

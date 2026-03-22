@@ -1,3 +1,5 @@
+import type { VideoMotionPreset } from "@/lib/video-motion-presets";
+
 export type VideoStyle = "cinematic" | "moderno" | "luxury";
 export type VideoFormat = "reels" | "feed" | "youtube";
 export type VideoStatus = "draft" | "queued" | "processing" | "completed" | "failed";
@@ -62,6 +64,7 @@ export interface CreateVideoJobInput {
   durationSeconds: number;
   resolution?: string;
   photosCount: number;
+  motionPreset?: VideoMotionPreset;
   metadata?: Record<string, unknown>;
 }
 
