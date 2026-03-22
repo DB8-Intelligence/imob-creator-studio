@@ -1,0 +1,11 @@
+# Dependências base (crawler HTML + análise de imagem)
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+Pillow>=10.0.0
+
+# Interface Streamlit (app.py)
+streamlit>=1.35.0
+
+# Modo browser (opcional — necessário para --mode browser)
+# playwright>=1.44.0
+# Após instalar: playwright install
