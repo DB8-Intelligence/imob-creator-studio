@@ -111,7 +111,7 @@ const Header = () => {
 
           {/* Videos AI — implementação futura (oculto da landing) */}
 
-          <
+          <a
             href="#contatos"
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
