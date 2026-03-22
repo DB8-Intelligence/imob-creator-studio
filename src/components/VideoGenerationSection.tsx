@@ -180,7 +180,7 @@ const VideoGenerationSection = () => {
           ))}
         </div>
 
-        <div className="mb-14">
+        <div id="planos-videos" className="mb-14">
           <h3 className="text-center text-primary-foreground/60 text-sm font-semibold uppercase tracking-widest mb-10">
             Planos de vídeo
           </h3>
