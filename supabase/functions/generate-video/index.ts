@@ -123,11 +123,33 @@ serve(async (req) => {
       .eq("id", videoJobId)
       .eq("workspace_id", workspaceId);
 
-    await admin
-      .from("video_job_segments")
-      .update({ status: "processing" })
-      .eq("video_job_id", videoJobId)
-      .eq("workspace_id", workspaceId);
+    const segmentPlaceholders = Array.from({ length: renderedSegments }).map((_, index) => {
+      const clipPath = `${workspaceId}/${videoJobId}/segments/${String(index + 1).padStart(2, "0")}.mp4`;
+      const { data } = admin.storage.from("video-segments").getPublicUrl(clipPath);
+      return {
+        sequence_index: index,
+        output_clip_url: data.publicUrl,
+        provider: "segment-pipeline-placeholder",
+        metadata: {
+          clip_path: clipPath,
+          stage: "reserved",
+        },
+      };
+    });
+
+    for (const segment of segmentPlaceholders) {
+      await admin
+        .from("video_job_segments")
+        .update({
+          status: "processing",
+          output_clip_url: segment.output_clip_url,
+          provider: segment.provider,
+          metadata: segment.metadata,
+        })
+        .eq("video_job_id", videoJobId)
+        .eq("workspace_id", workspaceId)
+        .eq("sequence_index", segment.sequence_index);
+    }
 
     const relayForm = new FormData();
     effectivePhotos.forEach((file) => relayForm.append("photos", file, file.name));
