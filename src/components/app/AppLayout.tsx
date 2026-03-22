@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -96,6 +96,27 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const creditsTotal = plan?.credits_total ?? 0;
   const isUnlimited = plan?.user_plan === "pro" || plan?.user_plan === "vip";
   const creditPct = creditsTotal > 0 ? Math.min((creditsRemaining / creditsTotal) * 100, 100) : 0;
+
+  // Low-credit toast — fires once per session when credits drop to ≤ 5
+  const lowCreditToastShown = useRef(false);
+  useEffect(() => {
+    if (!isUnlimited && plan && creditsRemaining <= 5 && creditsRemaining > 0 && !lowCreditToastShown.current) {
+      lowCreditToastShown.current = true;
+      toast({
+        title: "Créditos quase acabando",
+        description: `Você tem apenas ${creditsRemaining} crédito${creditsRemaining !== 1 ? "s" : ""} restante${creditsRemaining !== 1 ? "s" : ""}. Adquira mais para continuar criando.`,
+        variant: "destructive",
+      });
+    }
+    if (!isUnlimited && plan && creditsRemaining === 0 && !lowCreditToastShown.current) {
+      lowCreditToastShown.current = true;
+      toast({
+        title: "Sem créditos disponíveis",
+        description: "Adquira um pacote de créditos para continuar gerando criativos.",
+        variant: "destructive",
+      });
+    }
+  }, [creditsRemaining, isUnlimited, plan, toast]);
 
   return (
     <div className="min-h-screen bg-muted/30">
