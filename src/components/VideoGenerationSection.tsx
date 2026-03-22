@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Upload, Sliders, Download, Zap, Clock, Film, Star, Layers3, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
+import VideoPricingCards from "@/components/VideoPricingCards";
 
 const steps = [
   {
@@ -46,32 +47,6 @@ const benefits = [
   },
 ];
 
-const videoPricingPlans = [
-  {
-    name: "Vídeo Starter",
-    videos: "5 vídeos/mês",
-    resolution: "1080p Full HD",
-    price: "Add-on do plano Créditos",
-    badge: "Entrada",
-    featured: false,
-  },
-  {
-    name: "Vídeo Pro",
-    videos: "20 vídeos/mês",
-    resolution: "4K Ultra HD",
-    price: "Add-on do plano Pro",
-    badge: "Mais escolhido",
-    featured: true,
-  },
-  {
-    name: "Vídeo Enterprise",
-    videos: "Volume customizado",
-    resolution: "4K + suporte dedicado",
-    price: "Sob proposta",
-    badge: "Imobiliárias",
-    featured: false,
-  },
-];
 
 const VideoGenerationSection = () => {
   return (
@@ -184,28 +159,7 @@ const VideoGenerationSection = () => {
           <h3 className="text-center text-primary-foreground/60 text-sm font-semibold uppercase tracking-widest mb-10">
             Planos de vídeo
           </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            {videoPricingPlans.map((p) => (
-              <div
-                key={p.name}
-                className={[
-                  "rounded-2xl border p-6 transition-all",
-                  p.featured
-                    ? "border-accent/50 bg-accent/10 scale-[1.02] shadow-glow"
-                    : "border-primary-foreground/15 bg-primary-foreground/5",
-                ].join(" ")}
-              >
-                {p.badge && (
-                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-accent text-primary text-xs font-bold mb-3">
-                    {p.badge}
-                  </span>
-                )}
-                <h4 className="font-display font-bold text-primary-foreground text-lg mb-1">{p.name}</h4>
-                <p className="text-primary-foreground/60 text-sm mb-4">{p.videos} · {p.resolution}</p>
-                <p className="font-semibold text-accent">{p.price}</p>
-              </div>
-            ))}
-          </div>
+          <VideoPricingCards variant="dark" />
         </div>
 
         <div className="text-center">
