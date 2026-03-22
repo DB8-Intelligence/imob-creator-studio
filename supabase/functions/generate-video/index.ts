@@ -123,6 +123,12 @@ serve(async (req) => {
       .eq("id", videoJobId)
       .eq("workspace_id", workspaceId);
 
+    await admin
+      .from("video_job_segments")
+      .update({ status: "processing" })
+      .eq("video_job_id", videoJobId)
+      .eq("workspace_id", workspaceId);
+
     const relayForm = new FormData();
     effectivePhotos.forEach((file) => relayForm.append("photos", file, file.name));
     relayForm.append("style", style);
@@ -138,6 +144,7 @@ serve(async (req) => {
     if (!apiResponse.ok) {
       const text = await apiResponse.text();
       await admin.from("video_jobs").update({ status: "failed", metadata: { source_paths: inputPaths, upstream_error: text, requested_duration: requestedDuration, computed_duration: computedDuration, uploaded_images: photos.length, uploaded_images_accepted: uploadedPhotoCount, rendered_segments: renderedSegments, addon_type: addonType } }).eq("id", videoJobId);
+      await admin.from("video_job_segments").update({ status: "failed", metadata: { upstream_error: text } }).eq("video_job_id", videoJobId).eq("workspace_id", workspaceId);
       return new Response(text, {
         status: apiResponse.status,
         headers: { ...corsHeaders, "Content-Type": apiResponse.headers.get("Content-Type") || "application/json" },
@@ -182,6 +189,12 @@ serve(async (req) => {
         },
       })
       .eq("id", videoJobId)
+      .eq("workspace_id", workspaceId);
+
+    await admin
+      .from("video_job_segments")
+      .update({ status: "completed", metadata: { final_output_path: outputPath } })
+      .eq("video_job_id", videoJobId)
       .eq("workspace_id", workspaceId);
 
     return new Response(JSON.stringify({ success: true, videoUrl: publicUrl, outputPath, sourcePaths: inputPaths, computedDuration, renderedSegments, uploadedImages: photos.length, acceptedImages: uploadedPhotoCount }), {
