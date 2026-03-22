@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git log*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git push*)",
+      "Bash(git fetch*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git checkout*)",
+      "Bash(git stash*)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'main'); UNPUSHED=$(git log origin/$BRANCH..HEAD --oneline 2>/dev/null | wc -l | tr -d ' '); UNCOMMITTED=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' '); if [ \"$UNCOMMITTED\" -gt 0 ]; then echo \"{\\\"systemMessage\\\": \\\"ATENÇÃO: Há $UNCOMMITTED arquivo(s) com alterações não commitadas. Esta não é a máquina oficial — todo código deve ser enviado ao GitHub antes de encerrar! Use: git add . && git commit && git push origin $BRANCH\\\"}\"; elif [ \"$UNPUSHED\" -gt 0 ]; then echo \"{\\\"systemMessage\\\": \\\"ATENÇÃO: Há $UNPUSHED commit(s) locais não enviados ao GitHub (branch: $BRANCH). Execute: git push origin $BRANCH\\\"}\"; else echo \"{\\\"systemMessage\\\": \\\"Repositório sincronizado com o GitHub (branch: $BRANCH). Tudo certo!\\\"}\"; fi",
+            "statusMessage": "Verificando sincronização com o GitHub..."
+          }
+        ]
+      }
+    ]
+  }
+}
