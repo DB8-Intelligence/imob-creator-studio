@@ -36,6 +36,23 @@ export interface VideoPlanAddon {
   updated_at: string;
 }
 
+export interface VideoJobSegment {
+  id: string;
+  video_job_id: string;
+  workspace_id: string;
+  sequence_index: number;
+  source_image_path: string | null;
+  source_image_name: string | null;
+  clip_duration_seconds: number;
+  status: "pending" | "queued" | "processing" | "completed" | "failed" | "skipped";
+  output_clip_url: string | null;
+  provider: string | null;
+  provider_job_id: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreateVideoJobInput {
   workspaceId: string;
   propertyId?: string | null;
@@ -51,4 +68,12 @@ export interface CreateVideoJobInput {
 export interface VideoModuleOverview {
   jobs: VideoJob[];
   addOn: VideoPlanAddon | null;
+}
+
+export interface CreateVideoJobSegmentsInput {
+  videoJobId: string;
+  workspaceId: string;
+  imageNames: string[];
+  renderedSegments: number;
+  sourcePaths?: string[];
 }
