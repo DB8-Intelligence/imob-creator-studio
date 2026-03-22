@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Home,
-  Upload,
   LayoutGrid,
   Edit3,
   Library,
@@ -20,14 +19,8 @@ import {
   LogOut,
   Menu,
   X,
-  Sparkles,
   Moon,
   Sun,
-  Film,
-  LayoutDashboard,
-  Palette,
-  CreditCard,
-  ImagePlay,
   Wand2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,12 +41,7 @@ const navItems = [
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
-  // ── Vídeos IA ──
-  { divider: true, label: "Vídeos IA" },
-  { icon: ImagePlay, label: "Visão Geral", path: "/videos", badge: "Novo" },
-  { icon: Film, label: "Criar Vídeo", path: "/video-creator" },
-  { icon: LayoutDashboard, label: "Meus Vídeos", path: "/video-dashboard" },
-  { icon: CreditCard, label: "Planos", path: "/video-plans" },
+  // ── Vídeos IA (implementação futura — oculto) ──
   // ────────────────
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];

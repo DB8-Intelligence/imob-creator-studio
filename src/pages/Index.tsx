@@ -4,8 +4,6 @@ import FeaturesSection from "@/components/FeaturesSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import WhyDifferentSection from "@/components/WhyDifferentSection";
 import TemplatesSection from "@/components/TemplatesSection";
-import VideoGenerationSection from "@/components/VideoGenerationSection";
-import VideoModuleComparisonSection from "@/components/VideoModuleComparisonSection";
 import SocialProofSection from "@/components/SocialProofSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
@@ -22,8 +20,7 @@ const Index = () => {
       <HowItWorksSection />
       <WhyDifferentSection />
       <TemplatesSection />
-      <VideoGenerationSection />
-      <VideoModuleComparisonSection />
+      {/* VideoGenerationSection e VideoModuleComparisonSection — implementação futura */}
       <SocialProofSection />
       <PricingSection />
       <FAQSection />
