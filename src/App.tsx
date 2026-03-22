@@ -31,6 +31,7 @@ import VideoCreatorPage from "./pages/VideoCreatorPage";
 import VideosDashboardPage from "./pages/VideosDashboardPage";
 import VideosPricingPage from "./pages/VideosPricingPage";
 import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
+import IdeaCreativePage from "./pages/IdeaCreativePage";
 import TermsPage from "./pages/TermsPage";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreateCreativeHub /></ProtectedRoute>} />
+              <Route path="/create/ideia" element={<ProtectedRoute><IdeaCreativePage /></ProtectedRoute>} />
               <Route path="/create/sequence" element={<ProtectedRoute><CreateSequencePage /></ProtectedRoute>} />
               <Route path="/create/thumbnail" element={<ProtectedRoute><CreateThumbnailPage /></ProtectedRoute>} />
               <Route path="/create/animate" element={<ProtectedRoute><AnimateCreativePage /></ProtectedRoute>} />
