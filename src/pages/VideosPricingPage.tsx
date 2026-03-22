@@ -4,11 +4,26 @@ import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { useActivateVideoAddon, useVideoModuleOverview } from "@/hooks/useVideoModule";
+import { useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { Check, X, Film, Zap, Star, Crown, ChevronRight, ToggleLeft, ToggleRight, CheckCircle2, ChevronDown, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
+// ─── Links Kiwify — substitua pelos URLs reais de checkout ───────────────────
+const KIWIFY_VIDEO_LINKS = {
+  standard: {
+    monthly: "https://kiwify.com.br/video-standard-mensal",
+    yearly:  "https://kiwify.com.br/video-standard-anual",
+  },
+  plus: {
+    monthly: "https://kiwify.com.br/video-plus-mensal",
+    yearly:  "https://kiwify.com.br/video-plus-anual",
+  },
+  premium: {
+    monthly: "https://kiwify.com.br/video-premium-mensal",
+    yearly:  "https://kiwify.com.br/video-premium-anual",
+  },
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 type Billing = "monthly" | "yearly";
 
@@ -190,14 +205,12 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
 const VideosPricingPage = () => {
   const navigate = useNavigate();
   const { data: plan } = useUserPlan();
-  const { workspaceId, workspaceRole, workspacePlan, workspaceName } = useWorkspaceContext();
+  const { workspaceId, workspacePlan, workspaceName } = useWorkspaceContext();
   const { data: overview } = useVideoModuleOverview(workspaceId);
-  const activateAddonMutation = useActivateVideoAddon(workspaceId);
   const [billing, setBilling] = useState<Billing>("monthly");
 
   const currentPlan = plan?.user_plan;
   const activePlans = PLANS[billing];
-  const isAdminWorkspace = workspaceRole === "owner" || workspaceRole === "admin";
 
   return (
     <AppLayout>
@@ -223,14 +236,13 @@ const VideosPricingPage = () => {
         <div className="max-w-3xl mx-auto rounded-2xl border border-accent/20 bg-accent/5 p-4 text-center space-y-2">
           <p className="text-sm text-muted-foreground">Workspace: <span className="font-semibold text-foreground">{workspaceName ?? "N/D"}</span> · plano base <span className="font-semibold text-foreground uppercase">{workspacePlan ?? currentPlan ?? "N/D"}</span></p>
           <p className="text-sm text-muted-foreground">Add-on ativo: <span className="font-semibold text-foreground">{overview?.addOn?.addon_type?.toUpperCase?.() ?? "N/D"}</span>{overview?.addOn?.credits_total === null ? " · volume flexível" : ` · ${Math.max((overview?.addOn?.credits_total ?? 0) - (overview?.addOn?.credits_used ?? 0), 0)} créditos restantes de ${overview?.addOn?.credits_total ?? 0}`}</p>
-          {!isAdminWorkspace && <p className="text-xs text-muted-foreground">Somente owner/admin do workspace pode ativar ou trocar o add-on de vídeo.</p>}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {activePlans.map((p) => {
             const Icon = p.icon;
             const isCurrent = overview?.addOn?.addon_type === p.id;
-            const canActivate = isAdminWorkspace && (p.id === "standard" || (p.id === "plus" && (workspacePlan === "pro" || workspacePlan === "vip" || currentPlan === "pro" || currentPlan === "vip")) || (p.id === "premium" && (workspacePlan === "vip" || currentPlan === "vip")));
+            const kiwifyHref = KIWIFY_VIDEO_LINKS[p.id as keyof typeof KIWIFY_VIDEO_LINKS][billing];
             return (
               <div key={p.id} className={cn("rounded-3xl border p-8 flex flex-col transition-all", p.featured ? "border-accent/40 bg-primary text-primary-foreground shadow-xl scale-[1.01]" : p.id === "premium" ? "border-emerald-400/30 bg-gradient-to-b from-card to-emerald-500/5" : "border-border bg-card")}>
                 <div className="flex items-center justify-between mb-6">
@@ -249,11 +261,24 @@ const VideosPricingPage = () => {
                 <ul className="space-y-3 mb-8 flex-1">{p.features.map((f) => <li key={f.label} className="flex items-center gap-2.5">{f.ok ? <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" /> : <X className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />}<span className={cn("text-sm", f.ok ? p.featured ? "text-primary-foreground/90" : "text-foreground/80" : "text-muted-foreground/40")}>{f.label}</span></li>)}</ul>
 
                 {isCurrent ? (
-                  <Button variant="outline" size="lg" className="w-full" onClick={() => navigate("/video-dashboard")}><CheckCircle2 className="w-4 h-4 mr-2" />Plano ativo</Button>
-                ) : canActivate ? (
-                  <Button variant={p.featured ? "hero" : "default"} size="lg" className="w-full group" disabled={activateAddonMutation.isPending} onClick={() => activateAddonMutation.mutate({ addonType: p.id as "standard" | "plus" | "premium", billingCycle: billing }, { onSuccess: async () => { if (workspaceId) await dispatchN8nEvent("video_addon_activated", { workspace_id: workspaceId, addon_type: p.id, billing_cycle: billing, workspace_plan: workspacePlan ?? currentPlan ?? null }); navigate("/video-dashboard"); } })}>{p.cta}<ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" /></Button>
+                  <Button variant="outline" size="lg" className="w-full" onClick={() => navigate("/video-dashboard")}>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />Plano ativo
+                  </Button>
                 ) : (
-                  <Button variant={p.featured ? "hero" : "default"} size="lg" className="w-full group" onClick={() => navigate("/plano")}>{p.id === "standard" ? "Ver condições" : "Fazer upgrade do plano base"}<ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" /></Button>
+                  <a
+                    href={kiwifyHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 group",
+                      p.featured
+                        ? "bg-accent text-primary hover:bg-accent/90 hover:scale-[1.02]"
+                        : "bg-muted text-foreground border border-border hover:bg-muted/70"
+                    )}
+                  >
+                    {p.cta}
+                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </a>
                 )}
               </div>
             );
