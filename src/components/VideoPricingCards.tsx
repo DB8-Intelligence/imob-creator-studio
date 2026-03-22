@@ -1,11 +1,28 @@
 import { useState } from "react";
 import { Check, ChevronRight, ToggleLeft, ToggleRight } from "lucide-react";
-import { Link } from "react-router-dom";
 
 type Billing = "monthly" | "yearly";
 
+// ─── Links Kiwify — substitua pelos URLs reais de checkout ───────────────────
+const KIWIFY_VIDEO_LINKS = {
+  standard: {
+    monthly: "https://kiwify.com.br/video-standard-mensal",
+    yearly:  "https://kiwify.com.br/video-standard-anual",
+  },
+  plus: {
+    monthly: "https://kiwify.com.br/video-plus-mensal",
+    yearly:  "https://kiwify.com.br/video-plus-anual",
+  },
+  premium: {
+    monthly: "https://kiwify.com.br/video-premium-mensal",
+    yearly:  "https://kiwify.com.br/video-premium-anual",
+  },
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
 const VIDEO_PLANS = [
   {
+    id: "standard",
     name: "Standard",
     badge: null,
     description: "Ideal para pequenos imóveis e anúncios simples.",
@@ -16,9 +33,9 @@ const VIDEO_PLANS = [
     features: ["Até 10 fotos por vídeo", "Resolução 720p", "Logo + texto overlay incluído"],
     featured: false,
     ctaLabel: "Assinar agora",
-    ctaHref: "/video-plans",
   },
   {
+    id: "plus",
     name: "Plus",
     badge: "🔥 Mais Escolhido",
     description: "O mais escolhido pelos corretores.",
@@ -29,9 +46,9 @@ const VIDEO_PLANS = [
     features: ["Até 15 fotos por vídeo", "Resolução 1080p Full HD", "Logo + texto overlay incluído"],
     featured: true,
     ctaLabel: "🚀 Assinar agora",
-    ctaHref: "/video-plans",
   },
   {
+    id: "premium",
     name: "Premium",
     badge: null,
     description: "Para imobiliárias de alto padrão e lançamentos premium.",
@@ -42,7 +59,6 @@ const VIDEO_PLANS = [
     features: ["Até 20 fotos por vídeo", "Resolução 4K Ultra HD", "Logo + texto overlay incluído", "Renderização prioritária"],
     featured: false,
     ctaLabel: "Assinar agora",
-    ctaHref: "/video-plans",
   },
 ];
 
@@ -103,6 +119,7 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
           const price = billing === "monthly" ? plan.priceMonthly : plan.priceYearly;
           const period = billing === "monthly" ? "/mês" : "/ano";
           const isFeatured = plan.featured;
+          const kiwifyHref = KIWIFY_VIDEO_LINKS[plan.id as keyof typeof KIWIFY_VIDEO_LINKS][billing];
 
           return (
             <div
@@ -163,8 +180,10 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
               </ul>
 
               {/* CTA */}
-              <Link
-                to={plan.ctaHref}
+              <a
+                href={kiwifyHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={[
                   "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300",
                   isFeatured
@@ -176,7 +195,7 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
               >
                 {plan.ctaLabel}
                 <ChevronRight className="w-4 h-4" />
-              </Link>
+              </a>
             </div>
           );
         })}
@@ -185,10 +204,10 @@ const VideoPricingCards = ({ variant = "light" }: VideoPricingCardsProps) => {
       {/* Footer legal */}
       <p className={`text-center text-xs max-w-2xl mx-auto leading-relaxed ${isDark ? "text-white/30" : "text-muted-foreground/60"}`}>
         Ao clicar em "Assinar", você declara que leu e concorda com nossos{" "}
-        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Termos de Uso</Link>,{" "}
-        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Privacidade</Link>,{" "}
-        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Reembolso</Link> e{" "}
-        <Link to="/termos" className="underline hover:text-amber-400 transition-colors">Política de Cancelamento</Link>.
+        <a href="/termos" className="underline hover:text-amber-400 transition-colors">Termos de Uso</a>,{" "}
+        <a href="/termos" className="underline hover:text-amber-400 transition-colors">Política de Privacidade</a>,{" "}
+        <a href="/termos" className="underline hover:text-amber-400 transition-colors">Política de Reembolso</a> e{" "}
+        <a href="/termos" className="underline hover:text-amber-400 transition-colors">Política de Cancelamento</a>.
       </p>
     </div>
   );
