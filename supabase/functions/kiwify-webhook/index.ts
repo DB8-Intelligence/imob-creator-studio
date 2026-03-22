@@ -6,28 +6,43 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Mapeamento produto → créditos
-// Configure as variáveis de ambiente com os IDs reais dos produtos no Kiwify
-const PRODUCT_CREDITS: Record<string, number> = {};
-
-function resolveCredits(productId: string, productName: string): number {
-  // 1. Tenta por ID exato (via env vars)
-  const byId = PRODUCT_CREDITS[productId];
-  if (byId) return byId;
-
-  // 2. Tenta por ID das env vars
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_20")) return 20;
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_50")) return 50;
+// ─── Planos de créditos de imagem ─────────────────────────────────────────────
+function resolveImageCredits(productId: string, productName: string): number {
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_20"))  return 20;
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_50"))  return 50;
   if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_150")) return 150;
 
-  // 3. Fallback: detecta pelo nome do produto
+  // Fallback: detecta pelo nome
   const name = productName.toLowerCase();
   if (name.includes("150")) return 150;
-  if (name.includes("50")) return 50;
-  if (name.includes("20")) return 20;
+  if (name.includes("50"))  return 50;
+  if (name.includes("20"))  return 20;
 
   return 0;
 }
+
+// ─── Planos de vídeo ──────────────────────────────────────────────────────────
+type VideoAddonType = "standard" | "plus" | "premium";
+
+function resolveVideoAddon(productId: string, productName: string): VideoAddonType | null {
+  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_STANDARD")) return "standard";
+  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PLUS"))     return "plus";
+  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PREMIUM"))  return "premium";
+
+  // Fallback: detecta pelo nome
+  const name = productName.toLowerCase();
+  if (name.includes("premium")) return "premium";
+  if (name.includes("plus"))    return "plus";
+  if (name.includes("standard")) return "standard";
+
+  return null;
+}
+
+const VIDEO_ADDON_CREDITS: Record<VideoAddonType, number> = {
+  standard: 300,
+  plus: 600,
+  premium: 800,
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -61,9 +76,9 @@ serve(async (req) => {
       });
     }
 
-    const orderId = payload?.order_id ?? payload?.id;
-    const email = payload?.buyer?.email ?? payload?.customer?.email;
-    const productId = payload?.product?.id ?? "";
+    const orderId    = payload?.order_id ?? payload?.id;
+    const email      = payload?.buyer?.email ?? payload?.customer?.email;
+    const productId  = payload?.product?.id ?? "";
     const productName = payload?.product?.name ?? payload?.plan?.name ?? "";
 
     if (!orderId || !email) {
@@ -74,7 +89,118 @@ serve(async (req) => {
       });
     }
 
-    const credits = resolveCredits(productId, productName);
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // ── Tenta identificar como plano de vídeo primeiro ────────────────────────
+    const videoAddonType = resolveVideoAddon(productId, productName);
+
+    if (videoAddonType) {
+      console.log("Produto de vídeo identificado:", videoAddonType, "order:", orderId);
+
+      // Busca o user_id pelo email
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .single();
+
+      if (userError || !userData) {
+        console.error("Usuário não encontrado para email:", email);
+        return new Response(
+          JSON.stringify({ error: "Usuário não encontrado", email }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const userId = userData.id;
+
+      // Busca workspace do usuário (workspace principal = owner)
+      const { data: wsData } = await supabase
+        .from("workspace_members")
+        .select("workspace_id")
+        .eq("user_id", userId)
+        .eq("role", "owner")
+        .limit(1)
+        .single();
+
+      const workspaceId = wsData?.workspace_id ?? null;
+
+      if (!workspaceId) {
+        console.error("Workspace não encontrado para user:", userId);
+        return new Response(
+          JSON.stringify({ error: "Workspace não encontrado" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const creditsTotal = VIDEO_ADDON_CREDITS[videoAddonType];
+      const expiresAt = new Date();
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+      // Determina billing_cycle pelo nome do produto
+      const billingCycle = productName.toLowerCase().includes("anual") ? "yearly" : "monthly";
+
+      // Desativa addons anteriores do workspace
+      await supabase
+        .from("video_plan_addons")
+        .update({ status: "inactive" })
+        .eq("workspace_id", workspaceId)
+        .eq("status", "active");
+
+      // Cria novo addon (idempotência via order_id no metadata)
+      const { data: addonData, error: addonError } = await supabase
+        .from("video_plan_addons")
+        .insert({
+          workspace_id: workspaceId,
+          addon_type: videoAddonType,
+          billing_cycle: billingCycle,
+          credits_total: creditsTotal,
+          credits_used: 0,
+          status: "active",
+          expires_at: expiresAt.toISOString(),
+          metadata: {
+            kiwify_order_id: orderId,
+            product_id: productId,
+            product_name: productName,
+            activated_by_webhook: true,
+          },
+        })
+        .select()
+        .single();
+
+      if (addonError) {
+        // Verifica se é duplicata do order_id
+        if (addonError.message?.includes("duplicate") || addonError.code === "23505") {
+          console.log("Addon já ativado para order_id:", orderId);
+          return new Response(
+            JSON.stringify({ success: true, skipped: true, reason: "already_processed" }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        console.error("Erro ao ativar addon de vídeo:", addonError);
+        throw new Error(addonError.message);
+      }
+
+      console.log("Addon de vídeo ativado:", videoAddonType, "workspace:", workspaceId);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          type: "video_addon",
+          addon_type: videoAddonType,
+          credits_total: creditsTotal,
+          workspace_id: workspaceId,
+          addon_id: addonData?.id,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ── Plano de créditos de imagem ────────────────────────────────────────────
+    const credits = resolveImageCredits(productId, productName);
 
     if (credits === 0) {
       console.error("Produto não mapeado:", { productId, productName });
@@ -83,12 +209,6 @@ serve(async (req) => {
         { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Chama a função RPC credit_purchase no Supabase
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
 
     const { data, error } = await supabase.rpc("credit_purchase", {
       p_email: email,
@@ -109,10 +229,10 @@ serve(async (req) => {
       throw new Error(error.message);
     }
 
-    console.log("Créditos creditados:", data);
+    console.log("Créditos de imagem creditados:", credits, "para:", email);
 
     return new Response(
-      JSON.stringify({ success: true, credits_added: credits, result: data }),
+      JSON.stringify({ success: true, type: "image_credits", credits_added: credits, result: data }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
