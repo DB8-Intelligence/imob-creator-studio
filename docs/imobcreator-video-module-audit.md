@@ -180,7 +180,101 @@ Mas ainda não está completamente alinhado à visão final da skill, especialme
 
 ---
 
-# 4. Backlog técnico do vídeo até 90 segundos
+# 4. Regra oficial de duração automática
+
+## Princípio do módulo
+A duração do vídeo não deve ser tratada como uma escolha arbitrária do usuário.
+
+Regra oficial:
+- cada imagem válida para montagem gera 5 segundos de vídeo
+- a duração final é calculada automaticamente
+- o teto final respeita o plano ativo
+
+## Fórmula
+`duração final = segmentos renderizados x 5 segundos`
+
+## Regras oficiais por plano
+
+### Standard
+- até 10 imagens enviadas
+- até 10 segmentos renderizados
+- até 50s finais
+- 720p
+- 300 créditos por mês
+- 100 créditos por vídeo
+
+### Plus
+- até 15 imagens enviadas
+- até 15 segmentos renderizados
+- até 75s finais
+- 1080p Full HD
+- 600 créditos por mês
+- 100 créditos por vídeo
+
+### Premium
+- até 20 imagens enviadas
+- até 18 segmentos renderizados
+- até 90s finais
+- 4K Ultra HD
+- 800 créditos por mês
+- 200 créditos por vídeo
+
+## Regra especial do Premium
+O usuário pode enviar até 20 imagens.
+Para manter o teto final de 90 segundos, a montagem final utiliza até 18 segmentos de 5 segundos.
+
+Isso implica:
+- 19 ou 20 imagens podem ser aceitas no upload
+- mas o sistema pode otimizar automaticamente a seleção usada na montagem final
+- essa otimização deve ser registrada em metadata
+
+## Estado atual da implementação
+A lógica automática já começou a ser aplicada em:
+- `src/lib/video-plan-rules.ts`
+- `src/pages/VideoCreatorPage.tsx`
+- `src/pages/VideosDashboardPage.tsx`
+- `src/services/videoModuleApi.ts`
+- `supabase/functions/generate-video/index.ts`
+- `public.video_job_segments`
+
+## Nova base segmentada
+A arquitetura agora já possui uma base formal para segmentação:
+
+### `video_job_segments`
+Cada registro representa um segmento potencial da montagem final.
+
+Campos principais:
+- `video_job_id`
+- `workspace_id`
+- `sequence_index`
+- `source_image_path`
+- `source_image_name`
+- `clip_duration_seconds`
+- `status`
+- `output_clip_url`
+- `provider`
+- `provider_job_id`
+- `metadata`
+
+Objetivo:
+- modelar 1 imagem -> 1 segmento
+- preparar o pipeline real de microclipes
+- permitir rastreamento fino de status por imagem/clip
+
+## O que já foi estruturado nessa evolução
+- modelagem formal de segmentos com `video_job_segments`
+- criação inicial dos segmentos ao abrir um `video_job`
+- atualização de status dos segmentos em lote durante a renderização (`processing`, `completed`, `failed`)
+- base para evoluir o modelo 1 imagem -> 1 clipe -> 1 vídeo final
+
+## O que ainda falta para fechar o modelo completamente
+- pipeline explícito de microclipes por imagem
+- atualização de status individual dos segmentos durante a renderização
+- compositor final com concatenação/branding/trilha
+- persistência de `output_clip_url` real por segmento
+- atualização completa do pricing e mensagens comerciais quando necessário
+
+# 5. Backlog técnico do vídeo até 90 segundos
 
 ## EPIC V90-1 — Expansão de duração
 

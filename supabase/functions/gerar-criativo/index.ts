@@ -145,6 +145,21 @@ Brazilian real estate market style. Professional marketing design. High quality,
       }
     }
 
+    // Debita créditos server-side (1 crédito por criativo gerado)
+    if (userId) {
+      const creditAmount = urls.length; // cada imagem = 1 crédito
+      const { error: creditError } = await supabase.rpc("consume_credits", {
+        p_user_id: userId,
+        p_amount: creditAmount,
+      });
+      if (creditError) {
+        // Log mas não bloqueia — imagens já foram geradas
+        console.error("Erro ao debitar créditos:", creditError.message);
+      } else {
+        console.log(`${creditAmount} crédito(s) debitado(s) para usuário ${userId}`);
+      }
+    }
+
     console.log("Criativos gerados:", urls.length);
 
     return new Response(

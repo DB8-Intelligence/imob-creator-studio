@@ -1,63 +1,71 @@
-import InboxLayout from "@/components/inbox/InboxLayout";
+import AppLayout from "@/components/app/AppLayout";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { useVideoModuleOverview } from "@/hooks/useVideoModule";
-import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, X, Crown, Zap, Star, AlertCircle, Film, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { UserPlan } from "@/types/userPlan";
+import { Zap, Star, Crown, AlertCircle, Clock, Users, ShieldCheck, ArrowRight, Coins, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const PLAN_LABELS: Record<UserPlan, { label: string; icon: typeof Zap; color: string }> = {
-  credits: { label: "Créditos", icon: Zap, color: "bg-muted text-muted-foreground" },
-  pro: { label: "Pro", icon: Star, color: "bg-primary text-primary-foreground" },
-  vip: { label: "VIP", icon: Crown, color: "bg-amber-500 text-white" },
+// ─── Substitua estes links pelos URLs reais dos seus produtos no Kiwify ───────
+const KIWIFY_LINKS = {
+  20: "https://kiwify.com.br/seu-produto-20",
+  50: "https://kiwify.com.br/seu-produto-50",
+  150: "https://kiwify.com.br/seu-produto-150",
 };
+// ─────────────────────────────────────────────────────────────────────────────
 
-interface Feature {
-  name: string;
-  credits: boolean | string;
-  pro: boolean | string;
-  vip: boolean | string;
-}
-
-const FEATURES: Feature[] = [
-  { name: "Publicação no Instagram", credits: true, pro: true, vip: true },
-  { name: "Templates personalizados", credits: "1 template", pro: "Ilimitados", vip: "Ilimitados" },
-  { name: "Histórico completo", credits: false, pro: true, vip: true },
-  { name: "Geração de vídeo 4K (IA)", credits: false, pro: "20 vídeos/mês", vip: "Ilimitado" },
-  { name: "Estilos de vídeo (Cinematic, Moderno, Luxury)", credits: false, pro: true, vip: true },
-  { name: "Formatos de vídeo (Reels, Feed, YouTube)", credits: false, pro: true, vip: true },
-  { name: "Agendamento de posts", credits: false, pro: false, vip: true },
-  { name: "Multi-contas Instagram", credits: false, pro: false, vip: true },
-  { name: "White-label", credits: false, pro: false, vip: "Em breve" },
-  { name: "Suporte prioritário", credits: false, pro: true, vip: true },
+const plans = [
+  {
+    credits: 20,
+    badge: "Oferta Especial",
+    badgeColor: "bg-amber-500 text-white",
+    description: "Ideal para começar",
+    price: "R$ 59",
+    perUnit: "R$ 2,95/criação",
+    highlight: null,
+    promo: "Promoção por tempo limitado",
+    users: "312 pessoas já usam",
+    featured: false,
+  },
+  {
+    credits: 50,
+    badge: "🔥 Mais Escolhido",
+    badgeColor: "bg-indigo-500 text-white",
+    description: "Mais escolhido",
+    price: "R$ 97",
+    perUnit: "R$ 1,94/criação",
+    highlight: "Economize R$ 50",
+    promo: null,
+    users: "523 pessoas já usam",
+    featured: true,
+  },
+  {
+    credits: 150,
+    badge: "Melhor custo-benefício",
+    badgeColor: "bg-muted text-foreground",
+    description: "Melhor custo-benefício",
+    price: "R$ 197",
+    perUnit: "R$ 1,31/criação",
+    highlight: "Economize R$ 246",
+    promo: null,
+    users: "189 pessoas já usam",
+    featured: false,
+  },
 ];
-
-const FeatureCell = ({ value }: { value: boolean | string }) => {
-  if (value === true) return <Check className="w-4 h-4 text-emerald-500 mx-auto" />;
-  if (value === false) return <X className="w-4 h-4 text-muted-foreground/40 mx-auto" />;
-  return <span className="text-xs text-muted-foreground">{value}</span>;
-};
 
 const PlanPage = () => {
   const { data: plan, isLoading, isError } = useUserPlan();
-  const { workspaceId, workspaceName, workspacePlan } = useWorkspaceContext();
-  const { data: videoOverview } = useVideoModuleOverview(workspaceId);
 
-  const planConfig = plan ? PLAN_LABELS[plan.user_plan] : null;
-  const PlanIcon = planConfig?.icon || Zap;
+  const creditsRemaining = plan?.credits_remaining ?? 0;
+  const creditsTotal = plan?.credits_total ?? 0;
+  const creditPct = creditsTotal > 0 ? Math.min((creditsRemaining / creditsTotal) * 100, 100) : 0;
 
   return (
-    <InboxLayout>
-      <div className="space-y-8 max-w-4xl">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto space-y-8">
+
+        {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Plano</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gerencie seu plano e créditos
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">Meus Créditos</h1>
+          <p className="text-sm text-muted-foreground mt-1">Compre créditos e acompanhe seu saldo</p>
         </div>
 
         {isLoading && (
@@ -69,174 +77,176 @@ const PlanPage = () => {
 
         {isError && (
           <div className="flex items-center gap-2 text-destructive bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-sm">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            Erro ao carregar informações do plano. Verifique se o workflow está ativo.
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            Erro ao carregar informações do plano.
           </div>
         )}
 
         {plan && (
           <>
-            {/* Status cards */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Card>
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", planConfig?.color)}>
-                    <PlanIcon className="w-6 h-6" />
+            {/* Saldo atual */}
+            <div className="rounded-2xl border border-border/60 bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <Coins className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Plano atual</p>
-                    <p className="text-xl font-bold text-foreground">{planConfig?.label}</p>
+                    <p className="text-sm text-muted-foreground">Saldo atual</p>
+                    <p className="text-3xl font-bold text-foreground">{creditsRemaining}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Total comprado</p>
+                  <p className="text-lg font-semibold text-foreground">{creditsTotal}</p>
+                </div>
+              </div>
+              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className={[
+                    "h-full rounded-full transition-all duration-500",
+                    creditPct > 50 ? "bg-accent" : creditPct > 20 ? "bg-amber-500" : "bg-red-500",
+                  ].join(" ")}
+                  style={{ width: `${creditPct}%` }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {creditsRemaining} de {creditsTotal} créditos restantes · cada criativo consome 1 crédito
+              </p>
 
-              <Card>
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center",
-                    plan.credits_remaining > 0
-                      ? "bg-emerald-500/15 text-emerald-600"
-                      : "bg-destructive/15 text-destructive"
-                  )}>
-                    <Zap className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Créditos restantes</p>
-                    <p className="text-xl font-bold text-foreground">
-                      {plan.user_plan === "pro" || plan.user_plan === "vip"
-                        ? "Ilimitado"
-                        : plan.credits_remaining}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              {creditsRemaining === 0 && (
+                <div className="mt-3 flex items-center gap-2 text-red-500 bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Sem créditos disponíveis. Compre um pacote abaixo para continuar gerando criativos.
+                </div>
+              )}
+              {creditsRemaining > 0 && creditsRemaining <= 5 && (
+                <div className="mt-3 flex items-center gap-2 text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 text-sm">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Saldo baixo! Recarregue para não interromper sua produção.
+                </div>
+              )}
             </div>
 
-            {plan.user_plan === "credits" && plan.credits_remaining === 0 && (
-              <div className="flex items-center gap-2 bg-destructive/10 text-destructive border border-destructive/20 rounded-lg p-3 text-sm">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                Sem créditos. Entre em contato para adquirir mais créditos ou fazer upgrade.
-              </div>
-            )}
+            {/* Pacotes de créditos */}
+            <div>
+              <h2 className="text-lg font-semibold text-foreground mb-1">Comprar créditos</h2>
+              <p className="text-sm text-muted-foreground mb-5 flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent" />
+                Créditos nunca expiram · Pagamento instantâneo via PIX
+              </p>
 
-            {plan.user_plan === "credits" && (
-              <div className="flex items-center gap-2 bg-primary/10 text-primary border border-primary/20 rounded-lg p-3 text-sm">
-                <Star className="w-4 h-4 flex-shrink-0" />
-                Recursos avançados disponíveis no plano PRO. Entre em contato para upgrade.
-              </div>
-            )}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                {plans.map((p) => (
+                  <div
+                    key={p.credits}
+                    className={[
+                      "relative rounded-2xl border p-5 flex flex-col transition-all duration-300",
+                      p.featured
+                        ? "border-indigo-500/50 bg-indigo-500/5 shadow-lg scale-[1.02]"
+                        : "border-border/60 bg-card hover:-translate-y-1 hover:shadow-md",
+                    ].join(" ")}
+                  >
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold mb-3 self-start ${p.badgeColor}`}>
+                      {p.badge}
+                    </span>
 
-            <Card>
-              <CardContent className="p-6 space-y-3">
-                <h2 className="text-lg font-semibold text-foreground">Evolução operacional</h2>
-                <p className="text-sm text-muted-foreground">
-                  Use Créditos para validar, Pro para ganhar recorrência e VIP para estruturar múltiplos fluxos, contas e governança.
-                </p>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">Créditos</p>
-                    <p className="text-xs text-muted-foreground mt-1">Entrada rápida para validar o fluxo e gerar os primeiros criativos.</p>
-                  </div>
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">Pro</p>
-                    <p className="text-xs text-muted-foreground mt-1">Padrão ideal para produção frequente com templates e histórico.</p>
-                  </div>
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">VIP</p>
-                    <p className="text-xs text-muted-foreground mt-1">Base para operação mais robusta, múltiplas contas e evolução SaaS.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                    <p className="text-xl font-bold text-foreground mb-0.5">{p.credits} Créditos</p>
+                    <p className="text-xs text-muted-foreground mb-4">{p.description}</p>
 
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Film className="w-5 h-5 text-accent" />
-                      <h2 className="text-lg font-semibold text-foreground">Onboarding do módulo de vídeo</h2>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Zap className="w-3.5 h-3.5 text-accent" />
+                      <span className="text-sm font-medium text-foreground">{p.credits} criações</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Workspace <span className="font-medium text-foreground">{workspaceName ?? "N/D"}</span> · plano base <span className="font-medium text-foreground uppercase">{workspacePlan ?? plan.user_plan}</span>
-                    </p>
-                  </div>
-                  <Button onClick={() => window.location.assign('/video-plans')} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                    Gerenciar add-on de vídeo
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
 
-                <div className="rounded-xl border border-accent/20 bg-accent/5 p-4">
-                  <p className="text-sm text-muted-foreground">
-                    Add-on ativo: <span className="font-semibold text-foreground">{videoOverview?.addOn?.addon_type?.toUpperCase?.() ?? 'N/D'}</span>
-                    {videoOverview?.addOn?.credits_total === null
-                      ? ' · ilimitado'
-                      : ` · ${Math.max((videoOverview?.addOn?.credits_total ?? 0) - (videoOverview?.addOn?.credits_used ?? 0), 0)} créditos restantes`}
-                  </p>
-                </div>
+                    <p className="text-2xl font-bold text-foreground mt-2">{p.price}</p>
+                    <p className="text-xs text-muted-foreground mb-3">{p.perUnit}</p>
 
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">1. Escolha o add-on</p>
-                    <p className="text-xs text-muted-foreground mt-1">Starter para validar, Pro para operação constante, Enterprise para escala.</p>
-                  </div>
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">2. Ative no workspace</p>
-                    <p className="text-xs text-muted-foreground mt-1">Owner/admin habilita o módulo e libera o dashboard de vídeo para o time.</p>
-                  </div>
-                  <div className="rounded-xl border border-border p-4 bg-muted/30">
-                    <p className="font-medium text-foreground">3. Gere e acompanhe</p>
-                    <p className="text-xs text-muted-foreground mt-1">O time acessa catálogo, criador, biblioteca e consumo de créditos em tempo real.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                    {p.highlight && (
+                      <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 mb-3 text-center">
+                        <span className="text-emerald-500 font-bold text-xs">{p.highlight}</span>
+                      </div>
+                    )}
+                    {p.promo && (
+                      <div className="flex items-center gap-1 mb-3">
+                        <Clock className="w-3 h-3 text-amber-400" />
+                        <span className="text-amber-400 text-xs">{p.promo}</span>
+                      </div>
+                    )}
 
-            {/* Comparison table */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-border">
-                        <th className="text-left p-4 font-medium text-muted-foreground">Recurso</th>
-                        {(["credits", "pro", "vip"] as UserPlan[]).map((p) => {
-                          const cfg = PLAN_LABELS[p];
-                          const isCurrentPlan = plan.user_plan === p;
-                          return (
-                            <th key={p} className="p-4 text-center min-w-[100px]">
-                              <div className="flex flex-col items-center gap-1">
-                                <Badge className={cn("text-xs", isCurrentPlan ? cfg.color : "bg-muted text-muted-foreground")}>
-                                  {cfg.label}
-                                </Badge>
-                                {isCurrentPlan && (
-                                  <span className="text-[10px] text-primary font-medium">Atual</span>
-                                )}
-                              </div>
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {FEATURES.map((f, i) => (
-                        <tr key={f.name} className={cn("border-b border-border last:border-0", i % 2 === 0 && "bg-muted/30")}>
-                          <td className="p-4 font-medium text-foreground">{f.name}</td>
-                          <td className="p-4 text-center"><FeatureCell value={f.credits} /></td>
-                          <td className="p-4 text-center"><FeatureCell value={f.pro} /></td>
-                          <td className="p-4 text-center"><FeatureCell value={f.vip} /></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    <div className="flex items-center gap-1 mb-4">
+                      <Users className="w-3 h-3 text-muted-foreground/60" />
+                      <span className="text-xs text-muted-foreground/60">{p.users}</span>
+                    </div>
+
+                    <div className="mt-auto">
+                      <a
+                        href={KIWIFY_LINKS[p.credits as keyof typeof KIWIFY_LINKS]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={[
+                          "flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-sm transition-all",
+                          p.featured
+                            ? "bg-indigo-500 text-white hover:bg-indigo-600"
+                            : "bg-foreground text-background hover:bg-foreground/90",
+                        ].join(" ")}
+                      >
+                        Comprar agora
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-center gap-2 mt-5 text-muted-foreground/60 text-xs">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                Pagamento seguro via Kiwify · Créditos creditados automaticamente após confirmação
+              </div>
+            </div>
+
+            {/* Como funciona */}
+            <div className="rounded-2xl border border-border/60 bg-card p-6">
+              <h2 className="text-base font-semibold text-foreground mb-4">Como funciona</h2>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {[
+                  { icon: Star, step: "1", title: "Escolha o pacote", desc: "Selecione quantos créditos quer comprar acima." },
+                  { icon: ShieldCheck, step: "2", title: "Pague via PIX", desc: "Pagamento seguro pelo Kiwify. Créditos creditados automaticamente." },
+                  { icon: Zap, step: "3", title: "Gere criativos", desc: "Cada criativo gerado consome 1 crédito do seu saldo." },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0 text-sm font-bold text-accent">
+                      {item.step}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA criar criativo */}
+            {creditsRemaining > 0 && (
+              <div className="rounded-2xl border border-accent/20 bg-accent/5 p-5 flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <p className="font-semibold text-foreground">Pronto para criar?</p>
+                  <p className="text-sm text-muted-foreground">Você tem <strong>{creditsRemaining} crédito(s)</strong> disponível(eis).</p>
                 </div>
-              </CardContent>
-            </Card>
+                <Link
+                  to="/create/ideia"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground font-semibold text-sm hover:scale-105 transition-all"
+                >
+                  Criar agora
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
           </>
         )}
       </div>
-    </InboxLayout>
+    </AppLayout>
   );
 };
 
