@@ -3,19 +3,19 @@ import { Check, ChevronRight, ToggleLeft, ToggleRight } from "lucide-react";
 
 type Billing = "monthly" | "yearly";
 
-// ─── Links Kiwify — substitua pelos URLs reais de checkout ───────────────────
+// ─── Links Kiwify — checkout de planos de vídeo ──────────────────────────────
 const KIWIFY_VIDEO_LINKS = {
   standard: {
-    monthly: "https://kiwify.com.br/video-standard-mensal",
-    yearly:  "https://kiwify.com.br/video-standard-anual",
+    monthly: "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr",
+    yearly:  "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr", // atualizar quando criar produto anual
   },
   plus: {
-    monthly: "https://kiwify.com.br/video-plus-mensal",
-    yearly:  "https://kiwify.com.br/video-plus-anual",
+    monthly: "https://kiwify.com.br/video-plus-mensal",    // pendente
+    yearly:  "https://kiwify.com.br/video-plus-anual",     // pendente
   },
   premium: {
-    monthly: "https://kiwify.com.br/video-premium-mensal",
-    yearly:  "https://kiwify.com.br/video-premium-anual",
+    monthly: "https://kiwify.com.br/video-premium-mensal", // pendente
+    yearly:  "https://kiwify.com.br/video-premium-anual",  // pendente
   },
 };
 // ─────────────────────────────────────────────────────────────────────────────
