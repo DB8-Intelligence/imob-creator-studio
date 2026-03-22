@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { usePropertyUpload } from "@/hooks/usePropertyUpload";
+import { useUserPlan, useConsumeCredits } from "@/hooks/useUserPlan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +12,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Bath,
   Bed,
   Check,
   Clapperboard,
+  Coins,
   DollarSign,
   FileText,
   Home,
@@ -76,6 +79,11 @@ const steps = [
 const Upload = () => {
   const navigate = useNavigate();
   const { isUploading, progress, createPropertyWithMedia } = usePropertyUpload();
+  const { data: plan } = useUserPlan();
+  const consumeCredits = useConsumeCredits();
+  const creditsRemaining = plan?.credits_remaining ?? 0;
+  const isUnlimited = plan?.user_plan === "vip";
+  const hasCredits = isUnlimited || creditsRemaining > 0;
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState<string | null>(null);
   const [format, setFormat] = useState<string | null>(null);
@@ -156,8 +164,14 @@ const Upload = () => {
   };
 
   const handleGenerate = async () => {
+    if (!hasCredits) return;
     const property = await createPropertyWithMedia(propertyData, files);
-    if (property) navigate("/inbox");
+    if (property) {
+      if (!isUnlimited) {
+        await consumeCredits.mutateAsync(1);
+      }
+      navigate("/inbox");
+    }
   };
 
   return (
@@ -490,6 +504,48 @@ const Upload = () => {
                   <li>• a base fica pronta para próxima etapa de IA e aprovação</li>
                 </ul>
               </div>
+
+              {/* Credit info */}
+              {!isUnlimited && (
+                <div className={[
+                  "rounded-2xl border p-4 flex items-start gap-3",
+                  hasCredits
+                    ? "border-emerald-500/20 bg-emerald-500/5"
+                    : "border-red-500/30 bg-red-500/5",
+                ].join(" ")}>
+                  {hasCredits ? (
+                    <Coins className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    {hasCredits ? (
+                      <>
+                        <p className="text-sm font-medium text-foreground">
+                          Custo: <span className="text-emerald-500 font-bold">1 crédito</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Você tem {creditsRemaining} crédito{creditsRemaining !== 1 ? "s" : ""} disponível{creditsRemaining !== 1 ? "s" : ""}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-medium text-red-600">Sem créditos disponíveis</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          Adquira um pacote para continuar gerando criativos.{" "}
+                          <button
+                            type="button"
+                            onClick={() => navigate("/plano")}
+                            className="underline text-accent hover:text-accent/80"
+                          >
+                            Ver planos
+                          </button>
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -505,7 +561,7 @@ const Upload = () => {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={handleGenerate} disabled={isUploading || !propertyData.title.trim() || files.length === 0}>
+              <Button onClick={handleGenerate} disabled={isUploading || !propertyData.title.trim() || files.length === 0 || !hasCredits}>
                 {isUploading ? (
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Gerando fluxo...</>
                 ) : (
