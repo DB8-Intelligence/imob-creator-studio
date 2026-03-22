@@ -1,19 +1,29 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { UserPlanInfo } from "@/types/userPlan";
 
-async function proxyCall<T>(opts: { method: string; path: string; body?: Record<string, unknown> }): Promise<T> {
-  const res = await supabase.functions.invoke("inbox-proxy", {
-    method: "POST",
-    body: { _method: opts.method, _path: opts.path, ...opts.body },
-  });
-  if (res.error) throw new Error(res.error.message);
-  return res.data as T;
-}
-
 export async function fetchUserPlan(): Promise<UserPlanInfo> {
-  return proxyCall<UserPlanInfo>({ method: "GET", path: "/me" });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Usuário não autenticado");
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, email, user_plan, credits_remaining, credits_total")
+    .eq("id", user.id)
+    .single();
+
+  if (error) throw new Error(error.message);
+  return data as UserPlanInfo;
 }
 
-export async function updateUserPlan(data: Partial<UserPlanInfo>): Promise<UserPlanInfo> {
-  return proxyCall<UserPlanInfo>({ method: "PATCH", path: "/me", body: data as Record<string, unknown> });
+export async function consumeCredits(amount: number): Promise<number> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Usuário não autenticado");
+
+  const { data, error } = await supabase.rpc("consume_credits", {
+    p_user_id: user.id,
+    p_amount: amount,
+  });
+
+  if (error) throw new Error(error.message);
+  return data as number;
 }

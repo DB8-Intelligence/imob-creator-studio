@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { Coins } from "lucide-react";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -91,8 +92,10 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       .slice(0, 2);
   };
 
-  const creditsRemaining = plan?.credits_remaining ?? 47;
+  const creditsRemaining = plan?.credits_remaining ?? 0;
+  const creditsTotal = plan?.credits_total ?? 0;
   const isUnlimited = plan?.user_plan === "pro" || plan?.user_plan === "vip";
+  const creditPct = creditsTotal > 0 ? Math.min((creditsRemaining / creditsTotal) * 100, 100) : 0;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -103,10 +106,21 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="ImobCreator AI" className="h-8 w-auto" />
         </div>
-        <Avatar className="w-8 h-8">
-          <AvatarImage src={profile?.avatar_url || undefined} />
-          <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate("/plano")}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+          >
+            <Coins className="w-3.5 h-3.5 text-accent" />
+            <span className="text-xs font-bold text-foreground">{isUnlimited ? "∞" : creditsRemaining}</span>
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">créditos</span>
+          </button>
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={profile?.avatar_url || undefined} />
+            <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
+          </Avatar>
+        </div>
       </header>
 
       {sidebarOpen && (
@@ -190,22 +204,32 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
           <div className="p-4">
             <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl p-4 border border-accent/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium text-foreground">Créditos</span>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Coins className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium text-foreground">Créditos</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {isUnlimited ? "ilimitado" : `${creditsRemaining}/${creditsTotal}`}
+                </span>
               </div>
-              <p className="text-2xl font-bold text-foreground">{isUnlimited ? "∞" : creditsRemaining}</p>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isUnlimited ? "créditos com operação expandida" : "créditos restantes no plano atual"}
+              <p className="text-2xl font-bold text-foreground mb-0.5">
+                {isUnlimited ? "∞" : creditsRemaining}
               </p>
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <p className="text-xs text-muted-foreground mb-3">
+                {isUnlimited ? "operação expandida" : "créditos disponíveis"}
+              </p>
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-3">
                 <div
-                  className="h-full bg-accent rounded-full"
-                  style={{ width: `${Math.min((creditsRemaining / 100) * 100, 100)}%` }}
+                  className={[
+                    "h-full rounded-full transition-all duration-500",
+                    creditPct > 50 ? "bg-accent" : creditPct > 20 ? "bg-amber-500" : "bg-red-500",
+                  ].join(" ")}
+                  style={{ width: `${isUnlimited ? 100 : creditPct}%` }}
                 />
               </div>
-              <Button variant="outline" size="sm" className="w-full mt-3" onClick={() => navigate("/plano")}>
-                Ver plano / upgrade
+              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/plano")}>
+                Comprar créditos
               </Button>
             </div>
           </div>

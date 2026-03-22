@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserPlan, useConsumeCredits } from "@/hooks/useUserPlan";
 import {
   ArrowLeft,
   ArrowRight,
@@ -54,6 +55,8 @@ const IdeaCreativePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { data: plan } = useUserPlan();
+  const consumeCredits = useConsumeCredits();
 
   // Navigation
   const [step, setStep] = useState<Step>(1);
@@ -63,6 +66,9 @@ const IdeaCreativePage = () => {
   const [canal, setCanal] = useState<Canal>("instagram");
   const [tipo, setTipo] = useState<Tipo>("post");
   const [quantidade, setQuantidade] = useState<1 | 5>(1);
+
+  const creditsRemaining = plan?.credits_remaining ?? 0;
+  const creditCost = quantidade;
   const [selectedTemplate, setSelectedTemplate] = useState<CreativeTemplate | null>(null);
   const [activeCategory, setActiveCategory] = useState("top");
   const [userImage, setUserImage] = useState<File | null>(null);
@@ -138,6 +144,14 @@ const IdeaCreativePage = () => {
       toast({ title: "Preencha o título antes de gerar", variant: "destructive" });
       return;
     }
+    if (creditsRemaining < creditCost) {
+      toast({
+        title: "Créditos insuficientes",
+        description: `Você precisa de ${creditCost} crédito(s) mas tem apenas ${creditsRemaining}. Compre mais créditos.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setIsGenerating(true);
     setStep(3);
     try {
@@ -155,7 +169,8 @@ const IdeaCreativePage = () => {
       });
       if (error) throw error;
       setGeneratedUrls(data.urls ?? []);
-      toast({ title: "Criativo gerado com sucesso!" });
+      await consumeCredits.mutateAsync(creditCost);
+      toast({ title: "Criativo gerado com sucesso!", description: `${creditCost} crédito(s) consumido(s).` });
     } catch {
       toast({ title: "Erro ao gerar criativo", description: "Tente novamente.", variant: "destructive" });
       setStep(2);
@@ -283,28 +298,47 @@ const IdeaCreativePage = () => {
 
             {/* Quantidade */}
             <section className="space-y-3">
-              <Label className="text-base font-semibold">Quantos criativos gerar?</Label>
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Quantos criativos gerar?</Label>
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className="font-semibold text-foreground">{creditsRemaining}</span> créditos disponíveis
+                </span>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <button
+                  type="button"
                   onClick={() => setQuantidade(1)}
                   className={`rounded-xl border p-4 text-left transition-all ${
                     quantidade === 1 ? "border-accent bg-accent/10" : "border-border/60 bg-card hover:border-accent/40"
                   }`}
                 >
-                  <p className="text-sm font-semibold text-foreground">1 Criativo</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <ImageIcon className="w-4 h-4 text-accent" />
+                    <p className="text-sm font-semibold text-foreground">1 Criativo</p>
+                    {quantidade === 1 && <CheckCircle2 className="w-4 h-4 text-accent ml-auto" />}
+                  </div>
                   <p className="text-xs text-muted-foreground">1 crédito</p>
                 </button>
                 <button
+                  type="button"
                   onClick={() => setQuantidade(5)}
                   className={`rounded-xl border p-4 text-left transition-all relative ${
                     quantidade === 5 ? "border-accent bg-accent/10" : "border-border/60 bg-card hover:border-accent/40"
                   }`}
                 >
                   <Badge className="absolute top-2 right-2 text-[10px] bg-accent text-accent-foreground">5 variações</Badge>
-                  <p className="text-sm font-semibold text-foreground">5 Criativos</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <ImageIcon className="w-4 h-4 text-accent" />
+                    <p className="text-sm font-semibold text-foreground">5 Criativos</p>
+                  </div>
                   <p className="text-xs text-muted-foreground">5 créditos</p>
                 </button>
               </div>
+              {creditsRemaining < creditCost && (
+                <p className="text-xs text-red-500 flex items-center gap-1">
+                  ⚠ Créditos insuficientes para esta opção. <button type="button" onClick={() => navigate("/plano")} className="underline">Comprar mais</button>
+                </p>
+              )}
             </section>
 
             {/* Imagem do usuário */}

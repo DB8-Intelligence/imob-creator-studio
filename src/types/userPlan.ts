@@ -1,8 +1,9 @@
 export type UserPlan = "credits" | "pro" | "vip";
 
 export interface UserPlanInfo {
+  id: string;
+  email?: string;
   user_plan: UserPlan;
   credits_remaining: number;
-  name?: string;
-  email?: string;
+  credits_total: number;
 }
