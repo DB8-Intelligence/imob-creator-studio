@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Image, Video, Mail } from "lucide-react";
+import { Building2, ChevronDown, Image, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface DropdownItem {
@@ -109,22 +109,7 @@ const Header = () => {
             ]}
           />
 
-          <DropdownMenu
-            label="Videos AI"
-            icon={<Video className="w-3.5 h-3.5" />}
-            items={[
-              {
-                label: "Descritivos e Recursos",
-                href: "#videos-ia",
-                description: "Transforme fotos em vídeos 4K",
-              },
-              {
-                label: "Planos",
-                href: "#planos-videos",
-                description: "Preços para o módulo de vídeos",
-              },
-            ]}
-          />
+          {/* Videos AI — disponível em breve */}
 
           <a
             href="#contatos"
@@ -184,17 +169,7 @@ const Header = () => {
                 Planos
               </a>
             </div>
-            <div className="py-1">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
-                Videos AI
-              </div>
-              <a href="#videos-ia" onClick={() => setMobileOpen(false)} className="block py-2 pl-3 text-sm text-muted-foreground hover:text-foreground">
-                Descritivos e Recursos
-              </a>
-              <a href="#planos-videos" onClick={() => setMobileOpen(false)} className="block py-2 pl-3 text-sm text-muted-foreground hover:text-foreground">
-                Planos
-              </a>
-            </div>
+            {/* Videos AI — disponível em breve */}
             <a href="#contatos" onClick={() => setMobileOpen(false)} className="py-2.5 text-sm font-medium text-foreground">
               Contatos
             </a>

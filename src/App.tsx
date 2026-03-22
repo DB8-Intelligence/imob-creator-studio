@@ -27,12 +27,13 @@ import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
-import VideoCreatorPage from "./pages/VideoCreatorPage";
-import VideosDashboardPage from "./pages/VideosDashboardPage";
-import VideosPricingPage from "./pages/VideosPricingPage";
-import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
+// VIDEO MODULE — mantido para implementação futura, não exposto na navegação
+// import VideoCreatorPage from "./pages/VideoCreatorPage";
+// import VideosDashboardPage from "./pages/VideosDashboardPage";
+// import VideosPricingPage from "./pages/VideosPricingPage";
+// import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
+// import VideoLandingPage from "./pages/VideoLandingPage";
 import IdeaCreativePage from "./pages/IdeaCreativePage";
-import VideoLandingPage from "./pages/VideoLandingPage";
 import TermsPage from "./pages/TermsPage";
 
 const queryClient = new QueryClient();
@@ -69,11 +70,12 @@ const App = () => (
               <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
               <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
 
-              <Route path="/videos" element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} />
-              <Route path="/video-dashboard" element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />
-              <Route path="/video-creator" element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} />
-              <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
-              <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
+              {/* VIDEO MODULE — rotas mantidas para implementação futura */}
+              {/* <Route path="/videos" element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} /> */}
+              {/* <Route path="/video-dashboard" element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} /> */}
+              {/* <Route path="/video-creator" element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} /> */}
+              {/* <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} /> */}
+              {/* <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} /> */}
 
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
