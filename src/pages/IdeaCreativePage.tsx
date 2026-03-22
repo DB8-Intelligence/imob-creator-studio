@@ -29,6 +29,8 @@ import {
   type CreativeTemplate,
 } from "@/data/creativeTemplates";
 import { supabase } from "@/integrations/supabase/client";
+import { useSavedPrompts } from "@/hooks/useSavedPrompts";
+import { ScanSearch, Trash2 } from "lucide-react";
 
 // ── Tipos ──────────────────────────────────────────────────────────────────
 type Canal = "instagram" | "facebook";
@@ -57,6 +59,9 @@ const IdeaCreativePage = () => {
   const { user } = useAuth();
   const { data: plan } = useUserPlan();
   const consumeCredits = useConsumeCredits();
+  const { getAll: getSavedPrompts, remove: removeSavedPrompt } = useSavedPrompts();
+  const [showLabPrompts, setShowLabPrompts] = useState(false);
+  const savedPrompts = getSavedPrompts();
 
   // Navigation
   const [step, setStep] = useState<Step>(1);
@@ -429,6 +434,64 @@ const IdeaCreativePage = () => {
               <h2 className="text-lg font-semibold text-foreground">Conte sobre o que você vende</h2>
               <p className="text-sm text-muted-foreground">Deixe a IA escrever ou preencha você mesmo</p>
             </div>
+
+            {/* Prompts do Reverse Prompt Lab */}
+            {savedPrompts.length > 0 && (
+              <section className="rounded-xl border border-accent/20 bg-accent/5 p-4 space-y-3">
+                <button
+                  type="button"
+                  className="w-full flex items-center justify-between gap-2 text-left"
+                  onClick={() => setShowLabPrompts((v) => !v)}
+                >
+                  <div className="flex items-center gap-2">
+                    <ScanSearch className="w-4 h-4 text-accent" />
+                    <span className="text-sm font-semibold text-foreground">Prompts do Reverse Prompt Lab</span>
+                    <Badge className="text-[10px] bg-accent text-accent-foreground">{savedPrompts.length}</Badge>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{showLabPrompts ? "▲ fechar" : "▼ ver prompts"}</span>
+                </button>
+
+                {showLabPrompts && (
+                  <div className="space-y-2 pt-1">
+                    {savedPrompts.map((p) => (
+                      <div
+                        key={p.id}
+                        className="rounded-lg border border-border/60 bg-card p-3 space-y-1.5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-mono uppercase tracking-wide text-accent">{p.style}</span>
+                            <span className="text-[10px] text-muted-foreground">{p.model_family}</span>
+                            <span className="text-[10px] text-muted-foreground">· confiança {p.confidence}</span>
+                          </div>
+                          <button
+                            type="button"
+                            title="Remover prompt"
+                            onClick={() => removeSavedPrompt(p.id)}
+                            className="text-muted-foreground hover:text-destructive transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <p className="text-xs text-muted-foreground font-mono line-clamp-2">{p.final_prompt}</p>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          className="w-full text-xs h-7"
+                          onClick={() => {
+                            setConceito(p.final_prompt);
+                            setShowLabPrompts(false);
+                          }}
+                        >
+                          Usar este prompt como base
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {/* Conceito livre → IA escreve */}
             <section className="rounded-xl border border-border/60 bg-card p-5 space-y-3">
