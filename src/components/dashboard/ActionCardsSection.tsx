@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clapperboard, ImageIcon, LayoutTemplate, ScanSearch, Sparkles, Wand2, ZoomIn } from "lucide-react";
+import { ArrowRight, Bot, Clapperboard, ImageIcon, LayoutTemplate, ScanSearch, Sparkles, Wand2, ZoomIn } from "lucide-react";
 
 const actions = [
   {
@@ -47,6 +47,13 @@ const actions = [
     badge: "Laboratório",
     icon: ScanSearch,
     href: "/reverse-prompt-lab",
+  },
+  {
+    title: "Agentes de Conteúdo IA",
+    description: "O agente pesquisa o mercado, cria 3 ângulos de copy e gera post, carrossel ou reels com seu branding.",
+    badge: "Agentes IA",
+    icon: Bot,
+    href: "/ai-agents",
   },
 ];
 

@@ -35,6 +35,7 @@ import IdeaCreativePage from "./pages/IdeaCreativePage";
 import VideoLandingPage from "./pages/VideoLandingPage";
 import ReversePromptLabPage from "./pages/ReversePromptLabPage";
 import UpscaleImagePage from "./pages/UpscaleImagePage";
+import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
+              <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
 
               <Route path="/videos" element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} />
               <Route path="/video-dashboard" element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />

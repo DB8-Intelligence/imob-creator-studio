@@ -1,0 +1,208 @@
+{
+  "name": "ImobCreator — Workflow 1: Pesquisa + Opções de Copy",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-agent-pesquisa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook: Receber Job",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, job_id: $json.body.job_id }) }}",
+        "options": {}
+      },
+      "id": "respond-immediately",
+      "name": "Resposta Imediata 202",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [400, 160]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/ai_agent_jobs?id=eq.{{ $json.body.job_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "status", "value": "researching" }
+          ]
+        },
+        "method": "PATCH",
+        "options": {}
+      },
+      "id": "update-status-researching",
+      "name": "Supabase: Status = researching",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://google.serper.dev/search",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-API-KEY", "value": "={{ $env.SERPER_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"q\": \"{{ $('Webhook: Receber Job').item.json.body.topic }} imóveis tendências conteúdo Instagram {{ new Date().getFullYear() }}\",\n  \"gl\": \"br\",\n  \"hl\": \"pt\",\n  \"num\": 10\n}",
+        "options": {}
+      },
+      "id": "serper-search",
+      "name": "Serper: Pesquisa de Mercado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $env.ANTHROPIC_API_KEY }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-6\",\n  \"max_tokens\": 2048,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Você é um especialista em marketing imobiliário e copywriting para redes sociais brasileiras.\\n\\nTópico solicitado pelo cliente: {{ $('Webhook: Receber Job').item.json.body.topic }}{{ $('Webhook: Receber Job').item.json.body.subtopic ? '\\nSubtópico: ' + $('Webhook: Receber Job').item.json.body.subtopic : '' }}\\n\\nFormato de entregável: {{ $('Webhook: Receber Job').item.json.body.format }} para {{ $('Webhook: Receber Job').item.json.body.canal }}\\n\\nDados do branding do cliente:\\n- Nome/Empresa: {{ $('Webhook: Receber Job').item.json.body.brand_snapshot.company_name || 'Corretor/Imobiliária' }}\\n- Estilo de linguagem: {{ $('Webhook: Receber Job').item.json.body.brand_snapshot.language_style || 'profissional' }}\\n- Público-alvo: {{ $('Webhook: Receber Job').item.json.body.brand_snapshot.target_audience || 'compradores e investidores' }}\\n- Cidade/Estado: {{ $('Webhook: Receber Job').item.json.body.brand_snapshot.city || '' }}{{ $('Webhook: Receber Job').item.json.body.brand_snapshot.state ? ', ' + $('Webhook: Receber Job').item.json.body.brand_snapshot.state : '' }}\\n\\nPesquisa de mercado recente (resumo dos 5 primeiros resultados):\\n{{ $json.organic ? $json.organic.slice(0,5).map((r, i) => (i+1) + '. ' + r.title + ': ' + (r.snippet || '')).join('\\n') : 'Sem dados de pesquisa' }}\\n\\nCrie EXATAMENTE 3 opções de conteúdo com ângulos diferentes para este tópico. Cada opção deve estar alinhada com o branding do cliente e usar uma abordagem diferente:\\n- Opção 1: ângulo educacional/informativo\\n- Opção 2: ângulo emocional/aspiracional\\n- Opção 3: ângulo de autoridade/prova social\\n\\nResponda APENAS com JSON válido neste formato exato:\\n{\\\"options\\\": [{\\\"id\\\": \\\"opt_1\\\", \\\"angle\\\": \\\"educacional\\\", \\\"headline\\\": \\\"...\\\", \\\"body\\\": \\\"...\\\", \\\"cta\\\": \\\"...\\\", \\\"research_sources\\\": [...]}, {\\\"id\\\": \\\"opt_2\\\", \\\"angle\\\": \\\"emocional\\\", \\\"headline\\\": \\\"...\\\", \\\"body\\\": \\\"...\\\", \\\"cta\\\": \\\"...\\\", \\\"research_sources\\\": [...]}, {\\\"id\\\": \\\"opt_3\\\", \\\"angle\\\": \\\"autoridade\\\", \\\"headline\\\": \\\"...\\\", \\\"body\\\": \\\"...\\\", \\\"cta\\\": \\\"...\\\", \\\"research_sources\\\": [...]}]}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "claude-generate-options",
+      "name": "Claude: Gerar 3 Opções de Copy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [840, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const claudeResponse = $input.item.json;\nconst rawContent = claudeResponse.content[0].text;\n\n// Extract JSON from Claude response\nconst jsonMatch = rawContent.match(/{[\\s\\S]*}/);\nif (!jsonMatch) {\n  throw new Error('Claude response did not contain valid JSON');\n}\n\nconst parsed = JSON.parse(jsonMatch[0]);\n\nreturn [{\n  json: {\n    options: parsed.options,\n    job_id: $('Webhook: Receber Job').item.json.body.job_id\n  }\n}];"
+      },
+      "id": "parse-options",
+      "name": "Code: Parsear Opções",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1060, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/ai_agent_jobs?id=eq.{{ $json.job_id }}",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\n  \"status\": \"awaiting_selection\",\n  \"options\": {{ JSON.stringify($json.options) }},\n  \"phase\": 1\n}",
+        "options": {}
+      },
+      "id": "update-status-awaiting",
+      "name": "Supabase: Status = awaiting_selection + salvar options",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1280, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/ai_agent_jobs?id=eq.{{ $('Webhook: Receber Job').item.json.body.job_id }}",
+        "method": "PATCH",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"status\": \"failed\", \"error_message\": \"{{ $json.message || 'Erro no processamento do agente' }}\"}",
+        "options": {}
+      },
+      "id": "handle-error",
+      "name": "Supabase: Status = failed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1060, 520]
+    }
+  ],
+  "connections": {
+    "Webhook: Receber Job": {
+      "main": [
+        [
+          { "node": "Resposta Imediata 202", "type": "main", "index": 0 },
+          { "node": "Supabase: Status = researching", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Supabase: Status = researching": {
+      "main": [
+        [{ "node": "Serper: Pesquisa de Mercado", "type": "main", "index": 0 }]
+      ]
+    },
+    "Serper: Pesquisa de Mercado": {
+      "main": [
+        [{ "node": "Claude: Gerar 3 Opções de Copy", "type": "main", "index": 0 }]
+      ]
+    },
+    "Claude: Gerar 3 Opções de Copy": {
+      "main": [
+        [{ "node": "Code: Parsear Opções", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code: Parsear Opções": {
+      "main": [
+        [{ "node": "Supabase: Status = awaiting_selection + salvar options", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["imobcreator", "ai-agents"],
+  "triggerCount": 0,
+  "updatedAt": "2026-03-22T12:00:00.000Z",
+  "versionId": "1"
+}
