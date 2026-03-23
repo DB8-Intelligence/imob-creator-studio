@@ -261,10 +261,21 @@ Objetivo:
 - preparar o pipeline real de microclipes
 - permitir rastreamento fino de status por imagem/clip
 
+### Bucket de segmentos
+A arquitetura agora também prevê explicitamente:
+- `video-segments`
+
+Uso atual:
+- reservar paths lógicos para os clipes intermediários
+- preencher `output_clip_url` por segmento com URLs reservadas
+- preparar a futura persistência real dos microclipes
+
 ## O que já foi estruturado nessa evolução
 - modelagem formal de segmentos com `video_job_segments`
 - criação inicial dos segmentos ao abrir um `video_job`
 - atualização de status dos segmentos em lote durante a renderização (`processing`, `completed`, `failed`)
+- bucket `video-segments` para clipes intermediários
+- reserva de `output_clip_url` por segmento com path lógico
 - base para evoluir o modelo 1 imagem -> 1 clipe -> 1 vídeo final
 
 ## O que ainda falta para fechar o modelo completamente
