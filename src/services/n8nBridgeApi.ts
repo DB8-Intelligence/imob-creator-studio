@@ -8,6 +8,10 @@
  * automatically by a DB trigger on video_jobs.status, so this client is
  * primarily used for events that originate purely on the frontend
  * (e.g. creative_ready, new_user).
+ *
+ * WhatsApp Pipeline (Plano Pro):
+ *   partner_submission_* events are dispatched by the whatsapp-receiver
+ *   edge function directly, not via this client.
  */
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,7 +20,14 @@ export type N8nEventType =
   | "video_failed"
   | "creative_ready"
   | "new_user"
-  | "video_addon_activated";
+  | "video_addon_activated"
+  // WhatsApp → Instagram pipeline (Plano Pro)
+  | "partner_submission_received"
+  | "partner_cta_approved"
+  | "partner_cover_selected"
+  | "partner_creative_approved"
+  | "partner_published"
+  | "partner_submission_failed";
 
 export async function dispatchN8nEvent(
   eventType: N8nEventType,
@@ -34,3 +45,4 @@ export async function dispatchN8nEvent(
     console.warn("[n8n-bridge] dispatch error:", err);
   }
 }
+
