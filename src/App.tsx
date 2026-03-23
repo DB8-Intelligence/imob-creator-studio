@@ -39,6 +39,7 @@ const ProPlusLandingPage = lazy(() => import("./pages/ProPlusLandingPage"));
 const TermsPage          = lazy(() => import("./pages/TermsPage"));
 const ReversePromptLabPage = lazy(() => import("./pages/ReversePromptLabPage"));
 const UpscaleImagePage   = lazy(() => import("./pages/UpscaleImagePage"));
+const BriefingPage       = lazy(() => import("./pages/BriefingPage"));
 
 // VIDEO MODULE — mantido para implementação futura, não exposto na navegação
 // const VideoCreatorPage      = lazy(() => import("./pages/VideoCreatorPage"));
@@ -105,6 +106,7 @@ const App = () => (
                 <Route path="/plano"             element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
                 <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
                 <Route path="/upscale"           element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
+                <Route path="/briefing"          element={<ProtectedRoute><BriefingPage /></ProtectedRoute>} />
 
                 {/* VIDEO MODULE — rotas mantidas para implementação futura */}
                 {/* <Route path="/videos"          element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} /> */}

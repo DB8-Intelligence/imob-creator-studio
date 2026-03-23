@@ -22,6 +22,7 @@ import {
   Moon,
   Sun,
   Wand2,
+  ClipboardList,
   // VIDEO MODULE — ícones mantidos para implementação futura
   // Film,
   // LayoutDashboard,
@@ -53,6 +54,7 @@ const navItems = [
   // { icon: LayoutDashboard, label: "Meus Vídeos", path: "/video-dashboard" },
   // { icon: CreditCard, label: "Planos", path: "/video-plans" },
   // ────────────────
+  { icon: ClipboardList, label: "Meu Briefing", path: "/briefing" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
