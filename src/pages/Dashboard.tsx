@@ -14,7 +14,7 @@ const Dashboard = () => {
   const { user, profile } = useAuth();
   const { data: planInfo } = useUserPlan();
 
-  const { data: recentCreatives = [] } = useQuery({
+  const { data: recentCreatives = [], isError: recentError } = useQuery({
     queryKey: ["dashboard-recent", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -59,6 +59,11 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+        {recentError && (
+          <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3">
+            Não foi possível carregar as operações recentes. Recarregue a página para tentar novamente.
+          </p>
+        )}
         <RecentOperationsSection items={recentCreatives} />
         <TenantWorkspaceCard />
         <OnboardingChecklist />

@@ -14,17 +14,18 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.95.0";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-webhook-secret",
-};
+import { buildCorsHeaders } from "../_shared/cors.ts";
 
 const N8N_WHATSAPP_WEBHOOK = "https://automacao.db8intelligence.com.br/webhook/imobcreator-whatsapp";
 
 serve(async (req) => {
+  // Webhook chamado pela Evolution API (servidor), não por browser.
+  // CORS só necessário para eventual preflight; respostas JSON não precisam de CORS.
   if (req.method === "OPTIONS") {
-    return json(null, 200);
+    const corsHeaders = buildCorsHeaders(req, {
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-webhook-secret",
+    });
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -231,6 +232,6 @@ function fireAndForget(url: string, payload: Record<string, unknown>) {
 function json(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
   });
 }

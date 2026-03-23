@@ -51,10 +51,11 @@ const PostsPage = () => {
       const relevant = all.filter((p) => RELEVANT_STATUSES.includes(p.status));
       setProperties(relevant);
       return all;
-    } catch {
+    } catch (err: any) {
+      toast({ title: "Erro ao carregar publicações", description: err?.message, variant: "destructive" });
       return [];
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     loadProperties().finally(() => setIsLoading(false));
