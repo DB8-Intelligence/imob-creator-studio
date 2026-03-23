@@ -29,6 +29,13 @@ interface UploadedMedia {
   name: string;
 }
 
+/** Converte string para número, retornando null para strings vazias ou NaN */
+const toNum = (val: string | undefined): number | null => {
+  if (!val || val.trim() === "") return null;
+  const n = Number(val.trim());
+  return isNaN(n) ? null : n;
+};
+
 export function usePropertyUpload() {
   const { user } = useAuth();
   const { workspaceId } = useWorkspaceContext();
@@ -55,6 +62,7 @@ export function usePropertyUpload() {
     try {
       const imageUrls: string[] = [];
       const totalFiles = files.length;
+      let uploadFailed = 0;
 
       for (let i = 0; i < totalFiles; i++) {
         const file = files[i];
@@ -70,6 +78,7 @@ export function usePropertyUpload() {
 
         if (uploadError) {
           console.error("Upload error for file:", file.name, uploadError);
+          uploadFailed += 1;
           continue;
         }
 
@@ -81,6 +90,14 @@ export function usePropertyUpload() {
         setProgress(((i + 1) / totalFiles) * 60);
       }
 
+      if (uploadFailed > 0) {
+        toast({
+          title: `${uploadFailed} arquivo(s) não enviado(s)`,
+          description: "Alguns arquivos falharam no upload. Tente novamente se necessário.",
+          variant: "destructive",
+        });
+      }
+
       setProgress(65);
 
       const body: Record<string, unknown> = {
@@ -88,17 +105,17 @@ export function usePropertyUpload() {
         _path: "/properties",
         title: propertyData.title,
         address: propertyData.address || null,
-        price: propertyData.price ? Number(propertyData.price) : null,
-        bedrooms: propertyData.bedrooms ? Number(propertyData.bedrooms) : null,
-        bathrooms: propertyData.bathrooms ? Number(propertyData.bathrooms) : null,
-        area: propertyData.area ? Number(propertyData.area) : null,
+        price: toNum(propertyData.price),
+        bedrooms: toNum(propertyData.bedrooms),
+        bathrooms: toNum(propertyData.bathrooms),
+        area: toNum(propertyData.area),
         description: propertyData.description || null,
         property_type: propertyData.property_type || "apartamento",
         property_standard: propertyData.property_standard || "medio",
         city: propertyData.city || null,
         neighborhood: propertyData.neighborhood || null,
-        investment_value: propertyData.investment_value ? Number(propertyData.investment_value) : null,
-        built_area_m2: propertyData.built_area_m2 ? Number(propertyData.built_area_m2) : null,
+        investment_value: toNum(propertyData.investment_value),
+        built_area_m2: toNum(propertyData.built_area_m2),
         highlights: propertyData.highlights || null,
         workspace_id: workspaceId,
         images: imageUrls,
@@ -114,7 +131,8 @@ export function usePropertyUpload() {
       setProgress(100);
 
       const property = res.data;
-      toast({ title: "Imóvel salvo!", description: `${totalFiles} arquivo(s) enviado(s) com sucesso.` });
+      const sent = totalFiles - uploadFailed;
+      toast({ title: "Imóvel salvo!", description: `${sent} de ${totalFiles} arquivo(s) enviado(s) com sucesso.` });
       return property;
     } catch (error: any) {
       console.error("Error creating property:", error);

@@ -136,7 +136,8 @@ const Library = () => {
         .from("creatives")
         .select("id, name, format, status, created_at, exported_url, caption, property_id, brand_id, properties(title), brands(name)")
         .eq("user_id", user!.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(200);
 
       if (error) throw error;
       return data as Creative[];

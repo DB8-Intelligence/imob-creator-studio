@@ -60,24 +60,38 @@ const PostsPage = () => {
     loadProperties().finally(() => setIsLoading(false));
   }, [loadProperties]);
 
-  // Polling when redirected from confirm
+  // Polling when redirected from confirm — máx 24 tentativas (2 min)
   useEffect(() => {
     if (!pollingId) return;
 
+    const MAX_ATTEMPTS = 24;
+    let attempts = 0;
+
     pollingRef.current = setInterval(async () => {
+      attempts += 1;
       const all = await loadProperties();
       const target = all.find((p) => p.id === pollingId);
 
       if (target?.status === "published") {
         toast({ title: "✅ Post publicado com sucesso no Instagram!" });
-        if (pollingRef.current) clearInterval(pollingRef.current);
+        clearInterval(pollingRef.current!);
+        pollingRef.current = null;
       } else if (target?.status === "error") {
         toast({
           title: "Erro na publicação",
           description: "Houve um problema ao publicar no Instagram.",
           variant: "destructive",
         });
-        if (pollingRef.current) clearInterval(pollingRef.current);
+        clearInterval(pollingRef.current!);
+        pollingRef.current = null;
+      } else if (attempts >= MAX_ATTEMPTS) {
+        toast({
+          title: "Tempo esgotado",
+          description: "Não foi possível confirmar a publicação. Verifique o status manualmente.",
+          variant: "destructive",
+        });
+        clearInterval(pollingRef.current!);
+        pollingRef.current = null;
       }
     }, 5000);
 

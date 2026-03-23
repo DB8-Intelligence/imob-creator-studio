@@ -202,8 +202,3 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
     );
   }
 });
-" },
-      }
-    );
-  }
-});

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/app/AppLayout";
 import { Link } from "react-router-dom";
+import WorkspaceSettingsCard from "@/components/workspace/WorkspaceSettingsCard";
+import WorkspaceMembersCard from "@/components/workspace/WorkspaceMembersCard";
+import BackendEnforcementCard from "@/components/workspace/BackendEnforcementCard";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Palette,
   Type,
@@ -57,17 +62,34 @@ const brandPresets = [
 ];
 
 const Settings = () => {
+  const { toast } = useToast();
   const [activeBrand, setActiveBrand] = useState(brandPresets[1]);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const { error } = await supabase
+        .from("brands")
+        .update({
+          primary_color: activeBrand.primaryColor,
+          secondary_color: activeBrand.secondaryColor,
+          typography_heading: activeBrand.fontDisplay,
+          typography_body: activeBrand.fontBody,
+          slogan: activeBrand.slogan,
+        })
+        .eq("slug", activeBrand.id);
+
+      if (error) throw error;
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    }, 1500);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro desconhecido";
+      toast({ title: "Erro ao salvar", description: msg, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -108,10 +130,14 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="brand">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="brand">
               <Palette className="w-4 h-4 mr-2" />
               Marca
+            </TabsTrigger>
+            <TabsTrigger value="workspace">
+              <Settings className="w-4 h-4 mr-2" />
+              Workspace
             </TabsTrigger>
             <TabsTrigger value="account">
               <User className="w-4 h-4 mr-2" />
