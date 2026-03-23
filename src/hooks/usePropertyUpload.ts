@@ -36,6 +36,24 @@ const toNum = (val: string | undefined): number | null => {
   return isNaN(n) ? null : n;
 };
 
+/** Upload de arquivo com retry automático (3 tentativas, backoff exponencial) */
+async function uploadWithRetry(
+  filePath: string,
+  file: File,
+  maxAttempts = 3,
+): Promise<{ success: boolean }> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const { error } = await supabase.storage
+      .from("property-media")
+      .upload(filePath, file, { cacheControl: "3600", upsert: false });
+    if (!error) return { success: true };
+    if (attempt < maxAttempts) {
+      await new Promise((res) => setTimeout(res, 2 ** attempt * 500)); // 500ms, 1s, 2s
+    }
+  }
+  return { success: false };
+}
+
 export function usePropertyUpload() {
   const { user } = useAuth();
   const { workspaceId } = useWorkspaceContext();
@@ -69,15 +87,10 @@ export function usePropertyUpload() {
         const fileExt = file.name.split(".").pop();
         const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from("property-media")
-          .upload(filePath, file.file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        const { success: uploadOk } = await uploadWithRetry(filePath, file.file);
 
-        if (uploadError) {
-          console.error("Upload error for file:", file.name, uploadError);
+        if (!uploadOk) {
+          console.error("Upload falhou após retries:", file.name);
           uploadFailed += 1;
           continue;
         }

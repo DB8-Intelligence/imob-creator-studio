@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -128,6 +128,9 @@ const Library = () => {
   const [assetType, setAssetType] = useState<"creatives" | "videos">("creatives");
   const [activeTab, setActiveTab] = useState("all");
   const [previewVideo, setPreviewVideo] = useState<VideoItem | null>(null);
+  const [creativesPage, setCreativesPage] = useState(1);
+
+  const PAGE_SIZE = 24;
 
   const { data: creatives = [], isLoading: creativesLoading } = useQuery({
     queryKey: ["library-creatives", user?.id],
@@ -189,7 +192,7 @@ const Library = () => {
     window.open(video.output_url, "_blank");
   };
 
-  const filteredCreatives = creatives.filter((item) => {
+  const allFilteredCreatives = creatives.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (item.properties?.title ?? "").toLowerCase().includes(searchQuery.toLowerCase());
@@ -199,12 +202,19 @@ const Library = () => {
     return matchesSearch && matchesTab;
   });
 
+  // Paginação client-side: exibe PAGE_SIZE por vez
+  const filteredCreatives = allFilteredCreatives.slice(0, creativesPage * PAGE_SIZE);
+  const hasMoreCreatives = filteredCreatives.length < allFilteredCreatives.length;
+
   const filteredVideos = videos.filter((item) => {
     const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
     const statuses = VIDEO_TAB_STATUSES[activeTab];
     const matchesTab = activeTab === "all" || statuses.includes(item.status ?? "queued");
     return matchesSearch && matchesTab;
   });
+
+  // Reset paginação quando filtro ou busca muda
+  useEffect(() => { setCreativesPage(1); }, [searchQuery, activeTab]);
 
   const countByStatus = (statuses: string[]) => creatives.filter((i) => statuses.includes(i.status ?? "draft")).length;
   const countVideosByStatus = (statuses: string[]) => videos.filter((i) => statuses.includes(i.status ?? "queued")).length;
@@ -352,12 +362,23 @@ const Library = () => {
                 </div>
               )}
 
-              {!isLoading && filteredCreatives.length === 0 && (
+              {!isLoading && allFilteredCreatives.length === 0 && (
                 <div className="text-center py-12">
                   <ImageIcon className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
                   <h3 className="font-medium text-foreground">{searchQuery || activeTab !== "all" ? "Nenhum criativo encontrado" : "Nenhum criativo ainda"}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{searchQuery || activeTab !== "all" ? "Tente ajustar os filtros" : "Publique seu primeiro imóvel para ver os criativos aqui"}</p>
                   {!searchQuery && activeTab === "all" && <Button className="mt-4" onClick={() => navigate("/upload")}>Criar primeiro criativo</Button>}
+                </div>
+              )}
+
+              {hasMoreCreatives && (
+                <div className="flex justify-center pt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCreativesPage((p) => p + 1)}
+                  >
+                    Carregar mais ({allFilteredCreatives.length - filteredCreatives.length} restantes)
+                  </Button>
                 </div>
               )}
             </TabsContent>

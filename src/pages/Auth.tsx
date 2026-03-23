@@ -28,6 +28,20 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+  // Indicador de força da senha (0-4)
+  const getPasswordStrength = (pwd: string): number => {
+    let score = 0;
+    if (pwd.length >= 8)           score++;
+    if (pwd.length >= 12)          score++;
+    if (/[A-Z]/.test(pwd))         score++;
+    if (/[0-9]/.test(pwd))         score++;
+    if (/[^A-Za-z0-9]/.test(pwd))  score++;
+    return Math.min(score, 4);
+  };
+  const passwordStrength = getPasswordStrength(signupPassword);
+  const strengthLabel = ["", "Fraca", "Razoável", "Boa", "Forte"][passwordStrength];
+  const strengthColor  = ["", "bg-red-500", "bg-amber-500", "bg-blue-500", "bg-emerald-500"][passwordStrength];
+
   // Redirect if already logged in
   useEffect(() => {
     if (user && !authLoading) {
@@ -77,6 +91,24 @@ const Auth = () => {
         variant: "destructive",
         title: "Senha muito curta",
         description: "A senha deve ter pelo menos 8 caracteres.",
+      });
+      return;
+    }
+
+    if (!/[A-Z]/.test(signupPassword)) {
+      toast({
+        variant: "destructive",
+        title: "Senha fraca",
+        description: "Inclua pelo menos uma letra maiúscula.",
+      });
+      return;
+    }
+
+    if (!/[0-9]/.test(signupPassword) && !/[^A-Za-z0-9]/.test(signupPassword)) {
+      toast({
+        variant: "destructive",
+        title: "Senha fraca",
+        description: "Inclua pelo menos um número ou caractere especial (!@#$...).",
       });
       return;
     }
@@ -288,10 +320,10 @@ const Auth = () => {
                     <Label htmlFor="signup-password">Senha</Label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        id="signup-password" 
-                        type="password" 
-                        placeholder="Mínimo 8 caracteres" 
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        placeholder="Mín. 8 chars, 1 maiúscula, 1 número"
                         className="pl-10"
                         value={signupPassword}
                         onChange={(e) => setSignupPassword(e.target.value)}
@@ -299,6 +331,24 @@ const Auth = () => {
                         minLength={8}
                       />
                     </div>
+                    {signupPassword.length > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                                passwordStrength >= level ? strengthColor : "bg-muted"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Força: <span className="font-medium">{strengthLabel}</span>
+                          {passwordStrength < 3 && " — adicione maiúsculas, números ou símbolos"}
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="text-sm">
@@ -310,7 +360,7 @@ const Auth = () => {
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                       />
                       <span className="text-muted-foreground">
-                        Concordo com os <a href="#" className="text-accent hover:underline">Termos de Uso</a> e <a href="#" className="text-accent hover:underline">Política de Privacidade</a>
+                        Concordo com os <a href="/termos" target="_blank" className="text-accent hover:underline">Termos de Uso</a> e <a href="/termos" target="_blank" className="text-accent hover:underline">Política de Privacidade</a>
                       </span>
                     </label>
                   </div>
