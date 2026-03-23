@@ -27,12 +27,7 @@ import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
-import VideoCreatorPage from "./pages/VideoCreatorPage";
-import VideosDashboardPage from "./pages/VideosDashboardPage";
-import VideosPricingPage from "./pages/VideosPricingPage";
-import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
 import IdeaCreativePage from "./pages/IdeaCreativePage";
-import VideoLandingPage from "./pages/VideoLandingPage";
 import ReversePromptLabPage from "./pages/ReversePromptLabPage";
 import UpscaleImagePage from "./pages/UpscaleImagePage";
 import AIAgentsPage from "./pages/AIAgentsPage";
@@ -74,12 +69,6 @@ const App = () => (
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
-
-              <Route path="/videos" element={<ProtectedRoute><VideoLandingPage /></ProtectedRoute>} />
-              <Route path="/video-dashboard" element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />
-              <Route path="/video-creator" element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} />
-              <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
-              <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
