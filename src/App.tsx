@@ -27,6 +27,7 @@ import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
+import ProPlusLandingPage from "./pages/ProPlusLandingPage";
 // VIDEO MODULE — mantido para implementação futura, não exposto na navegação
 // import VideoCreatorPage from "./pages/VideoCreatorPage";
 // import VideosDashboardPage from "./pages/VideosDashboardPage";
@@ -81,6 +82,7 @@ const App = () => (
               {/* <Route path="/video-styles" element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} /> */}
               {/* <Route path="/video-plans" element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} /> */}
 
+              <Route path="/plano-pro" element={<ProPlusLandingPage />} />
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

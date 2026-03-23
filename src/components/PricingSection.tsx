@@ -1,4 +1,4 @@
-import { ArrowRight, Zap, Star, Flame, Clock, Users, ShieldCheck } from "lucide-react";
+import { ArrowRight, Zap, Star, Flame, Clock, Users, ShieldCheck, MessageCircle, Image, Wand2, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const plans = [
@@ -156,6 +156,58 @@ const PricingSection = () => {
         <div className="flex items-center justify-center gap-2 mt-10 text-muted-foreground/60 text-sm">
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
           Pagamento seguro via Kiwify
+        </div>
+
+        {/* ── Callout Plano Pro+ ── */}
+        <div className="max-w-5xl mx-auto mt-16 rounded-3xl border border-accent/30 bg-accent/5 p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-accent text-primary text-xs font-bold">NOVO</span>
+              <h3 className="font-display text-xl font-bold text-foreground">Plano Pro+</h3>
+            </div>
+            <p className="text-muted-foreground text-sm mb-4">
+              Pipeline completo: receba imóveis pelo WhatsApp, faça upscale automático,
+              aprove o CTA no celular e publique no Instagram — tudo sem sair do WhatsApp.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { icon: MessageCircle, label: "Recepção WhatsApp" },
+                { icon: Image, label: "Upscale em lote" },
+                { icon: Wand2, label: "CTA gerado por IA" },
+                { icon: Share2, label: "Publicação automática" },
+              ].map((f) => {
+                const Icon = f.icon;
+                return (
+                  <span key={f.label} className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/50 bg-background text-xs text-foreground/70">
+                    <Icon className="w-3 h-3 text-accent" />
+                    {f.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 shrink-0 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="rounded-2xl border border-accent/40 bg-card px-5 py-4 text-center">
+                <p className="text-xs text-muted-foreground mb-0.5">90 créditos</p>
+                <p className="font-display text-2xl font-bold text-foreground">R$ 197</p>
+                <p className="text-xs text-accent font-semibold mt-0.5">⭐ Melhor custo-benefício</p>
+              </div>
+              <div className="rounded-2xl border border-border/50 bg-card px-5 py-4 text-center">
+                <p className="text-xs text-muted-foreground mb-0.5">150 créditos</p>
+                <p className="font-display text-2xl font-bold text-foreground">R$ 259</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Volume máximo</p>
+              </div>
+            </div>
+            <Link
+              to="/plano-pro"
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-accent text-primary font-bold text-sm hover:scale-105 transition-transform"
+            >
+              Ver apresentação completa
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </div>
     </section>

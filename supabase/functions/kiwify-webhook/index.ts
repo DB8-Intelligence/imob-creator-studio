@@ -7,13 +7,21 @@ const corsHeaders = {
 };
 
 // ─── Planos de créditos de imagem ─────────────────────────────────────────────
+// Pro+ (90 e 150 créditos) incluem infraestrutura do pipeline WhatsApp → Instagram.
+// Configurar as env vars KIWIFY_PRODUCT_ID_PRO_PLUS_90 e KIWIFY_PRODUCT_ID_PRO_PLUS_150
+// após cadastrar os produtos no Kiwify.
 function resolveImageCredits(productId: string, productName: string): number {
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_20"))  return 20;
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_50"))  return 50;
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_150")) return 150;
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_20"))            return 20;
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_50"))            return 50;
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_150"))           return 150;
+  // Plano Pro+
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_PRO_PLUS_90"))   return 90;
+  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_PRO_PLUS_150"))  return 150;
 
   // Fallback: detecta pelo nome
   const name = productName.toLowerCase();
+  if (name.includes("pro plus 150") || name.includes("pro+ 150"))    return 150;
+  if (name.includes("pro plus 90")  || name.includes("pro+ 90"))     return 90;
   if (name.includes("150")) return 150;
   if (name.includes("50"))  return 50;
   if (name.includes("20"))  return 20;

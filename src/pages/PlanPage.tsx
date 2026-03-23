@@ -1,7 +1,7 @@
 import AppLayout from "@/components/app/AppLayout";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Zap, Star, Crown, AlertCircle, Clock, Users, ShieldCheck, ArrowRight, Coins, ExternalLink } from "lucide-react";
+import { Zap, Star, Crown, AlertCircle, Clock, Users, ShieldCheck, ArrowRight, Coins, ExternalLink, MessageCircle, Image, Wand2, Share2, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // ─── Substitua estes links pelos URLs reais dos seus produtos no Kiwify ───────
@@ -10,7 +10,38 @@ const KIWIFY_LINKS = {
   50: "https://kiwify.com.br/seu-produto-50",
   150: "https://kiwify.com.br/seu-produto-150",
 };
+
+// ─── Plano Pro+ — Pipeline WhatsApp → Instagram ───────────────────────────────
+// ATENÇÃO: preços incluem custo operacional de infraestrutura (Evolution API,
+// upscale em lote, Claude API). Revise ao calcular custos reais de produção.
+const KIWIFY_PRO_PLUS = {
+  90:  "https://kiwify.com.br/seu-produto-pro-plus-90",   // R$ 197,00
+  150: "https://kiwify.com.br/seu-produto-pro-plus-150",  // R$ 259,00
+};
 // ─────────────────────────────────────────────────────────────────────────────
+
+const prosPlusPlans = [
+  {
+    credits: 90,
+    badge: "⭐ Melhor custo-benefício",
+    badgeColor: "bg-accent text-primary",
+    price: "R$ 197",
+    imoveis: "~22 imóveis/mês",
+    perImovel: "~R$ 8,95 por imóvel",
+    saving: "Pipeline completo incluso",
+    featured: true,
+  },
+  {
+    credits: 150,
+    badge: "Volume máximo",
+    badgeColor: "bg-muted text-foreground",
+    price: "R$ 259",
+    imoveis: "~37 imóveis/mês",
+    perImovel: "~R$ 7,00 por imóvel",
+    saving: "Economize R$ 72 vs. 2× 90cr",
+    featured: false,
+  },
+];
 
 const plans = [
   {
@@ -202,6 +233,101 @@ const PlanPage = () => {
               <div className="flex items-center justify-center gap-2 mt-5 text-muted-foreground/60 text-xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
                 Pagamento seguro via Kiwify · Créditos creditados automaticamente após confirmação
+              </div>
+            </div>
+
+            {/* ── Plano Pro+ ── */}
+            <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 space-y-5">
+              <div className="flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-accent text-primary text-xs font-bold">NOVO</span>
+                    <h2 className="text-lg font-semibold text-foreground">Plano Pro+</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Pipeline completo: WhatsApp → upscale → criativo → Instagram.<br />
+                    Créditos já incluem o custo de infraestrutura do pipeline.
+                  </p>
+                </div>
+                <Link
+                  to="/plano-pro"
+                  className="flex items-center gap-1.5 text-xs text-accent hover:underline underline-offset-2 shrink-0"
+                >
+                  Ver apresentação completa <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+
+              {/* Features em linha */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { icon: MessageCircle, label: "Recepção WhatsApp" },
+                  { icon: Image, label: "Upscale em lote" },
+                  { icon: Wand2, label: "CTA por IA" },
+                  { icon: Share2, label: "Publicação automática" },
+                ].map((f) => {
+                  const Icon = f.icon;
+                  return (
+                    <span key={f.label} className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-border/50 bg-card text-xs text-foreground/70">
+                      <Icon className="w-3 h-3 text-accent" />
+                      {f.label}
+                    </span>
+                  );
+                })}
+              </div>
+
+              {/* Cards Pro+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {prosPlusPlans.map((p) => (
+                  <div
+                    key={p.credits}
+                    className={[
+                      "relative rounded-xl border p-5 flex flex-col transition-all duration-300",
+                      p.featured
+                        ? "border-accent/50 bg-card shadow-sm"
+                        : "border-border/60 bg-card/60 hover:-translate-y-1 hover:shadow-md",
+                    ].join(" ")}
+                  >
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold mb-3 self-start ${p.badgeColor}`}>
+                      {p.badge}
+                    </span>
+
+                    <p className="text-lg font-bold text-foreground mb-0.5">{p.credits} Créditos Pro+</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">{p.price}</p>
+                    <p className="text-xs text-muted-foreground mb-3">pagamento único</p>
+
+                    <div className="space-y-1.5 mb-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                        {p.imoveis} completos processados
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                        {p.perImovel} processado
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                        {p.saving}
+                      </div>
+                    </div>
+
+                    <div className="mt-auto">
+                      <a
+                        href={KIWIFY_PRO_PLUS[p.credits as keyof typeof KIWIFY_PRO_PLUS]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={[
+                          "flex items-center justify-center gap-2 w-full py-2.5 rounded-xl font-semibold text-sm transition-all",
+                          p.featured
+                            ? "bg-accent text-primary hover:opacity-90"
+                            : "bg-foreground text-background hover:bg-foreground/90",
+                        ].join(" ")}
+                      >
+                        Assinar Pro+
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
