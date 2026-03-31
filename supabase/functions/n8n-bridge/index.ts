@@ -15,7 +15,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const N8N_WEBHOOK_URL = "https://automacao.db8intelligence.com.br/webhook/imobcreator-events";
+const N8N_WEBHOOK_URL = "https://automacao.db8intelligence.com.br/webhook/db8intelligence-events";
 
 const VALID_EVENTS = [
   "video_completed",
@@ -87,7 +87,7 @@ serve(async (req) => {
       event: mapEventType(event_type),
       ...(data ?? {}),
       dispatched_at: new Date().toISOString(),
-      source: "imobcreator-platform",
+      source: "db8intelligence-platform",
     };
 
     const n8nRes = await fetch(N8N_WEBHOOK_URL, {

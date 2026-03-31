@@ -9,11 +9,11 @@ const ContactSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Monta o mailto com os dados do formulário
-    const subject = encodeURIComponent(`Contato ImobCreator AI — ${form.nome}`);
+    const subject = encodeURIComponent(`Contato DB8 Intelligence — ${form.nome}`);
     const body = encodeURIComponent(
       `Nome: ${form.nome}\nE-mail: ${form.email}\n\nMensagem:\n${form.mensagem}`
     );
-    window.open(`mailto:contato@imobcreatorai.com?subject=${subject}&body=${body}`);
+    window.open(`mailto:contato@db8intelligence.com.br?subject=${subject}&body=${body}`);
     setSent(true);
     setTimeout(() => setSent(false), 4000);
   };
@@ -116,10 +116,10 @@ const ContactSection = () => {
                 <h4 className="font-semibold text-foreground mb-1">E-mail</h4>
                 <p className="text-muted-foreground text-sm mb-2">Para suporte técnico, parcerias e questões comerciais.</p>
                 <a
-                  href="mailto:contato@imobcreatorai.com"
+                  href="mailto:contato@db8intelligence.com.br"
                   className="text-accent text-sm font-medium hover:underline"
                 >
-                  contato@imobcreatorai.com
+                  contato@db8intelligence.com.br
                 </a>
               </div>
             </div>

@@ -38,7 +38,7 @@ const WhyDifferentSection = () => {
             Mais que um gerador visual: <span className="text-gradient">uma operação criativa imobiliária</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Enquanto geradores genéricos vendem rapidez, o ImobCreatorAI combina velocidade com especialização, branding, vídeo, aprovação e automação real.
+            Enquanto geradores genéricos vendem rapidez, o DB8 Intelligence combina velocidade com especialização, branding, vídeo, aprovação e automação real.
           </p>
         </div>
 

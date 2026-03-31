@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { WorkspaceInfo, WorkspaceMembership } from "@/types/workspace";
 
-const ACTIVE_WORKSPACE_KEY = "imobcreator.activeWorkspaceId";
+const ACTIVE_WORKSPACE_KEY = "db8intelligence.activeWorkspaceId";
 
 export function getStoredActiveWorkspaceId() {
   return localStorage.getItem(ACTIVE_WORKSPACE_KEY);

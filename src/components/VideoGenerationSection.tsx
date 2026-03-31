@@ -64,7 +64,7 @@ const VideoGenerationSection = () => {
             Transforme fotos de imóveis em <span className="text-gradient">vídeos cinematográficos</span>
           </h2>
           <p className="text-primary-foreground/70 text-lg">
-            Agora dentro do ImobCreator AI: gere vídeos profissionais em 4K para Reels, YouTube e Feed — sem equipe, sem edição e com possibilidade de vender como add-on para seus clientes.
+            Agora dentro do DB8 Intelligence: gere vídeos profissionais em 4K para Reels, YouTube e Feed — sem equipe, sem edição e com possibilidade de vender como add-on para seus clientes.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ const VideoGenerationSection = () => {
           <div className="rounded-3xl border border-primary-foreground/10 bg-primary-foreground/5 p-6 backdrop-blur-sm">
             <div className="flex items-center gap-3 mb-4">
               <Layers3 className="w-5 h-5 text-accent" />
-              <h3 className="font-display text-2xl font-bold text-primary-foreground">Complemento ideal do ImobCreator AI</h3>
+              <h3 className="font-display text-2xl font-bold text-primary-foreground">Complemento ideal do DB8 Intelligence</h3>
             </div>
             <p className="text-primary-foreground/70 leading-relaxed mb-5">
               O módulo de vídeo amplia o posicionamento do produto: em vez de vender só posts e reels, o sistema passa a vender uma linha completa de produção imobiliária com IA.

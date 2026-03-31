@@ -3,7 +3,7 @@ import { ChevronDown, MessageCircle } from "lucide-react";
 
 const faqs = [
   {
-    question: "O ImobCreator AI publica automaticamente?",
+    question: "O DB8 Intelligence publica automaticamente?",
     answer:
       "O fluxo foi estruturado para gerar o criativo, preparar a legenda e manter aprovação antes da publicação. A automação pode evoluir conforme a operação e o plano.",
   },
@@ -23,7 +23,7 @@ const faqs = [
       "Sim. O sistema já trabalha com templates e brand kits, permitindo manter consistência visual na produção dos criativos.",
   },
   {
-    question: "O que é o ImobCreatorVideo?",
+    question: "O que é o DB8 Intelligence Video?",
     answer:
       "É uma plataforma que transforma suas fotos de imóveis em vídeos profissionais de forma automática, usando inteligência artificial.",
   },
@@ -99,7 +99,7 @@ const FAQSection = () => {
             Perguntas frequentes
           </h2>
           <p className="text-muted-foreground text-lg">
-            Tire suas dúvidas sobre o ImobCreator AI e os nossos planos.
+            Tire suas dúvidas sobre o DB8 Intelligence e os nossos planos.
           </p>
         </div>
 
@@ -116,7 +116,7 @@ const FAQSection = () => {
             Nossa equipe está pronta para te ajudar a encontrar o plano ideal para a sua operação.
           </p>
           <a
-            href="https://wa.me/5511999999999?text=Olá!+Tenho+dúvidas+sobre+o+ImobCreator+AI"
+            href="https://wa.me/5571999733883?text=Olá!+Tenho+dúvidas+sobre+o+DB8+Intelligence"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-accent-gradient text-primary font-semibold px-6 py-3 rounded-xl shadow-glow hover:scale-105 transition-all duration-300"

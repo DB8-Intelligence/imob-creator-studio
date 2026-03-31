@@ -79,7 +79,7 @@ const Header = () => {
             <Building2 className="w-5 h-5 text-primary" />
           </div>
           <span className="font-display text-xl font-semibold text-foreground">
-            ImobCreator <span className="text-gradient">AI</span>
+            DB8 <span className="text-gradient">Intelligence</span>
           </span>
         </Link>
 

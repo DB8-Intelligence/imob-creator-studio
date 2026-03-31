@@ -506,7 +506,7 @@ const Settings = () => {
                   Documentos aceitos
                 </CardTitle>
                 <CardDescription>
-                  Ao utilizar o IMOVIE você declara ter lido e aceito os documentos abaixo. O aceite é automático ao clicar em "Comprar", "Assinar" ou "Finalizar compra".
+                  Ao utilizar o DB8 Intelligence você declara ter lido e aceito os documentos abaixo. O aceite é automático ao clicar em "Comprar", "Assinar" ou "Finalizar compra".
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -600,30 +600,30 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">
                     Para exercer qualquer direito, envie e-mail para{" "}
                     <a
-                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD – IMOVIE"
+                      href="mailto:suporte@db8intelligence.com.br?subject=LGPD – DB8 Intelligence"
                       className="text-accent underline hover:text-accent/80"
                     >
-                      suporteimovie@imobcreatorai.com.br
+                      suporte@db8intelligence.com.br
                     </a>{" "}
-                    com o assunto <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">"LGPD – IMOVIE"</span>.
+                    com o assunto <span className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">"LGPD – DB8 Intelligence"</span>.
                   </p>
                   <div className="flex flex-wrap gap-2 pt-1">
                     <a
-                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Solicitação%20de%20acesso%20aos%20dados"
+                      href="mailto:suporte@db8intelligence.com.br?subject=LGPD%20–%20DB8 Intelligence%20–%20Solicitação%20de%20acesso%20aos%20dados"
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                     >
                       <Download className="w-3.5 h-3.5" />
                       Solicitar meus dados
                     </a>
                     <a
-                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Solicitação%20de%20exclusão%20de%20dados"
+                      href="mailto:suporte@db8intelligence.com.br?subject=LGPD%20–%20DB8 Intelligence%20–%20Solicitação%20de%20exclusão%20de%20dados"
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-destructive/30 hover:bg-destructive/5 transition-colors text-destructive/80 hover:text-destructive"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       Solicitar exclusão de dados
                     </a>
                     <a
-                      href="mailto:suporteimovie@imobcreatorai.com.br?subject=LGPD%20–%20IMOVIE%20–%20Dúvida"
+                      href="mailto:suporte@db8intelligence.com.br?subject=LGPD%20–%20DB8 Intelligence%20–%20Dúvida"
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                     >
                       <Mail className="w-3.5 h-3.5" />
@@ -642,12 +642,12 @@ const Settings = () => {
               <CardContent className="text-sm text-muted-foreground space-y-1">
                 <p><span className="font-medium text-foreground">DB8 INTERPRACE LTDA</span></p>
                 <p>CNPJ 31.982.768/0001-31 · Nome fantasia: DB8 INTELLIGENCE AI</p>
-                <p>Plataforma: IMOVIE · <span className="text-accent">imobcreatorai.com.br</span></p>
+                <p>Plataforma: DB8 Intelligence · <span className="text-accent">db8intelligence.com.br</span></p>
                 <p>Foro: Salvador/BA · Lei brasileira</p>
                 <p className="pt-1">
                   Suporte:{" "}
-                  <a href="mailto:suporteimovie@imobcreatorai.com.br" className="text-accent underline hover:text-accent/80">
-                    suporteimovie@imobcreatorai.com.br
+                  <a href="mailto:suporte@db8intelligence.com.br" className="text-accent underline hover:text-accent/80">
+                    suporte@db8intelligence.com.br
                   </a>
                 </p>
               </CardContent>
