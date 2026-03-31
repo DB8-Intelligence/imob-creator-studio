@@ -15,7 +15,7 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        // Custom variants for ImobCreator
+        // Custom variants for DB8 Intelligence
         hero: "bg-accent-gradient text-primary font-semibold shadow-glow hover:scale-105 hover:shadow-[0_0_50px_hsl(38_92%_50%_/_0.4)]",
         heroOutline: "border-2 border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 backdrop-blur-sm",
         accent: "bg-accent text-accent-foreground font-semibold hover:bg-accent/90 shadow-soft",

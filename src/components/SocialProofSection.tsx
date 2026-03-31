@@ -11,7 +11,7 @@ const testimonials = [
   },
   {
     quote:
-      "Implementamos o ImobCreator AI na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. O fluxo de aprovação antes da publicação eliminou erros que antes constrangiam a equipe.",
+      "Implementamos o DB8 Intelligence na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. O fluxo de aprovação antes da publicação eliminou erros que antes constrangiam a equipe.",
     name: "Carlos Mendonça",
     role: "Diretor Comercial",
     company: "Imobiliária Prime",
@@ -39,7 +39,7 @@ const SocialProofSection = () => {
             Quem já usa <span className="text-gradient">não volta para o processo manual</span>
           </h2>
           <p className="text-muted-foreground text-lg">
-            Corretores e imobiliárias que escalaram a produção de conteúdo com o ImobCreator AI.
+            Corretores e imobiliárias que escalaram a produção de conteúdo com o DB8 Intelligence.
           </p>
         </div>
 

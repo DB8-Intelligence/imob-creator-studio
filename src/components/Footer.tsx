@@ -12,7 +12,7 @@ const Footer = () => {
                 <Building2 className="w-5 h-5 text-primary" />
               </div>
               <span className="font-display text-xl font-semibold text-primary-foreground">
-                ImobCreator <span className="text-gradient">AI</span>
+                DB8 <span className="text-gradient">Intelligence</span>
               </span>
             </div>
             <p className="text-primary-foreground/60 max-w-md leading-relaxed">
@@ -43,7 +43,7 @@ const Footer = () => {
 
         <div className="pt-8 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-primary-foreground/50 text-sm">
-            © 2026 ImobCreator AI. Todos os direitos reservados.
+            © 2026 DB8 Intelligence. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
             <Link to="/termos" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">

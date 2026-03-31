@@ -151,7 +151,7 @@ const Auth = () => {
               <Home className="w-6 h-6 text-accent-foreground" />
             </div>
             <span className="text-2xl font-display font-bold text-primary-foreground">
-              ImobCreator<span className="text-accent">AI</span>
+              DB8<span className="text-accent">Intelligence</span>
             </span>
           </div>
           <p className="text-primary-foreground/70">
@@ -364,7 +364,7 @@ const Auth = () => {
         </Card>
 
         <p className="text-center text-primary-foreground/60 text-sm mt-6">
-          © 2026 ImobCreator AI. Todos os direitos reservados.
+          © 2026 DB8 Intelligence. Todos os direitos reservados.
         </p>
       </div>
     </div>

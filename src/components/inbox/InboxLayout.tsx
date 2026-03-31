@@ -48,7 +48,7 @@ const InboxLayout = ({ children }: InboxLayoutProps) => {
             <Building2 className="w-4 h-4 text-primary-foreground" />
           </div>
           <span className="font-display font-bold text-foreground text-sm">
-            ImobCreator <span className="text-primary">AI</span>
+            DB8 <span className="text-primary">Intelligence</span>
           </span>
         </Link>
       </header>

@@ -7,7 +7,7 @@ const pillars = [
   {
     title: "Vídeo como upsell real",
     description:
-      "Transforme o ImobCreator AI em plataforma de criativo + copy + vídeo, aumentando ticket médio por corretor e por imobiliária.",
+      "Transforme o DB8 Intelligence em plataforma de criativo + copy + vídeo, aumentando ticket médio por corretor e por imobiliária.",
     icon: Sparkles,
   },
   {
@@ -64,7 +64,7 @@ const VideoModuleComparisonSection = () => {
             Oportunidade clara: vender <span className="text-gradient">vídeos IA</span> como módulo adicional
           </h2>
           <p className="text-lg text-muted-foreground">
-            O iMOVIE provou a demanda. O ImobCreator AI pode capturar esse mercado com uma oferta mais forte: vídeo,
+            O iMOVIE provou a demanda. O DB8 Intelligence pode capturar esse mercado com uma oferta mais forte: vídeo,
             criativo e copy dentro do mesmo painel.
           </p>
         </div>
@@ -88,14 +88,14 @@ const VideoModuleComparisonSection = () => {
           <div className="rounded-3xl border border-border/60 bg-card p-6 shadow-soft overflow-hidden">
             <div className="mb-5">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">Comparativo estratégico</p>
-              <h3 className="font-display text-2xl font-bold text-foreground mt-2">iMOVIE vs ImobCreator AI com módulo de vídeo</h3>
+              <h3 className="font-display text-2xl font-bold text-foreground mt-2">iMOVIE vs DB8 Intelligence com módulo de vídeo</h3>
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-border/60">
               <div className="grid grid-cols-[0.9fr,1fr,1fr] bg-muted/60 text-sm font-semibold text-foreground">
                 <div className="p-4">Critério</div>
                 <div className="p-4 border-l border-border/60">iMOVIE</div>
-                <div className="p-4 border-l border-border/60 bg-accent/10 text-accent">ImobCreator AI</div>
+                <div className="p-4 border-l border-border/60 bg-accent/10 text-accent">DB8 Intelligence</div>
               </div>
               {comparisonRows.map((row) => (
                 <div key={row.label} className="grid grid-cols-[0.9fr,1fr,1fr] text-sm border-t border-border/60">

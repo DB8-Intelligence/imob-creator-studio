@@ -58,7 +58,7 @@ const TermosDeUso = () => (
         Ao clicar em <Highlight>"Comprar"</Highlight>, <Highlight>"Assinar"</Highlight>,{" "}
         <Highlight>"Finalizar compra"</Highlight> ou equivalente, você confirma que leu, entendeu e aceita
         integralmente estes Termos de Uso, a Política de Privacidade, a Política de Reembolso e a Política de
-        Cancelamento do IMOVIE, disponíveis em <Highlight>imobcreator.com.br</Highlight>.
+        Cancelamento do IMOVIE, disponíveis em <Highlight>db8intelligence.com.br</Highlight>.
       </p>
     </Section>
 
@@ -72,15 +72,15 @@ const TermosDeUso = () => (
         <li>
           <Highlight>Suporte:</Highlight>{" "}
           <a
-            href="mailto:suporteimovie@imobcreatorai.com.br"
+            href="mailto:suporte@db8intelligence.com.br"
             className="text-accent underline hover:text-accent/80"
           >
-            suporteimovie@imobcreatorai.com.br
+            suporte@db8intelligence.com.br
           </a>
         </li>
         <li>
           <Highlight>Site:</Highlight>{" "}
-          <span className="text-accent">imobcreator.com.br</span>
+          <span className="text-accent">db8intelligence.com.br</span>
         </li>
         <li>
           <Highlight>Atendimento:</Highlight> somente Brasil.
@@ -249,7 +249,7 @@ const PoliticaPrivacidade = () => (
         Ao clicar em <Highlight>"Comprar"</Highlight>, <Highlight>"Assinar"</Highlight> ou{" "}
         <Highlight>"Finalizar compra"</Highlight>, você aceita esta Política de Privacidade e os demais
         documentos legais do IMOVIE disponíveis em{" "}
-        <span className="text-accent">imobcreatorai.com.br</span>.
+        <span className="text-accent">db8intelligence.com.br</span>.
       </p>
     </Section>
 
@@ -262,15 +262,15 @@ const PoliticaPrivacidade = () => (
         <li>
           <Highlight>Contato:</Highlight>{" "}
           <a
-            href="mailto:suporteimovie@imobcreatorai.com.br"
+            href="mailto:suporte@db8intelligence.com.br"
             className="text-accent underline hover:text-accent/80"
           >
-            suporteimovie@imobcreatorai.com.br
+            suporte@db8intelligence.com.br
           </a>
         </li>
         <li>
           <Highlight>Site:</Highlight>{" "}
-          <span className="text-accent">imobcreatorai.com.br</span>
+          <span className="text-accent">db8intelligence.com.br</span>
         </li>
       </ul>
     </Section>
@@ -355,10 +355,10 @@ const PoliticaPrivacidade = () => (
       <p className="mt-2">
         <Highlight>Canal:</Highlight>{" "}
         <a
-          href="mailto:suporteimovie@imobcreatorai.com.br"
+          href="mailto:suporte@db8intelligence.com.br"
           className="text-accent underline hover:text-accent/80"
         >
-          suporteimovie@imobcreatorai.com.br
+          suporte@db8intelligence.com.br
         </a>{" "}
         (assunto: <Highlight>"LGPD – IMOVIE"</Highlight>).
       </p>
@@ -367,7 +367,7 @@ const PoliticaPrivacidade = () => (
     <Section number={9} title="Alterações">
       <p>
         A versão vigente estará em{" "}
-        <span className="text-accent">imobcreatorai.com.br/privacidade</span>.
+        <span className="text-accent">db8intelligence.com.br/privacidade</span>.
       </p>
     </Section>
   </div>
@@ -457,10 +457,10 @@ const PoliticaReembolso = () => (
       <p>
         <Highlight>E-mail:</Highlight>{" "}
         <a
-          href="mailto:suporteimovie@imobcreatorai.com.br"
+          href="mailto:suporte@db8intelligence.com.br"
           className="text-accent underline hover:text-accent/80"
         >
-          suporteimovie@imobcreatorai.com.br
+          suporte@db8intelligence.com.br
         </a>
       </p>
       <p className="mt-2">
@@ -480,10 +480,10 @@ const ComingSoon = ({ label }: { label: string }) => (
     <p className="text-muted-foreground text-sm max-w-xs">
       Este documento será publicado em breve. Em caso de dúvidas entre em contato:{" "}
       <a
-        href="mailto:suporteimovie@imobcreatorai.com.br"
+        href="mailto:suporte@db8intelligence.com.br"
         className="text-accent underline hover:text-accent/80"
       >
-        suporteimovie@imobcreatorai.com.br
+        suporte@db8intelligence.com.br
       </a>
     </p>
   </div>
@@ -505,7 +505,7 @@ const TermsPage = () => {
               <Building2 className="w-4 h-4 text-primary" />
             </div>
             <span className="font-display text-base font-semibold text-foreground">
-              ImobCreator <span className="text-gradient">AI</span>
+              DB8 Intelligence <span className="text-gradient">AI</span>
             </span>
           </Link>
           <Link
@@ -570,10 +570,10 @@ const TermsPage = () => {
           <p>
             Dúvidas:{" "}
             <a
-              href="mailto:suporteimovie@imobcreatorai.com.br"
+              href="mailto:suporte@db8intelligence.com.br"
               className="text-accent underline hover:text-accent/80"
             >
-              suporteimovie@imobcreatorai.com.br
+              suporte@db8intelligence.com.br
             </a>
           </p>
         </div>

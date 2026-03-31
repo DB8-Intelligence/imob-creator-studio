@@ -217,7 +217,7 @@ const VideosPricingPage = () => {
       <div className="max-w-5xl space-y-12">
         <div className="text-center max-w-2xl mx-auto">
           <Badge className="bg-accent/10 text-accent mb-4">Módulo Vídeo IA</Badge>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-3">Planos de vídeo do ImobCreator AI</h1>
+          <h1 className="font-display text-3xl font-bold text-foreground mb-3">Planos de vídeo do DB8 Intelligence</h1>
           <p className="text-muted-foreground">Aplicamos o padrão comercial Standard / Plus / Premium com resolução, créditos e limite de fotos alinhados ao benchmark visual.</p>
         </div>
 
