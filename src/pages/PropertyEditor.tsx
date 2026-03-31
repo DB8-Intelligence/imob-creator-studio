@@ -140,13 +140,13 @@ const PropertyEditor = () => {
     return () => { cancelled = true; };
   }, [id]);
 
-  // Auto-patch status to "editing" if pending
+  // Auto-patch status to "processing" when editor is opened on a "new" property
   useEffect(() => {
     if (!property || statusPatched.current) return;
-    if (property.status === "pending" && id) {
+    if (property.status === "new" && id) {
       statusPatched.current = true;
-      patchProperty(id, { status: "editing" }).then(() => {
-        setProperty((prev) => prev ? { ...prev, status: "editing" as PropertyStatus } : prev);
+      patchProperty(id, { status: "processing" }).then(() => {
+        setProperty((prev) => prev ? { ...prev, status: "processing" as PropertyStatus } : prev);
       }).catch(() => {/* silent */});
     }
   }, [property, id]);
@@ -168,7 +168,7 @@ const PropertyEditor = () => {
         highlights: formData.highlights,
         images,
         template_id: templateId,
-        status: "editing",
+        status: "processing",
       });
       toast({ title: "Alterações salvas com sucesso!" });
     } catch (err: any) {
