@@ -98,29 +98,28 @@ const PropertyCard = ({ property, onUpdateStatus, isUpdating }: PropertyCardProp
             <Edit3 className="w-3.5 h-3.5 mr-1" />
             Editar
           </Button>
-          {property.status === "pending" && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-xs"
-                disabled={isUpdating}
-                onClick={() => onUpdateStatus(property.id, "editing")}
-              >
-                <PlayCircle className="w-3.5 h-3.5 mr-1" />
-                Editar
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-xs text-destructive hover:text-destructive"
-                disabled={isUpdating}
-                onClick={() => onUpdateStatus(property.id, "rejected")}
-              >
-                <XCircle className="w-3.5 h-3.5 mr-1" />
-                Rejeitar
-              </Button>
-            </>
+          {property.status === "new" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(property.id, "processing")}
+            >
+              <PlayCircle className="w-3.5 h-3.5 mr-1" />
+              Iniciar
+            </Button>
+          )}
+          {property.status === "ready" && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-xs text-amber-500 border-amber-500/40 hover:bg-amber-500/10"
+              disabled={isUpdating}
+              onClick={() => onUpdateStatus(property.id, "approved")}
+            >
+              Aprovar
+            </Button>
           )}
         </div>
       </CardContent>

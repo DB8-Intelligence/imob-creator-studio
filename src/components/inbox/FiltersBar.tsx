@@ -7,12 +7,13 @@ export interface FilterOption {
 }
 
 const defaultFilters: FilterOption[] = [
-  { label: "Todos", value: "all" },
-  { label: "Pendentes", value: "pending" },
-  { label: "Em edição", value: "editing" },
-  { label: "Aprovados", value: "approved" },
+  { label: "Todos",      value: "all" },
+  { label: "Novos",      value: "new" },
+  { label: "Em edição",  value: "processing" },
+  { label: "Prontos",    value: "ready" },
+  { label: "Aprovados",  value: "approved" },
   { label: "Publicados", value: "published" },
-  { label: "Erros", value: "error" },
+  { label: "Erros",      value: "error" },
 ];
 
 interface FiltersBarProps {
