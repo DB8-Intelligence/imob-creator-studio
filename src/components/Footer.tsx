@@ -3,53 +3,60 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-primary py-16">
-      <div className="container mx-auto px-6">
+    <footer className="relative overflow-hidden">
+      {/* Dark background with subtle gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0b0f] to-[#07080c]" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
+
+      <div className="container mx-auto px-6 py-16 relative">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          {/* Logo + description */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-accent-gradient rounded-lg flex items-center justify-center shadow-glow">
-                <Building2 className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <Building2 className="w-5 h-5 text-black" />
               </div>
-              <span className="font-display text-xl font-semibold text-primary-foreground">
-                DB8 <span className="text-gradient">Intelligence</span>
+              <span className="font-display text-xl font-semibold text-white">
+                DB8 <span className="bg-gradient-to-r from-amber-400 to-amber-500 bg-clip-text text-transparent">Intelligence</span>
               </span>
             </div>
-            <p className="text-primary-foreground/60 max-w-md leading-relaxed">
-              Automação de conteúdo imobiliário com IA para gerar posts, reels e vídeos cinematográficos — tudo pelo dashboard, do upload ao Instagram.
+            <p className="text-white/40 max-w-md leading-relaxed text-sm">
+              Plataforma completa de IA para o mercado imobiliário. Gere vídeos, artes, staging virtual, renders, demarcações e muito mais — tudo integrado em um único dashboard.
             </p>
           </div>
 
+          {/* Product links */}
           <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">Produto</h4>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Produto</h4>
             <ul className="space-y-3">
-              <li><a href="#criativos" className="text-primary-foreground/60 hover:text-accent transition-colors">Imagem Creator AI</a></li>
-              <li><a href="#videos-ia" className="text-primary-foreground/60 hover:text-accent transition-colors">Videos AI</a></li>
-              <li><a href="#planos-criativos" className="text-primary-foreground/60 hover:text-accent transition-colors">Planos</a></li>
-              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Começar Agora</Link></li>
+              <li><a href="#criativos" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Serviços de IA</a></li>
+              <li><a href="#como-funciona" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Como funciona</a></li>
+              <li><a href="#planos" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Planos e Preços</a></li>
+              <li><Link to="/auth" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Começar Agora</Link></li>
             </ul>
           </div>
 
+          {/* Company links */}
           <div>
-            <h4 className="font-semibold text-primary-foreground mb-4">Empresa</h4>
+            <h4 className="font-semibold text-white mb-4 text-sm uppercase tracking-wider">Empresa</h4>
             <ul className="space-y-3">
-              <li><a href="#como-funciona" className="text-primary-foreground/60 hover:text-accent transition-colors">Como funciona</a></li>
-              <li><a href="#contatos" className="text-primary-foreground/60 hover:text-accent transition-colors">Contatos</a></li>
-              <li><Link to="/auth" className="text-primary-foreground/60 hover:text-accent transition-colors">Entrar</Link></li>
-              <li><Link to="/termos" className="text-primary-foreground/60 hover:text-accent transition-colors">Termos de Uso</Link></li>
+              <li><a href="#contatos" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Contatos</a></li>
+              <li><Link to="/auth" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Entrar</Link></li>
+              <li><Link to="/termos" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Termos de Uso</Link></li>
+              <li><Link to="/termos" className="text-white/40 hover:text-amber-400 transition-colors text-sm">Privacidade</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-primary-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-primary-foreground/50 text-sm">
+        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-white/30 text-sm">
             © 2026 DB8 Intelligence. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
-            <Link to="/termos" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
+            <Link to="/termos" className="text-white/30 hover:text-amber-400 text-sm transition-colors">
               Termos de Uso
             </Link>
-            <Link to="/termos" className="text-primary-foreground/50 hover:text-accent text-sm transition-colors">
+            <Link to="/termos" className="text-white/30 hover:text-amber-400 text-sm transition-colors">
               Privacidade
             </Link>
           </div>

@@ -1,161 +1,192 @@
-import { ArrowRight, Zap, Star, Flame, Clock, Users, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Check, X, ShieldCheck, Sparkles, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  PLAN_RULES,
+  PLAN_TIERS_ORDERED,
+  CREDIT_COSTS,
+  formatPrice,
+  getOriginalYearlyPrice,
+  type PlanTier,
+  type BillingCycle,
+} from "@/lib/plan-rules";
 
-const plans = [
-  {
-    name: "20 Créditos",
-    badge: "Oferta Especial",
-    badgeColor: "bg-amber-500 text-white",
-    description: "Ideal para começar",
-    criações: 20,
-    price: "R$ 59",
-    perUnit: "R$ 2,95/criação",
-    highlight: null,
-    promo: "Promoção por tempo limitado",
-    users: "312 pessoas já usam",
-    cta: "Começar a criar",
-    featured: false,
-  },
-  {
-    name: "50 Créditos",
-    badge: "🔥 Mais Escolhido",
-    badgeColor: "bg-accent text-primary",
-    description: "Mais escolhido",
-    criações: 50,
-    price: "R$ 97",
-    perUnit: "R$ 1,94/criação",
-    highlight: "Economize R$ 50",
-    promo: null,
-    users: "523 pessoas já usam",
-    cta: "🚀 Liberar criações",
-    featured: true,
-  },
-  {
-    name: "150 Créditos",
-    badge: "Melhor custo-benefício",
-    badgeColor: "bg-muted text-foreground",
-    description: "Melhor custo-benefício",
-    criações: 150,
-    price: "R$ 197",
-    perUnit: "R$ 1,31/criação",
-    highlight: "Economize R$ 246",
-    promo: null,
-    users: "189 pessoas já usam",
-    cta: "Liberar criações",
-    featured: false,
-  },
+const FEATURE_LIST: { label: string; getValue: (t: PlanTier) => string | boolean }[] = [
+  { label: "Créditos mensais", getValue: (t) => `${PLAN_RULES[t].monthlyCredits}` },
+  { label: "Fotos por vídeo", getValue: (t) => `Até ${PLAN_RULES[t].features.maxPhotosPerVideo}` },
+  { label: "Resolução de vídeo", getValue: (t) => PLAN_RULES[t].features.videoResolution },
+  { label: "Mobiliar residencial", getValue: (t) => PLAN_RULES[t].features.stagingResidential },
+  { label: "Mobiliar comercial", getValue: (t) => PLAN_RULES[t].features.stagingCommercial },
+  { label: "Reformar imóveis", getValue: (t) => PLAN_RULES[t].features.renovateProperty },
+  { label: "Render de esboços", getValue: (t) => PLAN_RULES[t].features.sketchRender },
+  { label: "Terreno vazio", getValue: (t) => PLAN_RULES[t].features.maxBusinessTypesEmptyLot > 0 ? `${PLAN_RULES[t].features.maxBusinessTypesEmptyLot} tipo${PLAN_RULES[t].features.maxBusinessTypesEmptyLot > 1 ? "s" : ""}` : false },
+  { label: "Demarcação de terreno", getValue: (t) => PLAN_RULES[t].features.landMarking },
+  { label: "Demarcação 3D", getValue: (t) => PLAN_RULES[t].features.landMarking3D },
+  { label: "Upscale premium", getValue: (t) => PLAN_RULES[t].features.upscalePremium },
+  { label: "Usuários simultâneos", getValue: (t) => `${PLAN_RULES[t].features.maxConcurrentUsers}` },
 ];
 
 const PricingSection = () => {
+  const [cycle, setCycle] = useState<BillingCycle>("monthly");
+
   return (
-    <section id="planos-criativos" className="py-24 bg-background">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-4">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
-            Planos Criativos
+    <section id="planos" className="py-24 bg-background relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-accent/5 rounded-full blur-[150px]" />
+
+      <div className="container mx-auto px-6 relative">
+        {/* Header */}
+        <div className="text-center max-w-2xl mx-auto mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-semibold mb-5">
+            <Tag className="w-3.5 h-3.5" />
+            Planos e Preços
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Compre créditos para <span className="text-gradient">gerar seus criativos</span>
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-5 leading-tight">
+            Escolha o plano ideal para{" "}
+            <span className="text-gradient">escalar sua operação</span>
           </h2>
-          <p className="text-muted-foreground text-base flex items-center justify-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-accent" />
-            Créditos nunca expiram
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
-            Pagamento instantâneo via PIX
+          <p className="text-muted-foreground text-lg">
+            Do corretor autônomo à imobiliária. Todos os serviços de IA incluídos.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={[
-                "relative rounded-3xl border p-7 flex flex-col transition-all duration-300",
-                plan.featured
-                  ? "border-accent/60 bg-primary text-primary-foreground shadow-[0_0_40px_rgba(var(--accent)/0.2)] scale-[1.03]"
-                  : "border-border/60 bg-card hover:-translate-y-1 hover:shadow-elevated",
-              ].join(" ")}
-            >
-              {/* Badge */}
-              <div className="mb-5">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${plan.badgeColor}`}>
-                  {plan.badge}
-                </span>
-              </div>
-
-              {/* Nome e descrição */}
-              <h3 className={`font-display text-2xl font-bold mb-1 ${plan.featured ? "text-primary-foreground" : "text-foreground"}`}>
-                {plan.name}
-              </h3>
-              <p className={`text-sm mb-5 ${plan.featured ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                {plan.description}
-              </p>
-
-              {/* Criações */}
-              <div className="flex items-center gap-2 mb-5">
-                <Zap className={`w-4 h-4 ${plan.featured ? "text-accent" : "text-accent"}`} />
-                <span className={`font-semibold ${plan.featured ? "text-primary-foreground" : "text-foreground"}`}>
-                  {plan.criações}
-                </span>
-                <span className={`text-sm ${plan.featured ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                  criações
-                </span>
-              </div>
-
-              {/* Preço */}
-              <div className="mb-2">
-                <span className={`font-display text-4xl font-bold ${plan.featured ? "text-accent" : "text-foreground"}`}>
-                  {plan.price}
-                </span>
-              </div>
-              <p className={`text-sm mb-5 ${plan.featured ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
-                {plan.perUnit}
-              </p>
-
-              {/* Highlight / Promo */}
-              {plan.highlight && (
-                <div className="rounded-xl bg-emerald-500/15 border border-emerald-500/30 px-4 py-2 mb-4 text-center">
-                  <span className="text-emerald-400 font-bold text-sm">{plan.highlight}</span>
-                </div>
-              )}
-              {plan.promo && (
-                <div className="flex items-center gap-1.5 mb-4">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-amber-400 text-xs font-medium">{plan.promo}</span>
-                </div>
-              )}
-
-              {/* Usuários */}
-              <div className="flex items-center gap-1.5 mb-6">
-                <Users className={`w-3.5 h-3.5 ${plan.featured ? "text-primary-foreground/50" : "text-muted-foreground/60"}`} />
-                <span className={`text-xs ${plan.featured ? "text-primary-foreground/50" : "text-muted-foreground/60"}`}>
-                  {plan.users}
-                </span>
-              </div>
-
-              {/* CTA */}
-              <div className="mt-auto">
-                <Link
-                  to="/auth"
-                  className={[
-                    "flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300",
-                    plan.featured
-                      ? "bg-accent-gradient text-primary shadow-glow hover:scale-105"
-                      : "bg-foreground text-background hover:bg-foreground/90",
-                  ].join(" ")}
-                >
-                  {plan.cta}
-                  {!plan.featured && <ArrowRight className="w-4 h-4" />}
-                </Link>
-              </div>
-            </div>
-          ))}
+        {/* Billing toggle */}
+        <div className="flex items-center justify-center gap-4 mb-12">
+          <span className={`text-sm font-medium transition-colors ${cycle === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
+            Mensal
+          </span>
+          <button
+            onClick={() => setCycle((c) => (c === "monthly" ? "yearly" : "monthly"))}
+            className={`relative w-14 h-7 rounded-full transition-colors duration-300 ${cycle === "yearly" ? "bg-emerald-500" : "bg-muted"}`}
+          >
+            <span className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-transform duration-300 ${cycle === "yearly" ? "translate-x-7" : ""}`} />
+          </button>
+          <span className={`text-sm font-medium transition-colors ${cycle === "yearly" ? "text-foreground" : "text-muted-foreground"}`}>
+            Anual
+          </span>
+          {cycle === "yearly" && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-bold">
+              1 mês grátis
+            </span>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-center gap-2 mt-10 text-muted-foreground/60 text-sm">
+        {/* Plan cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-6xl mx-auto mb-16">
+          {PLAN_TIERS_ORDERED.map((tier) => {
+            const plan = PLAN_RULES[tier];
+            const isPopular = plan.popular === true;
+            const price = cycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
+            const originalYearly = getOriginalYearlyPrice(tier);
+
+            return (
+              <div
+                key={tier}
+                className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-300 ${
+                  isPopular
+                    ? "border-amber-500/40 bg-gradient-to-b from-amber-500/[0.08] to-transparent shadow-xl shadow-amber-500/10 scale-[1.02] ring-1 ring-amber-500/20"
+                    : "border-border/40 bg-card hover:-translate-y-1 hover:shadow-lg"
+                }`}
+              >
+                {isPopular && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                    <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-black text-xs font-bold shadow-lg shadow-amber-500/30">
+                      <Sparkles className="w-3 h-3" />
+                      Mais escolhido
+                    </span>
+                  </div>
+                )}
+
+                <h3 className="text-xl font-bold text-foreground text-center mt-2">{plan.label}</h3>
+                <p className="text-xs text-muted-foreground text-center mt-1 min-h-[2rem]">{plan.description}</p>
+
+                {/* Price */}
+                <div className="text-center my-6">
+                  {cycle === "yearly" && (
+                    <p className="text-xs text-muted-foreground line-through mb-1">
+                      R$ {formatPrice(originalYearly)}
+                    </p>
+                  )}
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-sm text-muted-foreground">R$</span>
+                    <span className="text-4xl font-extrabold text-foreground">{formatPrice(price)}</span>
+                    <span className="text-sm text-muted-foreground">/{cycle === "monthly" ? "mês" : "ano"}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    {plan.monthlyCredits} créditos/mês
+                  </p>
+                </div>
+
+                {/* Feature list */}
+                <ul className="space-y-2 flex-1 mb-6">
+                  {FEATURE_LIST.map((row) => {
+                    const value = row.getValue(tier);
+                    const isEnabled = value !== false;
+                    const displayText = typeof value === "string" ? value : null;
+
+                    return (
+                      <li key={row.label} className={`flex items-center gap-2.5 text-sm ${isEnabled ? "text-foreground" : "text-muted-foreground/40"}`}>
+                        {isEnabled ? (
+                          <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-400/40 shrink-0" />
+                        )}
+                        <span>
+                          {row.label}
+                          {displayText && <span className="text-muted-foreground ml-1">({displayText})</span>}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                {/* CTA */}
+                <Link
+                  to="/auth"
+                  className={`flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
+                    isPopular
+                      ? "bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.02]"
+                      : "bg-foreground text-background hover:bg-foreground/90"
+                  }`}
+                >
+                  Assinar {plan.label}
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Credit costs */}
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-lg font-semibold text-foreground mb-5 text-center">Consumo por operação</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {Object.entries(CREDIT_COSTS).map(([key, cost]) => {
+              const labels: Record<string, string> = {
+                video_generation: "Vídeo",
+                virtual_staging: "Staging",
+                upscale_basic: "Upscale",
+                upscale_premium: "Upscale Pro",
+                renovate_property: "Reforma",
+                sketch_render: "Render",
+                land_marking: "Demarcação",
+                land_marking_3d: "Demarcação 3D",
+                empty_lot: "Terreno",
+                creative_generation: "Criativo",
+                caption_generation: "Legenda",
+              };
+              return (
+                <div key={key} className="flex items-center justify-between px-4 py-3 rounded-xl bg-muted/40 border border-border/30">
+                  <span className="text-xs text-muted-foreground">{labels[key] || key}</span>
+                  <span className="text-sm font-bold text-accent">{cost}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 mt-8 text-muted-foreground/60 text-sm">
           <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          Pagamento seguro via Kiwify
+          Pagamento seguro via Kiwify · Cancele quando quiser
         </div>
       </div>
     </section>
