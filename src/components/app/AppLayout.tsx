@@ -30,6 +30,8 @@ import {
   PenTool,
   Video,
   CreditCard,
+  Building2,
+  MapPin,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -55,6 +57,8 @@ const navItems = [
   { icon: Sofa, label: "Mobiliar Ambientes", path: "/virtual-staging", badge: "Novo" },
   { icon: Hammer, label: "Reformar Imóvel", path: "/renovate", badge: "Novo" },
   { icon: PenTool, label: "Render de Esboços", path: "/sketch-render", badge: "Novo" },
+  { icon: Building2, label: "Terreno Vazio", path: "/empty-lot", badge: "Novo" },
+  { icon: MapPin, label: "Demarcar Terreno", path: "/land-marking", badge: "Novo" },
   { icon: ZoomIn, label: "Upscale de Imagem", path: "/upscale" },
   // ── Ferramentas ──
   { divider: true, label: "Ferramentas" },

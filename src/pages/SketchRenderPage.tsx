@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import AppLayout from "@/components/app/AppLayout";
+import { PlanGate, userPlanToTier } from "@/components/app/PlanGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPlan, useConsumeCredits } from "@/hooks/useUserPlan";
 import { CREDIT_COSTS } from "@/lib/plan-rules";
@@ -56,6 +57,7 @@ const SketchRenderPage = () => {
 
   const { data: plan } = useUserPlan();
   const consumeCredits = useConsumeCredits();
+  const userTier = userPlanToTier(plan?.user_plan);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -159,6 +161,13 @@ const SketchRenderPage = () => {
 
   return (
     <AppLayout>
+      <PlanGate
+        feature="sketchRender"
+        userTier={userTier}
+        featureLabel="Render de Esboços"
+        featureDescription="Transforme esboços e plantas em renders fotorrealistas. Disponível a partir do plano Standard."
+        minimumTier="standard"
+      >
       <div className="max-w-5xl mx-auto space-y-8 pb-12">
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -286,6 +295,7 @@ const SketchRenderPage = () => {
           </div>
         </div>
       </div>
+      </PlanGate>
     </AppLayout>
   );
 };

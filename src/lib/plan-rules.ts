@@ -186,6 +186,7 @@ export const CREDIT_COSTS = {
   sketch_render: 5,
   land_marking: 3,
   land_marking_3d: 5,
+  empty_lot: 5,
   creative_generation: 1,
   caption_generation: 1,
 } as const;
