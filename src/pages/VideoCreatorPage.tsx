@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,8 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
-import { createVideoJobSegments, renderVideoJob } from "@/services/videoModuleApi";
+import { createVideoJobSegments, renderVideoJob, generateVideoClipFromImage } from "@/services/videoModuleApi";
+import { useVeoPolling } from "@/hooks/useVeoPolling";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
@@ -32,7 +33,7 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Style = "cinematic" | "moderno" | "luxury";
+type Style = "cinematic" | "moderno" | "luxury" | "drone" | "walkthrough";
 type Format = "reels" | "feed" | "youtube";
 interface UploadedPhoto {
   id: string;
@@ -46,6 +47,8 @@ const STYLES: { id: Style; label: string; description: string; emoji: string }[]
   { id: "cinematic", label: "Cinematic", description: "Transições suaves, iluminação dramática, trilha épica", emoji: "🎬" },
   { id: "moderno", label: "Moderno", description: "Cortes rápidos, tipografia bold, energia urbana", emoji: "⚡" },
   { id: "luxury", label: "Luxury", description: "Movimentos lentos, paleta dourada, elegância sofisticada", emoji: "✨" },
+  { id: "drone", label: "Drone Aéreo", description: "Vista aérea, sobrevoo suave, perspectiva panorâmica", emoji: "🚁" },
+  { id: "walkthrough", label: "Tour Virtual", description: "Primeira pessoa, passeio pelo imóvel, visita virtual", emoji: "🚶" },
 ];
 
 const FORMATS: { id: Format; label: string; ratio: string; platforms: string }[] = [
@@ -129,6 +132,10 @@ const VideoCreatorPage = () => {
   const [generated, setGenerated] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [useVeo, setUseVeo] = useState(true); // Use Veo 3.1 by default
+  const [veoProgress, setVeoProgress] = useState<{ current: number; total: number } | null>(null);
+  const { startPolling, results: pollResults, isPolling } = useVeoPolling();
+  const [pendingJobId, setPendingJobId] = useState<string | null>(null);
 
   // Plan gate: Credits users can't access
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
@@ -141,6 +148,22 @@ const VideoCreatorPage = () => {
   const maxDurationAllowed = planRule.maxDurationSeconds;
   const resolutionLabel = planRule.resolution;
   const computedDurationSeconds = uploadSummary.computedDurationSeconds;
+
+  // When all polled clips finish, update the job status
+  useEffect(() => {
+    if (!pendingJobId || isPolling) return;
+    // All polling done — check if we got any completed video
+    const allResults = Object.values(pollResults);
+    const anyCompleted = allResults.some((r) => r.status === "completed" && r.videoUrl);
+    if (anyCompleted) {
+      const firstVideo = allResults.find((r) => r.status === "completed" && r.videoUrl);
+      if (firstVideo?.videoUrl) {
+        setVideoUrl((prev) => prev ?? firstVideo.videoUrl!);
+        updateVideoJobStatusMutation.mutateAsync({ id: pendingJobId, status: "completed", outputUrl: firstVideo.videoUrl });
+      }
+    }
+    setPendingJobId(null);
+  }, [isPolling, pendingJobId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (plan && !hasVideoAccess) {
     return (
@@ -180,6 +203,22 @@ const VideoCreatorPage = () => {
     addFiles(e.dataTransfer.files);
   };
 
+  /** Convert a File to base64 data URL */
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  /** Map video format to Veo aspect ratio */
+  const formatToAspectRatio = (f: Format): "16:9" | "9:16" | "1:1" => {
+    if (f === "reels") return "9:16";
+    if (f === "youtube") return "16:9";
+    return "16:9"; // feed defaults to 16:9 for Veo (1:1 not supported)
+  };
+
   const handleGenerate = async () => {
     if (!workspaceId) {
       toast({
@@ -191,6 +230,7 @@ const VideoCreatorPage = () => {
     }
 
     setGenerating(true);
+    setVeoProgress(null);
     if (videoUrl) URL.revokeObjectURL(videoUrl);
     setVideoUrl(null);
 
@@ -210,6 +250,7 @@ const VideoCreatorPage = () => {
           photoNames: photos.map((photo) => photo.file.name),
           motion_preset: motionPreset,
           motion_preset_config: motionPresetConfig,
+          render_engine: useVeo ? "veo-3.1" : "legacy",
         },
       });
       jobId = createdJob.id;
@@ -223,29 +264,120 @@ const VideoCreatorPage = () => {
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
 
-      const result = await renderVideoJob({
-        workspaceId,
-        videoJobId: jobId,
-        title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
-        style,
-        format,
-        duration: String(computedDurationSeconds),
-        addonType: activeAddonType,
-        photos: photos.map((photo) => photo.file),
-      });
+      if (useVeo) {
+        // ── Veo 3.1 pipeline: generate each clip individually ──
+        const segmentPhotos = photos.slice(0, uploadSummary.renderedSegments);
+        const aspectRatio = formatToAspectRatio(format);
+        const veoStyle = (style === "drone" || style === "walkthrough") ? style : style as "cinematic" | "moderno" | "luxury";
 
-      setVideoUrl(result.videoUrl);
-      setGenerated(true);
+        setVeoProgress({ current: 0, total: segmentPhotos.length });
 
-      await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
-      await dispatchN8nEvent("video_completed", {
-        workspace_id: workspaceId,
-        video_job_id: jobId,
-        output_url: result.videoUrl,
-        status: "completed",
-        addon_type: activeAddonType,
-      });
-      toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage, registrado na biblioteca e enviado para automação." });
+        const clipResults: { index: number; videoUrl?: string; operationName?: string; status: string }[] = [];
+
+        for (let i = 0; i < segmentPhotos.length; i++) {
+          setVeoProgress({ current: i + 1, total: segmentPhotos.length });
+
+          const base64 = await fileToBase64(segmentPhotos[i].file);
+          const result = await generateVideoClipFromImage({
+            imageBase64: base64,
+            style: veoStyle,
+            aspectRatio,
+            workspaceId,
+            jobId,
+            segmentIndex: i,
+          });
+
+          clipResults.push({
+            index: i,
+            videoUrl: result.videoUrl,
+            operationName: result.operationName,
+            status: result.status,
+          });
+        }
+
+        // Check if all clips completed immediately or some are still processing
+        const completedClips = clipResults.filter((c) => c.status === "completed" && c.videoUrl);
+        const processingClips = clipResults.filter((c) => c.status === "processing");
+
+        if (completedClips.length > 0 && processingClips.length === 0) {
+          // All clips done — use the first one as preview for now
+          const firstClipUrl = completedClips[0].videoUrl!;
+          setVideoUrl(firstClipUrl);
+          setGenerated(true);
+
+          await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: firstClipUrl });
+          await dispatchN8nEvent("video_completed", {
+            workspace_id: workspaceId,
+            video_job_id: jobId,
+            output_url: firstClipUrl,
+            status: "completed",
+            addon_type: activeAddonType,
+            render_engine: "veo-3.1",
+            total_clips: completedClips.length,
+          });
+          toast({ title: "Vídeo gerado com sucesso!", description: `${completedClips.length} clip(s) gerado(s) com Veo 3.1.` });
+        } else if (processingClips.length > 0) {
+          // Some clips still processing — start polling for each
+          setPendingJobId(jobId);
+          setGenerated(true);
+
+          for (const clip of processingClips) {
+            if (clip.operationName) {
+              startPolling(
+                {
+                  operationName: clip.operationName,
+                  workspaceId,
+                  jobId: jobId!,
+                  segmentIndex: clip.index,
+                },
+                (result) => {
+                  if (result.status === "completed" && result.videoUrl) {
+                    toast({ title: `Clip ${clip.index + 1} pronto!`, description: "O vídeo foi processado com sucesso." });
+                    // Set the first completed clip as the preview
+                    setVideoUrl((prev) => prev ?? result.videoUrl!);
+                  } else if (result.status === "failed") {
+                    toast({ title: `Clip ${clip.index + 1} falhou`, description: result.error || "Erro no processamento.", variant: "destructive" });
+                  }
+                }
+              );
+            }
+          }
+
+          if (completedClips.length > 0) {
+            setVideoUrl(completedClips[0].videoUrl!);
+          }
+
+          toast({
+            title: "Clips em processamento",
+            description: `${completedClips.length} pronto(s), ${processingClips.length} processando. Polling automático ativado.`,
+          });
+        }
+      } else {
+        // ── Legacy pipeline: send all photos to generate-video ──
+        const result = await renderVideoJob({
+          workspaceId,
+          videoJobId: jobId,
+          title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+          style,
+          format,
+          duration: String(computedDurationSeconds),
+          addonType: activeAddonType,
+          photos: photos.map((photo) => photo.file),
+        });
+
+        setVideoUrl(result.videoUrl);
+        setGenerated(true);
+
+        await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
+        await dispatchN8nEvent("video_completed", {
+          workspace_id: workspaceId,
+          video_job_id: jobId,
+          output_url: result.videoUrl,
+          status: "completed",
+          addon_type: activeAddonType,
+        });
+        toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage." });
+      }
     } catch (e: unknown) {
       if (jobId) {
         try {
@@ -276,6 +408,7 @@ const VideoCreatorPage = () => {
       });
     } finally {
       setGenerating(false);
+      setVeoProgress(null);
     }
   };
 

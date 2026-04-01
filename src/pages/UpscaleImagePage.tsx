@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ZoomIn, Upload, Download, AlertCircle, CheckCircle2, Coins } from "lucide-react";
 import { consumeCredits } from "@/services/userPlanApi";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { supabase } from "@/integrations/supabase/client";
+import { CREDIT_COSTS } from "@/lib/plan-rules";
 
 interface ImageData {
   file: File;
@@ -15,7 +17,7 @@ interface ImageData {
   name: string;
 }
 
-const UPSCALE_CREDIT_COST = 0.3;
+const UPSCALE_CREDIT_COST = CREDIT_COSTS.upscale_basic;
 
 export default function UpscaleImagePage() {
   const navigate = useNavigate();
@@ -57,46 +59,27 @@ export default function UpscaleImagePage() {
       await consumeCredits(UPSCALE_CREDIT_COST);
       setCreditsUsed((prev) => prev + UPSCALE_CREDIT_COST);
 
-      // Call Claude API to upscale via prompt — returns a high-quality description
-      // and uses the image as reference (real upscale would use a dedicated upscale API)
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 200,
-          system:
-            "Você é um assistente de análise de imagens imobiliárias. Responda APENAS em JSON: {\"upscaled_url\": \"string - retorne a mesma URL de entrada pois este é um stub\", \"description\": \"string - descrição técnica da imagem para upscale\", \"resolution_suggestion\": \"string\"}",
-          messages: [
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: "Analise esta imagem imobiliária e retorne o JSON de upscale.",
-                },
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: image.file.type,
-                    data: image.base64,
-                  },
-                },
-              ],
-            },
-          ],
-        }),
+      // Call virtual-staging edge function with an upscale-specific prompt
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      const response = await supabase.functions.invoke("virtual-staging", {
+        body: {
+          imageBase64: image.dataUrl,
+          style: "moderno",
+          environmentType: "residencial",
+          customPrompt:
+            "DO NOT add any furniture or change the room. Instead, enhance this real estate photo: improve resolution and sharpness, correct lighting and white balance, reduce noise and compression artifacts, enhance colors naturally. The result must look like the SAME photo but in higher quality. Do NOT alter the room contents in any way.",
+        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      const data = await response.json();
-      const text =
-        data.content?.map((b: { text?: string }) => b.text || "").join("") || "";
+      if (response.error) throw new Error(response.error.message);
 
-      // For now, return the original image as the upscaled result
-      // (real implementation would call a dedicated upscale service like Real-ESRGAN)
-      setResult(image.dataUrl);
+      const data = response.data;
+      if (!data?.success) throw new Error(data?.error || "Erro ao processar upscale");
 
+      setResult(data.stagedImageUrl);
       await refetchPlan();
     } catch (err) {
       setError(

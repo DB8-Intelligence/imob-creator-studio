@@ -22,8 +22,8 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -77,74 +77,83 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
 
     console.log("Generating art:", { format: selectedFormat, brand: brand.name, hasCustomPrompt: !!customPrompt });
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              { type: "image_url", image_url: { url: imageUrl } },
-            ],
+    // Download the image and convert to base64 for Gemini API
+    const imageResponse = await fetch(imageUrl);
+    if (!imageResponse.ok) throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const imageBase64 = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+    const imageMimeType = imageResponse.headers.get("content-type") || "image/jpeg";
+
+    // Call Gemini 2.5 Flash directly (no Lovable gateway)
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-native-audio-dialog:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: imageMimeType, data: imageBase64 } },
+              ],
+            },
+          ],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
           },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
+        }),
+      }
+    );
 
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error("AI gateway error:", aiResponse.status, errText);
+    if (!geminiResponse.ok) {
+      const errText = await geminiResponse.text();
+      console.error("Gemini API error:", geminiResponse.status, errText);
 
-      if (aiResponse.status === 429) {
+      if (geminiResponse.status === 429) {
         return new Response(JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns segundos." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (aiResponse.status === 402) {
-        return new Response(JSON.stringify({ error: "Créditos insuficientes. Adicione créditos ao workspace." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      throw new Error(`Gemini API error: ${geminiResponse.status}`);
+    }
+
+    const geminiData = await geminiResponse.json();
+
+    // Extract generated image from Gemini response
+    const parts = geminiData.candidates?.[0]?.content?.parts ?? [];
+    let generatedImageBase64: string | null = null;
+    let generatedMimeType = "image/png";
+
+    for (const part of parts) {
+      if (part.inlineData) {
+        generatedImageBase64 = part.inlineData.data;
+        generatedMimeType = part.inlineData.mimeType || "image/png";
+        break;
       }
-      throw new Error(`AI generation failed: ${aiResponse.status}`);
     }
 
-    const aiData = await aiResponse.json();
-    const generatedImage = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-    if (!generatedImage) {
-      console.error("No image in AI response:", JSON.stringify(aiData).substring(0, 500));
-      throw new Error("AI did not return an image");
+    if (!generatedImageBase64) {
+      console.error("No image in Gemini response:", JSON.stringify(geminiData).substring(0, 500));
+      throw new Error("Gemini não retornou uma imagem. Tente novamente.");
     }
 
-    // Extract base64 data and upload to storage
-    const base64Match = generatedImage.match(/^data:image\/(png|jpeg|jpg|webp);base64,(.+)$/);
-    if (!base64Match) throw new Error("Invalid image format from AI");
-
-    const imageFormat = base64Match[1];
-    const base64Data = base64Match[2];
-
-    const binaryStr = atob(base64Data);
+    // Upload to Supabase Storage
+    const binaryStr = atob(generatedImageBase64);
     const bytes = new Uint8Array(binaryStr.length);
     for (let i = 0; i < binaryStr.length; i++) {
       bytes[i] = binaryStr.charCodeAt(i);
     }
 
-    const fileName = `art-${propertyId || "unknown"}-${selectedFormat}-${Date.now()}.${imageFormat === "jpeg" ? "jpg" : imageFormat}`;
+    const ext = generatedMimeType.includes("png") ? "png" : "jpg";
+    const fileName = `art-${propertyId || "unknown"}-${selectedFormat}-${Date.now()}.${ext}`;
     const filePath = `generated/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("creatives")
       .upload(filePath, bytes, {
-        contentType: `image/${imageFormat}`,
+        contentType: generatedMimeType,
         upsert: false,
       });
 
@@ -198,11 +207,6 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
-    );
-  }
-});
-" },
       }
     );
   }
