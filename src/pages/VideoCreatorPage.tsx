@@ -32,7 +32,7 @@ import {
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Style = "cinematic" | "moderno" | "luxury";
+type Style = "cinematic" | "moderno" | "luxury" | "drone" | "walkthrough";
 type Format = "reels" | "feed" | "youtube";
 interface UploadedPhoto {
   id: string;
@@ -46,6 +46,8 @@ const STYLES: { id: Style; label: string; description: string; emoji: string }[]
   { id: "cinematic", label: "Cinematic", description: "Transições suaves, iluminação dramática, trilha épica", emoji: "🎬" },
   { id: "moderno", label: "Moderno", description: "Cortes rápidos, tipografia bold, energia urbana", emoji: "⚡" },
   { id: "luxury", label: "Luxury", description: "Movimentos lentos, paleta dourada, elegância sofisticada", emoji: "✨" },
+  { id: "drone", label: "Drone Aéreo", description: "Vista aérea, sobrevoo suave, perspectiva panorâmica", emoji: "🚁" },
+  { id: "walkthrough", label: "Tour Virtual", description: "Primeira pessoa, passeio pelo imóvel, visita virtual", emoji: "🚶" },
 ];
 
 const FORMATS: { id: Format; label: string; ratio: string; platforms: string }[] = [

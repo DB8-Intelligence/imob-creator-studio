@@ -27,9 +27,11 @@ import Inbox from "./pages/Inbox";
 import Posts from "./pages/Posts";
 import BrandTemplates from "./pages/BrandTemplates";
 import PlanPage from "./pages/PlanPage";
+import PlansPage from "./pages/PlansPage";
 import IdeaCreativePage from "./pages/IdeaCreativePage";
 import ReversePromptLabPage from "./pages/ReversePromptLabPage";
 import UpscaleImagePage from "./pages/UpscaleImagePage";
+import VirtualStagingPage from "./pages/VirtualStagingPage";
 import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
 
@@ -66,8 +68,10 @@ const App = () => (
               <Route path="/posts" element={<ProtectedRoute><Posts /></ProtectedRoute>} />
               <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
               <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
+              <Route path="/planos" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
+              <Route path="/virtual-staging" element={<ProtectedRoute><VirtualStagingPage /></ProtectedRoute>} />
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
