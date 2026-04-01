@@ -32,6 +32,8 @@ import IdeaCreativePage from "./pages/IdeaCreativePage";
 import ReversePromptLabPage from "./pages/ReversePromptLabPage";
 import UpscaleImagePage from "./pages/UpscaleImagePage";
 import VirtualStagingPage from "./pages/VirtualStagingPage";
+import RenovatePropertyPage from "./pages/RenovatePropertyPage";
+import SketchRenderPage from "./pages/SketchRenderPage";
 import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
 
@@ -72,6 +74,8 @@ const App = () => (
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
               <Route path="/virtual-staging" element={<ProtectedRoute><VirtualStagingPage /></ProtectedRoute>} />
+              <Route path="/renovate" element={<ProtectedRoute><RenovatePropertyPage /></ProtectedRoute>} />
+              <Route path="/sketch-render" element={<ProtectedRoute><SketchRenderPage /></ProtectedRoute>} />
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
