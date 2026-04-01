@@ -1,4 +1,5 @@
 import type { VideoPlanTier } from "@/types/video";
+import { PLAN_RULES, type PlanTier } from "@/lib/plan-rules";
 
 export type EffectiveVideoPlanTier = VideoPlanTier;
 
@@ -18,37 +19,44 @@ export const VIDEO_PLAN_RULES: Record<EffectiveVideoPlanTier, VideoPlanRule> = {
   standard: {
     tier: "standard",
     label: "Standard",
-    maxUploadImages: 10,
-    maxRenderedSegments: 10,
+    maxUploadImages: PLAN_RULES.standard.features.maxPhotosPerVideo,
+    maxRenderedSegments: PLAN_RULES.standard.features.maxPhotosPerVideo,
     secondsPerImage: 5,
-    maxDurationSeconds: 50,
-    resolution: "720p",
-    monthlyCredits: 300,
+    maxDurationSeconds: PLAN_RULES.standard.features.maxPhotosPerVideo * 5,
+    resolution: PLAN_RULES.standard.features.videoResolution,
+    monthlyCredits: PLAN_RULES.standard.monthlyCredits,
     creditCostPerVideo: 100,
   },
   plus: {
     tier: "plus",
     label: "Plus",
-    maxUploadImages: 15,
-    maxRenderedSegments: 15,
+    maxUploadImages: PLAN_RULES.plus.features.maxPhotosPerVideo,
+    maxRenderedSegments: PLAN_RULES.plus.features.maxPhotosPerVideo,
     secondsPerImage: 5,
-    maxDurationSeconds: 75,
-    resolution: "1080p Full HD",
-    monthlyCredits: 600,
+    maxDurationSeconds: PLAN_RULES.plus.features.maxPhotosPerVideo * 5,
+    resolution: PLAN_RULES.plus.features.videoResolution,
+    monthlyCredits: PLAN_RULES.plus.monthlyCredits,
     creditCostPerVideo: 100,
   },
   premium: {
     tier: "premium",
     label: "Premium",
-    maxUploadImages: 20,
+    maxUploadImages: PLAN_RULES.premium.features.maxPhotosPerVideo,
     maxRenderedSegments: 18,
     secondsPerImage: 5,
     maxDurationSeconds: 90,
-    resolution: "4K Ultra HD",
-    monthlyCredits: 800,
+    resolution: PLAN_RULES.premium.features.videoResolution,
+    monthlyCredits: PLAN_RULES.premium.monthlyCredits,
     creditCostPerVideo: 200,
   },
 };
+
+/** Maps the central PlanTier to the video-specific tier */
+export function planTierToVideoTier(planTier: PlanTier): EffectiveVideoPlanTier {
+  if (planTier === "starter") return "standard"; // Starter uses standard video rules
+  if (planTier === "plus" || planTier === "premium") return planTier;
+  return "standard";
+}
 
 export function resolveVideoPlanTier(input?: string | null): EffectiveVideoPlanTier {
   if (input === "premium" || input === "plus" || input === "standard") return input;
