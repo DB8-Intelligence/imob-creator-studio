@@ -269,3 +269,37 @@ export async function renderVideoJob(params: {
   if (error) throw error;
   return data as { success: boolean; videoUrl: string; outputPath: string; sourcePaths: string[] };
 }
+
+/**
+ * Gera um clip de vídeo a partir de uma única imagem usando Veo 3.1 (Gemini API).
+ * Endpoint assíncrono: retorna operationName para polling.
+ */
+export async function generateVideoClipFromImage(params: {
+  imageBase64: string;
+  style: "cinematic" | "moderno" | "luxury" | "drone" | "walkthrough";
+  aspectRatio: "16:9" | "9:16" | "1:1";
+  workspaceId: string;
+  jobId?: string;
+  segmentIndex?: number;
+}) {
+  const { data, error } = await supabase.functions.invoke("image-to-video", {
+    body: {
+      imageBase64: params.imageBase64,
+      style: params.style,
+      aspectRatio: params.aspectRatio,
+      workspaceId: params.workspaceId,
+      jobId: params.jobId,
+      segmentIndex: params.segmentIndex,
+    },
+  });
+
+  if (error) throw error;
+  return data as {
+    success: boolean;
+    status: "completed" | "processing";
+    videoUrl?: string;
+    operationName?: string;
+    style: string;
+    message?: string;
+  };
+}
