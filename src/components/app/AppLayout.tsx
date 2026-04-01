@@ -25,6 +25,11 @@ import {
   ScanSearch,
   ZoomIn,
   Bot,
+  Sofa,
+  Hammer,
+  PenTool,
+  Video,
+  CreditCard,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -44,11 +49,18 @@ const navItems = [
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
-  { icon: ScanSearch, label: "Reverse Prompt Lab", path: "/reverse-prompt-lab", badge: "Lab" },
+  // ── IA Imobiliária ──
+  { divider: true, label: "IA Imobiliária" },
+  { icon: Video, label: "Gerar Vídeo", path: "/create/animate", badge: "Novo" },
+  { icon: Sofa, label: "Mobiliar Ambientes", path: "/virtual-staging", badge: "Novo" },
+  { icon: Hammer, label: "Reformar Imóvel", path: "/renovate", badge: "Novo" },
+  { icon: PenTool, label: "Render de Esboços", path: "/sketch-render", badge: "Novo" },
   { icon: ZoomIn, label: "Upscale de Imagem", path: "/upscale" },
-  { icon: Bot, label: "Agentes IA", path: "/ai-agents", badge: "Novo" },
-  // ── Vídeos IA (implementação futura — oculto) ──
-  // ────────────────
+  // ── Ferramentas ──
+  { divider: true, label: "Ferramentas" },
+  { icon: ScanSearch, label: "Reverse Prompt Lab", path: "/reverse-prompt-lab", badge: "Lab" },
+  { icon: Bot, label: "Agentes IA", path: "/ai-agents" },
+  { icon: CreditCard, label: "Planos", path: "/planos" },
   { icon: Settings, label: "Configurações", path: "/settings" },
 ];
 
