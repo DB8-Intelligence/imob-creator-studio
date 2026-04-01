@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import AppLayout from "@/components/app/AppLayout";
+import { PlanGate, userPlanToTier } from "@/components/app/PlanGate";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPlan, useConsumeCredits } from "@/hooks/useUserPlan";
 import { CREDIT_COSTS } from "@/lib/plan-rules";
@@ -58,6 +59,11 @@ const VirtualStagingPage = () => {
 
   const { data: plan } = useUserPlan();
   const consumeCredits = useConsumeCredits();
+  const userTier = userPlanToTier(plan?.user_plan);
+
+  // Plan gate: check if commercial staging is needed
+  const canCommercial = environmentType === "comercial";
+  const featureKey = canCommercial ? "stagingCommercial" : "stagingResidential";
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,6 +186,17 @@ const VirtualStagingPage = () => {
 
   return (
     <AppLayout>
+      <PlanGate
+        feature={featureKey as keyof import("@/lib/plan-rules").PlanFeatures}
+        userTier={userTier}
+        featureLabel="Mobiliar Ambientes"
+        featureDescription={
+          canCommercial
+            ? "Mobiliar ambientes comerciais está disponível a partir do plano Standard."
+            : "Mobiliar ambientes residenciais está disponível a partir do plano Starter."
+        }
+        minimumTier={canCommercial ? "standard" : "starter"}
+      >
       <div className="max-w-5xl mx-auto space-y-8 pb-12">
         {/* Header */}
         <div>
@@ -429,6 +446,7 @@ const VirtualStagingPage = () => {
           </div>
         </div>
       </div>
+      </PlanGate>
     </AppLayout>
   );
 };
