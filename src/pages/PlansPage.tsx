@@ -329,6 +329,7 @@ const PlansPage = () => {
                 sketch_render: "Render de esboços",
                 land_marking: "Marcação de terreno",
                 land_marking_3d: "Marcação 3D",
+                empty_lot: "Visualização terreno vazio",
                 creative_generation: "Gerar criativo",
                 caption_generation: "Gerar legenda",
               };
