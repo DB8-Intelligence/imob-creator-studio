@@ -25,22 +25,23 @@ import {
 } from "lucide-react";
 
 // ─── Links do Kiwify por plano e ciclo ──────────────────────────────────────
+// TODO: Substituir pelos links reais de pagamento Kiwify de cada plano
 const KIWIFY_LINKS: Record<PlanTier, Record<BillingCycle, string>> = {
   starter: {
-    monthly: "https://kiwify.com.br/starter-mensal",
-    yearly: "https://kiwify.com.br/starter-anual",
+    monthly: "https://kiwify.com.br/starter-mensal",   // TODO: link real
+    yearly: "https://kiwify.com.br/starter-anual",     // TODO: link real
   },
   standard: {
-    monthly: "https://kiwify.com.br/standard-mensal",
-    yearly: "https://kiwify.com.br/standard-anual",
+    monthly: "https://kiwify.com.br/standard-mensal",  // TODO: link real
+    yearly: "https://kiwify.com.br/standard-anual",    // TODO: link real
   },
   plus: {
-    monthly: "https://kiwify.com.br/plus-mensal",
-    yearly: "https://kiwify.com.br/plus-anual",
+    monthly: "https://kiwify.com.br/plus-mensal",      // TODO: link real
+    yearly: "https://kiwify.com.br/plus-anual",        // TODO: link real
   },
   premium: {
-    monthly: "https://kiwify.com.br/premium-mensal",
-    yearly: "https://kiwify.com.br/premium-anual",
+    monthly: "https://kiwify.com.br/premium-mensal",   // TODO: link real
+    yearly: "https://kiwify.com.br/premium-anual",     // TODO: link real
   },
 };
 
