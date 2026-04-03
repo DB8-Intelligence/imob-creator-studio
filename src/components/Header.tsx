@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X } from "lucide-react";
+import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DropdownItem {
   label: string;
   href: string;
+  /** If true, renders as a React Router <Link> instead of <a> */
+  internal?: boolean;
   description?: string;
   icon?: React.ReactNode;
 }
@@ -53,26 +55,33 @@ const DropdownMenu = ({ label, items, icon }: DropdownMenuProps) => {
             className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 glass rounded-2xl overflow-hidden z-50"
           >
             <div className="p-2">
-              {items.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-[rgba(255,255,255,0.04)] transition-colors"
-                >
-                  {item.icon && (
-                    <span className="mt-0.5 w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.08)] flex items-center justify-center shrink-0">
-                      {item.icon}
-                    </span>
-                  )}
-                  <div>
-                    <div className="text-sm font-medium text-[var(--ds-fg)]">{item.label}</div>
-                    {item.description && (
-                      <div className="text-xs text-[var(--ds-fg-muted)] mt-0.5">{item.description}</div>
+              {items.map((item) => {
+                const itemClass = "flex items-start gap-3 px-3 py-3 rounded-xl hover:bg-[rgba(255,255,255,0.04)] transition-colors";
+                const inner = (
+                  <>
+                    {item.icon && (
+                      <span className="mt-0.5 w-8 h-8 rounded-lg bg-[rgba(212,175,55,0.08)] flex items-center justify-center shrink-0">
+                        {item.icon}
+                      </span>
                     )}
-                  </div>
-                </a>
-              ))}
+                    <div>
+                      <div className="text-sm font-medium text-[var(--ds-fg)]">{item.label}</div>
+                      {item.description && (
+                        <div className="text-xs text-[var(--ds-fg-muted)] mt-0.5">{item.description}</div>
+                      )}
+                    </div>
+                  </>
+                );
+                return item.internal ? (
+                  <Link key={item.href} to={item.href} onClick={() => setOpen(false)} className={itemClass}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <a key={item.href} href={item.href} onClick={() => setOpen(false)} className={itemClass}>
+                    {inner}
+                  </a>
+                );
+              })}
             </div>
           </motion.div>
         )}
@@ -127,6 +136,16 @@ const Header = () => {
             ]}
           />
 
+          <DropdownMenu
+            label="Soluções"
+            icon={<Users className="w-3.5 h-3.5 text-[var(--ds-cyan-dim)]" />}
+            items={[
+              { label: "Para Corretores",   href: "/para-corretores",   internal: true, description: "Trabalha sozinho e precisa de velocidade",    icon: <UserCheck className="w-4 h-4 text-[var(--ds-gold-light)]" /> },
+              { label: "Para Imobiliárias", href: "/para-imobiliarias", internal: true, description: "Escala, padronização e controle de marca",     icon: <Building2 className="w-4 h-4 text-[#60C8FF]" /> },
+              { label: "Para Equipes",      href: "/para-equipes",      internal: true, description: "Times alinhados, sem retrabalho",              icon: <Users     className="w-4 h-4 text-[#6EE7B7]" /> },
+            ]}
+          />
+
           <a href="#planos" className="flex items-center gap-1.5 text-sm font-medium text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)] transition-colors">
             <CreditCard className="w-3.5 h-3.5" />
             Planos
@@ -178,6 +197,12 @@ const Header = () => {
                   <a href="#criativos" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Vídeos Imobiliários</a>
                   <a href="#criativos" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Mobiliar Ambientes</a>
                   <a href="#criativos" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Demarcar Terrenos</a>
+                </div>
+                <div className="py-2">
+                  <div className="text-xs font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wider mb-2">Soluções</div>
+                  <Link to="/para-corretores"   onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Para Corretores</Link>
+                  <Link to="/para-imobiliarias" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Para Imobiliárias</Link>
+                  <Link to="/para-equipes"      onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Para Equipes</Link>
                 </div>
                 <a href="#planos"   onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-[var(--ds-fg)]">Planos</a>
                 <a href="#contatos" onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-[var(--ds-fg)]">Contatos</a>

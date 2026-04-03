@@ -40,6 +40,9 @@ import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
 import AnalyticsDashboardPage from "./pages/AnalyticsDashboardPage";
 import AttributionPage from "./pages/AttributionPage";
+import ParaCorretoresPage from "./pages/ParaCorretoresPage";
+import ParaImobiliariasPage from "./pages/ParaImobiliariasPage";
+import ParaEquipesPage from "./pages/ParaEquipesPage";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +89,9 @@ const App = () => (
               <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
               <Route path="/dashboard/attribution" element={<ProtectedRoute><AttributionPage /></ProtectedRoute>} />
 
+              <Route path="/para-corretores"  element={<ParaCorretoresPage />} />
+              <Route path="/para-imobiliarias" element={<ParaImobiliariasPage />} />
+              <Route path="/para-equipes"      element={<ParaEquipesPage />} />
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
