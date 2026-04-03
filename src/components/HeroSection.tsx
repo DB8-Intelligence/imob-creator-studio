@@ -1,117 +1,122 @@
-import { ArrowRight, Play, Video, Sofa, MapPin, Sparkles, Image, PenTool } from "lucide-react";
+import { ArrowRight, Play, Video, Sofa, MapPin, Sparkles, Image, PenTool, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FloatMotion, StaggerChildren, fadeUpVariants } from "./public/Animations";
 
 const services = [
-  { icon: Image, label: "Criativos com IA", color: "from-amber-400 to-orange-500" },
-  { icon: Video, label: "V\u00eddeos Cinem\u00e1ticos", color: "from-blue-400 to-indigo-500" },
-  { icon: Sofa, label: "Mobiliar Ambientes", color: "from-emerald-400 to-teal-500" },
-  { icon: MapPin, label: "Demarcar Terrenos", color: "from-rose-400 to-pink-500" },
-  { icon: PenTool, label: "Render de Esbo\u00e7os", color: "from-violet-400 to-purple-500" },
-  { icon: Sparkles, label: "Reformar Im\u00f3veis", color: "from-cyan-400 to-blue-500" },
+  { icon: Image,    label: "Criativos com IA",      color: "bg-[rgba(212,175,55,0.12)]",   textColor: "text-[var(--ds-gold-light)]" },
+  { icon: Video,    label: "Vídeos Cinemáticos",    color: "bg-[rgba(0,178,255,0.1)]",     textColor: "text-[#60C8FF]" },
+  { icon: Sofa,     label: "Mobiliar Ambientes",    color: "bg-[rgba(52,211,153,0.1)]",    textColor: "text-[#6EE7B7]" },
+  { icon: MapPin,   label: "Demarcar Terrenos",     color: "bg-[rgba(251,113,133,0.1)]",   textColor: "text-[#FCA5A5]" },
+  { icon: PenTool,  label: "Render de Esboços",     color: "bg-[rgba(167,139,250,0.1)]",   textColor: "text-[#C4B5FD]" },
+  { icon: Sparkles, label: "Reformar Imóveis",      color: "bg-[rgba(0,242,255,0.1)]",     textColor: "text-[var(--ds-cyan)]" },
 ];
 
 const stats = [
-  { value: "< 5 min", label: "para gerar criativo e v\u00eddeo" },
-  { value: "8 servi\u00e7os", label: "de IA imobili\u00e1ria integrados" },
+  { value: "< 5 min", label: "para gerar criativo e vídeo" },
+  { value: "8 serviços", label: "de IA imobiliária integrados" },
   { value: "100% IA", label: "Gemini + Veo 3.1" },
   { value: "4 planos", label: "do starter ao premium" },
 ];
 
+const containerVariants = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+};
+
 const HeroSection = () => {
   return (
-    <section id="home" className="relative min-h-screen pt-20 overflow-hidden bg-[#07080c]">
-      {/* Animated gradient background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0b14] via-[#07080c] to-[#0d0e18]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-amber-500/8 via-amber-500/3 to-transparent rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 left-0 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
-        <div className="absolute top-1/3 right-0 w-[300px] h-[300px] bg-emerald-500/5 rounded-full blur-[100px]" />
-      </div>
+    <section id="home" className="relative min-h-screen pt-24 overflow-hidden bg-hero bg-ds">
+      {/* grid */}
+      <div className="absolute inset-0 bg-grid opacity-100 pointer-events-none" />
 
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-        }}
-      />
+      {/* glows */}
+      <FloatMotion duration={8} className="absolute top-[-120px] left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none">
+        <div className="w-full h-full rounded-full bg-[rgba(212,175,55,0.07)] blur-[100px]" />
+      </FloatMotion>
+      <div className="absolute bottom-1/4 -left-20 w-[350px] h-[350px] bg-[rgba(0,242,255,0.04)] rounded-full blur-[90px] pointer-events-none" />
 
-      <div className="relative container mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative container mx-auto px-6 flex flex-col items-center justify-center min-h-screen text-center pb-24"
+      >
         {/* Badge */}
-        <div className="opacity-0 animate-fade-up mb-6">
-          <span className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm font-medium backdrop-blur-sm">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-              <span className="text-emerald-400 font-semibold">Novo</span>
-            </span>
-            Plataforma completa de IA para o mercado imobili\u00e1rio
+        <motion.div variants={fadeUpVariants} className="mb-7">
+          <span className="badge-pill badge-gold">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse shrink-0" />
+            <span className="text-emerald-400 font-semibold">Novo</span>
+            Plataforma completa de IA para o mercado imobiliário
           </span>
-        </div>
+        </motion.div>
 
-        {/* Main headline */}
-        <h1 className="opacity-0 animate-fade-up animation-delay-100 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white max-w-5xl leading-[1.1] mb-6 tracking-tight">
-          Transforme im\u00f3veis em{" "}
-          <span className="bg-gradient-to-r from-amber-300 via-amber-400 to-orange-400 bg-clip-text text-transparent">
-            conte\u00fado que vende
-          </span>
-          {" "}com IA
-        </h1>
+        {/* Headline */}
+        <motion.h1 variants={fadeUpVariants} className="ds-h1 max-w-5xl mb-6">
+          Transforme imóveis em{" "}
+          <span className="text-gold">conteúdo que vende</span>{" "}com IA
+        </motion.h1>
 
         {/* Subtitle */}
-        <p className="opacity-0 animate-fade-up animation-delay-200 text-lg sm:text-xl text-white/50 max-w-3xl mb-8 leading-relaxed">
-          Gere v\u00eddeos cinem\u00e1ticos, mobile ambientes, crie artes profissionais, demarque terrenos e muito mais \u2014 tudo em uma \u00fanica plataforma com Gemini e Veo 3.1.
-        </p>
+        <motion.p variants={fadeUpVariants} className="ds-body text-lg sm:text-xl max-w-3xl mb-10">
+          Gere vídeos cinemáticos, mobilie ambientes, crie artes profissionais, demarque terrenos e muito mais —
+          tudo em uma única plataforma com Gemini e Veo 3.1.
+        </motion.p>
 
-        {/* CTA Buttons */}
-        <div className="opacity-0 animate-fade-up animation-delay-300 flex flex-col sm:flex-row items-center gap-4 mb-14">
-          <Link
-            to="/auth"
-            className="group relative inline-flex items-center gap-2.5 bg-gradient-to-r from-amber-400 to-amber-500 text-black font-semibold text-base px-8 py-4 rounded-2xl shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-[1.02] transition-all duration-300"
-          >
-            Comec\u0327ar agora
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+        {/* CTAs */}
+        <motion.div variants={fadeUpVariants} className="flex flex-col sm:flex-row items-center gap-4 mb-14">
+          <Link to="/auth" className="btn-primary">
+            Começar agora
+            <ArrowRight className="w-4.5 h-4.5 transition-transform group-hover:translate-x-1" />
           </Link>
-          <a
-            href="#como-funciona"
-            className="group inline-flex items-center gap-2.5 text-white/70 hover:text-white font-medium text-base px-8 py-4 rounded-2xl border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all duration-300"
-          >
-            <Play className="w-5 h-5" />
-            Ver demonstra\u00e7\u00e3o
+          <a href="#como-funciona" className="btn-secondary flex items-center gap-2.5">
+            <Play className="w-4 h-4" />
+            Ver demonstração
           </a>
-        </div>
+        </motion.div>
 
         {/* Service pills */}
-        <div className="opacity-0 animate-fade-up animation-delay-400 flex flex-wrap items-center justify-center gap-3 mb-16">
+        <motion.div variants={fadeUpVariants} className="flex flex-wrap items-center justify-center gap-2.5 mb-16">
           {services.map((s) => (
-            <div
+            <motion.div
               key={s.label}
-              className="group flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] transition-all duration-300 cursor-default"
+              whileHover={{ y: -2, scale: 1.03 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-2.5 px-4 py-2 rounded-full glass cursor-default"
             >
-              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${s.color} flex items-center justify-center shadow-sm`}>
-                <s.icon className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-sm text-white/60 group-hover:text-white/80 font-medium transition-colors">{s.label}</span>
-            </div>
+              <span className={`w-7 h-7 rounded-lg ${s.color} flex items-center justify-center shrink-0`}>
+                <s.icon className={`w-3.5 h-3.5 ${s.textColor}`} />
+              </span>
+              <span className="text-sm text-[var(--ds-fg-muted)] font-medium">{s.label}</span>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="opacity-0 animate-fade-up animation-delay-500 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full max-w-4xl">
+        <StaggerChildren className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-4xl">
           {stats.map((stat) => (
-            <div
+            <motion.div
               key={stat.label}
-              className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 backdrop-blur-sm hover:bg-white/[0.05] transition-colors"
+              variants={fadeUpVariants}
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.2 }}
+              className="glass glass-hover rounded-2xl p-5 flex flex-col gap-1"
             >
-              <p className="text-2xl sm:text-3xl font-bold text-white mb-1">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-white/40">{stat.label}</p>
-            </div>
+              <p className="text-2xl sm:text-3xl font-bold text-[var(--ds-fg)] font-display">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-[var(--ds-fg-muted)]">{stat.label}</p>
+            </motion.div>
           ))}
-        </div>
-      </div>
+        </StaggerChildren>
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        {/* trust micro-line */}
+        <motion.div variants={fadeUpVariants} className="mt-10 flex items-center gap-2 text-[var(--ds-fg-subtle)] text-xs">
+          <Zap size={13} className="text-[var(--ds-gold-dim)]" />
+          Sem cartão de crédito · Cancele a qualquer momento · Suporte em português
+        </motion.div>
+      </motion.div>
+
+      {/* bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[var(--ds-bg)] to-transparent pointer-events-none" />
     </section>
   );
 };

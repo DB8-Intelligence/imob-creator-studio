@@ -2,61 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ImobCreator Visual - Design System
-   A sophisticated real estate visual creation platform
-   Colors: Deep slate, warm amber, clean whites
-*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap');
-
+/* ─── App UI tokens (Shadcn/Radix) ──────────────────────────────────────── */
 @layer base {
   :root {
-    /* Core palette - Clean white & golden yellow */
     --background: 0 0% 100%;
     --foreground: 220 13% 18%;
-
     --card: 0 0% 100%;
     --card-foreground: 220 13% 18%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 220 13% 18%;
-
-    /* Deep zinc primary */
     --primary: 240 6% 10%;
     --primary-foreground: 0 0% 100%;
-
-    /* Golden yellow accent as secondary */
     --secondary: 48 96% 53%;
     --secondary-foreground: 240 6% 10%;
-
     --muted: 220 14% 96%;
     --muted-foreground: 220 9% 46%;
-
-    /* Golden yellow accent */
     --accent: 48 96% 53%;
     --accent-foreground: 240 6% 10%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 48 96% 53%;
-
     --radius: 0.75rem;
-
-    /* Custom tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(240 6% 10%) 0%, hsl(240 6% 15%) 50%, hsl(220 13% 18%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(48 96% 53%) 0%, hsl(45 93% 47%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 14% 98%) 100%);
-    --shadow-soft: 0 4px 20px -4px hsl(240 6% 10% / 0.08);
-    --shadow-elevated: 0 20px 60px -15px hsl(240 6% 10% / 0.15);
-    --shadow-glow: 0 0 40px hsl(48 96% 53% / 0.3);
-
-    /* Typography */
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 220 13% 18%;
     --sidebar-primary: 240 6% 10%;
@@ -70,32 +40,23 @@
   .dark {
     --background: 240 6% 7%;
     --foreground: 0 0% 98%;
-
     --card: 240 6% 10%;
     --card-foreground: 0 0% 98%;
-
     --popover: 240 6% 10%;
     --popover-foreground: 0 0% 98%;
-
     --primary: 48 96% 53%;
     --primary-foreground: 240 6% 10%;
-
     --secondary: 240 5% 17%;
     --secondary-foreground: 0 0% 98%;
-
     --muted: 240 5% 17%;
     --muted-foreground: 220 9% 65%;
-
     --accent: 48 96% 53%;
     --accent-foreground: 240 6% 10%;
-
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-
     --border: 240 5% 17%;
     --input: 240 5% 17%;
     --ring: 48 96% 53%;
-
     --sidebar-background: 240 6% 10%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 48 96% 53%;
@@ -108,116 +69,299 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-body);
+    font-family: 'Inter', sans-serif;
   }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; }
+}
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-  }
+/* ─── Public marketing design system ────────────────────────────────────── */
+
+/* Design tokens as CSS custom properties */
+:root {
+  --ds-bg:         #05080B;
+  --ds-surface:    #0B1420;
+  --ds-surface-2:  #0F1E2E;
+  --ds-ocean:      #0B1F2A;
+  --ds-ocean-2:    #123C4A;
+  --ds-gold:       #D4AF37;
+  --ds-gold-light: #F2C94C;
+  --ds-gold-dim:   #A07A1A;
+  --ds-cyan:       #00F2FF;
+  --ds-cyan-dim:   #00B8C4;
+  --ds-fg:         #F5F7FA;
+  --ds-fg-muted:   #A0AEC0;
+  --ds-fg-subtle:  #4A5568;
+  --ds-border:     rgba(255,255,255,0.07);
+  --ds-border-2:   rgba(255,255,255,0.12);
 }
 
 @layer components {
+
+  /* ── Typography ─────────────────────────────────────────────────────── */
+  .ds-h1 {
+    font-family: 'Playfair Display', serif;
+    @apply text-5xl sm:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight;
+    color: var(--ds-fg);
+  }
+  .ds-h2 {
+    font-family: 'Playfair Display', serif;
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight;
+    color: var(--ds-fg);
+  }
+  .ds-h3 {
+    font-family: 'Inter', sans-serif;
+    @apply text-xl sm:text-2xl font-semibold leading-snug;
+    color: var(--ds-fg);
+  }
+  .ds-body {
+    font-family: 'Inter', sans-serif;
+    @apply text-base leading-relaxed;
+    color: var(--ds-fg-muted);
+  }
+  .ds-mono {
+    font-family: 'JetBrains Mono', monospace;
+    @apply text-sm font-medium tracking-tight;
+  }
+
+  /* ── Gradient text ──────────────────────────────────────────────────── */
+  .text-gold {
+    background: linear-gradient(135deg, var(--ds-gold) 0%, var(--ds-gold-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-cyan-grad {
+    background: linear-gradient(135deg, var(--ds-cyan) 0%, #60E8FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-accent);
+    background-image: linear-gradient(135deg, var(--ds-gold) 0%, var(--ds-gold-light) 100%);
   }
+
+  /* ── Backgrounds ────────────────────────────────────────────────────── */
+  .bg-ds { background-color: var(--ds-bg); }
+  .bg-ds-surface { background-color: var(--ds-surface); }
 
   .bg-hero {
-    background: var(--gradient-hero);
+    background: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 50%, rgba(0,242,255,0.04) 0%, transparent 50%),
+                var(--ds-bg);
   }
 
-  .bg-accent-gradient {
-    background: var(--gradient-accent);
+  .bg-section-dark {
+    background: linear-gradient(180deg, var(--ds-bg) 0%, var(--ds-surface) 100%);
+  }
+  .bg-section-ocean {
+    background: linear-gradient(180deg, var(--ds-surface) 0%, var(--ds-ocean) 50%, var(--ds-surface) 100%);
+  }
+  .bg-section-light {
+    background: linear-gradient(180deg, rgba(11,31,42,0.6) 0%, rgba(18,60,74,0.4) 100%);
   }
 
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
+  /* ── Grid pattern ───────────────────────────────────────────────────── */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .bg-grid-sm {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  .bg-dot-pattern {
+    background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
+  /* ── Glows ──────────────────────────────────────────────────────────── */
+  .glow-gold {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .glow-cyan {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,242,255,0.10) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  .glow-ocean {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(11,31,42,0.8) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
   }
 
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
+  /* ── Glass card ─────────────────────────────────────────────────────── */
+  .glass {
+    background: rgba(255,255,255,0.03);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--ds-border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
   }
+  .glass-hover {
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+  .glass-hover:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--ds-border-2);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .glass-gold {
+    background: rgba(212,175,55,0.04);
+    border: 1px solid rgba(212,175,55,0.15);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  .glass-gold:hover {
+    background: rgba(212,175,55,0.07);
+    border-color: rgba(212,175,55,0.25);
+  }
+
+  /* ── Buttons ────────────────────────────────────────────────────────── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: linear-gradient(135deg, var(--ds-gold) 0%, var(--ds-gold-light) 100%);
+    color: #000;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    padding: 0.875rem 2rem;
+    border-radius: 0.875rem;
+    box-shadow: 0 4px 24px rgba(212,175,55,0.3);
+    transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 8px 36px rgba(212,175,55,0.45);
+    filter: brightness(1.05);
+  }
+  .btn-primary:active { transform: translateY(0) scale(0.99); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    background: transparent;
+    color: var(--ds-fg);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.875rem 2rem;
+    border-radius: 0.875rem;
+    border: 1px solid var(--ds-border-2);
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    color: var(--ds-fg-muted);
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: 0.875rem;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--ds-fg); }
+
+  /* ── Badges / Pills ─────────────────────────────────────────────────── */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--ds-border-2);
+    background: rgba(255,255,255,0.04);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ds-fg-muted);
+    white-space: nowrap;
+  }
+  .badge-gold {
+    border-color: rgba(212,175,55,0.3);
+    background: rgba(212,175,55,0.08);
+    color: var(--ds-gold-light);
+  }
+  .badge-cyan {
+    border-color: rgba(0,242,255,0.2);
+    background: rgba(0,242,255,0.06);
+    color: var(--ds-cyan);
+  }
+  .badge-green {
+    border-color: rgba(52,211,153,0.3);
+    background: rgba(52,211,153,0.08);
+    color: #6EE7B7;
+  }
+
+  /* ── Section wrapper ────────────────────────────────────────────────── */
+  .section-py { @apply py-24 lg:py-32; }
+  .section-px { @apply px-6 lg:px-8; }
+  .section-container { @apply container mx-auto max-w-7xl; }
+
+  /* ── Divider ────────────────────────────────────────────────────────── */
+  .ds-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--ds-border-2) 30%, var(--ds-border-2) 70%, transparent 100%);
+  }
+
+  /* ── Analytics bar fills (keeps app-level refs working) ─────────────── */
+  .credit-bar-fill  { width: var(--credit-pct, 0%); }
+  .feature-bar-fill { width: var(--bar-pct,    0%); }
+  .attr-bar-fill    { width: var(--attr-pct,   0%); }
 }
 
-@layer components {
-  /* Analytics bar fills — width driven by --bar-pct / --attr-pct CSS custom properties
-     set imperatively via useRef to avoid inline style lint warnings */
-  .credit-bar-fill { width: var(--credit-pct, 0%); }
-  .feature-bar-fill { width: var(--bar-pct, 0%); }
-  .attr-bar-fill { width: var(--attr-pct, 0%); }
-}
-
+/* ─── Utility animations ─────────────────────────────────────────────────── */
 @layer utilities {
-  .animate-fade-up {
-    animation: fadeUp 0.8s ease-out forwards;
-  }
+  .animate-fade-up   { animation: fade-up  0.8s ease-out forwards; }
+  .animate-fade-in   { animation: fade-in  0.6s ease-out forwards; }
+  .animate-scale-in  { animation: scale-in 0.5s ease-out forwards; }
+  .animation-delay-100 { animation-delay: 100ms; }
+  .animation-delay-200 { animation-delay: 200ms; }
+  .animation-delay-300 { animation-delay: 300ms; }
+  .animation-delay-400 { animation-delay: 400ms; }
+  .animation-delay-500 { animation-delay: 500ms; }
+  .animation-delay-600 { animation-delay: 600ms; }
+  .animation-delay-700 { animation-delay: 700ms; }
 
-  .animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
-
-  .animate-scale-in {
-    animation: scaleIn 0.5s ease-out forwards;
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
-
-  .animation-delay-100 {
-    animation-delay: 100ms;
-  }
-
-  .animation-delay-200 {
-    animation-delay: 200ms;
-  }
-
-  .animation-delay-300 {
-    animation-delay: 300ms;
-  }
-
-  .animation-delay-400 {
-    animation-delay: 400ms;
-  }
-
-  .animation-delay-500 {
-    animation-delay: 500ms;
-  }
-
-  @keyframes fadeUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes scaleIn {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to   { opacity: 1; transform: scale(1); }
   }
 }

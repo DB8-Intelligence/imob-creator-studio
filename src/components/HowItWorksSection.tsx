@@ -1,4 +1,8 @@
 import { Upload, Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { SectionHeader } from "./public/SectionHeader";
+import { StaggerChildren, fadeUpVariants } from "./public/Animations";
+import { ProofBadge } from "./public/ProofBadge";
 
 const steps = [
   {
@@ -6,72 +10,78 @@ const steps = [
     icon: Upload,
     title: "Envie a imagem ou a ideia",
     description: "Suba fotos do imóvel, esboço do terreno, ou comece com um conceito simples. A plataforma aceita qualquer ponto de partida.",
-    color: "from-amber-400 to-orange-500",
+    iconBg: "bg-[rgba(212,175,55,0.12)]",
+    iconColor: "text-[var(--ds-gold-light)]",
+    numBg: "from-[var(--ds-gold)] to-[var(--ds-gold-light)]",
   },
   {
     number: "02",
     icon: Sparkles,
     title: "A IA gera o resultado",
     description: "Escolha o serviço — vídeo, staging, render, demarcação — e a IA entrega o resultado profissional em segundos.",
-    color: "from-blue-400 to-indigo-500",
+    iconBg: "bg-[rgba(0,242,255,0.1)]",
+    iconColor: "text-[var(--ds-cyan)]",
+    numBg: "from-[#0096CC] to-[var(--ds-cyan)]",
   },
   {
     number: "03",
     icon: CheckCircle2,
     title: "Baixe, publique ou refine",
     description: "Faça download, compare antes/depois, organize na biblioteca e publique direto nas redes sociais.",
-    color: "from-emerald-400 to-teal-500",
+    iconBg: "bg-[rgba(52,211,153,0.1)]",
+    iconColor: "text-[#6EE7B7]",
+    numBg: "from-[#059669] to-[#34D399]",
   },
 ];
 
 const HowItWorksSection = () => {
   return (
-    <section id="como-funciona" className="py-24 bg-muted/30 relative overflow-hidden">
-      <div className="container mx-auto px-6">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-semibold mb-5">
-            Como funciona
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-6 leading-tight">
-            Do upload ao resultado em{" "}
-            <span className="text-gradient">três passos</span>
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            Simples como deve ser. Envie, escolha o serviço e pronto.
-          </p>
-        </div>
+    <section id="como-funciona" className="section-py section-px bg-section-ocean relative overflow-hidden">
+      <div className="section-container">
+        <SectionHeader
+          badge={<ProofBadge variant="default">Como funciona</ProofBadge>}
+          title={<>Do upload ao resultado em{" "}<span className="text-gold">três passos</span></>}
+          subtitle="Simples como deve ser. Envie, escolha o serviço e pronto."
+          className="mb-16"
+        />
 
         <div className="relative max-w-5xl mx-auto">
-          {/* Connecting line */}
-          <div className="hidden lg:block absolute top-24 left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
+          {/* connecting line desktop */}
+          <div className="hidden lg:block absolute top-[3.5rem] left-[18%] right-[18%] h-px bg-gradient-to-r from-transparent via-[var(--ds-border-2)] to-transparent" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <StaggerChildren className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {steps.map((step, index) => (
-              <div key={step.number} className="relative text-center">
-                <div className="bg-card rounded-2xl p-8 border border-border/40 hover:border-border/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full">
-                  {/* Number badge */}
-                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} shadow-lg mb-6`}>
-                    <span className="text-xl font-bold text-white">{step.number}</span>
+              <div key={step.number} className="relative">
+                <motion.div
+                  variants={fadeUpVariants}
+                  whileHover={{ y: -4, transition: { duration: 0.22 } }}
+                  className="glass glass-hover rounded-2xl p-8 flex flex-col items-center text-center gap-5 h-full"
+                >
+                  {/* number badge */}
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.numBg} flex items-center justify-center shadow-lg shrink-0`}>
+                    <span className="text-xl font-bold text-black">{step.number}</span>
                   </div>
 
-                  {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-muted/50 flex items-center justify-center mb-5 mx-auto">
-                    <step.icon className="w-6 h-6 text-accent" />
+                  {/* icon */}
+                  <div className={`w-11 h-11 rounded-xl ${step.iconBg} flex items-center justify-center`}>
+                    <step.icon className={`w-5 h-5 ${step.iconColor}`} />
                   </div>
 
-                  <h3 className="font-display text-xl font-semibold text-foreground mb-3">{step.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{step.description}</p>
-                </div>
+                  <div>
+                    <h3 className="text-[var(--ds-fg)] font-semibold text-lg mb-2">{step.title}</h3>
+                    <p className="ds-body text-sm">{step.description}</p>
+                  </div>
+                </motion.div>
 
-                {/* Arrow between cards */}
+                {/* arrow between cards */}
                 {index < steps.length - 1 && (
-                  <div className="hidden lg:flex absolute top-24 -right-4 w-8 h-8 items-center justify-center text-accent/30 z-10">
+                  <div className="hidden lg:flex absolute top-[3.25rem] -right-4 w-8 h-8 items-center justify-center text-[var(--ds-border-2)] z-10">
                     <ArrowRight className="w-5 h-5" />
                   </div>
                 )}
               </div>
             ))}
-          </div>
+          </StaggerChildren>
         </div>
       </div>
     </section>
