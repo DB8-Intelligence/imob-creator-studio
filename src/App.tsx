@@ -43,6 +43,9 @@ import AttributionPage from "./pages/AttributionPage";
 import ParaCorretoresPage from "./pages/ParaCorretoresPage";
 import ParaImobiliariasPage from "./pages/ParaImobiliariasPage";
 import ParaEquipesPage from "./pages/ParaEquipesPage";
+import CriarPostsImoveisPage from "./pages/lp/CriarPostsImoveisPage";
+import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
+import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
 
 const queryClient = new QueryClient();
 
@@ -89,9 +92,13 @@ const App = () => (
               <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
               <Route path="/dashboard/attribution" element={<ProtectedRoute><AttributionPage /></ProtectedRoute>} />
 
-              <Route path="/para-corretores"  element={<ParaCorretoresPage />} />
-              <Route path="/para-imobiliarias" element={<ParaImobiliariasPage />} />
-              <Route path="/para-equipes"      element={<ParaEquipesPage />} />
+              <Route path="/para-corretores"       element={<ParaCorretoresPage />} />
+              <Route path="/para-imobiliarias"    element={<ParaImobiliariasPage />} />
+              <Route path="/para-equipes"         element={<ParaEquipesPage />} />
+              {/* Campaign LPs — paid traffic, no nav distractions */}
+              <Route path="/lp/criar-posts-imoveis"   element={<CriarPostsImoveisPage />} />
+              <Route path="/lp/video-imobiliario"      element={<VideoImobiliarioPage />} />
+              <Route path="/lp/automacao-imobiliaria"  element={<AutomacaoImobiliariaPage />} />
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
