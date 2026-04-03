@@ -38,6 +38,8 @@ import EmptyLotPage from "./pages/EmptyLotPage";
 import LandMarkingPage from "./pages/LandMarkingPage";
 import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
+import AnalyticsDashboardPage from "./pages/AnalyticsDashboardPage";
+import AttributionPage from "./pages/AttributionPage";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,8 @@ const App = () => (
               <Route path="/empty-lot" element={<ProtectedRoute><EmptyLotPage /></ProtectedRoute>} />
               <Route path="/land-marking" element={<ProtectedRoute><LandMarkingPage /></ProtectedRoute>} />
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
+              <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
+              <Route path="/dashboard/attribution" element={<ProtectedRoute><AttributionPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
