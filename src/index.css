@@ -149,6 +149,14 @@
   }
 }
 
+@layer components {
+  /* Analytics bar fills — width driven by --bar-pct / --attr-pct CSS custom properties
+     set imperatively via useRef to avoid inline style lint warnings */
+  .credit-bar-fill { width: var(--credit-pct, 0%); }
+  .feature-bar-fill { width: var(--bar-pct, 0%); }
+  .attr-bar-fill { width: var(--attr-pct, 0%); }
+}
+
 @layer utilities {
   .animate-fade-up {
     animation: fadeUp 0.8s ease-out forwards;

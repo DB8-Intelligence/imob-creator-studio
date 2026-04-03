@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,12 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Capture UTM params on auth page visit
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
 
   // Redirect if already logged in
   useEffect(() => {

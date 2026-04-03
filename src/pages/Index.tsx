@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
@@ -12,6 +14,11 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

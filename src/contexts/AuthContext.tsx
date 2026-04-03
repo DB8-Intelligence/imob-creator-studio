@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import { saveAttributionRecord, syncLastTouchToDb } from "@/services/analytics/attributionService";
+import { trackEvent } from "@/services/analytics/eventTracker";
 
 type Profile = Tables<"profiles">;
 
@@ -95,11 +97,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
 
+    // Fire-and-forget: record first-touch UTM attribution for this new user
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        saveAttributionRecord(data.user.id);
+        trackEvent(data.user.id, "signup");
+      }
+    });
+
     return { error: null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -107,6 +117,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       return { error };
     }
+
+    // Fire-and-forget: sync last-touch UTM if user returned via a campaign
+    if (data.user) syncLastTouchToDb(data.user.id);
 
     return { error: null };
   };
