@@ -28,5 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Build outputs — never commit
+.next/
+.vercel/
+
 # Supabase CLI temp files
 supabase/.temp/

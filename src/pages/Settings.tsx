@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import AppLayout from "@/components/app/AppLayout";
 import { Link } from "react-router-dom";
+import WorkspaceSettingsCard from "@/components/workspace/WorkspaceSettingsCard";
+import WorkspaceMembersCard from "@/components/workspace/WorkspaceMembersCard";
+import BackendEnforcementCard from "@/components/workspace/BackendEnforcementCard";
 import {
   Palette,
   Type,
@@ -108,10 +111,14 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="brand">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="brand">
               <Palette className="w-4 h-4 mr-2" />
               Marca
+            </TabsTrigger>
+            <TabsTrigger value="workspace">
+              <Shield className="w-4 h-4 mr-2" />
+              Workspace
             </TabsTrigger>
             <TabsTrigger value="account">
               <User className="w-4 h-4 mr-2" />
@@ -486,7 +493,7 @@ const Settings = () => {
                 </div>
                 <p className="text-xs pt-1">
                   Consulte a{" "}
-                  <Link to="/termos" className="text-accent underline hover:text-accent/80" onClick={() => {}}>
+                  <Link to="/termos" className="text-accent underline hover:text-accent/80">
                     Política de Reembolso completa
                   </Link>{" "}
                   para mais detalhes.

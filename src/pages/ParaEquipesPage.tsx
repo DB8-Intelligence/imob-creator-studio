@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import {
   Users, Zap, RefreshCw, LayoutDashboard, GitMerge, CheckCircle2,
   Sparkles, ArrowRight, Upload, ShieldCheck, Target, TrendingUp,
 } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { IcpPageShell } from "@/components/public/IcpPageShell";
@@ -154,7 +156,13 @@ const faqs = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const ParaEquipesPage = () => (
+const ParaEquipesPage = () => {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
+  return (
   <IcpPageShell>
     {/* ── Hero ── */}
     <IcpHero
@@ -337,6 +345,7 @@ const ParaEquipesPage = () => (
       }
     />
   </IcpPageShell>
-);
+  );
+};
 
 export default ParaEquipesPage;

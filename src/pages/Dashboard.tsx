@@ -5,6 +5,7 @@ import ActionCardsSection from "@/components/dashboard/ActionCardsSection";
 import TenantWorkspaceCard from "@/components/app/TenantWorkspaceCard";
 import RecentOperationsSection from "@/components/dashboard/RecentOperationsSection";
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
+import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -44,6 +45,7 @@ const Dashboard = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
+        <WelcomeBanner />
         <CreditHeroCard credits={credits} firstName={firstName} />
         <ActionCardsSection />
         <div className="grid md:grid-cols-4 gap-4">

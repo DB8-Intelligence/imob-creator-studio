@@ -8,6 +8,10 @@
  * automatically by a DB trigger on video_jobs.status, so this client is
  * primarily used for events that originate purely on the frontend
  * (e.g. creative_ready, new_user).
+ *
+ * Generation pipeline events (generation_completed, generation_failed) are
+ * dispatched automatically by the generation-callback edge function —
+ * use dispatchN8nEvent here only for manual/frontend-originated events.
  */
 import { supabase } from "@/integrations/supabase/client";
 
@@ -16,7 +20,9 @@ export type N8nEventType =
   | "video_failed"
   | "creative_ready"
   | "new_user"
-  | "video_addon_activated";
+  | "video_addon_activated"
+  | "generation_completed"
+  | "generation_failed";
 
 export async function dispatchN8nEvent(
   eventType: N8nEventType,

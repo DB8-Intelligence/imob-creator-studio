@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import AppLayout from "@/components/app/AppLayout";
 import CreativeSpotlight from "@/components/library/CreativeSpotlight";
+import { ShareButton } from "@/components/share/ShareButton";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -299,6 +300,9 @@ const Library = () => {
                             <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Eye className="w-4 h-4" /></Button>
                             <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Edit2 className="w-4 h-4" /></Button>
                             <Button size="icon" variant="secondary" className="w-8 h-8" onClick={() => handleDownloadCreative(item)}><Download className="w-4 h-4" /></Button>
+                            {item.exported_url && (
+                              <ShareButton imageUrl={item.exported_url} caption={item.caption ?? undefined} filename={`${item.name}.jpg`} size="sm" variant="outline" className="w-8 h-8 p-0" />
+                            )}
                           </div>
                         </div>
                         <div className="flex items-start justify-between">
@@ -337,6 +341,7 @@ const Library = () => {
                         <div className="flex items-center gap-1 shrink-0">
                           <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Eye className="w-4 h-4" /></Button>
                           <Button variant="ghost" size="icon" className="w-8 h-8" onClick={() => handleDownloadCreative(item)}><Download className="w-4 h-4" /></Button>
+                          {item.exported_url && <ShareButton imageUrl={item.exported_url} caption={item.caption ?? undefined} filename={`${item.name}.jpg`} size="sm" variant="ghost" />}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="w-8 h-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                             <DropdownMenuContent align="end">

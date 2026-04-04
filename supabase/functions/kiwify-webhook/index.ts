@@ -6,13 +6,36 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// ─── Planos de créditos de imagem ─────────────────────────────────────────────
-function resolveImageCredits(productId: string, productName: string): number {
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_20"))  return 20;
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_50"))  return 50;
-  if (productId === Deno.env.get("KIWIFY_PRODUCT_ID_150")) return 150;
+/**
+ * kiwify-webhook — Ativa créditos e planos após pagamento aprovado pela Kiwify.
+ *
+ * Schema real (spjnymdizezgmzwoskoj):
+ *   - public.users         : id, email, user_plan, credits_remaining, credits_total
+ *   - public.credit_transactions : rastreia transações (via RPC credit_purchase)
+ *   - RPC credit_purchase  : aplica créditos + registra transação (idempotente via order_id)
+ *
+ * Fluxos:
+ *   1. Créditos avulsos de imagem (20 / 50 / 150) → credit_purchase RPC
+ *   2. Planos de vídeo (standard / plus / premium)  → credit_purchase RPC + update user_plan
+ *
+ * Variáveis de ambiente necessárias (Supabase Secrets):
+ *   KIWIFY_WEBHOOK_TOKEN          — token de validação no query string ?token=
+ *   KIWIFY_PRODUCT_ID_20          — (opcional) ID Kiwify do pacote 20 créditos
+ *   KIWIFY_PRODUCT_ID_50          — (opcional) ID Kiwify do pacote 50 créditos
+ *   KIWIFY_PRODUCT_ID_150         — (opcional) ID Kiwify do pacote 150 créditos
+ *   KIWIFY_VIDEO_PRODUCT_ID_STANDARD — (opcional) ID Kiwify do plano vídeo standard
+ *   KIWIFY_VIDEO_PRODUCT_ID_PLUS     — (opcional) ID Kiwify do plano vídeo plus
+ *   KIWIFY_VIDEO_PRODUCT_ID_PREMIUM  — (opcional) ID Kiwify do plano vídeo premium
+ *   (sem esses IDs o fallback é por nome do produto)
+ */
 
-  // Fallback: detecta pelo nome
+// ─── Créditos por pacote de imagem ───────────────────────────────────────────
+function resolveImageCredits(productId: string, productName: string): number {
+  if (productId && productId === Deno.env.get("KIWIFY_PRODUCT_ID_20"))  return 20;
+  if (productId && productId === Deno.env.get("KIWIFY_PRODUCT_ID_50"))  return 50;
+  if (productId && productId === Deno.env.get("KIWIFY_PRODUCT_ID_150")) return 150;
+
+  // Fallback por nome
   const name = productName.toLowerCase();
   if (name.includes("150")) return 150;
   if (name.includes("50"))  return 50;
@@ -21,27 +44,27 @@ function resolveImageCredits(productId: string, productName: string): number {
   return 0;
 }
 
-// ─── Planos de vídeo ──────────────────────────────────────────────────────────
+// ─── Tipo de addon de vídeo ───────────────────────────────────────────────────
 type VideoAddonType = "standard" | "plus" | "premium";
 
 function resolveVideoAddon(productId: string, productName: string): VideoAddonType | null {
-  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_STANDARD")) return "standard";
-  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PLUS"))     return "plus";
-  if (productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PREMIUM"))  return "premium";
+  if (productId && productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_STANDARD")) return "standard";
+  if (productId && productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PLUS"))     return "plus";
+  if (productId && productId === Deno.env.get("KIWIFY_VIDEO_PRODUCT_ID_PREMIUM"))  return "premium";
 
-  // Fallback: detecta pelo nome
+  // Fallback por nome
   const name = productName.toLowerCase();
   if (name.includes("premium")) return "premium";
   if (name.includes("plus"))    return "plus";
-  if (name.includes("standard")) return "standard";
+  if (name.includes("standard") || name.includes("vídeo") || name.includes("video")) return "standard";
 
   return null;
 }
 
 const VIDEO_ADDON_CREDITS: Record<VideoAddonType, number> = {
   standard: 300,
-  plus: 600,
-  premium: 800,
+  plus:     600,
+  premium:  800,
 };
 
 serve(async (req) => {
@@ -50,7 +73,7 @@ serve(async (req) => {
   }
 
   try {
-    // Valida token de segurança Kiwify (?token=SEU_TOKEN na URL do webhook)
+    // ── Valida token (?token=XXX na URL do webhook) ──────────────────────────
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
     const expectedToken = Deno.env.get("KIWIFY_WEBHOOK_TOKEN");
@@ -64,29 +87,30 @@ serve(async (req) => {
     }
 
     const payload = await req.json();
-    console.log("Kiwify webhook payload:", JSON.stringify(payload));
+    console.log("Kiwify webhook received:", JSON.stringify(payload).substring(0, 300));
 
     const orderStatus = payload?.order_status ?? payload?.status;
 
     // Só processa pagamentos confirmados
     if (orderStatus !== "paid" && orderStatus !== "approved") {
-      console.log("Ignorando evento com status:", orderStatus);
-      return new Response(JSON.stringify({ received: true, skipped: true, reason: "status_not_paid" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.log("Skipping non-paid event:", orderStatus);
+      return new Response(
+        JSON.stringify({ received: true, skipped: true, reason: "status_not_paid" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    const orderId    = payload?.order_id ?? payload?.id;
-    const email      = payload?.buyer?.email ?? payload?.customer?.email;
-    const productId  = payload?.product?.id ?? "";
+    const orderId     = payload?.order_id ?? payload?.id ?? "";
+    const email       = payload?.buyer?.email ?? payload?.customer?.email ?? "";
+    const productId   = payload?.product?.id ?? "";
     const productName = payload?.product?.name ?? payload?.plan?.name ?? "";
 
     if (!orderId || !email) {
-      console.error("Payload inválido: faltam order_id ou email", { orderId, email });
-      return new Response(JSON.stringify({ error: "Payload inválido: faltam order_id ou email" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.error("Invalid payload — missing orderId or email", { orderId, email });
+      return new Response(
+        JSON.stringify({ error: "Payload inválido: faltam order_id ou email" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const supabase = createClient(
@@ -94,112 +118,72 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // ── Tenta identificar como plano de vídeo primeiro ────────────────────────
+    // ── Tenta plano de vídeo primeiro ────────────────────────────────────────
     const videoAddonType = resolveVideoAddon(productId, productName);
 
     if (videoAddonType) {
-      console.log("Produto de vídeo identificado:", videoAddonType, "order:", orderId);
-
-      // Busca o user_id pelo email
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("email", email)
-        .single();
-
-      if (userError || !userData) {
-        console.error("Usuário não encontrado para email:", email);
-        return new Response(
-          JSON.stringify({ error: "Usuário não encontrado", email }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const userId = userData.id;
-
-      // Busca workspace do usuário (workspace principal = owner)
-      const { data: wsData } = await supabase
-        .from("workspace_members")
-        .select("workspace_id")
-        .eq("user_id", userId)
-        .eq("role", "owner")
-        .limit(1)
-        .single();
-
-      const workspaceId = wsData?.workspace_id ?? null;
-
-      if (!workspaceId) {
-        console.error("Workspace não encontrado para user:", userId);
-        return new Response(
-          JSON.stringify({ error: "Workspace não encontrado" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const creditsTotal = VIDEO_ADDON_CREDITS[videoAddonType];
-      const expiresAt = new Date();
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-
-      // Determina billing_cycle pelo nome do produto
+      const creditAmount = VIDEO_ADDON_CREDITS[videoAddonType];
       const billingCycle = productName.toLowerCase().includes("anual") ? "yearly" : "monthly";
 
-      // Desativa addons anteriores do workspace
-      await supabase
-        .from("video_plan_addons")
-        .update({ status: "inactive" })
-        .eq("workspace_id", workspaceId)
-        .eq("status", "active");
+      console.log("Video addon identified:", videoAddonType, "credits:", creditAmount, "order:", orderId);
 
-      // Cria novo addon (idempotência via order_id no metadata)
-      const { data: addonData, error: addonError } = await supabase
-        .from("video_plan_addons")
-        .insert({
-          workspace_id: workspaceId,
-          addon_type: videoAddonType,
-          billing_cycle: billingCycle,
-          credits_total: creditsTotal,
-          credits_used: 0,
-          status: "active",
-          expires_at: expiresAt.toISOString(),
-          metadata: {
-            kiwify_order_id: orderId,
-            product_id: productId,
-            product_name: productName,
-            activated_by_webhook: true,
-          },
-        })
-        .select()
-        .single();
+      // Aplica créditos via credit_purchase (idempotente por order_id)
+      const { error: creditError } = await supabase.rpc("credit_purchase", {
+        p_email:       email,
+        p_order_id:    orderId,
+        p_amount:      creditAmount,
+        p_description: `Plano Vídeo ${videoAddonType.charAt(0).toUpperCase() + videoAddonType.slice(1)} — ${productName || orderId}`,
+        p_metadata: {
+          kiwify_order_id: orderId,
+          product_id:      productId,
+          product_name:    productName,
+          addon_type:      videoAddonType,
+          billing_cycle:   billingCycle,
+          type:            "video_plan",
+        },
+      });
 
-      if (addonError) {
-        // Verifica se é duplicata do order_id
-        if (addonError.message?.includes("duplicate") || addonError.code === "23505") {
-          console.log("Addon já ativado para order_id:", orderId);
+      if (creditError) {
+        // Duplicate order_id = já processado (idempotência)
+        if (creditError.code === "23505" || creditError.message?.includes("duplicate") || creditError.message?.includes("already")) {
+          console.log("Video order already processed:", orderId);
           return new Response(
             JSON.stringify({ success: true, skipped: true, reason: "already_processed" }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        console.error("Erro ao ativar addon de vídeo:", addonError);
-        throw new Error(addonError.message);
+        console.error("Error applying video credits:", creditError);
+        throw new Error(creditError.message);
       }
 
-      console.log("Addon de vídeo ativado:", videoAddonType, "workspace:", workspaceId);
+      // Atualiza user_plan para refletir o tier ativo
+      // Valores possíveis: video_standard | video_plus | video_premium
+      const { error: planError } = await supabase
+        .from("users")
+        .update({ user_plan: `video_${videoAddonType}` })
+        .eq("email", email);
+
+      if (planError) {
+        // Não bloqueia: créditos já foram aplicados com sucesso
+        console.error("Warning: credits applied but user_plan update failed:", planError.message);
+      }
+
+      console.log("Video addon activated:", videoAddonType, "credits:", creditAmount, "email:", email);
 
       return new Response(
         JSON.stringify({
-          success: true,
-          type: "video_addon",
-          addon_type: videoAddonType,
-          credits_total: creditsTotal,
-          workspace_id: workspaceId,
-          addon_id: addonData?.id,
+          success:       true,
+          type:          "video_addon",
+          addon_type:    videoAddonType,
+          credits_added: creditAmount,
+          billing_cycle: billingCycle,
+          email,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // ── Plano de créditos de imagem ────────────────────────────────────────────
+    // ── Créditos avulsos de imagem ────────────────────────────────────────────
     const credits = resolveImageCredits(productId, productName);
 
     if (credits === 0) {
@@ -211,25 +195,33 @@ serve(async (req) => {
     }
 
     const { data, error } = await supabase.rpc("credit_purchase", {
-      p_email: email,
-      p_order_id: orderId,
-      p_amount: credits,
+      p_email:       email,
+      p_order_id:    orderId,
+      p_amount:      credits,
       p_description: `Compra: ${productName || credits + " créditos"}`,
       p_metadata: {
         kiwify_order_id: orderId,
-        product_id: productId,
-        product_name: productName,
-        buyer_name: payload?.buyer?.name ?? payload?.customer?.name ?? "",
-        raw_status: orderStatus,
+        product_id:      productId,
+        product_name:    productName,
+        buyer_name:      payload?.buyer?.name ?? payload?.customer?.name ?? "",
+        raw_status:      orderStatus,
+        type:            "image_credits",
       },
     });
 
     if (error) {
-      console.error("Erro ao creditar:", error);
+      if (error.code === "23505" || error.message?.includes("duplicate") || error.message?.includes("already")) {
+        console.log("Image credit order already processed:", orderId);
+        return new Response(
+          JSON.stringify({ success: true, skipped: true, reason: "already_processed" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      console.error("Error crediting image credits:", error);
       throw new Error(error.message);
     }
 
-    console.log("Créditos de imagem creditados:", credits, "para:", email);
+    console.log("Image credits applied:", credits, "to:", email, "order:", orderId);
 
     return new Response(
       JSON.stringify({ success: true, type: "image_credits", credits_added: credits, result: data }),

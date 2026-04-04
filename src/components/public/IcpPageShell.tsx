@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 
 interface IcpPageShellProps {
   children: ReactNode;
@@ -11,6 +12,11 @@ interface IcpPageShellProps {
  * Provides Header, dark ds background, and Footer.
  */
 export function IcpPageShell({ children }: IcpPageShellProps) {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
   return (
     <div className="min-h-screen bg-ds">
       <Header />

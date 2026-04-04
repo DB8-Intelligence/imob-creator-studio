@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import {
   Building2, Users, BarChart3, ShieldCheck, Workflow, Layers, Upload,
   Sparkles, CheckCircle2, ArrowRight, AlertTriangle, Clock, Puzzle,
 } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { IcpPageShell } from "@/components/public/IcpPageShell";
@@ -130,7 +132,13 @@ const faqs = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const ParaImobiliariasPage = () => (
+const ParaImobiliariasPage = () => {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
+  return (
   <IcpPageShell>
     {/* ── Hero ── */}
     <IcpHero
@@ -297,6 +305,7 @@ const ParaImobiliariasPage = () => (
       }
     />
   </IcpPageShell>
-);
+  );
+};
 
 export default ParaImobiliariasPage;

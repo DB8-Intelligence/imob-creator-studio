@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { Clock, Image, Video, Sofa, Sparkles, CheckCircle2, UserCheck, TrendingUp, Smartphone, Upload } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { motion } from "framer-motion";
 import { IcpPageShell } from "@/components/public/IcpPageShell";
 import { IcpHero } from "@/components/public/IcpHero";
@@ -123,7 +125,13 @@ const faqs = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-const ParaCorretoresPage = () => (
+const ParaCorretoresPage = () => {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
+  return (
   <IcpPageShell>
     {/* ── Hero ── */}
     <IcpHero
@@ -274,6 +282,7 @@ const ParaCorretoresPage = () => (
       }
     />
   </IcpPageShell>
-);
+  );
+};
 
 export default ParaCorretoresPage;

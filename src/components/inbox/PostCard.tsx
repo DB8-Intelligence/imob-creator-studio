@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import StatusBadge from "@/components/inbox/StatusBadge";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
 import { ImageIcon, ExternalLink, RotateCcw, Loader2, AlertCircle } from "lucide-react";
+import { ShareButton } from "@/components/share/ShareButton";
 
 interface PostCardProps {
   property: InboxProperty;
@@ -46,7 +47,18 @@ const PostCard = ({ property, isHighlighted, isRetrying, onRetry }: PostCardProp
               <p className="text-xs text-muted-foreground mt-0.5">{createdAt}</p>
             )}
           </div>
-          <StatusBadge status={property.status} />
+          <div className="flex items-center gap-1.5 shrink-0">
+            <StatusBadge status={property.status} />
+            {coverImage && (property.status === "generated" || property.status === "published") && (
+              <ShareButton
+                imageUrl={coverImage}
+                caption={property.description ?? undefined}
+                filename={`${property.title ?? "imagem"}.jpg`}
+                size="sm"
+                variant="ghost"
+              />
+            )}
+          </div>
         </div>
 
         <p className="text-xs text-muted-foreground line-clamp-2">

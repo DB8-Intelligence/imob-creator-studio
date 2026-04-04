@@ -3,10 +3,12 @@
  * Campaign LP — "Automatize sua divulgação imobiliária com IA."
  * Target: Meta Ads / Google Ads — scale-focused brokers and agencies
  */
+import { useEffect } from "react";
 import {
   Workflow, BarChart3, RefreshCw, ShieldCheck, Zap, Clock, Star,
   Upload, Sparkles, CheckCircle2, ArrowRight, GitMerge, Calendar,
 } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LpLayout, LpHero, LpCtaStrip } from "@/components/public/LpLayout";
@@ -143,6 +145,11 @@ const faqs = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AutomacaoImobiliariaPage() {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
   return (
     <LpLayout ctaLabel="Automatizar minha operação">
       {/* ── Hero ── */}

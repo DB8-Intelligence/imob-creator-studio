@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import type { CreateVideoJobInput, CreateVideoJobSegmentsInput, VideoJob, VideoJobSegment, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
@@ -61,7 +62,7 @@ function mapSegment(row: any): VideoJobSegment {
 
 export async function fetchVideoJobs(workspaceId: string): Promise<VideoJob[]> {
   const { data, error } = await supabase
-    .from("video_jobs" as never)
+    .from("video_jobs")
     .select("*")
     .eq("workspace_id", workspaceId)
     .order("created_at", { ascending: false });
@@ -72,7 +73,7 @@ export async function fetchVideoJobs(workspaceId: string): Promise<VideoJob[]> {
 
 export async function fetchActiveVideoAddon(workspaceId: string): Promise<VideoPlanAddon | null> {
   const { data, error } = await supabase
-    .from("video_plan_addons" as never)
+    .from("video_plan_addons")
     .select("*")
     .eq("workspace_id", workspaceId)
     .eq("status", "active")
@@ -94,19 +95,19 @@ export async function fetchVideoModuleOverview(workspaceId: string): Promise<Vid
 }
 
 export async function consumeVideoCredit(workspaceId: string): Promise<VideoPlanAddon> {
-  const { data, error } = await supabase.rpc("consume_video_credit" as never, {
+  const { data, error } = await supabase.rpc("consume_video_credit", {
     target_workspace_id: workspaceId,
-  } as never);
+  });
 
   if (error) throw error;
   return mapAddon(data);
 }
 
 export async function releaseVideoCredit(workspaceId: string, creditAmount?: number): Promise<VideoPlanAddon> {
-  const { data, error } = await supabase.rpc("release_video_credit" as never, {
+  const { data, error } = await supabase.rpc("release_video_credit", {
     target_workspace_id: workspaceId,
     credit_amount: creditAmount ?? null,
-  } as never);
+  });
 
   if (error) throw error;
   return mapAddon(data);
@@ -117,11 +118,11 @@ export async function activateVideoAddon(params: {
   addonType: "standard" | "plus" | "premium";
   billingCycle: "monthly" | "yearly";
 }): Promise<VideoPlanAddon> {
-  const { data, error } = await supabase.rpc("activate_video_addon" as never, {
+  const { data, error } = await supabase.rpc("activate_video_addon", {
     target_workspace_id: params.workspaceId,
     target_addon_type: params.addonType,
     target_billing_cycle: params.billingCycle,
-  } as never);
+  });
 
   if (error) throw error;
   return mapAddon(data);
@@ -142,7 +143,7 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
 
   try {
     const { data, error } = await supabase
-      .from("video_jobs" as never)
+      .from("video_jobs")
       .insert({
         workspace_id: input.workspaceId,
         property_id: input.propertyId ?? null,
@@ -170,7 +171,7 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
           motion_preset_config: motionPresetConfig,
         },
         created_by: userResult.data.user?.id ?? null,
-      } as never)
+      })
       .select("*")
       .single();
 
@@ -183,12 +184,12 @@ export async function createVideoJob(input: CreateVideoJobInput): Promise<VideoJ
 }
 
 export async function updateVideoJobStatus(id: string, status: VideoJob["status"], outputUrl?: string | null) {
-  const payload: Record<string, unknown> = { status };
+  const payload: Database["public"]["Tables"]["video_jobs"]["Update"] = { status };
   if (outputUrl !== undefined) payload.output_url = outputUrl;
 
   const { data, error } = await supabase
-    .from("video_jobs" as never)
-    .update(payload as never)
+    .from("video_jobs")
+    .update(payload)
     .eq("id", id)
     .select("*")
     .single();
@@ -216,8 +217,8 @@ export async function createVideoJobSegments(input: CreateVideoJobSegmentsInput)
   if (!rows.length) return [];
 
   const { data, error } = await supabase
-    .from("video_job_segments" as never)
-    .insert(rows as never)
+    .from("video_job_segments")
+    .insert(rows)
     .select("*");
 
   if (error) throw error;
@@ -229,12 +230,12 @@ export async function updateVideoJobSegmentsStatus(params: {
   status: "pending" | "queued" | "processing" | "completed" | "failed" | "skipped";
   outputClipUrl?: string | null;
 }) {
-  const payload: Record<string, unknown> = { status: params.status };
+  const payload: Database["public"]["Tables"]["video_job_segments"]["Update"] = { status: params.status };
   if (params.outputClipUrl !== undefined) payload.output_clip_url = params.outputClipUrl;
 
   const { data, error } = await supabase
-    .from("video_job_segments" as never)
-    .update(payload as never)
+    .from("video_job_segments")
+    .update(payload)
     .eq("video_job_id", params.videoJobId)
     .select("*");
 

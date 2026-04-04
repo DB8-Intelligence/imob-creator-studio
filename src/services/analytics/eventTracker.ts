@@ -10,7 +10,8 @@ export type AcquisitionEvent =
   | "signup"
   | "trial_start"
   | "paid_conversion"
-  | "landing_view";
+  | "landing_view"
+  | "upgrade_viewed";
 
 export type UsageEvent =
   | "creative_generated"
@@ -29,7 +30,13 @@ export type UsageEvent =
   | "land_marking_used"
   | "dashboard_viewed"
   | "analytics_viewed"
-  | "attribution_viewed";
+  | "attribution_viewed"
+  // ── Funnel / Onboarding (11B) ──
+  | "onboarding_step_completed"
+  | "welcome_dismissed"
+  | "first_share"
+  | "brand_kit_created"
+  | "funnel_viewed";
 
 export type AppEvent = AcquisitionEvent | UsageEvent;
 
@@ -55,6 +62,13 @@ export const EVENT_CATEGORY: Record<AppEvent, string> = {
   dashboard_viewed:    "usage",
   analytics_viewed:    "usage",
   attribution_viewed:  "usage",
+  // Funnel / Onboarding
+  upgrade_viewed:              "acquisition",
+  onboarding_step_completed:   "usage",
+  welcome_dismissed:           "usage",
+  first_share:                 "usage",
+  brand_kit_created:           "usage",
+  funnel_viewed:               "usage",
 };
 
 // ─── Track function ───────────────────────────────────────────────────────────
