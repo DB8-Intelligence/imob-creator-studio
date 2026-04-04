@@ -32,6 +32,7 @@ import { CREATIVE_CATALOG } from "@/lib/creative-catalog";
 import { supabase } from "@/integrations/supabase/client";
 import { downloadImage } from "@/lib/downloadUtils";
 import { dispatchGeneration, pollJobUntilDone } from "@/services/generationApi";
+import { USE_CASE_TO_GENERATION_TYPE, type GenerationType } from "@/lib/generation-contract";
 import { USER_PLAN_KEY } from "@/hooks/useUserPlan";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSavedPrompts } from "@/hooks/useSavedPrompts";
@@ -90,9 +91,11 @@ const IdeaCreativePage = () => {
 
   // from_studio context
   const [studioContext, setStudioContext] = useState<{
-    template_name?: string;
-    template_id?: string;
-    engine_id?: string;
+    template_name?:   string;
+    template_id?:     string;
+    engine_id?:       string;
+    use_case_id?:     string;     // UseCaseId vindo do Studio
+    generation_type?: GenerationType; // derivado de use_case_id
   } | null>(null);
 
   const creditsRemaining = plan?.credits_remaining ?? 0;
@@ -148,10 +151,20 @@ const IdeaCreativePage = () => {
 
     // Guardar contexto para banner e retorno ao Studio
     if (typeof state.template_name === "string" || tid) {
+      const useCaseId = typeof state.use_case_id === "string" ? state.use_case_id : undefined;
+      // Derivar generation_type do use_case_id vindo do Studio.
+      // Fallback: "gerar_post" quando não há contexto de Studio.
+      const derivedType: GenerationType =
+        (useCaseId && USE_CASE_TO_GENERATION_TYPE[useCaseId])
+          ? USE_CASE_TO_GENERATION_TYPE[useCaseId]
+          : "gerar_post";
+
       setStudioContext({
-        template_name: state.template_name as string | undefined,
-        template_id:   tid ?? undefined,
-        engine_id:     state.engine_id as string | undefined,
+        template_name:   state.template_name as string | undefined,
+        template_id:     tid ?? undefined,
+        engine_id:       state.engine_id as string | undefined,
+        use_case_id:     useCaseId,
+        generation_type: derivedType,
       });
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -228,9 +241,13 @@ const IdeaCreativePage = () => {
     setStep(3);
 
     try {
+      // generation_type: usa o tipo derivado do use_case_id do Studio,
+      // ou "gerar_post" como fallback quando não há contexto.
+      const genType: GenerationType = studioContext?.generation_type ?? "gerar_post";
+
       // Envia payload padrão para generate-dispatch (async → n8n router)
       const response = await dispatchGeneration({
-        generation_type:  "gerar_post",
+        generation_type:  genType,
         engine_id:        (studioContext?.engine_id as import("@/lib/creative-catalog").AIEngineId) ?? "openai_image",
         from_studio:      !!studioContext,
         template_id:      studioContext?.template_id,
