@@ -354,6 +354,12 @@ async function supabase_invoke(
  *
  * Adapta o GenerationRequest para o payload específico de cada edge function.
  * Mantém compatibilidade com os contratos legados das functions existentes.
+ *
+ * IMPORTANTE: skip_credits: true é sempre injetado.
+ * - No modo sync: generate-dispatch executa consume_credits após a função retornar.
+ * - No modo async: o n8n router injeta skip_credits antes de chamar a função,
+ *   e o generation-callback é responsável pelo débito.
+ * Em ambos os casos a função alvo NÃO deve debitar créditos diretamente.
  */
 function buildFunctionPayload(
   generationType: string,
@@ -369,20 +375,22 @@ function buildFunctionPayload(
     case "sketch_render":
     case "empty_lot":
       return {
-        prompt_base: req.prompt_base,
-        titulo:      ef?.titulo    ?? "",
-        subtitulo:   ef?.subtitulo ?? "",
-        cta:         ef?.cta       ?? "",
-        canal:       ef?.canal     ?? "instagram",
-        tipo:        ef?.tipo      ?? "post",
-        formatos:    [req.aspect_ratio ?? "quadrado"],
-        quantidade:  ef?.quantidade ?? 1,
+        skip_credits: true,
+        prompt_base:  req.prompt_base,
+        titulo:       ef?.titulo    ?? "",
+        subtitulo:    ef?.subtitulo ?? "",
+        cta:          ef?.cta       ?? "",
+        canal:        ef?.canal     ?? "instagram",
+        tipo:         ef?.tipo      ?? "post",
+        formatos:     [req.aspect_ratio ?? "quadrado"],
+        quantidade:   ef?.quantidade ?? 1,
       };
 
     case "gerar_arte_premium":
     case "generate_art":
     case "upscale":
       return {
+        skip_credits: true,
         imageUrl:     (req.image_urls as string[])?.[0] ?? "",
         title:        ef?.titulo ?? "",
         description:  ef?.conceito ?? ef?.subtitulo ?? "",
@@ -395,6 +403,7 @@ function buildFunctionPayload(
 
     case "virtual_staging":
       return {
+        skip_credits: true,
         imageUrl:     (req.image_urls as string[])?.[0] ?? "",
         stagingStyle: req.style ?? "moderno",
         roomType:     ef?.roomType ?? "living",
@@ -405,20 +414,22 @@ function buildFunctionPayload(
     case "image_to_video":
     case "video_compose":
       return {
-        imageUrls:   req.image_urls,
+        skip_credits: true,
+        imageUrls:    req.image_urls,
         motionPreset: req.style ?? "smooth_pan",
-        workspaceId: req.workspace_id ?? null,
+        workspaceId:  req.workspace_id ?? null,
       };
 
     case "gerar_descricao":
       return {
-        titulo:    ef?.titulo ?? "",
-        conceito:  ef?.conceito ?? req.prompt_base ?? "",
-        canal:     ef?.canal ?? "instagram",
-        workspaceId: req.workspace_id ?? null,
+        skip_credits: true,
+        titulo:       ef?.titulo ?? "",
+        conceito:     ef?.conceito ?? req.prompt_base ?? "",
+        canal:        ef?.canal ?? "instagram",
+        workspaceId:  req.workspace_id ?? null,
       };
 
     default:
-      return { ...req, user_id: userId };
+      return { skip_credits: true, ...req, user_id: userId };
   }
 }
