@@ -40,6 +40,17 @@ import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
 import AnalyticsDashboardPage from "./pages/AnalyticsDashboardPage";
 import AttributionPage from "./pages/AttributionPage";
+import ReferralPage from "./pages/ReferralPage";
+import CampaignBuilderPage from "./pages/CampaignBuilderPage";
+import FunnelDashboardPage from "./pages/FunnelDashboardPage";
+import BusinessMetricsPage from "./pages/BusinessMetricsPage";
+import StudioPage from "./pages/StudioPage";
+import ShowcasePage from "./pages/ShowcasePage";
+import VideoCreatorPage from "./pages/VideoCreatorPage";
+import VideoLandingPage from "./pages/VideoLandingPage";
+import VideosDashboardPage from "./pages/VideosDashboardPage";
+import VideosPricingPage from "./pages/VideosPricingPage";
+import VideosStyleCatalogPage from "./pages/VideosStyleCatalogPage";
 import ParaCorretoresPage from "./pages/ParaCorretoresPage";
 import ParaImobiliariasPage from "./pages/ParaImobiliariasPage";
 import ParaEquipesPage from "./pages/ParaEquipesPage";
@@ -62,6 +73,8 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
+              <Route path="/showcase" element={<ProtectedRoute><ShowcasePage /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreateCreativeHub /></ProtectedRoute>} />
               <Route path="/create/ideia" element={<ProtectedRoute><IdeaCreativePage /></ProtectedRoute>} />
               <Route path="/create/sequence" element={<ProtectedRoute><CreateSequencePage /></ProtectedRoute>} />
@@ -91,6 +104,17 @@ const App = () => (
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
               <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
               <Route path="/dashboard/attribution" element={<ProtectedRoute><AttributionPage /></ProtectedRoute>} />
+              <Route path="/referral" element={<ProtectedRoute><ReferralPage /></ProtectedRoute>} />
+              <Route path="/dashboard/campaigns" element={<ProtectedRoute><CampaignBuilderPage /></ProtectedRoute>} />
+              <Route path="/dashboard/funnel"    element={<ProtectedRoute><FunnelDashboardPage /></ProtectedRoute>} />
+              <Route path="/dashboard/metrics"   element={<ProtectedRoute><BusinessMetricsPage /></ProtectedRoute>} />
+
+              {/* ── Módulo de Vídeo ─────────────────────────────────────────── */}
+              <Route path="/video"            element={<VideoLandingPage />} />
+              <Route path="/video-creator"    element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} />
+              <Route path="/video-dashboard"  element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />
+              <Route path="/video-plans"      element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
+              <Route path="/video-styles"     element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
 
               <Route path="/para-corretores"       element={<ParaCorretoresPage />} />
               <Route path="/para-imobiliarias"    element={<ParaImobiliariasPage />} />

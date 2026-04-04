@@ -2,6 +2,7 @@ import { ReactNode, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Building2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 
 interface LpLayoutProps {
   children: ReactNode;
@@ -15,6 +16,11 @@ interface LpLayoutProps {
  */
 export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLayoutProps) {
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);

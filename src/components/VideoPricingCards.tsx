@@ -1,24 +1,8 @@
 import { useState } from "react";
 import { Check, ChevronRight, ToggleLeft, ToggleRight } from "lucide-react";
+import { KIWIFY_VIDEO_LINKS } from "@/lib/kiwify-links";
 
 type Billing = "monthly" | "yearly";
-
-// ─── Links Kiwify — checkout de planos de vídeo ──────────────────────────────
-const KIWIFY_VIDEO_LINKS = {
-  standard: {
-    monthly: "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr",
-    yearly:  "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr", // atualizar quando criar produto anual
-  },
-  plus: {
-    monthly: "https://kiwify.com.br/video-plus-mensal",    // pendente
-    yearly:  "https://kiwify.com.br/video-plus-anual",     // pendente
-  },
-  premium: {
-    monthly: "https://kiwify.com.br/video-premium-mensal", // pendente
-    yearly:  "https://kiwify.com.br/video-premium-anual",  // pendente
-  },
-};
-// ─────────────────────────────────────────────────────────────────────────────
 
 const VIDEO_PLANS = [
   {

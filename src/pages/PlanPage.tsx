@@ -3,14 +3,7 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Zap, Star, Crown, AlertCircle, Clock, Users, ShieldCheck, ArrowRight, Coins, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// ─── Substitua estes links pelos URLs reais dos seus produtos no Kiwify ───────
-const KIWIFY_LINKS = {
-  20: "https://kiwify.com.br/seu-produto-20",
-  50: "https://kiwify.com.br/seu-produto-50",
-  150: "https://kiwify.com.br/seu-produto-150",
-};
-// ─────────────────────────────────────────────────────────────────────────────
+import { KIWIFY_CREDIT_LINKS } from "@/lib/kiwify-links";
 
 const plans = [
   {
@@ -181,7 +174,7 @@ const PlanPage = () => {
 
                     <div className="mt-auto">
                       <a
-                        href={KIWIFY_LINKS[p.credits as keyof typeof KIWIFY_LINKS]}
+                        href={KIWIFY_CREDIT_LINKS[p.credits]}
                         target="_blank"
                         rel="noopener noreferrer"
                         className={[

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,10 +30,12 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  // Capture UTM params on auth page visit
+  // Capture UTM params + referral code on auth page visit
   useEffect(() => {
     captureAttribution();
     captureLastTouch();
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) localStorage.setItem("ref_code", ref);
   }, []);
 
   // Redirect if already logged in
@@ -104,6 +107,38 @@ const Auth = () => {
         description: "Verifique seu email para confirmar sua conta.",
       });
       dispatchN8nEvent("new_user", { email: signupEmail, name: signupName });
+
+      // Record referral signup if a ref code was stored.
+      // ref_code is only removed from localStorage after a successful insert —
+      // if the network fails the code is preserved for a potential retry.
+      const refCode = localStorage.getItem("ref_code");
+      if (refCode) {
+        (async () => {
+          try {
+            const { data: codeData } = await supabase
+              .from("referral_codes")
+              .select("user_id")
+              .eq("code", refCode.toUpperCase())
+              .maybeSingle();
+
+            if (codeData?.user_id) {
+              // Get the new user's ID — same pattern as attribution tracking in AuthContext
+              const { data: authData } = await supabase.auth.getUser();
+              const referredUserId = authData?.user?.id ?? null;
+              await supabase.from("referral_events").insert({
+                referrer_user_id: codeData.user_id,
+                referred_user_id: referredUserId,
+                code: refCode.toUpperCase(),
+                event_type: "signup",
+              });
+            }
+            // Remove only after success (or when code is invalid/not found)
+            localStorage.removeItem("ref_code");
+          } catch {
+            // Network/DB error — keep ref_code in localStorage, do not remove
+          }
+        })();
+      }
     }
 
     setIsLoading(false);
@@ -122,11 +157,11 @@ const Auth = () => {
           description: error.message,
         });
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         variant: "destructive",
         title: "Erro ao entrar com Google",
-        description: e.message || "Tente novamente",
+        description: e instanceof Error ? e.message : "Tente novamente",
       });
     } finally {
       setIsGoogleLoading(false);
@@ -317,7 +352,7 @@ const Auth = () => {
                         onChange={(e) => setAgreedToTerms(e.target.checked)}
                       />
                       <span className="text-muted-foreground">
-                        Concordo com os <a href="#" className="text-accent hover:underline">Termos de Uso</a> e <a href="#" className="text-accent hover:underline">Política de Privacidade</a>
+                        Concordo com os <a href="/termos" className="text-accent hover:underline">Termos de Uso</a> e <a href="/termos" className="text-accent hover:underline">Política de Privacidade</a>
                       </span>
                     </label>
                   </div>

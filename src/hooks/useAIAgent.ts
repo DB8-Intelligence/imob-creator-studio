@@ -99,7 +99,7 @@ function mapJob(row: Record<string, unknown>): AIAgentJob {
 
 async function fetchAIAgentJobs(userId: string): Promise<AIAgentJob[]> {
   const { data, error } = await supabase
-    .from("ai_agent_jobs" as never)
+    .from("ai_agent_jobs")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
@@ -111,7 +111,7 @@ async function fetchAIAgentJobs(userId: string): Promise<AIAgentJob[]> {
 
 async function fetchAIAgentJob(jobId: string): Promise<AIAgentJob | null> {
   const { data, error } = await supabase
-    .from("ai_agent_jobs" as never)
+    .from("ai_agent_jobs")
     .select("*")
     .eq("id", jobId)
     .maybeSingle();
@@ -185,7 +185,7 @@ export function useCreateAIAgentJob() {
       };
 
       const { data, error } = await supabase
-        .from("ai_agent_jobs" as never)
+        .from("ai_agent_jobs")
         .insert({
           user_id: user.id,
           topic: input.topic,
@@ -195,7 +195,7 @@ export function useCreateAIAgentJob() {
           brand_snapshot: brandSnapshot,
           status: "queued",
           phase: 1,
-        } as never)
+        })
         .select("*")
         .single();
 
@@ -253,12 +253,12 @@ export function useSelectAIAgentOption() {
       selectedOption: AIAgentOption;
     }): Promise<AIAgentJob> => {
       const { data, error } = await supabase
-        .from("ai_agent_jobs" as never)
+        .from("ai_agent_jobs")
         .update({
           selected_option_id: selectedOption.id,
           status: "queued",
           phase: 2,
-        } as never)
+        })
         .eq("id", jobId)
         .select("*")
         .single();

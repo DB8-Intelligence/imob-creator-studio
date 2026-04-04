@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +28,12 @@ import {
   CREATIVE_CATEGORIES,
   type CreativeTemplate,
 } from "@/data/creativeTemplates";
+import { CREATIVE_CATALOG } from "@/lib/creative-catalog";
 import { supabase } from "@/integrations/supabase/client";
+import { downloadImage } from "@/lib/downloadUtils";
+import { dispatchGeneration, pollJobUntilDone } from "@/services/generationApi";
+import { USER_PLAN_KEY } from "@/hooks/useUserPlan";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSavedPrompts } from "@/hooks/useSavedPrompts";
 import { ScanSearch, Trash2 } from "lucide-react";
 
@@ -53,13 +58,24 @@ const FORMATOS: Formatos[] = [
 ];
 
 // ── Componente Principal ────────────────────────────────────────────────────
+// ── Mapa aspect_ratio do Studio → Formato local ────────────────────────────
+const ASPECT_TO_FORMATO: Record<string, Formato> = {
+  "1:1":    "quadrado",
+  "4:5":    "feed",
+  "9:16":   "stories",
+  "16:9":   "paisagem",
+  "1.91:1": "paisagem",
+};
+
 const IdeaCreativePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const { data: plan } = useUserPlan();
   const consumeCredits = useConsumeCredits();
   const { getAll: getSavedPrompts, remove: removeSavedPrompt } = useSavedPrompts();
+  const queryClient = useQueryClient();
   const [showLabPrompts, setShowLabPrompts] = useState(false);
   const savedPrompts = getSavedPrompts();
 
@@ -71,6 +87,13 @@ const IdeaCreativePage = () => {
   const [canal, setCanal] = useState<Canal>("instagram");
   const [tipo, setTipo] = useState<Tipo>("post");
   const [quantidade, setQuantidade] = useState<1 | 5>(1);
+
+  // from_studio context
+  const [studioContext, setStudioContext] = useState<{
+    template_name?: string;
+    template_id?: string;
+    engine_id?: string;
+  } | null>(null);
 
   const creditsRemaining = plan?.credits_remaining ?? 0;
   const creditCost = quantidade;
@@ -89,6 +112,49 @@ const IdeaCreativePage = () => {
   // Step 3 — resultado
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedUrls, setGeneratedUrls] = useState<string[]>([]);
+
+  // ── Leitura do estado vindo do Studio ──────────────────────────────────────
+  useEffect(() => {
+    const state = location.state as Record<string, unknown> | null;
+    if (!state?.from_studio) return;
+
+    // Pré-preencher prompt base
+    const promptBase = typeof state.prompt_base === "string" ? state.prompt_base.trim() : "";
+    if (promptBase) setConceito(promptBase);
+
+    // Pré-selecionar formato baseado no aspect_ratio do template
+    if (typeof state.aspect_ratio === "string") {
+      const fmt = ASPECT_TO_FORMATO[state.aspect_ratio];
+      if (fmt) setFormatos([fmt]);
+    }
+
+    // Unificação de catálogo: sintetizar CreativeTemplate a partir do CatalogTemplate
+    // para que canAdvanceStep1 passe sem que o usuário precise clicar em template
+    const tid = typeof state.template_id === "string" ? state.template_id : null;
+    if (tid) {
+      const catalogTpl = CREATIVE_CATALOG.find((t) => t.id === tid);
+      if (catalogTpl) {
+        const synthetic: CreativeTemplate = {
+          id:              catalogTpl.id,
+          name:            catalogTpl.name,
+          description:     catalogTpl.recommended_for.join(", "),
+          categories:      [catalogTpl.category],
+          prompt:          catalogTpl.prompt_base ?? promptBase ?? "Professional real estate marketing post",
+          previewGradient: catalogTpl.preview_gradient,
+        };
+        setSelectedTemplate(synthetic);
+      }
+    }
+
+    // Guardar contexto para banner e retorno ao Studio
+    if (typeof state.template_name === "string" || tid) {
+      setStudioContext({
+        template_name: state.template_name as string | undefined,
+        template_id:   tid ?? undefined,
+        engine_id:     state.engine_id as string | undefined,
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -139,7 +205,7 @@ const IdeaCreativePage = () => {
     }
   };
 
-  // ── IA: Gerar Criativo (DALL-E 3) ────────────────────────────────────────
+  // ── IA: Gerar Criativo — pipeline generate-dispatch ─────────────────────
   const handleGerar = async () => {
     if (!selectedTemplate) {
       toast({ title: "Selecione um template antes de gerar", variant: "destructive" });
@@ -157,27 +223,59 @@ const IdeaCreativePage = () => {
       });
       return;
     }
+
     setIsGenerating(true);
     setStep(3);
+
     try {
-      const { data, error } = await supabase.functions.invoke("gerar-criativo", {
-        body: {
-          prompt_base: selectedTemplate.prompt,
-          titulo,
-          subtitulo,
-          cta,
-          canal,
-          tipo,
-          formatos,
-          quantidade,
-        },
+      // Envia payload padrão para generate-dispatch (async → n8n router)
+      const response = await dispatchGeneration({
+        generation_type:  "gerar_post",
+        engine_id:        (studioContext?.engine_id as import("@/lib/creative-catalog").AIEngineId) ?? "openai_image",
+        from_studio:      !!studioContext,
+        template_id:      studioContext?.template_id,
+        template_name:    studioContext?.template_name,
+        prompt_base:      selectedTemplate.prompt,
+        aspect_ratio:     formatos[0] === "quadrado" ? "1:1"
+                          : formatos[0] === "feed"    ? "4:5"
+                          : formatos[0] === "stories" ? "9:16" : "16:9",
+        editable_fields: { titulo, subtitulo, cta, canal, tipo, quantidade },
+        callback_mode:    "async",
+        credit_cost:      creditCost,
       });
-      if (error) throw error;
-      setGeneratedUrls(data.urls ?? []);
-      await consumeCredits.mutateAsync(creditCost);
+
+      // Poll até o job terminar (Realtime ou fallback)
+      const job = await pollJobUntilDone(response.job_id, { timeoutMs: 120_000 });
+
+      if (!job || job.status === "error") {
+        throw new Error(job?.error_message ?? "Geração falhou. Tente novamente.");
+      }
+
+      const urls: string[] = (job.result_urls as string[] | null) ?? (job.result_url ? [job.result_url as string] : []);
+      setGeneratedUrls(urls);
+
+      // Atualiza créditos no cache local (já debitados server-side)
+      queryClient.invalidateQueries({ queryKey: USER_PLAN_KEY });
+
       toast({ title: "Criativo gerado com sucesso!", description: `${creditCost} crédito(s) consumido(s).` });
-    } catch {
-      toast({ title: "Erro ao gerar criativo", description: "Tente novamente.", variant: "destructive" });
+
+      // Retornar ao Studio com o resultado se veio de lá
+      if (studioContext && urls[0]) {
+        navigate("/studio", {
+          state: {
+            from_studio:   true,
+            result_url:    urls[0],
+            template_id:   studioContext.template_id,
+            template_name: studioContext.template_name,
+            engine_id:     studioContext.engine_id,
+            status:        "done",
+          },
+        });
+        return;
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Tente novamente.";
+      toast({ title: "Erro ao gerar criativo", description: msg, variant: "destructive" });
       setStep(2);
     } finally {
       setIsGenerating(false);
@@ -191,6 +289,24 @@ const IdeaCreativePage = () => {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto space-y-6">
+
+        {/* Studio context banner */}
+        {studioContext && (
+          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[var(--ds-cyan)]/30 bg-[var(--ds-cyan)]/5 text-sm">
+            <Sparkles className="w-4 h-4 text-[var(--ds-cyan)] shrink-0" />
+            <span className="text-foreground">
+              Template <span className="font-semibold text-[var(--ds-cyan)]">{studioContext.template_name ?? studioContext.template_id}</span> pré-aplicado via Studio
+            </span>
+            <button
+              type="button"
+              title="Fechar"
+              onClick={() => setStudioContext(null)}
+              className="ml-auto text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-center gap-3">
@@ -631,11 +747,13 @@ const IdeaCreativePage = () => {
                     <div key={i} className="rounded-2xl overflow-hidden border border-border/60">
                       <img src={url} alt={`Criativo ${i + 1}`} className="w-full object-cover" />
                       <div className="p-3 flex gap-2 bg-card border-t border-border/40">
-                        <Button size="sm" className="flex-1" asChild>
-                          <a href={url} download={`criativo-${i + 1}.png`}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Baixar
-                          </a>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => downloadImage(url, `criativo-${i + 1}.png`)}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Baixar
                         </Button>
                       </div>
                     </div>

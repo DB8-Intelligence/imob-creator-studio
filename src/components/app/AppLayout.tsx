@@ -22,6 +22,8 @@ import {
   Moon,
   Sun,
   Wand2,
+  Clapperboard,
+  Layers,
   ScanSearch,
   ZoomIn,
   Bot,
@@ -34,6 +36,10 @@ import {
   MapPin,
   BarChart3,
   GitBranch,
+  Gift,
+  Megaphone,
+  TrendingUp,
+  DollarSign,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -49,7 +55,9 @@ const navItems = [
   { icon: Home, label: "Dashboard", path: "/dashboard" },
   // ── Criativos ──
   { divider: true, label: "Criativos" },
+  { icon: Clapperboard, label: "Studio Visual", path: "/studio", badge: "Novo" },
   { icon: Wand2, label: "Criar Criativo", path: "/create" },
+  { icon: Layers, label: "Showcase", path: "/showcase" },
   { icon: LayoutGrid, label: "Templates", path: "/templates" },
   { icon: Edit3, label: "Editor", path: "/editor" },
   { icon: Library, label: "Biblioteca", path: "/library" },
@@ -69,7 +77,13 @@ const navItems = [
   // ── Dados ──
   { divider: true, label: "Dados" },
   { icon: BarChart3, label: "Analytics", path: "/dashboard/analytics" },
-  { icon: GitBranch, label: "Atribuição", path: "/dashboard/attribution", badge: "10A" },
+  { icon: GitBranch,  label: "Atribuição",  path: "/dashboard/attribution",  badge: "10A" },
+  { icon: Megaphone,  label: "Campanhas",  path: "/dashboard/campaigns",    badge: "11A" },
+  { icon: TrendingUp,  label: "Funil",     path: "/dashboard/funnel",    badge: "11B" },
+  { icon: DollarSign,  label: "Métricas",  path: "/dashboard/metrics",   badge: "11C" },
+  // ── Crescimento ──
+  { divider: true, label: "Crescimento" },
+  { icon: Gift, label: "Indicações", path: "/referral" },
   // ────────────────
   { icon: CreditCard, label: "Planos", path: "/planos" },
   { icon: Settings, label: "Configurações", path: "/settings" },

@@ -3,7 +3,9 @@
  * Campaign LP — "Crie posts de imóveis com IA em minutos."
  * Target: Meta Ads / Google Ads — cold + warm traffic
  */
+import { useEffect } from "react";
 import { Image, Upload, Sparkles, CheckCircle2, Clock, Star, Zap, Palette, AlignLeft } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
@@ -103,6 +105,11 @@ const faqs = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CriarPostsImoveisPage() {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
   return (
     <LpLayout ctaLabel="Criar meu primeiro post">
       {/* ── Hero ── */}

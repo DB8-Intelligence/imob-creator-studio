@@ -12,6 +12,7 @@ import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import { SocialProofBar } from "@/components/share/SocialProofBar";
 
 const Index = () => {
   useEffect(() => {
@@ -23,6 +24,7 @@ const Index = () => {
     <div className="min-h-screen bg-ds">
       <Header />
       <HeroSection />
+      <SocialProofBar variant="landing" />
       <FeaturesSection />
       <HowItWorksSection />
       <WhyDifferentSection />

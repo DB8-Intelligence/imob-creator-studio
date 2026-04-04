@@ -8,22 +8,7 @@ import { useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { Check, X, Film, Zap, Star, Crown, ChevronRight, ToggleLeft, ToggleRight, CheckCircle2, ChevronDown, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-// ─── Links Kiwify — checkout de planos de vídeo ──────────────────────────────
-const KIWIFY_VIDEO_LINKS = {
-  standard: {
-    monthly: "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr",
-    yearly:  "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr", // atualizar quando criar produto anual
-  },
-  plus: {
-    monthly: "https://kiwify.com.br/video-plus-mensal",    // pendente
-    yearly:  "https://kiwify.com.br/video-plus-anual",     // pendente
-  },
-  premium: {
-    monthly: "https://kiwify.com.br/video-premium-mensal", // pendente
-    yearly:  "https://kiwify.com.br/video-premium-anual",  // pendente
-  },
-};
-// ─────────────────────────────────────────────────────────────────────────────
+import { KIWIFY_VIDEO_LINKS } from "@/lib/kiwify-links";
 
 type Billing = "monthly" | "yearly";
 

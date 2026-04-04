@@ -84,9 +84,9 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
     const imageBase64 = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
     const imageMimeType = imageResponse.headers.get("content-type") || "image/jpeg";
 
-    // Call Gemini 2.5 Flash directly (no Lovable gateway)
+    // gemini-2.0-flash-exp is the model that supports responseModalities: ["IMAGE"]
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-native-audio-dialog:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -100,7 +100,7 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
             },
           ],
           generationConfig: {
-            responseModalities: ["TEXT", "IMAGE"],
+            responseModalities: ["IMAGE"],
           },
         }),
       }

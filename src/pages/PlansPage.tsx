@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { trackEvent } from "@/services/analytics/eventTracker";
+import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/app/AppLayout";
 import {
   PLAN_RULES,
@@ -23,27 +25,7 @@ import {
   Users,
   Tag,
 } from "lucide-react";
-
-// ─── Links do Kiwify por plano e ciclo ──────────────────────────────────────
-// TODO: Substituir pelos links reais de pagamento Kiwify de cada plano
-const KIWIFY_LINKS: Record<PlanTier, Record<BillingCycle, string>> = {
-  starter: {
-    monthly: "https://kiwify.com.br/starter-mensal",   // TODO: link real
-    yearly: "https://kiwify.com.br/starter-anual",     // TODO: link real
-  },
-  standard: {
-    monthly: "https://kiwify.com.br/standard-mensal",  // TODO: link real
-    yearly: "https://kiwify.com.br/standard-anual",    // TODO: link real
-  },
-  plus: {
-    monthly: "https://kiwify.com.br/plus-mensal",      // TODO: link real
-    yearly: "https://kiwify.com.br/plus-anual",        // TODO: link real
-  },
-  premium: {
-    monthly: "https://kiwify.com.br/premium-mensal",   // TODO: link real
-    yearly: "https://kiwify.com.br/premium-anual",     // TODO: link real
-  },
-};
+import { KIWIFY_SUBSCRIPTION_LINKS } from "@/lib/kiwify-links";
 
 interface FeatureRow {
   label: string;
@@ -131,7 +113,12 @@ const FEATURE_ROWS: FeatureRow[] = [
 ];
 
 const PlansPage = () => {
+  const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
+
+  useEffect(() => {
+    if (user) trackEvent(user.id, "upgrade_viewed");
+  }, [user]);
 
   return (
     <AppLayout>
@@ -295,7 +282,7 @@ const PlansPage = () => {
 
                 {/* CTA */}
                 <a
-                  href={KIWIFY_LINKS[tier][billingCycle]}
+                  href={KIWIFY_SUBSCRIPTION_LINKS[tier][billingCycle]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-6 flex items-center justify-center gap-2 w-full py-3 rounded-xl font-semibold text-sm transition-all ${

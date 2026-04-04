@@ -3,10 +3,12 @@
  * Campaign LP — "Transforme imóveis em vídeos profissionais automaticamente."
  * Target: Meta Ads / Google Ads — reels / vídeo marketing audience
  */
+import { useEffect } from "react";
 import {
   Video, Upload, Sparkles, CheckCircle2, Play, Film, Smartphone,
   TrendingUp, Star, Clock, ArrowRight,
 } from "lucide-react";
+import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { LpLayout, LpHero, LpCtaStrip } from "@/components/public/LpLayout";
@@ -117,6 +119,11 @@ const faqs = [
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function VideoImobiliarioPage() {
+  useEffect(() => {
+    captureAttribution();
+    captureLastTouch();
+  }, []);
+
   return (
     <LpLayout ctaLabel="Criar meu primeiro vídeo">
       {/* ── Hero ── */}
