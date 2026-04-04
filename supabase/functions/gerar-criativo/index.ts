@@ -30,6 +30,9 @@ serve(async (req) => {
       tipo,
       formatos,
       quantidade,
+      // skip_credits: quando true, não debita créditos aqui.
+      // O pipeline async (generation-callback) é responsável pelo débito.
+      skip_credits = false,
     } = await req.json();
 
     if (!prompt_base || !titulo) {
@@ -145,19 +148,22 @@ Brazilian real estate market style. Professional marketing design. High quality,
       }
     }
 
-    // Debita créditos server-side (1 crédito por criativo gerado)
-    if (userId) {
+    // Debita créditos server-side — apenas quando NÃO chamado pelo pipeline async.
+    // Quando skip_credits = true, o generation-callback é responsável pelo débito,
+    // evitando dupla cobrança.
+    if (userId && !skip_credits) {
       const creditAmount = urls.length; // cada imagem = 1 crédito
       const { error: creditError } = await supabase.rpc("consume_credits", {
         p_user_id: userId,
         p_amount: creditAmount,
       });
       if (creditError) {
-        // Log mas não bloqueia — imagens já foram geradas
         console.error("Erro ao debitar créditos:", creditError.message);
       } else {
         console.log(`${creditAmount} crédito(s) debitado(s) para usuário ${userId}`);
       }
+    } else if (skip_credits) {
+      console.log("skip_credits=true — débito delegado ao generation-callback");
     }
 
     console.log("Criativos gerados:", urls.length);
