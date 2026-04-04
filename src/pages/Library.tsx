@@ -57,6 +57,30 @@ type Creative = {
   brand_id: string | null;
   properties: { title: string } | null;
   brands: { name: string } | null;
+  /** Identifica a origem: "creatives" (legacy) ou "pipeline" (generated_assets) */
+  _source: "creatives" | "pipeline";
+};
+
+const GENERATION_TYPE_LABELS: Record<string, string> = {
+  gerar_post:        "Post gerado",
+  gerar_story:       "Story gerado",
+  gerar_banner:      "Banner gerado",
+  virtual_staging:   "Staging virtual",
+  gerar_arte_premium:"Arte premium",
+  generate_art:      "Arte gerada",
+  upscale:           "Imagem aprimorada",
+  sketch_render:     "Render de esboço",
+  empty_lot:         "Terreno visualizado",
+  gerar_descricao:   "Descrição gerada",
+};
+
+const GENERATION_TYPE_FORMAT: Record<string, string> = {
+  gerar_post:         "feed",
+  gerar_story:        "story",
+  gerar_banner:       "feed",
+  virtual_staging:    "feed",
+  gerar_arte_premium: "feed",
+  generate_art:       "feed",
 };
 
 type VideoItem = {
@@ -130,7 +154,7 @@ const Library = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [previewVideo, setPreviewVideo] = useState<VideoItem | null>(null);
 
-  const { data: creatives = [], isLoading: creativesLoading } = useQuery({
+  const { data: legacyCreatives = [], isLoading: legacyLoading } = useQuery({
     queryKey: ["library-creatives", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -140,10 +164,47 @@ const Library = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Creative[];
+      return (data as Omit<Creative, "_source">[]).map((c) => ({ ...c, _source: "creatives" as const }));
     },
     enabled: !!user,
   });
+
+  const { data: pipelineAssets = [], isLoading: pipelineLoading } = useQuery({
+    queryKey: ["library-pipeline-assets", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("generated_assets")
+        .select("id, asset_url, format, generation_type, created_at, property_id")
+        .eq("user_id", user!.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      return (data ?? []).map((a): Creative => ({
+        id:           a.id,
+        name:         GENERATION_TYPE_LABELS[a.generation_type ?? ""] ?? "Criativo gerado",
+        format:       a.format ?? GENERATION_TYPE_FORMAT[a.generation_type ?? ""] ?? "feed",
+        status:       "ready",
+        created_at:   a.created_at ?? new Date().toISOString(),
+        exported_url: a.asset_url,
+        caption:      null,
+        property_id:  a.property_id ?? null,
+        brand_id:     null,
+        properties:   null,
+        brands:       null,
+        _source:      "pipeline",
+      }));
+    },
+    enabled: !!user,
+  });
+
+  const creatives = useMemo<Creative[]>(() => {
+    const merged = [...legacyCreatives, ...pipelineAssets];
+    merged.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return merged;
+  }, [legacyCreatives, pipelineAssets]);
+
+  const creativesLoading = legacyLoading || pipelineLoading;
 
   const { data: videoJobs = [], isLoading: videosLoading } = useVideoJobs(workspaceId);
 
@@ -160,12 +221,18 @@ const Library = () => {
   })), [videoJobs]);
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("creatives").delete().eq("id", id);
-      if (error) throw error;
+    mutationFn: async ({ id, source }: { id: string; source: "creatives" | "pipeline" }) => {
+      if (source === "pipeline") {
+        const { error } = await supabase.from("generated_assets").delete().eq("id", id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("creatives").delete().eq("id", id);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["library-creatives"] });
+      queryClient.invalidateQueries({ queryKey: ["library-pipeline-assets"] });
       toast({ title: "Criativo excluído" });
     },
     onError: () => {
@@ -317,7 +384,7 @@ const Library = () => {
                               <DropdownMenuItem onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Eye className="w-4 h-4 mr-2" />Visualizar</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Edit2 className="w-4 h-4 mr-2" />Editar</DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleDownloadCreative(item)}><Download className="w-4 h-4 mr-2" />Baixar</DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(item.id)}><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate({ id: item.id, source: item._source })}><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -346,7 +413,7 @@ const Library = () => {
                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="w-8 h-8"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => navigate(`/editor/${item.property_id}`)} disabled={!item.property_id}><Edit2 className="w-4 h-4 mr-2" />Editar</DropdownMenuItem>
-                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(item.id)}><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate({ id: item.id, source: item._source })}><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
