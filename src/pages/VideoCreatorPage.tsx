@@ -9,7 +9,8 @@ import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
-import { createVideoJobSegments, renderVideoJob, generateVideoClipFromImage } from "@/services/videoModuleApi";
+import { createVideoJobSegments, renderVideoJob, renderVideoJobV2, generateVideoClipFromImage } from "@/services/videoModuleApi";
+import { pollJobUntilDone } from "@/services/generationApi";
 import { useVeoPolling } from "@/hooks/useVeoPolling";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
@@ -132,7 +133,13 @@ const VideoCreatorPage = () => {
   const [generated, setGenerated] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
-  const [useVeo, setUseVeo] = useState(true); // Use Veo 3.1 by default
+
+  // Engine selection: FFmpeg (Ken Burns) is the default production engine.
+  // Veo is available as optional but NOT default.
+  type VideoEngine = "ffmpeg_kenburns" | "veo_video";
+  const [engine, setEngine] = useState<VideoEngine>("ffmpeg_kenburns");
+
+  // Veo-specific state (only used when engine === "veo_video")
   const [veoProgress, setVeoProgress] = useState<{ current: number; total: number } | null>(null);
   const { startPolling, results: pollResults, isPolling } = useVeoPolling();
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
@@ -250,7 +257,7 @@ const VideoCreatorPage = () => {
           photoNames: photos.map((photo) => photo.file.name),
           motion_preset: motionPreset,
           motion_preset_config: motionPresetConfig,
-          render_engine: useVeo ? "veo-3.1" : "legacy",
+          render_engine: engine,
         },
       });
       jobId = createdJob.id;
@@ -264,8 +271,51 @@ const VideoCreatorPage = () => {
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
 
-      if (useVeo) {
-        // ── Veo 3.1 pipeline: generate each clip individually ──
+      if (engine === "ffmpeg_kenburns") {
+        // ── FFmpeg Ken Burns pipeline (default) ──────────────────────
+        // Upload photos + dispatch to generate-video-v2 (async)
+        const v2Result = await renderVideoJobV2({
+          workspaceId,
+          videoJobId: jobId,
+          title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+          style,
+          format,
+          photos: photos.map((p) => p.file),
+          addonType: activeAddonType,
+        });
+
+        toast({
+          title: "Vídeo em processamento",
+          description: `${v2Result.total_clips} clips, ${v2Result.total_duration.toFixed(0)}s — pipeline FFmpeg ativo.`,
+        });
+
+        // Poll generation_jobs until done (backend calls generation-callback)
+        const doneJob = await pollJobUntilDone(v2Result.job_id, {
+          intervalMs: 3000,
+          timeoutMs: 300_000, // 5 min max
+        });
+
+        if (doneJob.status === "done" && doneJob.result_url) {
+          setVideoUrl(doneJob.result_url);
+          setGenerated(true);
+
+          await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: doneJob.result_url });
+          await dispatchN8nEvent("video_completed", {
+            workspace_id: workspaceId,
+            video_job_id: jobId,
+            output_url: doneJob.result_url,
+            status: "completed",
+            addon_type: activeAddonType,
+            render_engine: "ffmpeg_kenburns",
+            pipeline_version: "v2",
+          });
+          toast({ title: "Vídeo gerado com sucesso!", description: "Vídeo profissional criado via FFmpeg." });
+        } else {
+          throw new Error(doneJob.error_message || "O vídeo não foi concluído a tempo.");
+        }
+
+      } else if (engine === "veo_video") {
+        // ── Veo pipeline (optional, NOT default) ─────────────────────
         const segmentPhotos = photos.slice(0, uploadSummary.renderedSegments);
         const aspectRatio = formatToAspectRatio(format);
         const veoStyle = (style === "drone" || style === "walkthrough") ? style : style as "cinematic" | "moderno" | "luxury";
@@ -295,12 +345,10 @@ const VideoCreatorPage = () => {
           });
         }
 
-        // Check if all clips completed immediately or some are still processing
         const completedClips = clipResults.filter((c) => c.status === "completed" && c.videoUrl);
         const processingClips = clipResults.filter((c) => c.status === "processing");
 
         if (completedClips.length > 0 && processingClips.length === 0) {
-          // All clips done — use the first one as preview for now
           const firstClipUrl = completedClips[0].videoUrl!;
           setVideoUrl(firstClipUrl);
           setGenerated(true);
@@ -312,31 +360,24 @@ const VideoCreatorPage = () => {
             output_url: firstClipUrl,
             status: "completed",
             addon_type: activeAddonType,
-            render_engine: "veo-3.1",
+            render_engine: "veo_video",
             total_clips: completedClips.length,
           });
-          toast({ title: "Vídeo gerado com sucesso!", description: `${completedClips.length} clip(s) gerado(s) com Veo 3.1.` });
+          toast({ title: "Vídeo gerado com sucesso!", description: `${completedClips.length} clip(s) gerado(s) com Veo.` });
         } else if (processingClips.length > 0) {
-          // Some clips still processing — start polling for each
           setPendingJobId(jobId);
           setGenerated(true);
 
           for (const clip of processingClips) {
             if (clip.operationName) {
               startPolling(
-                {
-                  operationName: clip.operationName,
-                  workspaceId,
-                  jobId: jobId!,
-                  segmentIndex: clip.index,
-                },
+                { operationName: clip.operationName, workspaceId, jobId: jobId!, segmentIndex: clip.index },
                 (result) => {
                   if (result.status === "completed" && result.videoUrl) {
-                    toast({ title: `Clip ${clip.index + 1} pronto!`, description: "O vídeo foi processado com sucesso." });
-                    // Set the first completed clip as the preview
+                    toast({ title: `Clip ${clip.index + 1} pronto!` });
                     setVideoUrl((prev) => prev ?? result.videoUrl!);
                   } else if (result.status === "failed") {
-                    toast({ title: `Clip ${clip.index + 1} falhou`, description: result.error || "Erro no processamento.", variant: "destructive" });
+                    toast({ title: `Clip ${clip.index + 1} falhou`, variant: "destructive" });
                   }
                 }
               );
@@ -347,13 +388,11 @@ const VideoCreatorPage = () => {
             setVideoUrl(completedClips[0].videoUrl!);
           }
 
-          toast({
-            title: "Clips em processamento",
-            description: `${completedClips.length} pronto(s), ${processingClips.length} processando. Polling automático ativado.`,
-          });
+          toast({ title: "Clips em processamento", description: `${processingClips.length} clip(s) renderizando.` });
         }
+
       } else {
-        // ── Legacy pipeline: send all photos to generate-video ──
+        // ── Legacy pipeline (generate-video v1) ──────────────────────
         const result = await renderVideoJob({
           workspaceId,
           videoJobId: jobId,
@@ -369,14 +408,7 @@ const VideoCreatorPage = () => {
         setGenerated(true);
 
         await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
-        await dispatchN8nEvent("video_completed", {
-          workspace_id: workspaceId,
-          video_job_id: jobId,
-          output_url: result.videoUrl,
-          status: "completed",
-          addon_type: activeAddonType,
-        });
-        toast({ title: "Vídeo gerado com sucesso!", description: "Seu vídeo foi salvo no storage." });
+        toast({ title: "Vídeo gerado com sucesso!" });
       }
     } catch (e: unknown) {
       if (jobId) {

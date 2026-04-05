@@ -271,9 +271,120 @@ export async function renderVideoJob(params: {
   return data as { success: boolean; videoUrl: string; outputPath: string; sourcePaths: string[] };
 }
 
+// ── Video v2 Pipeline (FFmpeg Ken Burns) ─────────────────────────────────────
+
+/**
+ * Upload photos to Supabase Storage and invoke generate-video-v2 (FFmpeg pipeline).
+ *
+ * Flow:
+ * 1. Upload each photo to `video-assets/{workspaceId}/{jobId}/inputs/`
+ * 2. Collect public URLs
+ * 3. POST to generate-video-v2 with FFmpegJobSpec-compatible payload
+ * 4. Returns immediately with { job_id, status: "processing" }
+ *    (backend calls generation-callback when done)
+ */
+export async function renderVideoJobV2(params: {
+  workspaceId: string;
+  videoJobId: string;
+  title: string;
+  style: string;
+  format: string;
+  photos: File[];
+  addonType?: string;
+  property?: {
+    address?: string;
+    price?: string;
+    details?: string;
+    broker_name?: string;
+    broker_phone?: string;
+  };
+  audioMood?: string;
+}) {
+  const {
+    workspaceId,
+    videoJobId,
+    photos,
+    style,
+    format,
+    addonType = "standard",
+    property,
+    audioMood,
+  } = params;
+
+  // 1. Upload photos to storage, collect public URLs
+  const photoUrls: string[] = [];
+  for (let i = 0; i < photos.length; i++) {
+    const file = photos[i];
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const filePath = `${workspaceId}/${videoJobId}/inputs/${String(i + 1).padStart(2, "0")}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("video-assets")
+      .upload(filePath, file, {
+        contentType: file.type || "image/jpeg",
+        upsert: true,
+      });
+
+    if (uploadError) {
+      throw new Error(`Falha ao fazer upload da foto ${i + 1}: ${uploadError.message}`);
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("video-assets")
+      .getPublicUrl(filePath);
+
+    photoUrls.push(urlData.publicUrl);
+  }
+
+  // 2. Map format to aspect ratio
+  const aspectMap: Record<string, string> = {
+    reels: "9:16",
+    feed: "1:1",
+    youtube: "16:9",
+  };
+
+  // 3. Map style to motion preset
+  const styleToPreset: Record<string, string> = {
+    cinematic: "default",
+    moderno: "fast_sales",
+    luxury: "luxury",
+    drone: "default",
+    walkthrough: "default",
+  };
+
+  // 4. Invoke generate-video-v2
+  const { data, error } = await supabase.functions.invoke("generate-video-v2", {
+    body: {
+      workspace_id: workspaceId,
+      video_job_id: videoJobId,
+      photo_urls: photoUrls,
+      motion_preset: styleToPreset[style] ?? "default",
+      aspect_ratio: aspectMap[format] ?? "9:16",
+      resolution: addonType === "premium" ? "1080p" : addonType === "plus" ? "1080p" : "720p",
+      property: property ?? undefined,
+      audio: audioMood ? { mood: audioMood } : undefined,
+      plan_tier: addonType,
+    },
+  });
+
+  if (error) throw error;
+
+  return data as {
+    job_id: string;          // generation_jobs ID (for pollJobUntilDone)
+    video_job_id: string;    // video_jobs ID
+    status: string;
+    pipeline_version: string;
+    total_clips: number;
+    total_duration: number;
+    output_dimensions: { w: number; h: number };
+    motion_preset: string;
+  };
+}
+
 /**
  * Gera um clip de vídeo a partir de uma única imagem usando Veo 3.1 (Gemini API).
  * Endpoint assíncrono: retorna operationName para polling.
+ * @deprecated Prefer renderVideoJobV2 (FFmpeg pipeline) for production use.
  */
 export async function generateVideoClipFromImage(params: {
   imageBase64: string;
