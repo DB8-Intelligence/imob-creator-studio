@@ -38,7 +38,8 @@ export type GenerationType =
   | "empty_lot"           // lote vazio com render 3D
   | "generate_art"        // arte decorativa / lifestyle
   | "image_to_video"      // foto → vídeo com movimento
-  | "video_compose"       // múltiplas fotos → vídeo
+  | "video_compose"       // múltiplas fotos → vídeo (v1 legacy)
+  | "video_compose_v2"    // pipeline FFmpeg Ken Burns (v2)
   | "gerar_descricao";    // texto / legenda (sem imagem)
 
 /** Status do job de geração */
@@ -189,6 +190,7 @@ export const GENERATION_TYPE_TO_FUNCTION: Record<GenerationType, string> = {
   generate_art:       "generate-art",
   image_to_video:     "image-to-video",
   video_compose:      "compose-video",
+  video_compose_v2:   "generate-video-v2",
   gerar_descricao:    "generate-caption",
 };
 
