@@ -161,6 +161,7 @@ serve(async (req) => {
       overlays,
       audio: {
         mood:             audio?.mood ?? "modern",
+        track_file:       (audio?.mood && audio.mood !== "none") ? audio.mood : null,
         volume:           audio?.volume ?? 0.3,
         fade_out_seconds: 2,
       },
