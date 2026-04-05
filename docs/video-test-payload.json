@@ -1,0 +1,75 @@
+{
+  "$comment": "Payload de teste para POST /generate-video/v2. Substituir URLs por fotos reais no Supabase Storage.",
+  "job_id": "test-job-001",
+  "user_id": "test-user-001",
+  "workspace_id": "test-workspace-001",
+  "clips": [
+    {
+      "photo_url": "https://spjnymdizezgmzwoskoj.supabase.co/storage/v1/object/public/video-assets/test/photo_01.jpg",
+      "sequence_index": 0,
+      "ken_burns": {
+        "motion": "zoom_in",
+        "zoom_factor": 1.15,
+        "duration_seconds": 5
+      }
+    },
+    {
+      "photo_url": "https://spjnymdizezgmzwoskoj.supabase.co/storage/v1/object/public/video-assets/test/photo_02.jpg",
+      "sequence_index": 1,
+      "ken_burns": {
+        "motion": "pan_right",
+        "zoom_factor": 1.15,
+        "duration_seconds": 5
+      }
+    },
+    {
+      "photo_url": "https://spjnymdizezgmzwoskoj.supabase.co/storage/v1/object/public/video-assets/test/photo_03.jpg",
+      "sequence_index": 2,
+      "ken_burns": {
+        "motion": "zoom_out",
+        "zoom_factor": 1.15,
+        "duration_seconds": 5
+      }
+    }
+  ],
+  "transition": {
+    "type": "fade",
+    "duration_seconds": 0.8
+  },
+  "overlays": [
+    {
+      "text": "R$ 450.000",
+      "position": "center",
+      "font_size": 56,
+      "color": "#FFFFFF",
+      "background": "black@0.5",
+      "start_time": 8.4,
+      "end_time": 13.4
+    },
+    {
+      "text": "Rua das Palmeiras, 123 - Salvador/BA",
+      "position": "bottom_safe",
+      "font_size": 42,
+      "color": "#FFFFFF",
+      "background": "black@0.6",
+      "margin_bottom": 120,
+      "start_time": 8.4,
+      "end_time": 13.4
+    }
+  ],
+  "audio": {
+    "mood": "modern",
+    "volume": 0.3,
+    "fade_out_seconds": 2
+  },
+  "output": {
+    "resolution": "1080p",
+    "aspect_ratio": "9:16",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "codec": "h264",
+    "format": "mp4"
+  },
+  "callback_url": "https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/generation-callback"
+}

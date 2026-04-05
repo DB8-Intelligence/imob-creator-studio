@@ -38,6 +38,12 @@ export interface MusicMood {
   icon: string;
   /** Valor enviado no payload para o backend */
   payload_value: string;
+  /**
+   * Nome do arquivo de trilha no backend (sem extensao).
+   * O backend resolve: tracks/{track_file}.mp3
+   * null = sem musica
+   */
+  track_file: string | null;
 }
 
 // ─── Catalogo ───────────────────────────────────────────────────────────────
@@ -55,6 +61,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["luxury"],
     icon: "🎹",
     payload_value: "luxury",
+    track_file: "luxury",
   },
 
   moderno: {
@@ -68,6 +75,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["default", "fast_sales"],
     icon: "🎧",
     payload_value: "modern",
+    track_file: "modern",
   },
 
   praia: {
@@ -81,6 +89,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["default", "luxury"],
     icon: "🌊",
     payload_value: "warm",
+    track_file: "warm",
   },
 
   corporativo: {
@@ -94,6 +103,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["default", "fast_sales"],
     icon: "💼",
     payload_value: "energetic",
+    track_file: "energetic",
   },
 
   familiar: {
@@ -107,6 +117,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["default", "luxury"],
     icon: "🏡",
     payload_value: "calm",
+    track_file: "calm",
   },
 
   sem_musica: {
@@ -120,6 +131,7 @@ export const MUSIC_MOODS: Record<MusicMoodId, MusicMood> = {
     best_with_presets: ["default", "luxury", "fast_sales"],
     icon: "🔇",
     payload_value: "none",
+    track_file: null,
   },
 };
 
