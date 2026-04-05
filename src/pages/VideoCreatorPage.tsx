@@ -15,13 +15,15 @@ import { useVeoPolling } from "@/hooks/useVeoPolling";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
+import { VIDEO_TEMPLATE_LIST, getVideoTemplate, getDefaultVideoTemplate, estimateVideoDuration, type VideoTemplateId } from "@/lib/video-templates";
+import { VISUAL_PRESET_LIST, getVisualPreset, type VisualPresetId } from "@/lib/video-visual-presets";
+import { MUSIC_MOOD_LIST, getMusicMood, getDefaultMusicMood, moodToPayloadValue, type MusicMoodId } from "@/lib/video-music-moods";
 import {
   Upload,
   X,
   ChevronRight,
   ChevronLeft,
   Film,
-  Sliders,
   Download,
   Zap,
   Lock,
@@ -30,11 +32,11 @@ import {
   CheckCircle2,
   Loader2,
   ImageIcon,
+  Music,
 } from "lucide-react";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type Style = "cinematic" | "moderno" | "luxury" | "drone" | "walkthrough";
 type Format = "reels" | "feed" | "youtube";
 interface UploadedPhoto {
   id: string;
@@ -44,21 +46,13 @@ interface UploadedPhoto {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const STYLES: { id: Style; label: string; description: string; emoji: string }[] = [
-  { id: "cinematic", label: "Cinematic", description: "Transições suaves, iluminação dramática, trilha épica", emoji: "🎬" },
-  { id: "moderno", label: "Moderno", description: "Cortes rápidos, tipografia bold, energia urbana", emoji: "⚡" },
-  { id: "luxury", label: "Luxury", description: "Movimentos lentos, paleta dourada, elegância sofisticada", emoji: "✨" },
-  { id: "drone", label: "Drone Aéreo", description: "Vista aérea, sobrevoo suave, perspectiva panorâmica", emoji: "🚁" },
-  { id: "walkthrough", label: "Tour Virtual", description: "Primeira pessoa, passeio pelo imóvel, visita virtual", emoji: "🚶" },
-];
-
 const FORMATS: { id: Format; label: string; ratio: string; platforms: string }[] = [
   { id: "reels", label: "Reels / TikTok", ratio: "9:16", platforms: "Instagram · TikTok" },
   { id: "feed", label: "Feed Quadrado", ratio: "1:1", platforms: "Instagram · Facebook" },
   { id: "youtube", label: "YouTube / TV", ratio: "16:9", platforms: "YouTube · Stories Landscape" },
 ];
 
-const STEPS = ["Upload de fotos", "Estilo & formato", "Gerar vídeo"];
+const STEPS = ["Upload de fotos", "Template & estilo", "Trilha & gerar"];
 
 // ── Plan Gate ─────────────────────────────────────────────────────────────────
 
@@ -115,7 +109,7 @@ const PlanGate = () => {
 const VideoCreatorPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = (location.state ?? {}) as { style?: Style; format?: Format };
+  const locationState = (location.state ?? {}) as { format?: Format };
   const { toast } = useToast();
   const { data: plan } = useUserPlan();
   const { workspaceId } = useWorkspaceContext();
@@ -127,8 +121,10 @@ const VideoCreatorPage = () => {
 
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [style, setStyle] = useState<Style>(locationState.style ?? "cinematic");
-  const [format, setFormat] = useState<Format>(locationState.format ?? "reels");
+  const [templateId, setTemplateId] = useState<VideoTemplateId>(getDefaultVideoTemplate());
+  const [presetId, setPresetId] = useState<VisualPresetId>("default");
+  const [moodId, setMoodId] = useState<MusicMoodId>(getDefaultMusicMood());
+  const [format, setFormat] = useState<Format>((locationState as { format?: Format }).format ?? "reels");
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -144,7 +140,7 @@ const VideoCreatorPage = () => {
   const { startPolling, results: pollResults, isPolling } = useVeoPolling();
   const [pendingJobId, setPendingJobId] = useState<string | null>(null);
 
-  // Plan gate: Credits users can't access
+  // Plan gate
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
   const activeAddonType = resolveVideoPlanTier(overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard"));
   const planRule = getVideoPlanRule(activeAddonType);
@@ -152,9 +148,15 @@ const VideoCreatorPage = () => {
   const motionPreset = getDefaultVideoMotionPreset();
   const motionPresetConfig = getVideoMotionPresetConfig(motionPreset);
   const maxPhotosAllowed = planRule.maxUploadImages;
-  const maxDurationAllowed = planRule.maxDurationSeconds;
   const resolutionLabel = planRule.resolution;
-  const computedDurationSeconds = uploadSummary.computedDurationSeconds;
+
+  // Derived from template + photos
+  const selectedTemplate = getVideoTemplate(templateId);
+  const selectedPreset = getVisualPreset(presetId);
+  const selectedMood = getMusicMood(moodId);
+  const computedDurationSeconds = photos.length > 0
+    ? estimateVideoDuration(templateId, photos.length)
+    : uploadSummary.computedDurationSeconds;
 
   // When all polled clips finish, update the job status
   useEffect(() => {
@@ -245,8 +247,8 @@ const VideoCreatorPage = () => {
 
     try {
       const createdJob = await createVideoJobMutation.mutateAsync({
-        title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
-        style,
+        title: `${selectedTemplate.name} - ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+        style: presetId,
         format,
         durationSeconds: computedDurationSeconds,
         photosCount: photos.length,
@@ -258,6 +260,11 @@ const VideoCreatorPage = () => {
           motion_preset: motionPreset,
           motion_preset_config: motionPresetConfig,
           render_engine: engine,
+          template_id: templateId,
+          template_name: selectedTemplate.name,
+          visual_preset: presetId,
+          music_mood: moodId,
+          music_payload: moodToPayloadValue(moodId),
         },
       });
       jobId = createdJob.id;
@@ -277,11 +284,12 @@ const VideoCreatorPage = () => {
         const v2Result = await renderVideoJobV2({
           workspaceId,
           videoJobId: jobId,
-          title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
-          style,
+          title: `${selectedTemplate.name} - ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+          style: presetId,
           format,
           photos: photos.map((p) => p.file),
           addonType: activeAddonType,
+          audioMood: moodToPayloadValue(moodId),
         });
 
         toast({
@@ -318,7 +326,7 @@ const VideoCreatorPage = () => {
         // ── Veo pipeline (optional, NOT default) ─────────────────────
         const segmentPhotos = photos.slice(0, uploadSummary.renderedSegments);
         const aspectRatio = formatToAspectRatio(format);
-        const veoStyle = (style === "drone" || style === "walkthrough") ? style : style as "cinematic" | "moderno" | "luxury";
+        const veoStyle = presetId === "luxury" ? "luxury" : presetId === "fast_sales" ? "moderno" : "cinematic" as "cinematic" | "moderno" | "luxury";
 
         setVeoProgress({ current: 0, total: segmentPhotos.length });
 
@@ -396,8 +404,8 @@ const VideoCreatorPage = () => {
         const result = await renderVideoJob({
           workspaceId,
           videoJobId: jobId,
-          title: `Vídeo ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
-          style,
+          title: `${selectedTemplate.name} - ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
+          style: presetId,
           format,
           duration: String(computedDurationSeconds),
           addonType: activeAddonType,
@@ -606,30 +614,66 @@ const VideoCreatorPage = () => {
           </div>
         )}
 
-        {/* ── STEP 1: Style & format ───────────────────────────────────────── */}
+        {/* ── STEP 1: Template & estilo ─────────────────────────────────── */}
         {step === 1 && (
           <div className="space-y-6">
             <Card>
               <CardContent className="p-6 space-y-7">
-                {/* Style */}
+                {/* Template */}
                 <div>
-                  <Label className="text-base font-semibold">Estilo visual</Label>
-                  <p className="text-sm text-muted-foreground mb-4">Define a identidade estética do vídeo gerado pela IA.</p>
+                  <Label className="text-base font-semibold">Tipo de video</Label>
+                  <p className="text-sm text-muted-foreground mb-4">Escolha o estilo de narrativa visual do seu video.</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {STYLES.map((s) => (
+                    {VIDEO_TEMPLATE_LIST.map((t) => (
                       <button
-                        key={s.id}
-                        onClick={() => setStyle(s.id)}
+                        key={t.id}
+                        onClick={() => {
+                          setTemplateId(t.id);
+                          setPresetId(t.recommended_preset);
+                          const recMood = t.recommended_mood as MusicMoodId;
+                          if (MUSIC_MOOD_LIST.some((m) => m.id === recMood)) setMoodId(recMood);
+                        }}
                         className={[
                           "rounded-xl border p-4 text-left transition-all",
-                          style === s.id
+                          templateId === t.id
                             ? "border-accent bg-accent/10 ring-1 ring-accent"
                             : "border-border hover:border-accent/40",
                         ].join(" ")}
                       >
-                        <span className="text-2xl mb-2 block">{s.emoji}</span>
-                        <p className="font-semibold text-foreground">{s.label}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-2xl">{t.icon}</span>
+                          <Badge variant="outline" className="text-[10px]">{t.estimated_duration_label}</Badge>
+                        </div>
+                        <p className="font-semibold text-foreground">{t.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{t.tagline}</p>
+                        <p className="text-[11px] text-muted-foreground/70 mt-2">{t.best_for}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Visual Preset */}
+                <div>
+                  <Label className="text-base font-semibold">Estilo visual</Label>
+                  <p className="text-sm text-muted-foreground mb-4">Define como a camera se movimenta sobre suas fotos.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {VISUAL_PRESET_LIST.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setPresetId(p.id)}
+                        className={[
+                          "rounded-xl border p-4 text-left transition-all",
+                          presetId === p.id
+                            ? "border-accent bg-accent/10 ring-1 ring-accent"
+                            : "border-border hover:border-accent/40",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-xl">{p.icon}</span>
+                          <Badge variant="outline" className="text-[10px] capitalize">{p.rhythm}</Badge>
+                        </div>
+                        <p className="font-semibold text-foreground">{p.name}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{p.feeling}</p>
                       </button>
                     ))}
                   </div>
@@ -637,8 +681,8 @@ const VideoCreatorPage = () => {
 
                 {/* Format */}
                 <div>
-                  <Label className="text-base font-semibold">Formato de saída</Label>
-                  <p className="text-sm text-muted-foreground mb-4">Escolha as proporções ideais para a rede social alvo.</p>
+                  <Label className="text-base font-semibold">Formato de saida</Label>
+                  <p className="text-sm text-muted-foreground mb-4">Proporcoes ideais para a rede social alvo.</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {FORMATS.map((f) => (
                       <button
@@ -663,29 +707,23 @@ const VideoCreatorPage = () => {
                   </div>
                 </div>
 
-                {/* Duration */}
-                <div>
-                  <Label className="text-base font-semibold">Duração calculada automaticamente</Label>
-                  <p className="text-sm text-muted-foreground mb-4">Cada imagem gera 5 segundos. Seu plano atual permite até {maxPhotosAllowed} fotos enviadas, até {planRule.maxRenderedSegments} segmentos renderizados e saída em {resolutionLabel}.</p>
-                  <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Imagens enviadas</span>
-                      <span className="font-semibold text-foreground">{photos.length}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Segmentos usados na montagem</span>
-                      <span className="font-semibold text-foreground">{uploadSummary.renderedSegments}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Duração estimada final</span>
-                      <span className="font-semibold text-foreground">{computedDurationSeconds}s</span>
-                    </div>
-                    {uploadSummary.hasOptimization && (
-                      <p className="text-xs text-amber-600 pt-2 border-t border-border">Seu plano permite enviar {maxPhotosAllowed} imagens, mas a montagem final usa até {planRule.maxRenderedSegments} segmentos para respeitar o teto de {planRule.maxDurationSeconds}s.</p>
-                    )}
-                    {!uploadSummary.hasOptimization && photos.length < 6 && (
-                      <p className="text-xs text-amber-600 pt-2 border-t border-border">Recomendamos pelo menos 6 imagens para uma narrativa visual mais completa.</p>
-                    )}
+                {/* Duration summary */}
+                <div className="rounded-2xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Fotos</span>
+                    <span className="font-semibold text-foreground">{photos.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Segundos por foto</span>
+                    <span className="font-semibold text-foreground">{selectedTemplate.seconds_per_photo}s</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duracao estimada</span>
+                    <span className="font-semibold text-foreground">{computedDurationSeconds}s</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Resolucao</span>
+                    <span className="font-semibold text-foreground">{resolutionLabel}</span>
                   </div>
                 </div>
               </CardContent>
@@ -697,43 +735,87 @@ const VideoCreatorPage = () => {
                 Voltar
               </Button>
               <Button onClick={() => setStep(2)} size="lg">
-                Próximo: gerar vídeo
+                Proximo: trilha e gerar
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
           </div>
         )}
 
-        {/* ── STEP 2: Generate ─────────────────────────────────────────────── */}
+        {/* ── STEP 2: Trilha & gerar ────────────────────────────────────── */}
         {step === 2 && (
           <div className="space-y-6">
+            {/* Music mood selector */}
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Music className="w-4 h-4 text-accent" />
+                    <Label className="text-base font-semibold">Trilha sonora</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">Escolha a ambientacao musical do video.</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {MUSIC_MOOD_LIST.map((m) => (
+                      <button
+                        key={m.id}
+                        onClick={() => setMoodId(m.id)}
+                        className={[
+                          "rounded-xl border p-3 text-left transition-all",
+                          moodId === m.id
+                            ? "border-accent bg-accent/10 ring-1 ring-accent"
+                            : "border-border hover:border-accent/40",
+                        ].join(" ")}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">{m.icon}</span>
+                          <p className="font-semibold text-foreground text-sm">{m.name}</p>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-snug">{m.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid lg:grid-cols-[1fr,320px] gap-6">
               {/* Summary */}
               <Card>
                 <CardContent className="p-6 space-y-5">
-                  <h2 className="text-xl font-semibold text-foreground">Resumo do vídeo</h2>
+                  <h2 className="text-xl font-semibold text-foreground">Resumo do video</h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="rounded-xl bg-muted/40 p-4 space-y-1">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Fotos</p>
-                      <p className="font-semibold text-foreground">{photos.length} fotos selecionadas</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Template</p>
+                      <p className="font-semibold text-foreground">{selectedTemplate.icon} {selectedTemplate.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{selectedTemplate.tagline}</p>
                     </div>
                     <div className="rounded-xl bg-muted/40 p-4 space-y-1">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Estilo</p>
-                      <p className="font-semibold text-foreground">{STYLES.find((s) => s.id === style)?.label}</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Estilo visual</p>
+                      <p className="font-semibold text-foreground">{selectedPreset.icon} {selectedPreset.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{selectedPreset.feeling}</p>
+                    </div>
+                    <div className="rounded-xl bg-muted/40 p-4 space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Trilha</p>
+                      <p className="font-semibold text-foreground">{selectedMood.icon} {selectedMood.name}</p>
+                      <p className="text-[11px] text-muted-foreground">{selectedMood.emotion}</p>
                     </div>
                     <div className="rounded-xl bg-muted/40 p-4 space-y-1">
                       <p className="text-xs text-muted-foreground uppercase tracking-wide">Formato</p>
                       <p className="font-semibold text-foreground">{FORMATS.find((f) => f.id === format)?.label}</p>
                     </div>
                     <div className="rounded-xl bg-muted/40 p-4 space-y-1">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Duração</p>
-                      <p className="font-semibold text-foreground">{computedDurationSeconds}s calculados automaticamente</p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Fotos</p>
+                      <p className="font-semibold text-foreground">{photos.length} fotos</p>
+                    </div>
+                    <div className="rounded-xl bg-muted/40 p-4 space-y-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide">Duracao</p>
+                      <p className="font-semibold text-foreground">{computedDurationSeconds}s · {resolutionLabel}</p>
                     </div>
                   </div>
 
                   {/* Mini photo preview */}
                   <div>
-                    <p className="text-xs text-muted-foreground mb-2">Fotos incluídas</p>
+                    <p className="text-xs text-muted-foreground mb-2">Fotos incluidas</p>
                     <div className="flex flex-wrap gap-1.5">
                       {photos.slice(0, 12).map((p) => (
                         <img key={p.id} src={p.preview} alt="" className="w-10 h-10 rounded object-cover" />
@@ -749,7 +831,7 @@ const VideoCreatorPage = () => {
                   <div className="flex gap-3 pt-2">
                     <Button variant="outline" onClick={() => setStep(1)} disabled={generating}>
                       <ChevronLeft className="w-4 h-4 mr-1" />
-                      Editar configurações
+                      Editar configuracoes
                     </Button>
                     {!generated && (
                       <Button
@@ -787,10 +869,16 @@ const VideoCreatorPage = () => {
                   <div className="p-5 space-y-4">
                     {!generating && !generated && (
                       <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-6 text-primary-foreground min-h-[200px] flex flex-col justify-between shadow-elevated">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Badge className="bg-accent text-primary">{computedDurationSeconds}s</Badge>
                           <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">
-                            {STYLES.find((s) => s.id === style)?.label}
+                            {selectedTemplate.name}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">
+                            {selectedPreset.name}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-white/10 text-primary-foreground border-white/10">
+                            {selectedMood.icon} {selectedMood.name}
                           </Badge>
                         </div>
                         <div>
