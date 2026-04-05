@@ -78,6 +78,7 @@ const TYPE_TO_FUNCTION: Record<string, string> = {
   empty_lot:          "gerar-criativo",
   image_to_video:     "image-to-video",
   video_compose:      "compose-video",
+  video_compose_v2:   "generate-video-v2",
   gerar_descricao:    "generate-caption",
 };
 
@@ -418,6 +419,20 @@ function buildFunctionPayload(
         imageUrls:    req.image_urls,
         motionPreset: req.style ?? "smooth_pan",
         workspaceId:  req.workspace_id ?? null,
+      };
+
+    case "video_compose_v2":
+      return {
+        skip_credits:  true,
+        workspace_id:  req.workspace_id ?? null,
+        video_job_id:  (req as Record<string, unknown>).video_job_id ?? null,
+        photo_urls:    req.image_urls,
+        motion_preset: req.style ?? "default",
+        aspect_ratio:  req.aspect_ratio ?? "9:16",
+        resolution:    (req as Record<string, unknown>).resolution ?? "1080p",
+        property:      (req as Record<string, unknown>).property ?? null,
+        audio:         (req as Record<string, unknown>).audio ?? null,
+        plan_tier:     (req as Record<string, unknown>).plan_tier ?? "standard",
       };
 
     case "gerar_descricao":
