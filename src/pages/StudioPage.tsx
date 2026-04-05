@@ -283,6 +283,7 @@ const StudioPage = () => {
                 inline
                 selected={selectedUseCase?.id as UseCaseId | undefined}
                 onSelect={handleEngineSelect}
+                templateCategory={selectedTemplate?.category}
               />
             </StepContainer>
           )}

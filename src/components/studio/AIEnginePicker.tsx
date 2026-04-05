@@ -3,6 +3,8 @@
  *
  * O usuário vê "O que quer fazer?" em linguagem simples.
  * Internamente mapeamos para o engine correto.
+ *
+ * DEV-15: Adicionado filtro por templateCategory, badges de output type e tempo estimado.
  */
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +18,12 @@ import {
   type UseCaseDefinition,
 } from "@/lib/ai-engines";
 import { Badge } from "@/components/ui/badge";
+import {
+  getMatrixEntry,
+  getUseCasesForTemplate,
+  OUTPUT_TYPE_LABELS,
+  OUTPUT_TYPE_ICONS,
+} from "@/lib/generation-matrix";
 
 interface AIEnginePickerProps {
   /** Modo inline: ao selecionar, chama onSelect em vez de navegar */
@@ -24,6 +32,8 @@ interface AIEnginePickerProps {
   selected?:  UseCaseId;
   /** Oculta categorias específicas */
   hideCategories?: Array<keyof typeof USE_CASE_CATEGORIES>;
+  /** Filtra use cases compatíveis com a categoria do template selecionado */
+  templateCategory?: string;
 }
 
 export function AIEnginePicker({
@@ -31,8 +41,14 @@ export function AIEnginePicker({
   onSelect,
   selected,
   hideCategories = [],
+  templateCategory,
 }: AIEnginePickerProps) {
   const navigate = useNavigate();
+
+  // Se templateCategory é fornecido, filtrar use cases compatíveis
+  const compatibleUseCaseIds = templateCategory
+    ? new Set(getUseCasesForTemplate(templateCategory).map((e) => e.use_case_id))
+    : null;
 
   const handleSelect = (uc: UseCaseDefinition) => {
     if (inline && onSelect) {
@@ -49,7 +65,13 @@ export function AIEnginePicker({
   return (
     <div className="flex flex-col gap-6">
       {categories.map((cat) => {
-        const useCases = getUseCasesByCategory(cat);
+        let useCases = getUseCasesByCategory(cat);
+
+        // Filtrar por compatibilidade com o template
+        if (compatibleUseCaseIds) {
+          useCases = useCases.filter((uc) => compatibleUseCaseIds.has(uc.id));
+        }
+
         if (!useCases.length) return null;
 
         return (
@@ -60,6 +82,7 @@ export function AIEnginePicker({
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
               {useCases.map((uc) => {
                 const engine = AI_ENGINES[uc.default_engine];
+                const matrixEntry = getMatrixEntry(uc.id);
                 const isSelected = selected === uc.id;
 
                 return (
@@ -83,8 +106,15 @@ export function AIEnginePicker({
                         {uc.description}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1 mt-auto pt-1">
-                      <span className="text-[10px] text-[var(--ds-fg-subtle)]">{engine.label}</span>
+                    <div className="flex items-center gap-1 mt-auto pt-1 flex-wrap">
+                      {matrixEntry && (
+                        <span className="text-[10px] text-[var(--ds-fg-subtle)]">
+                          {OUTPUT_TYPE_ICONS[matrixEntry.output_type]} {OUTPUT_TYPE_LABELS[matrixEntry.output_type]}
+                        </span>
+                      )}
+                      <span className="text-[10px] text-[var(--ds-fg-subtle)]">
+                        {matrixEntry ? `~${matrixEntry.avg_time_seconds}s` : ""}
+                      </span>
                       {engine.badge && (
                         <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-[var(--ds-border)]">
                           {engine.badge}
