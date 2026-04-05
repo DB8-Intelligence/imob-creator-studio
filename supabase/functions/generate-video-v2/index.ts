@@ -196,38 +196,90 @@ serve(async (req) => {
       .eq("id", video_job_id)
       .eq("workspace_id", workspace_id);
 
-    // ── Also track in generation_jobs if pipeline integration is active ──
-    await admin.from("generation_jobs").insert({
-      user_id:         userId,
-      workspace_id,
-      generation_type: "video_compose_v2",
-      engine_id:       "ffmpeg_kenburns",
-      status:          "processing",
-      callback_mode:   "async",
-      callback_url:    callbackUrl,
-      credits_consumed: 1,
-      request_payload: ffmpegSpec,
-    }).then(({ error }) => {
-      if (error) console.warn("generation_jobs insert (non-blocking):", error.message);
-    });
+    // ── Track in generation_jobs (pipeline integration) ─────────────
+    const { data: genJob, error: genJobError } = await admin
+      .from("generation_jobs")
+      .insert({
+        user_id:         userId,
+        workspace_id,
+        generation_type: "video_compose_v2",
+        engine_id:       "ffmpeg_kenburns",
+        status:          "processing",
+        callback_mode:   "async",
+        callback_url:    callbackUrl,
+        credits_consumed: 1,
+        request_payload: ffmpegSpec,
+      })
+      .select("id")
+      .single();
+
+    if (genJobError) {
+      console.warn("generation_jobs insert error:", genJobError.message);
+    }
+
+    const generationJobId = genJob?.id ?? video_job_id;
+
+    // Update ffmpegSpec.job_id to use the generation_jobs ID for callback
+    ffmpegSpec.job_id = generationJobId;
 
     // ── Dispatch to FFmpeg backend ───────────────────────────────────
-    // Fire-and-forget: backend will call generation-callback when done
-    fetch(FFMPEG_BACKEND_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(ffmpegSpec),
-    }).catch((err) => {
-      console.error("FFmpeg backend dispatch error:", err);
-      admin
-        .from("video_jobs")
-        .update({ status: "failed", metadata: { error: "backend_dispatch_failed", message: err.message } })
-        .eq("id", video_job_id)
-        .eq("workspace_id", workspace_id);
-    });
+    // Attempt to reach the backend. If it's not available yet (404/network error),
+    // fallback to n8n webhook dispatch.
+    const dispatchToBackend = async () => {
+      try {
+        const res = await fetch(FFMPEG_BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(ffmpegSpec),
+        });
+
+        if (res.ok) {
+          console.log(`[generate-video-v2] Dispatched to FFmpeg backend (${res.status})`);
+          return;
+        }
+
+        // Backend returned error (404 = endpoint not deployed yet)
+        console.warn(`[generate-video-v2] Backend returned ${res.status}, falling back to n8n`);
+      } catch (err) {
+        console.warn(`[generate-video-v2] Backend unreachable, falling back to n8n:`, err);
+      }
+
+      // Fallback: dispatch to n8n generation-router (which can route video_compose_v2)
+      const N8N_WEBHOOK = "https://automacao.db8intelligence.com.br/webhook/imobcreator-generate";
+      try {
+        await fetch(N8N_WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...ffmpegSpec,
+            generation_type: "video_compose_v2",
+            engine_id: "ffmpeg_kenburns",
+            source: "generate-video-v2",
+          }),
+        });
+        console.log("[generate-video-v2] Dispatched to n8n fallback");
+      } catch (n8nErr) {
+        console.error("[generate-video-v2] Both backend and n8n failed:", n8nErr);
+        // Mark jobs as failed
+        await admin
+          .from("video_jobs")
+          .update({ status: "failed", metadata: { error: "all_dispatch_failed" } })
+          .eq("id", video_job_id);
+        if (genJob?.id) {
+          await admin
+            .from("generation_jobs")
+            .update({ status: "error", error_message: "All dispatch targets failed" })
+            .eq("id", genJob.id);
+        }
+      }
+    };
+
+    // Fire-and-forget
+    dispatchToBackend();
 
     return json({
-      job_id:              video_job_id,
+      job_id:              generationJobId,
+      video_job_id,
       status:              "processing",
       pipeline_version:    "v2",
       total_clips:         totalClips,
@@ -283,13 +335,14 @@ function buildTextOverlays(
 
   if (property.address) {
     overlays.push({
-      text:       property.address,
-      position:   "bottom",
-      font_size:  42,
-      color:      "#FFFFFF",
-      background: "black@0.6",
-      start_time: overlayStart,
-      end_time:   overlayEnd,
+      text:          property.address,
+      position:      "bottom_safe",
+      font_size:     42,
+      color:         "#FFFFFF",
+      background:    "black@0.6",
+      margin_bottom: 120,    // Instagram Reels safe zone
+      start_time:    overlayStart,
+      end_time:      overlayEnd,
     });
   }
 
@@ -307,13 +360,14 @@ function buildTextOverlays(
 
   if (property.broker_name && property.broker_phone) {
     overlays.push({
-      text:       `${property.broker_name} | ${property.broker_phone}`,
-      position:   "bottom",
-      font_size:  28,
-      color:      "#FFFFFF",
-      background: "black@0.4",
-      start_time: overlayStart + 1,
-      end_time:   overlayEnd,
+      text:          `${property.broker_name} | ${property.broker_phone}`,
+      position:      "bottom_safe",
+      font_size:     28,
+      color:         "#FFFFFF",
+      background:    "black@0.4",
+      margin_bottom: 180,    // Above address overlay
+      start_time:    overlayStart + 1,
+      end_time:      overlayEnd,
     });
   }
 

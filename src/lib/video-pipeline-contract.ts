@@ -13,6 +13,21 @@
  * - FFmpegJobResult           (backend -> callback)
  */
 
+// ─── Engine Selection ───────────────────────────────────────────────────────
+
+/**
+ * VideoEngineId — discriminante de engine de video.
+ *
+ * "ffmpeg_kenburns" = pipeline FFmpeg (Ken Burns + xfade + drawtext + audio)
+ *                     DEFAULT — fotos intocaveis, composicao pura
+ *
+ * "veo_video"       = Veo 3.1 (Gemini) — IA generativa de video
+ *                     OPCIONAL — nao padrao, disponivel para experimentacao
+ */
+export type VideoEngineId = "ffmpeg_kenburns" | "veo_video";
+
+export const DEFAULT_VIDEO_ENGINE: VideoEngineId = "ffmpeg_kenburns";
+
 // ─── Motion Presets ─────────────────────────────────────────────────────────
 
 export type MotionType = "zoom_in" | "zoom_out" | "pan_left" | "pan_right" | "pan_up" | "pan_down";
@@ -36,17 +51,25 @@ export interface TransitionConfig {
 
 // ─── Overlay / Texto ────────────────────────────────────────────────────────
 
+/**
+ * Safe zone: Instagram Reels tem ~120px de UI na parte inferior.
+ * "bottom_safe" posiciona o texto acima dessa zona.
+ */
+export type OverlayPosition = "top" | "center" | "bottom_safe";
+
 export interface TextOverlay {
   /** Texto a renderizar */
   text: string;
-  /** Posicao vertical: top, center, bottom */
-  position: "top" | "center" | "bottom";
+  /** Posicao vertical: top, center, bottom_safe (safe = acima da UI do Instagram) */
+  position: OverlayPosition;
   /** Tamanho da fonte */
   font_size: number;
   /** Cor hex */
   color: string;
   /** Fundo semitransparente (ex: "black@0.5") */
   background?: string;
+  /** Margem inferior extra em pixels (safe zone = 120px para Reels) */
+  margin_bottom?: number;
   /** Quando aparece no video (segundos) */
   start_time: number;
   /** Quando desaparece (segundos) */
@@ -285,10 +308,11 @@ export function buildPropertyOverlays(
   if (property.address) {
     overlays.push({
       text: property.address,
-      position: "bottom",
+      position: "bottom_safe",
       font_size: 42,
       color: "#FFFFFF",
       background: "black@0.6",
+      margin_bottom: 120,
       start_time: overlayStart,
       end_time: overlayEnd,
     });

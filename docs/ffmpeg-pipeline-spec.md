@@ -189,6 +189,14 @@ ffmpeg \
 
 ### 2.1 Drawtext (dados do imovel)
 
+**SAFE ZONE**: Instagram Reels tem ~120px de UI na parte inferior.
+Overlays com `position: "bottom_safe"` devem usar `margin_bottom` para
+posicionar acima dessa zona. O calculo FFmpeg:
+
+- `position: "center"` → `y=(h-text_h)/2`
+- `position: "top"` → `y=60`
+- `position: "bottom_safe"` → `y=h-text_h-margin_bottom` (default margin_bottom=120)
+
 ```bash
 ffmpeg -i intermediate.mp4 -vf "
   drawtext=text='R\\$ 450.000':
@@ -205,7 +213,7 @@ ffmpeg -i intermediate.mp4 -vf "
     fontcolor=white:
     box=1:boxcolor=black@0.6:boxborderw=12:
     x=(w-text_w)/2:
-    y=h-text_h-60:
+    y=h-text_h-120:
     enable='between(t,15.4,20.4)'
 " -c:v libx264 -preset fast -crf 18 with_text.mp4
 ```
