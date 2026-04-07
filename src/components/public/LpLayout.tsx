@@ -1,6 +1,6 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Building2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
 
@@ -39,13 +39,8 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
         }`}
       >
         <div className="container mx-auto px-6 py-3.5 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 bg-gradient-to-br from-[var(--ds-gold)] to-[var(--ds-gold-light)] rounded-lg flex items-center justify-center shadow-md shadow-[rgba(212,175,55,0.2)]">
-              <Building2 className="w-4 h-4 text-black" />
-            </div>
-            <span className="font-display text-base font-semibold">
-              <span style={{ color: "#002B5B" }} className="text-[var(--ds-fg)]">Imob</span><span style={{ color: "#FFD700" }}>Creator</span> <span className="text-xs text-[var(--ds-fg-muted)]">AI</span>
-            </span>
+          <Link to="/" className="shrink-0">
+            <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-8 w-auto" />
           </Link>
 
           <Link to="/auth" className="btn-primary !py-2 !px-5 !text-sm">
