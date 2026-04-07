@@ -4,15 +4,17 @@
  */
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { Sparkles, Zap, Lock } from "lucide-react";
+import { Sparkles, Zap, Lock, Crown } from "lucide-react";
 import type { CatalogTemplate, CreativeCategory } from "@/lib/creative-catalog";
 import { CATEGORY_LABELS, STYLE_LABELS } from "@/lib/creative-catalog";
 
 interface TemplateCardProps {
-  template:   CatalogTemplate;
-  selected?:  boolean;
-  locked?:    boolean;
-  onSelect:   (t: CatalogTemplate) => void;
+  template:    CatalogTemplate;
+  selected?:   boolean;
+  locked?:     boolean;
+  isPremium?:  boolean;       // shows premium badge + upgrade CTA
+  onSelect:    (t: CatalogTemplate) => void;
+  onUpgrade?:  () => void;    // called when locked premium template is clicked
 }
 
 const ASPECT_CLASS: Record<string, string> = {
@@ -23,13 +25,14 @@ const ASPECT_CLASS: Record<string, string> = {
   "1.91:1": "aspect-[1.91/1]",
 };
 
-export function TemplateCard({ template, selected, locked, onSelect }: TemplateCardProps) {
+export function TemplateCard({ template, selected, locked, isPremium, onSelect, onUpgrade }: TemplateCardProps) {
   const aspect = ASPECT_CLASS[template.aspect_ratio] ?? "aspect-square";
+  const showPremium = isPremium ?? template.is_premium;
 
   return (
     <button
       type="button"
-      onClick={() => !locked && onSelect(template)}
+      onClick={() => locked ? onUpgrade?.() : onSelect(template)}
       className={cn(
         "group relative flex flex-col rounded-2xl border overflow-hidden text-left transition-all duration-200",
         selected
@@ -57,6 +60,12 @@ export function TemplateCard({ template, selected, locked, onSelect }: TemplateC
 
         {/* Overlay badges — top left: status */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
+          {showPremium && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 text-black text-[10px] font-bold backdrop-blur-sm shadow-sm">
+              <Crown className="w-2.5 h-2.5" />
+              {template.min_tier === "premium" ? "Premium" : "Plus"}
+            </span>
+          )}
           {template.is_new && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold backdrop-blur-sm">
               <Sparkles className="w-2.5 h-2.5" />
@@ -65,7 +74,7 @@ export function TemplateCard({ template, selected, locked, onSelect }: TemplateC
           )}
           {template.is_popular && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/90 text-white text-[10px] font-bold backdrop-blur-sm">
-              🔥 Popular
+              Popular
             </span>
           )}
           {template.status === "beta" && (
@@ -90,8 +99,13 @@ export function TemplateCard({ template, selected, locked, onSelect }: TemplateC
         </div>
 
         {locked && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <Lock className="w-6 h-6 text-white" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-[2px] gap-2">
+            <Lock className="w-6 h-6 text-white/90" />
+            {showPremium && (
+              <span className="text-[10px] font-semibold text-white/90 bg-amber-500/80 px-2 py-0.5 rounded-full">
+                Fazer upgrade
+              </span>
+            )}
           </div>
         )}
       </div>

@@ -1,0 +1,196 @@
+{
+  "name": "ImobCreator — Workflow 3: Automation Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule: Diário 08h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/rest/v1/automation_rules?is_active=eq.true&select=id,user_id,workspace_id,frequency,generation_type",
+        "method": "GET",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "={{ $env.SUPABASE_SERVICE_KEY }}" },
+            { "name": "Authorization", "value": "=Bearer {{ $env.SUPABASE_SERVICE_KEY }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-active-rules",
+      "name": "Supabase: Buscar Regras Ativas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "id": "freq-check",
+              "leftValue": "={{ $json.frequency }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "filter-frequency",
+      "name": "Filter: Frequência Válida",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [640, 300],
+      "notes": "Filtra regras daily (todos os dias) e weekly (apenas segunda-feira). A lógica de deduplicação final fica no automation-trigger."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filtra weekly para só executar na segunda-feira (day 1)\nconst today = new Date();\nconst dayOfWeek = today.getDay(); // 0=Dom, 1=Seg\n\nconst items = $input.all();\nconst filtered = items.filter(item => {\n  if (item.json.frequency === 'daily') return true;\n  if (item.json.frequency === 'weekly' && dayOfWeek === 1) return true;\n  return false;\n});\n\nreturn filtered;"
+      },
+      "id": "code-frequency-filter",
+      "name": "Code: Filtro Semanal (Seg)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "id": "split-batches",
+      "name": "Loop: Uma Regra por Vez",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.SUPABASE_URL }}/functions/v1/automation-trigger",
+        "method": "POST",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-service-key", "value": "={{ $env.AUTOMATION_SERVICE_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ automation_id: $json.id }) }}",
+        "options": {
+          "timeout": 30000,
+          "allowUnauthorizedCerts": false,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "call-automation-trigger",
+      "name": "HTTP: Chamar automation-trigger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "number": [
+            { "name": "waitMs", "value": 2000 }
+          ]
+        },
+        "options": {}
+      },
+      "id": "wait-between",
+      "name": "Wait 2s (rate limit)",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [1520, 300]
+    },
+    {
+      "parameters": {},
+      "id": "no-op-end",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1740, 300]
+    }
+  ],
+  "connections": {
+    "Schedule: Diário 08h": {
+      "main": [
+        [{ "node": "Supabase: Buscar Regras Ativas", "type": "main", "index": 0 }]
+      ]
+    },
+    "Supabase: Buscar Regras Ativas": {
+      "main": [
+        [{ "node": "Filter: Frequência Válida", "type": "main", "index": 0 }]
+      ]
+    },
+    "Filter: Frequência Válida": {
+      "main": [
+        [{ "node": "Code: Filtro Semanal (Seg)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code: Filtro Semanal (Seg)": {
+      "main": [
+        [{ "node": "Loop: Uma Regra por Vez", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop: Uma Regra por Vez": {
+      "main": [
+        [{ "node": "HTTP: Chamar automation-trigger", "type": "main", "index": 0 }],
+        [{ "node": "Done", "type": "main", "index": 0 }]
+      ]
+    },
+    "HTTP: Chamar automation-trigger": {
+      "main": [
+        [{ "node": "Wait 2s (rate limit)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait 2s (rate limit)": {
+      "main": [
+        [{ "node": "Loop: Uma Regra por Vez", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo"
+  },
+  "meta": {
+    "description": "Workflow de automação de conteúdo (DEV-26). Executa diariamente às 08h, consulta automation_rules ativas, filtra por frequência (daily/weekly) e chama automation-trigger para cada regra. Deduplicação final fica na edge function.",
+    "templateCredsSetupCompleted": false
+  },
+  "_comment_credentials": {
+    "SUPABASE_URL": "URL do Supabase project (ex: https://spjnymdizezgmzwoskoj.supabase.co)",
+    "SUPABASE_SERVICE_KEY": "service_role key do Supabase (NÃO anon key)",
+    "AUTOMATION_SERVICE_KEY": "Valor da env AUTOMATION_SERVICE_KEY configurada no Supabase Edge Functions"
+  }
+}

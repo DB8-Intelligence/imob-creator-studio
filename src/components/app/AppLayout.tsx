@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/app/NotificationBell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -11,83 +12,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Home,
-  LayoutGrid,
-  Edit3,
-  Library,
   Settings,
   LogOut,
   Menu,
   X,
   Moon,
   Sun,
-  Wand2,
-  Clapperboard,
-  Layers,
-  ScanSearch,
-  ZoomIn,
-  Bot,
-  Sofa,
-  Hammer,
-  PenTool,
-  Video,
-  CreditCard,
-  Building2,
-  MapPin,
-  BarChart3,
-  GitBranch,
-  Gift,
-  Megaphone,
-  TrendingUp,
-  DollarSign,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { Coins } from "lucide-react";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
+import { DASHBOARD_NAV, type NavSection } from "@/config/dashboard-nav";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
 
-const navItems = [
-  { icon: Home, label: "Dashboard", path: "/dashboard" },
-  // ── Criativos ──
-  { divider: true, label: "Criativos" },
-  { icon: Clapperboard, label: "Studio Visual", path: "/studio", badge: "Novo" },
-  { icon: Wand2, label: "Criar Criativo", path: "/create" },
-  { icon: Layers, label: "Showcase", path: "/showcase" },
-  { icon: LayoutGrid, label: "Templates", path: "/templates" },
-  { icon: Edit3, label: "Editor", path: "/editor" },
-  { icon: Library, label: "Biblioteca", path: "/library" },
-  // ── IA Imobiliária ──
-  { divider: true, label: "IA Imobiliária" },
-  { icon: Video, label: "Gerar Vídeo", path: "/create/animate", badge: "Novo" },
-  { icon: Sofa, label: "Mobiliar Ambientes", path: "/virtual-staging", badge: "Novo" },
-  { icon: Hammer, label: "Reformar Imóvel", path: "/renovate", badge: "Novo" },
-  { icon: PenTool, label: "Render de Esboços", path: "/sketch-render", badge: "Novo" },
-  { icon: Building2, label: "Terreno Vazio", path: "/empty-lot", badge: "Novo" },
-  { icon: MapPin, label: "Demarcar Terreno", path: "/land-marking", badge: "Novo" },
-  // ── Ferramentas ──
-  { divider: true, label: "Ferramentas" },
-  { icon: ZoomIn, label: "Upscale de Imagem", path: "/upscale" },
-  { icon: ScanSearch, label: "Reverse Prompt Lab", path: "/reverse-prompt-lab", badge: "Lab" },
-  { icon: Bot, label: "Agentes IA", path: "/ai-agents" },
-  // ── Dados ──
-  { divider: true, label: "Dados" },
-  { icon: BarChart3, label: "Analytics", path: "/dashboard/analytics" },
-  { icon: GitBranch,  label: "Atribuição",  path: "/dashboard/attribution",  badge: "10A" },
-  { icon: Megaphone,  label: "Campanhas",  path: "/dashboard/campaigns",    badge: "11A" },
-  { icon: TrendingUp,  label: "Funil",     path: "/dashboard/funnel",    badge: "11B" },
-  { icon: DollarSign,  label: "Métricas",  path: "/dashboard/metrics",   badge: "11C" },
-  // ── Crescimento ──
-  { divider: true, label: "Crescimento" },
-  { icon: Gift, label: "Indicações", path: "/referral" },
-  // ────────────────
-  { icon: CreditCard, label: "Planos", path: "/planos" },
-  { icon: Settings, label: "Configurações", path: "/settings" },
-];
+// Navigation is now defined in src/config/dashboard-nav.ts (DASHBOARD_NAV)
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
@@ -155,6 +100,25 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     }
   }, [creditsRemaining, isUnlimited, plan, toast]);
 
+  // Collapsible sections state — tracks which sections are expanded
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+    // Auto-expand the section that contains the current path
+    const initial: Record<string, boolean> = {};
+    for (const section of DASHBOARD_NAV) {
+      const hasActivePath = section.items.some(
+        (item) => location.pathname === item.path || location.pathname.startsWith(item.path + "/")
+      );
+      initial[section.id] = hasActivePath;
+    }
+    // Always expand Home
+    initial.home = true;
+    return initial;
+  });
+
+  const toggleSection = (id: string) => {
+    setExpandedSections((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
@@ -167,13 +131,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => navigate("/plano")}
+            onClick={() => navigate("/configuracoes/plano")}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
           >
             <Coins className="w-3.5 h-3.5 text-accent" />
             <span className="text-xs font-bold text-foreground">{isUnlimited ? "∞" : creditsRemaining}</span>
             <span className="text-[10px] text-muted-foreground hidden sm:inline">créditos</span>
           </button>
+          <NotificationBell />
           <Avatar className="w-8 h-8">
             <AvatarImage src={profile?.avatar_url || undefined} />
             <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
@@ -221,41 +186,90 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto p-4 space-y-0.5">
-            {navItems.map((item, idx) => {
-              if ("divider" in item && item.divider) {
-                return (
-                  <div key={`divider-${idx}`} className="pt-4 pb-1 px-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
-                      {item.label}
-                    </p>
-                  </div>
-                );
+          <nav className="flex-1 overflow-y-auto py-2 px-3 space-y-0.5">
+            {DASHBOARD_NAV.map((section) => {
+              const isExpanded = expandedSections[section.id] ?? false;
+              const sectionHasActive = section.items.some(
+                (item) => location.pathname === item.path || location.pathname.startsWith(item.path + "/")
+              );
+
+              // Home section: render items directly without collapsible header
+              if (section.id === "home") {
+                return section.items.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                        ${isActive
+                          ? "bg-accent text-accent-foreground font-medium"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"}
+                      `}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="flex-1 text-sm">{item.label}</span>
+                    </Link>
+                  );
+                });
               }
-              if (!("path" in item)) return null;
-              const isActive = location.pathname === item.path;
+
               return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
-                    ${
-                      isActive
-                        ? "bg-accent text-accent-foreground font-medium"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }
-                  `}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span className="flex-1">{item.label}</span>
-                  {"badge" in item && item.badge && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground leading-none">
-                      {item.badge}
+                <div key={section.id}>
+                  {/* Section header (collapsible) */}
+                  <button
+                    type="button"
+                    onClick={() => toggleSection(section.id)}
+                    className={`
+                      w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors mt-1
+                      ${sectionHasActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}
+                    `}
+                  >
+                    <span className="text-sm">{section.emoji}</span>
+                    <span className="flex-1 text-left text-xs font-semibold uppercase tracking-wide">
+                      {section.label}
                     </span>
+                    {isExpanded ? (
+                      <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+                    ) : (
+                      <ChevronRight className="w-3.5 h-3.5 opacity-50" />
+                    )}
+                  </button>
+
+                  {/* Section items */}
+                  {isExpanded && (
+                    <div className="ml-2 space-y-0.5">
+                      {section.items.map((item) => {
+                        const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+                        return (
+                          <Link
+                            key={item.path}
+                            to={item.path}
+                            onClick={() => setSidebarOpen(false)}
+                            className={`
+                              flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm
+                              ${isActive
+                                ? "bg-accent text-accent-foreground font-medium"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"}
+                            `}
+                          >
+                            <item.icon className="w-4 h-4" />
+                            <span className="flex-1">{item.label}</span>
+                            {item.badge && (
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground leading-none">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
-                </Link>
+                </div>
               );
             })}
           </nav>
@@ -286,7 +300,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   ].join(" ")}
                 />
               </div>
-              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/plano")}>
+              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/configuracoes/plano")}>
                 Comprar créditos
               </Button>
             </div>
@@ -315,7 +329,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   {darkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
                   {darkMode ? "Modo Claro" : "Modo Escuro"}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <DropdownMenuItem onClick={() => navigate("/configuracoes")}>
                   <Settings className="w-4 h-4 mr-2" />
                   Configurações
                 </DropdownMenuItem>

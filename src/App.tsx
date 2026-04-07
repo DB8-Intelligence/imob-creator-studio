@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { RouteTracker } from "@/components/app/RouteTracker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -45,6 +47,7 @@ import CampaignBuilderPage from "./pages/CampaignBuilderPage";
 import FunnelDashboardPage from "./pages/FunnelDashboardPage";
 import BusinessMetricsPage from "./pages/BusinessMetricsPage";
 import StudioPage from "./pages/StudioPage";
+import CreativeStudioPage from "./pages/CreativeStudioPage";
 import ShowcasePage from "./pages/ShowcasePage";
 import VideoCreatorPage from "./pages/VideoCreatorPage";
 import VideoLandingPage from "./pages/VideoLandingPage";
@@ -58,7 +61,59 @@ import CriarPostsImoveisPage from "./pages/lp/CriarPostsImoveisPage";
 import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
 import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
 
-const queryClient = new QueryClient();
+// ── Dashboard MAX pages (lazy-loaded for code splitting) ────────────────────
+const LeadsPipelinePage = lazy(() => import("./pages/max/LeadsPipelinePage"));
+const LeadsCadastroPage = lazy(() => import("./pages/max/LeadsCadastroPage"));
+const LeadsHistoricoPage = lazy(() => import("./pages/max/LeadsHistoricoPage"));
+const AtendimentosCalendarioPage = lazy(() => import("./pages/max/AtendimentosCalendarioPage"));
+const AtendimentosNovoPage = lazy(() => import("./pages/max/AtendimentosNovoPage"));
+const AtendimentosHistoricoPage = lazy(() => import("./pages/max/AtendimentosHistoricoPage"));
+const ImoveisListagemPage = lazy(() => import("./pages/max/ImoveisListagemPage"));
+const ImoveisEditorPage = lazy(() => import("./pages/max/ImoveisEditorPage"));
+const ImoveisUploadPage = lazy(() => import("./pages/max/ImoveisUploadPage"));
+const CriativosPostsPage = lazy(() => import("./pages/max/CriativosPostsPage"));
+const CriativosVideosPage = lazy(() => import("./pages/max/CriativosVideosPage"));
+const CriativosTemplatesPage = lazy(() => import("./pages/max/CriativosTemplatesPage"));
+const AutomacoesFluxosPage = lazy(() => import("./pages/max/AutomacoesFluxosPage"));
+const AutomacoesConstrutorPage = lazy(() => import("./pages/max/AutomacoesConstrutorPage"));
+const AutomacoesHistoricoPage = lazy(() => import("./pages/max/AutomacoesHistoricoPage"));
+const CalendarioPage = lazy(() => import("./pages/max/CalendarioPage"));
+const CalendarioFeedPage = lazy(() => import("./pages/max/CalendarioFeedPage"));
+const CalendarioPublicacoesPage = lazy(() => import("./pages/max/CalendarioPublicacoesPage"));
+const BookApresentacaoPage = lazy(() => import("./pages/max/BookApresentacaoPage"));
+const BookPortfolioPage = lazy(() => import("./pages/max/BookPortfolioPage"));
+const BookConfigPage = lazy(() => import("./pages/max/BookConfigPage"));
+const AgentesAtivosPage = lazy(() => import("./pages/max/AgentesAtivosPage"));
+const AgentesCriarPage = lazy(() => import("./pages/max/AgentesCriarPage"));
+const AgentesLogsPage = lazy(() => import("./pages/max/AgentesLogsPage"));
+const FinanceiroReceitasPage = lazy(() => import("./pages/max/FinanceiroReceitasPage"));
+const FinanceiroComissoesPage = lazy(() => import("./pages/max/FinanceiroComissoesPage"));
+const FinanceiroRelatorioPage = lazy(() => import("./pages/max/FinanceiroRelatorioPage"));
+const UsuariosListaPage = lazy(() => import("./pages/max/UsuariosListaPage"));
+const UsuariosPermissoesPage = lazy(() => import("./pages/max/UsuariosPermissoesPage"));
+const ConfigPerfilPage = lazy(() => import("./pages/max/ConfigPerfilPage"));
+const ConfigPromptsPage = lazy(() => import("./pages/max/ConfigPromptsPage"));
+const ConfigPlanoPage = lazy(() => import("./pages/max/ConfigPlanoPage"));
+const IntegracoesApisPage = lazy(() => import("./pages/max/IntegracoesApisPage"));
+const IntegracoesWebhooksPage = lazy(() => import("./pages/max/IntegracoesWebhooksPage"));
+const BibliotecaFotosPage = lazy(() => import("./pages/max/BibliotecaFotosPage"));
+const BibliotecaVideosPage = lazy(() => import("./pages/max/BibliotecaVideosPage"));
+const BibliotecaDocumentosPage = lazy(() => import("./pages/max/BibliotecaDocumentosPage"));
+const RelatoriosPerformancePage = lazy(() => import("./pages/max/RelatoriosPerformancePage"));
+const ContentAnalyticsPage = lazy(() => import("./pages/max/ContentAnalyticsPage"));
+const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
+const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -68,6 +123,8 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <RouteTracker />
+            <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" /></div>}>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -76,6 +133,7 @@ const App = () => (
               <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
               <Route path="/showcase" element={<ProtectedRoute><ShowcasePage /></ProtectedRoute>} />
               <Route path="/create" element={<ProtectedRoute><CreateCreativeHub /></ProtectedRoute>} />
+              <Route path="/create/studio" element={<ProtectedRoute><CreativeStudioPage /></ProtectedRoute>} />
               <Route path="/create/ideia" element={<ProtectedRoute><IdeaCreativePage /></ProtectedRoute>} />
               <Route path="/create/sequence" element={<ProtectedRoute><CreateSequencePage /></ProtectedRoute>} />
               <Route path="/create/thumbnail" element={<ProtectedRoute><CreateThumbnailPage /></ProtectedRoute>} />
@@ -116,6 +174,65 @@ const App = () => (
               <Route path="/video-plans"      element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
               <Route path="/video-styles"     element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
 
+              {/* ── Dashboard MAX ──────────────────────────────────────────── */}
+              {/* Leads */}
+              <Route path="/leads"              element={<ProtectedRoute><LeadsPipelinePage /></ProtectedRoute>} />
+              <Route path="/leads/novo"         element={<ProtectedRoute><LeadsCadastroPage /></ProtectedRoute>} />
+              <Route path="/leads/historico"    element={<ProtectedRoute><LeadsHistoricoPage /></ProtectedRoute>} />
+              <Route path="/leads/:id"          element={<ProtectedRoute><LeadsHistoricoPage /></ProtectedRoute>} />
+              {/* Atendimentos */}
+              <Route path="/atendimentos"              element={<ProtectedRoute><AtendimentosCalendarioPage /></ProtectedRoute>} />
+              <Route path="/atendimentos/novo"         element={<ProtectedRoute><AtendimentosNovoPage /></ProtectedRoute>} />
+              <Route path="/atendimentos/historico"    element={<ProtectedRoute><AtendimentosHistoricoPage /></ProtectedRoute>} />
+              {/* Imóveis */}
+              <Route path="/imoveis"              element={<ProtectedRoute><ImoveisListagemPage /></ProtectedRoute>} />
+              <Route path="/imoveis/editor"       element={<ProtectedRoute><ImoveisEditorPage /></ProtectedRoute>} />
+              <Route path="/imoveis/editor/:id"   element={<ProtectedRoute><ImoveisEditorPage /></ProtectedRoute>} />
+              <Route path="/imoveis/upload"       element={<ProtectedRoute><ImoveisUploadPage /></ProtectedRoute>} />
+              {/* Criativos */}
+              <Route path="/criativos"              element={<ProtectedRoute><CriativosPostsPage /></ProtectedRoute>} />
+              <Route path="/criativos/videos"       element={<ProtectedRoute><CriativosVideosPage /></ProtectedRoute>} />
+              <Route path="/criativos/templates"    element={<ProtectedRoute><CriativosTemplatesPage /></ProtectedRoute>} />
+              {/* Automações */}
+              <Route path="/automacoes"              element={<ProtectedRoute><AutomacoesFluxosPage /></ProtectedRoute>} />
+              <Route path="/automacoes/construtor"   element={<ProtectedRoute><AutomacoesConstrutorPage /></ProtectedRoute>} />
+              <Route path="/automacoes/historico"    element={<ProtectedRoute><AutomacoesHistoricoPage /></ProtectedRoute>} />
+              {/* Calendário */}
+              <Route path="/calendario"              element={<ProtectedRoute><CalendarioPage /></ProtectedRoute>} />
+              <Route path="/calendario/feed"          element={<ProtectedRoute><CalendarioFeedPage /></ProtectedRoute>} />
+              <Route path="/calendario/publicacoes"  element={<ProtectedRoute><CalendarioPublicacoesPage /></ProtectedRoute>} />
+              {/* Book Agente */}
+              <Route path="/book"              element={<ProtectedRoute><BookApresentacaoPage /></ProtectedRoute>} />
+              <Route path="/book/portfolio"    element={<ProtectedRoute><BookPortfolioPage /></ProtectedRoute>} />
+              <Route path="/book/config"       element={<ProtectedRoute><BookConfigPage /></ProtectedRoute>} />
+              {/* Agentes de IA */}
+              <Route path="/agentes"           element={<ProtectedRoute><AgentesAtivosPage /></ProtectedRoute>} />
+              <Route path="/agentes/criar"     element={<ProtectedRoute><AgentesCriarPage /></ProtectedRoute>} />
+              <Route path="/agentes/logs"      element={<ProtectedRoute><AgentesLogsPage /></ProtectedRoute>} />
+              {/* Financeiro */}
+              <Route path="/financeiro"              element={<ProtectedRoute><FinanceiroReceitasPage /></ProtectedRoute>} />
+              <Route path="/financeiro/comissoes"    element={<ProtectedRoute><FinanceiroComissoesPage /></ProtectedRoute>} />
+              <Route path="/financeiro/relatorio"    element={<ProtectedRoute><FinanceiroRelatorioPage /></ProtectedRoute>} />
+              {/* Usuários */}
+              <Route path="/usuarios"              element={<ProtectedRoute><UsuariosListaPage /></ProtectedRoute>} />
+              <Route path="/usuarios/permissoes"   element={<ProtectedRoute><UsuariosPermissoesPage /></ProtectedRoute>} />
+              {/* Configurações */}
+              <Route path="/configuracoes"              element={<ProtectedRoute><ConfigPerfilPage /></ProtectedRoute>} />
+              <Route path="/configuracoes/prompts"      element={<ProtectedRoute><ConfigPromptsPage /></ProtectedRoute>} />
+              <Route path="/configuracoes/plano"        element={<ProtectedRoute><ConfigPlanoPage /></ProtectedRoute>} />
+              {/* Integrações */}
+              <Route path="/integracoes"              element={<ProtectedRoute><IntegracoesApisPage /></ProtectedRoute>} />
+              <Route path="/integracoes/webhooks"     element={<ProtectedRoute><IntegracoesWebhooksPage /></ProtectedRoute>} />
+              {/* Biblioteca */}
+              <Route path="/biblioteca"              element={<ProtectedRoute><BibliotecaFotosPage /></ProtectedRoute>} />
+              <Route path="/biblioteca/videos"       element={<ProtectedRoute><BibliotecaVideosPage /></ProtectedRoute>} />
+              <Route path="/biblioteca/documentos"   element={<ProtectedRoute><BibliotecaDocumentosPage /></ProtectedRoute>} />
+              {/* Relatórios */}
+              <Route path="/relatorios"              element={<ProtectedRoute><RelatoriosPerformancePage /></ProtectedRoute>} />
+              <Route path="/relatorios/analytics"     element={<ProtectedRoute><ContentAnalyticsPage /></ProtectedRoute>} />
+              <Route path="/relatorios/conversao"    element={<ProtectedRoute><RelatoriosConversaoPage /></ProtectedRoute>} />
+              <Route path="/relatorios/roi"          element={<ProtectedRoute><RelatoriosRoiPage /></ProtectedRoute>} />
+
               <Route path="/para-corretores"       element={<ParaCorretoresPage />} />
               <Route path="/para-imobiliarias"    element={<ParaImobiliariasPage />} />
               <Route path="/para-equipes"         element={<ParaEquipesPage />} />
@@ -126,6 +243,7 @@ const App = () => (
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </WorkspaceProvider>

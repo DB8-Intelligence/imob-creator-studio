@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import type { VideoCreatorPrefill } from "@/pages/VideosDashboardPage";
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,14 @@ import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/v
 import { VIDEO_TEMPLATE_LIST, getVideoTemplate, getDefaultVideoTemplate, estimateVideoDuration, type VideoTemplateId } from "@/lib/video-templates";
 import { VISUAL_PRESET_LIST, getVisualPreset, type VisualPresetId } from "@/lib/video-visual-presets";
 import { MUSIC_MOOD_LIST, getMusicMood, getDefaultMusicMood, moodToPayloadValue, type MusicMoodId } from "@/lib/video-music-moods";
+import { resolvePresetForTemplate, resolveLegacyPresetId, getVideoPreset, type VideoPresetId } from "@/modules/presets";
+import {
+  estimateVideoCost,
+  checkBeforeGenerate,
+  logVideoStarted,
+  logVideoCompleted,
+  logVideoFailed,
+} from "@/modules/monetization";
 import {
   Upload,
   X,
@@ -109,7 +118,8 @@ const PlanGate = () => {
 const VideoCreatorPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = (location.state ?? {}) as { format?: Format };
+  const locationState = (location.state ?? {}) as Partial<VideoCreatorPrefill> & { format?: Format };
+  const prefill = locationState.prefill ? locationState : null;
   const { toast } = useToast();
   const { data: plan } = useUserPlan();
   const { workspaceId } = useWorkspaceContext();
@@ -121,10 +131,10 @@ const VideoCreatorPage = () => {
 
   const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
-  const [templateId, setTemplateId] = useState<VideoTemplateId>(getDefaultVideoTemplate());
-  const [presetId, setPresetId] = useState<VisualPresetId>("default");
-  const [moodId, setMoodId] = useState<MusicMoodId>(getDefaultMusicMood());
-  const [format, setFormat] = useState<Format>((locationState as { format?: Format }).format ?? "reels");
+  const [templateId, setTemplateId] = useState<VideoTemplateId>(prefill?.templateId ?? getDefaultVideoTemplate());
+  const [presetId, setPresetId] = useState<VisualPresetId>(prefill?.presetId ?? "default");
+  const [moodId, setMoodId] = useState<MusicMoodId>(prefill?.moodId ?? getDefaultMusicMood());
+  const [format, setFormat] = useState<Format>(prefill?.format ?? locationState.format ?? "reels");
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -157,6 +167,18 @@ const VideoCreatorPage = () => {
   const computedDurationSeconds = photos.length > 0
     ? estimateVideoDuration(templateId, photos.length)
     : uploadSummary.computedDurationSeconds;
+
+  // Notify user when prefill is active
+  useEffect(() => {
+    if (prefill) {
+      toast({
+        title: "Configurações carregadas",
+        description: "Template, estilo e trilha foram preenchidos com base no vídeo anterior. Suba as fotos para continuar.",
+      });
+      // Clear location state to avoid re-triggering
+      window.history.replaceState({}, "");
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // When all polled clips finish, update the job status
   useEffect(() => {
@@ -238,6 +260,33 @@ const VideoCreatorPage = () => {
       return;
     }
 
+    // ── Monetization: control point (before generate) ──────────────
+    const resolvedPresetId = resolveLegacyPresetId(presetId);
+    const costEstimate = estimateVideoCost({
+      durationSeconds: computedDurationSeconds,
+      resolution: resolutionLabel,
+      photoCount: photos.length,
+      presetId: resolvedPresetId,
+    });
+
+    const generateCheck = checkBeforeGenerate({
+      plan: activeAddonType,
+      creditsUsed: overview?.addOn?.credits_used ?? 0,
+      photoCount: photos.length,
+      durationSeconds: computedDurationSeconds,
+      presetId: resolvedPresetId,
+      costEstimate,
+    });
+
+    if (!generateCheck.allowed) {
+      toast({
+        title: "Ação bloqueada",
+        description: generateCheck.reason ?? "Verifique seu plano.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setGenerating(true);
     setVeoProgress(null);
     if (videoUrl) URL.revokeObjectURL(videoUrl);
@@ -263,8 +312,16 @@ const VideoCreatorPage = () => {
           template_id: templateId,
           template_name: selectedTemplate.name,
           visual_preset: presetId,
+          // Preset Engine v2
+          video_preset_id: resolvedPresetId,
+          video_preset_motion: getVideoPreset(resolvedPresetId).motion.id,
+          video_preset_transition: getVideoPreset(resolvedPresetId).transition.id,
           music_mood: moodId,
           music_payload: moodToPayloadValue(moodId),
+          // Monetization: cost estimate
+          estimated_cost: costEstimate.estimatedCost,
+          cost_breakdown: costEstimate.breakdown,
+          cost_formula_version: costEstimate.formulaVersion,
         },
       });
       jobId = createdJob.id;
@@ -277,6 +334,26 @@ const VideoCreatorPage = () => {
       });
 
       await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "processing" });
+
+      // ── Monetization: log video_started ─────────────────────────────
+      logVideoStarted({
+        jobId,
+        workspaceId,
+        generationType: "video_compose_v2",
+        engineId: engine === "veo_video" ? "veo_video" : "ffmpeg_kenburns",
+        durationSeconds: computedDurationSeconds,
+        resolution: resolutionLabel,
+        templateId,
+        templateName: selectedTemplate.name,
+        presetId: resolvedPresetId,
+        moodId,
+        photoCount: photos.length,
+        format,
+        estimatedCost: costEstimate,
+        plan: activeAddonType,
+        addonType: activeAddonType,
+        creditsUsed: overview?.addOn?.credits_used ?? 0,
+      });
 
       if (engine === "ffmpeg_kenburns") {
         // ── FFmpeg Ken Burns pipeline (default) ──────────────────────
@@ -318,6 +395,23 @@ const VideoCreatorPage = () => {
             pipeline_version: "v2",
           });
           toast({ title: "Vídeo gerado com sucesso!", description: "Vídeo profissional criado via FFmpeg." });
+          // ── Monetization: log video_completed ─────────────────────────
+          logVideoCompleted({
+            jobId,
+            workspaceId,
+            generationType: "video_compose_v2",
+            engineId: "ffmpeg_kenburns",
+            durationSeconds: computedDurationSeconds,
+            resolution: resolutionLabel,
+            templateId,
+            presetId: resolvedPresetId,
+            moodId,
+            photoCount: photos.length,
+            format,
+            estimatedCost: costEstimate,
+            plan: activeAddonType,
+            outputUrl: doneJob.result_url,
+          });
         } else {
           throw new Error(doneJob.error_message || "O vídeo não foi concluído a tempo.");
         }
@@ -441,6 +535,24 @@ const VideoCreatorPage = () => {
           message: e instanceof Error ? e.message : "Tente novamente.",
         });
       }
+      // ── Monetization: log video_failed ──────────────────────────────
+      logVideoFailed({
+        jobId: jobId ?? "unknown",
+        workspaceId: workspaceId ?? "unknown",
+        generationType: "video_compose_v2",
+        engineId: engine === "veo_video" ? "veo_video" : "ffmpeg_kenburns",
+        durationSeconds: computedDurationSeconds,
+        resolution: resolutionLabel,
+        templateId,
+        presetId: resolvedPresetId,
+        photoCount: photos.length,
+        format,
+        estimatedCost: costEstimate,
+        plan: activeAddonType,
+        errorMessage: e instanceof Error ? e.message : "Unknown error",
+        errorType: "render_or_pipeline",
+      });
+
       toast({
         title: "Erro ao gerar vídeo",
         description: e instanceof Error ? e.message : "Tente novamente.",
@@ -629,7 +741,12 @@ const VideoCreatorPage = () => {
                         key={t.id}
                         onClick={() => {
                           setTemplateId(t.id);
-                          setPresetId(t.recommended_preset);
+                          // Use Preset Engine to resolve best preset for this template + format
+                          const resolvedPresetId = resolvePresetForTemplate(t.id, format);
+                          const legacyPreset = resolvedPresetId === "luxury" ? "luxury" : resolvedPresetId === "fast_sales" ? "fast_sales" : "default";
+                          setPresetId(legacyPreset as VisualPresetId);
+                          const presetObj = getVideoPreset(resolvedPresetId);
+                          // Set mood from preset default or template recommendation
                           const recMood = t.recommended_mood as MusicMoodId;
                           if (MUSIC_MOOD_LIST.some((m) => m.id === recMood)) setMoodId(recMood);
                         }}

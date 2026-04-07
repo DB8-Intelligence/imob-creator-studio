@@ -1,0 +1,32 @@
+{
+  "id": "agent_terreno_alphaville",
+  "nome": "Terreno Alphaville",
+  "descricao": "Dark gold para terrenos/lotes: foto aérea + urgência bold + preço dourado + pill CTA dourado com texto escuro",
+  "categoria": "Imobiliário",
+  "origem": "engenharia-reversa",
+  "tags": ["terreno", "venda", "urgencia", "alphaville", "aerial", "dark-gold", "brasileiro"],
+  "tipo": ["post", "story", "reels", "quadrado"],
+  "creditos": 1,
+  "pipeline": { "analise_claude": true, "reestilizacao_flux": false, "composicao_shotstack": true },
+  "config_visual": {
+    "layout": "dark-gold-urgency",
+    "cta_texto_cor": "#0D1F3C",
+    "cta_bg": "linear-gradient(135deg, #B8882A 0%, #D4A843 50%, #B8882A 100%)",
+    "story_faixa_topo": true,
+    "destaque_urgencia": true
+  },
+  "shotstack_por_formato": {
+    "post_4x5": {
+      "dimensoes": { "largura": 1080, "altura": 1350 },
+      "tracks_order": "foto > overlay_inferior > titulo_dourado > localizacao > subtitulo > urgencia > preco > cta_pill > logo"
+    },
+    "story_9x16": {
+      "dimensoes": { "largura": 1080, "altura": 1920 },
+      "tracks_order": "faixa_topo_solida > foto > overlay_inferior > titulo_na_faixa > subtitulo_faixa > hook > urgencia > preco > cta_pill > logo"
+    },
+    "square_1x1": {
+      "dimensoes": { "largura": 1080, "altura": 1080 },
+      "tracks_order": "foto > overlay_inferior > titulo_localidade_compact > urgencia_uppercase > preco_pill > cta_pill > logo"
+    }
+  }
+}

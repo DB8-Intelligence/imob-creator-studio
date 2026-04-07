@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/app/AppLayout";
 import CreditHeroCard from "@/components/dashboard/CreditHeroCard";
@@ -7,6 +8,9 @@ import RecentOperationsSection from "@/components/dashboard/RecentOperationsSect
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
+import { ActivationFunnelCard } from "@/components/dashboard/ActivationFunnelCard";
+import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 const Dashboard = () => {
   const { user, profile } = useAuth();
   const { data: planInfo } = useUserPlan();
+  const { showWizard, completeWizard, dismiss: dismissOnboarding } = useOnboardingProgress();
+  const [wizardDismissed, setWizardDismissed] = useState(false);
 
   const { data: recentCreatives = [] } = useQuery({
     queryKey: ["dashboard-recent", user?.id],
@@ -44,6 +50,13 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
+      {/* Onboarding wizard overlay for first-time users */}
+      {showWizard && !wizardDismissed && (
+        <OnboardingWizard
+          onComplete={() => { setWizardDismissed(true); completeWizard(); }}
+          onSkip={() => { setWizardDismissed(true); dismissOnboarding(); }}
+        />
+      )}
       <div className="space-y-8">
         <WelcomeBanner />
         <CreditHeroCard credits={credits} firstName={firstName} />
@@ -64,6 +77,7 @@ const Dashboard = () => {
         <RecentOperationsSection items={recentCreatives} />
         <TenantWorkspaceCard />
         <OnboardingChecklist />
+        <ActivationFunnelCard />
         <UpgradePlannerCard />
       </div>
     </AppLayout>

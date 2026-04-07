@@ -249,140 +249,68 @@ export interface FFmpegJobResult {
 }
 
 // ─── Preset Builders ────────────────────────────────────────────────────────
+//
+// NOTA: Os builders abaixo agora delegam ao Preset Engine (src/modules/presets).
+// As funções originais são mantidas como wrappers de backward compatibility
+// para edge functions e código legado que ainda usam a assinatura antiga.
 
-const MOTION_SEQUENCES: Record<string, MotionType[]> = {
-  default:    ["zoom_in", "pan_right", "zoom_out", "pan_left", "zoom_in", "pan_up"],
-  luxury:     ["zoom_in", "zoom_out", "pan_right", "zoom_in", "pan_left", "zoom_out"],
-  fast_sales: ["zoom_in", "pan_left", "zoom_out", "pan_right", "zoom_in", "pan_down"],
-};
-
-const MOTION_ZOOM_FACTORS: Record<string, number> = {
-  default: 1.15,
-  luxury: 1.10,
-  fast_sales: 1.25,
-};
-
-const MOTION_CLIP_DURATIONS: Record<string, number> = {
-  default: 5,
-  luxury: 6,
-  fast_sales: 4,
-};
+import {
+  resolvePreset,
+  resolveLegacyPresetId,
+  buildClipsFromPreset,
+  buildOverlaysFromPreset,
+  buildJobSpecFromPreset,
+  computeTotalDuration,
+} from "@/modules/presets";
 
 /**
  * Gera specs de clip com base no preset de movimento.
- * Alterna entre os tipos de movimento de forma ciclica.
+ * @deprecated Use buildClipsFromPreset() do módulo presets.
  */
 export function buildClipSpecs(
   photoUrls: string[],
   preset: "default" | "luxury" | "fast_sales",
 ): FFmpegClipSpec[] {
-  const motionSeq = MOTION_SEQUENCES[preset];
-  const zoomFactor = MOTION_ZOOM_FACTORS[preset];
-  const duration = MOTION_CLIP_DURATIONS[preset];
-
-  return photoUrls.map((url, i) => ({
-    photo_url: url,
-    sequence_index: i,
-    ken_burns: {
-      motion: motionSeq[i % motionSeq.length],
-      zoom_factor: zoomFactor,
-      duration_seconds: duration,
-    },
-  }));
+  const presetId = resolveLegacyPresetId(preset);
+  const resolved = resolvePreset(presetId);
+  return buildClipsFromPreset(photoUrls, resolved);
 }
 
 /**
  * Gera overlays de texto a partir dos dados do imovel.
- * Overlay aparece nos ultimos 5 segundos do video.
+ * @deprecated Use buildOverlaysFromPreset() do módulo presets.
  */
 export function buildPropertyOverlays(
   property: PropertyOverlayData | undefined,
   totalDuration: number,
 ): TextOverlay[] {
-  if (!property) return [];
-
-  const overlays: TextOverlay[] = [];
-  const overlayStart = Math.max(totalDuration - 5, 0);
-  const overlayEnd = totalDuration;
-
-  if (property.address) {
-    overlays.push({
-      text: property.address,
-      position: "bottom_safe",
-      font_size: 42,
-      color: "#FFFFFF",
-      background: "black@0.6",
-      margin_bottom: 120,
-      start_time: overlayStart,
-      end_time: overlayEnd,
-    });
-  }
-
-  if (property.price) {
-    overlays.push({
-      text: property.price,
-      position: "center",
-      font_size: 56,
-      color: "#FFFFFF",
-      background: "black@0.5",
-      start_time: overlayStart,
-      end_time: overlayEnd,
-    });
-  }
-
-  if (property.details) {
-    overlays.push({
-      text: property.details,
-      position: "top",
-      font_size: 32,
-      color: "#FFFFFF",
-      background: "black@0.4",
-      start_time: overlayStart + 0.5,
-      end_time: overlayEnd,
-    });
-  }
-
-  return overlays;
+  // Use corporate preset defaults for overlay styling (backward compat)
+  const preset = resolvePreset("corporate");
+  return buildOverlaysFromPreset(preset, property, totalDuration);
 }
 
 /**
  * Monta o FFmpegJobSpec completo a partir do request do frontend.
+ * @deprecated Use buildJobSpecFromPreset() do módulo presets.
  */
 export function buildFFmpegJobSpec(
   request: VideoGenerationV2Request,
   userId: string,
   callbackUrl: string,
 ): FFmpegJobSpec {
-  const clips = buildClipSpecs(request.photo_urls, request.motion_preset);
+  const presetId = resolveLegacyPresetId(request.motion_preset);
 
-  const clipDuration = MOTION_CLIP_DURATIONS[request.motion_preset];
-  const transitionDuration = 0.8;
-  const totalDuration = clips.length * clipDuration - (clips.length - 1) * transitionDuration;
-
-  const overlays = buildPropertyOverlays(request.property, totalDuration);
-
-  return {
-    job_id: request.video_job_id,
-    user_id: userId,
-    workspace_id: request.workspace_id,
-    clips,
-    transition: {
-      type: request.motion_preset === "luxury" ? "dissolve" : "fade",
-      duration_seconds: transitionDuration,
-    },
-    overlays,
-    audio: {
-      mood: request.audio?.mood ?? "modern",
-      volume: request.audio?.volume ?? 0.3,
-      fade_out_seconds: 2,
-    },
-    output: {
-      resolution: request.resolution,
-      aspect_ratio: request.aspect_ratio,
-      fps: 30,
-      codec: "h264",
-      format: "mp4",
-    },
-    callback_url: callbackUrl,
-  };
+  return buildJobSpecFromPreset({
+    presetOrId: presetId,
+    photoUrls: request.photo_urls,
+    jobId: request.video_job_id,
+    userId,
+    workspaceId: request.workspace_id,
+    callbackUrl,
+    resolution: request.resolution,
+    aspectRatio: request.aspect_ratio,
+    property: request.property,
+    audioMoodOverride: request.audio?.mood,
+    audioVolumeOverride: request.audio?.volume,
+  });
 }

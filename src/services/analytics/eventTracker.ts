@@ -3,6 +3,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { getAttributionMetadata, getLastTouchMetadata } from "./utmCapture";
+import { trackConversion } from "./trackingPixels";
 
 // ─── Event type catalogue ─────────────────────────────────────────────────────
 
@@ -105,4 +106,7 @@ export async function trackEvent(
   supabase.from("user_events").insert(payload).then(({ error }) => {
     if (error) console.warn("[trackEvent] insert failed:", error.message);
   });
+
+  // Bridge to GA4 + Meta Pixel
+  trackConversion(event, options.metadata as Record<string, unknown> | undefined);
 }

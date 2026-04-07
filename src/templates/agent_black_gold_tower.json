@@ -1,0 +1,35 @@
+{
+  "id": "agent_black_gold_tower",
+  "nome": "Black Gold Tower",
+  "descricao": "Dark premium: fundo escuro + título bold 3 linhas + grid 2x2 features + preço dourado + pill CTA",
+  "categoria": "Imobiliário",
+  "origem": "engenharia-reversa",
+  "tags": ["lancamento", "tower", "dark", "dourado", "features-grid", "alto-padrao"],
+  "tipo": ["post", "story", "reels"],
+  "creditos": 1,
+  "pipeline": { "analise_claude": true, "reestilizacao_flux": false, "composicao_shotstack": true },
+  "config_visual": {
+    "layout": "dark-split-info",
+    "glow_decorativo": true,
+    "features_grid": "2x2+1",
+    "titulo_linhas": 3
+  },
+  "shotstack_template": {
+    "timeline": {
+      "background": "{{cor_fundo}}",
+      "tracks": [
+        { "clips": [{ "asset": { "type": "image", "src": "{{imagem_url}}" }, "start": 0, "length": 5, "fit": "cover", "position": "centerRight" }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='width:100%;height:100%;background:{{overlay_css_lateral}}'></div>", "width": "{{largura}}", "height": "{{altura}}" }, "start": 0, "length": 5 }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='width:100%;height:100%;background:{{overlay_css_inferior}}'></div>", "width": "{{largura}}", "height": "{{altura}}" }, "start": 0, "length": 5 }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='position:absolute;top:-80px;left:-80px;width:280px;height:280px;background:radial-gradient(circle,rgba(212,168,67,0.35) 0%,transparent 70%);border-radius:50%'></div>", "width": "{{largura}}", "height": "{{altura}}" }, "start": 0, "length": 5 }] },
+        { "clips": [{ "asset": { "type": "title", "text": "{{nome_corretor}}", "style": "minimal", "color": "{{cor_primaria}}", "size": "x-small" }, "start": 0, "length": 5, "position": "topLeft", "offset": { "x": 0.05, "y": -0.46 } }] },
+        { "clips": [{ "asset": { "type": "title", "text": "{{titulo_linha1}}\n{{titulo_linha2}}\n{{titulo_linha3}}", "style": "minimal", "color": "{{cor_texto}}", "size": "xx-large" }, "start": 0, "length": 5, "position": "topLeft", "offset": { "x": 0.04, "y": -0.38 } }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='background:{{cor_secundaria}};border:1px solid {{cor_border_card}};border-radius:16px;padding:14px;font-family:Inter,sans-serif;color:#fff'><div style='display:grid;grid-template-columns:1fr 1fr;gap:0'><div style='text-align:center;padding:10px 6px;border-right:1px solid {{cor_border_card}}'><div style='font-size:28px;margin-bottom:5px'>🏛️</div><div style='font-size:11px;line-height:1.3'>{{feature_1}}</div></div><div style='text-align:center;padding:10px 6px'><div style='font-size:28px;margin-bottom:5px'>🏠</div><div style='font-size:11px;line-height:1.3'>{{feature_2}}</div></div></div><div style='height:1px;background:{{cor_border_card}}'></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:0'><div style='text-align:center;padding:10px 6px;border-right:1px solid {{cor_border_card}}'><div style='font-size:28px;margin-bottom:5px'>🏙️</div><div style='font-size:11px;line-height:1.3'>{{feature_3}}</div></div><div style='text-align:center;padding:10px 6px'><div style='font-size:28px;margin-bottom:5px'>🚇</div><div style='font-size:11px;line-height:1.3'>{{feature_4}}</div></div></div><div style='height:1px;background:{{cor_border_card}}'></div><div style='text-align:center;padding:8px;display:flex;align-items:center;justify-content:center;gap:6px'><span style='font-size:24px'>🌳</span><span style='font-size:11px;line-height:1.3'>{{feature_5}}</span></div></div>", "width": 460, "height": 300 }, "start": 0, "length": 5, "position": "left", "offset": { "x": 0.02, "y": 0.02 } }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='background:{{cor_secundaria}};border:1px solid {{cor_border_card}};border-radius:16px;padding:16px 18px;font-family:Inter,sans-serif;color:#fff'><div style='font-size:11px;color:rgba(255,255,255,0.65);margin-bottom:2px'>Unidades disponíveis:</div><div style='font-weight:600;font-size:15px;margin-bottom:8px'>{{subtitulo}}</div><div style='font-size:11px;color:rgba(255,255,255,0.65)'>A partir de</div><div style='font-family:Anton,Bebas Neue,sans-serif;font-size:54px;font-weight:900;color:{{cor_primaria}};line-height:1.0'>{{preco}}</div></div>", "width": 440, "height": 155 }, "start": 0, "length": 5, "position": "right", "offset": { "x": -0.02, "y": 0.08 } }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='background:rgba(40,25,10,0.70);border:1.5px solid {{cor_accent_40}};border-radius:50px;padding:11px 22px;display:inline-flex;align-items:center;gap:8px;font-family:Inter,sans-serif'><span style='font-size:18px'>📞</span><span style='font-weight:700;font-size:18px;color:#fff'>{{whatsapp}}</span></div>", "width": 380, "height": 50 }, "start": 0, "length": 5, "position": "bottomLeft", "offset": { "x": 0.04, "y": 0.15 } }] },
+        { "clips": [{ "asset": { "type": "html", "html": "<div style='font-family:Inter,sans-serif;font-size:11px;color:rgba(255,255,255,0.50);display:flex;gap:40px;justify-content:center'><span>{{email}}</span><span>{{site}}</span></div>", "width": 700, "height": 24 }, "start": 0, "length": 5, "position": "bottom", "offset": { "x": 0, "y": 0.03 } }] },
+        { "clips": [{ "asset": { "type": "image", "src": "{{logo_url}}" }, "start": 0, "length": 5, "position": "topLeft", "offset": { "x": 0.04, "y": -0.47 }, "scale": 0.10 }] }
+      ]
+    }
+  }
+}

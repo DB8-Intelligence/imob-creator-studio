@@ -81,15 +81,19 @@ const CORE_STEPS = ONBOARDING_STEPS.filter((s) => s.isCoreStep).map((s) => s.key
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export interface UseOnboardingProgressResult {
-  stepsDone:    Set<OnboardingStepKey>;
-  dismissed:    boolean;
-  activatedAt:  string | null;
-  isActivated:  boolean;
-  pct:          number;         // 0–100 based on all steps
-  loading:      boolean;
-  markStep:     (key: OnboardingStepKey) => Promise<void>;
-  dismiss:      () => Promise<void>;
-  refresh:      () => void;
+  stepsDone:          Set<OnboardingStepKey>;
+  dismissed:          boolean;
+  activatedAt:        string | null;
+  isActivated:        boolean;
+  pct:                number;         // 0–100 based on all steps
+  loading:            boolean;
+  showWizard:         boolean;        // true if user hasn't started onboarding yet
+  wizardStartedAt:    string | null;
+  firstGenerationAt:  string | null;
+  markStep:           (key: OnboardingStepKey) => Promise<void>;
+  dismiss:            () => Promise<void>;
+  completeWizard:     () => Promise<void>;
+  refresh:            () => void;
 }
 
 export function useOnboardingProgress(): UseOnboardingProgressResult {
@@ -97,6 +101,8 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
   const [stepsDone, setStepsDone] = useState<Set<OnboardingStepKey>>(new Set(["account_created"]));
   const [dismissed, setDismissed] = useState(false);
   const [activatedAt, setActivatedAt] = useState<string | null>(null);
+  const [wizardStartedAt, setWizardStartedAt] = useState<string | null>(null);
+  const [firstGenerationAt, setFirstGenerationAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [rev, setRev]         = useState(0);
 
@@ -112,7 +118,7 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
         // 1 — Fetch stored progress
         const { data: stored } = await supabase
           .from("onboarding_progress")
-          .select("steps_done, dismissed, activated_at")
+          .select("steps_done, dismissed, activated_at, wizard_started_at, first_generation_at, current_step")
           .eq("user_id", user!.id)
           .maybeSingle();
 
@@ -141,6 +147,8 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
           setStepsDone(merged);
           setDismissed(stored?.dismissed ?? false);
           setActivatedAt(stored?.activated_at ?? null);
+          setWizardStartedAt(stored?.wizard_started_at ?? null);
+          setFirstGenerationAt(stored?.first_generation_at ?? null);
         }
 
         // 4 — If all core steps done and not yet marked activated, update
@@ -190,8 +198,28 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
     if (user) trackEvent(user.id, "welcome_dismissed");
   }, [user, stepsDone]);
 
+  const completeWizard = useCallback(async () => {
+    if (!user) return;
+    setDismissed(true);
+    const now = new Date().toISOString();
+    await supabase.from("onboarding_progress").upsert({
+      user_id:      user.id,
+      dismissed:    true,
+      steps_done:   Array.from(stepsDone),
+      activated_at: CORE_STEPS.every((k) => stepsDone.has(k as OnboardingStepKey)) ? now : null,
+    }, { onConflict: "user_id" });
+    trackEvent(user.id, "onboarding_step_completed", { metadata: { step: "wizard_completed" } });
+  }, [user, stepsDone]);
+
   const isActivated = CORE_STEPS.every((k) => stepsDone.has(k as OnboardingStepKey));
   const pct         = Math.round((stepsDone.size / ONBOARDING_STEPS.length) * 100);
 
-  return { stepsDone, dismissed, activatedAt, isActivated, pct, loading, markStep, dismiss, refresh };
+  // Show wizard if: user exists, not dismissed, no wizard started, and only account_created is done
+  const showWizard = Boolean(user) && !dismissed && !wizardStartedAt && stepsDone.size <= 1 && !loading;
+
+  return {
+    stepsDone, dismissed, activatedAt, isActivated, pct, loading,
+    showWizard, wizardStartedAt, firstGenerationAt,
+    markStep, dismiss, completeWizard, refresh,
+  };
 }
