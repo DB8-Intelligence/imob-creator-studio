@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const initializedRef = useRef(false);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -70,14 +71,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      // Only set state if signUp hasn't already initialized it
+      if (!initializedRef.current) {
+        setSession(session);
+        setUser(session?.user ?? null);
 
-      if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
+        if (session?.user) {
+          fetchProfile(session.user.id).then(setProfile);
+        }
       }
 
+      initializedRef.current = true;
       setIsLoading(false);
+      console.log("[auth] getSession complete:", { hasSession: !!session, userId: session?.user?.id });
     });
 
     return () => subscription.unsubscribe();
@@ -109,11 +115,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // before navigate() fires. onAuthStateChange will also fire,
     // but setting state here avoids the race condition.
     if (data.session) {
+      initializedRef.current = true;
       setSession(data.session);
       setUser(data.session.user);
+      setIsLoading(false);
       // Fetch profile eagerly
       const profileData = await fetchProfile(data.session.user.id);
       setProfile(profileData);
+      console.log("[auth] signUp: user/session set synchronously, isLoading=false");
     }
 
     // Fire-and-forget: record first-touch UTM attribution

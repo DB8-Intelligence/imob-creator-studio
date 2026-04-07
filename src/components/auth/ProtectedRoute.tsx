@@ -10,7 +10,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
+  console.log("[PROTECTED]", { user: !!user, loading: isLoading, path: location.pathname });
+
+  // Only show spinner if still loading AND no user yet.
+  // After signUp sets user synchronously, isLoading may still be true
+  // from the pending getSession — but user is already available.
+  if (isLoading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
