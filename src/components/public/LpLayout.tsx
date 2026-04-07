@@ -43,8 +43,8 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
             <div className="w-8 h-8 bg-gradient-to-br from-[var(--ds-gold)] to-[var(--ds-gold-light)] rounded-lg flex items-center justify-center shadow-md shadow-[rgba(212,175,55,0.2)]">
               <Building2 className="w-4 h-4 text-black" />
             </div>
-            <span className="font-display text-base font-semibold text-[var(--ds-fg)]">
-              DB8 <span className="text-gold">Intelligence</span>
+            <span className="font-display text-base font-semibold">
+              <span style={{ color: "#002B5B" }} className="text-[var(--ds-fg)]">Imob</span><span style={{ color: "#FFD700" }}>Creator</span> <span className="text-xs text-[var(--ds-fg-muted)]">AI</span>
             </span>
           </Link>
 
@@ -61,7 +61,7 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
       {/* ── Minimal footer ── */}
       <footer className="py-8 border-t border-[var(--ds-border)] bg-[var(--ds-bg)]">
         <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[var(--ds-fg-subtle)] text-xs">
-          <span>© 2026 DB8 Intelligence. Todos os direitos reservados.</span>
+          <span>© 2026 ImobCreator AI. Todos os direitos reservados.</span>
           <div className="flex gap-5">
             <Link to="/termos" className="hover:text-[var(--ds-gold-light)] transition-colors">Termos de Uso</Link>
             <Link to="/termos" className="hover:text-[var(--ds-gold-light)] transition-colors">Privacidade</Link>

@@ -12,7 +12,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null; data?: unknown }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -94,18 +94,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
-      return { error };
+      console.log("[auth] signUp error:", error.message);
+      return { error, data: null };
     }
 
-    // Fire-and-forget: record first-touch UTM attribution for this new user
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        saveAttributionRecord(data.user.id);
-        trackEvent(data.user.id, "signup");
-      }
+    console.log("[auth] signUp success:", {
+      userId: data.user?.id,
+      hasSession: !!data.session,
+      emailConfirmedAt: data.user?.email_confirmed_at,
     });
 
-    return { error: null };
+    // If Supabase returned a session (email confirmation OFF),
+    // set user/session immediately so ProtectedRoute sees it
+    // before navigate() fires. onAuthStateChange will also fire,
+    // but setting state here avoids the race condition.
+    if (data.session) {
+      setSession(data.session);
+      setUser(data.session.user);
+      // Fetch profile eagerly
+      const profileData = await fetchProfile(data.session.user.id);
+      setProfile(profileData);
+    }
+
+    // Fire-and-forget: record first-touch UTM attribution
+    if (data.user) {
+      saveAttributionRecord(data.user.id);
+      trackEvent(data.user.id, "signup");
+    }
+
+    return { error: null, data };
   };
 
   const signIn = async (email: string, password: string) => {
