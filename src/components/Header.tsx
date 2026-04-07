@@ -114,8 +114,8 @@ const Header = () => {
           <div className="w-10 h-10 bg-gradient-to-br from-[var(--ds-gold)] to-[var(--ds-gold-light)] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(212,175,55,0.25)] group-hover:shadow-[rgba(212,175,55,0.4)] transition-shadow">
             <Building2 className="w-5 h-5 text-black" />
           </div>
-          <span className="font-display text-xl font-semibold text-[var(--ds-fg)]">
-            DB8 <span className="text-gold">Intelligence</span>
+          <span className="font-display text-xl font-semibold">
+            <span style={{ color: "#002B5B" }} className="text-[var(--ds-fg)]">Imob</span><span style={{ color: "#FFD700" }}>Creator</span> <span className="text-sm text-[var(--ds-fg-muted)]">AI</span>
           </span>
         </Link>
 

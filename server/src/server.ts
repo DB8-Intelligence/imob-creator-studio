@@ -12,6 +12,7 @@ import { templatesRoutes } from './routes/templates.js';
 import { onboardingRoutes } from './routes/onboarding.js';
 import { agentsRoutes } from './routes/agents.js';
 import { webhooksRoutes } from './routes/webhooks.js';
+import { explainabilityRoutes } from './routes/explainability.js';
 
 const app = Fastify({
   logger: true,
@@ -27,6 +28,7 @@ await app.register(templatesRoutes);
 await app.register(onboardingRoutes);
 await app.register(agentsRoutes);
 await app.register(webhooksRoutes);
+await app.register(explainabilityRoutes);
 
 // Health check
 app.get('/health', async () => ({ status: 'ok', service: 'imobcreator-creative-engine' }));

@@ -93,20 +93,34 @@ const Auth = () => {
 
     setIsLoading(true);
 
-    const { error } = await signUp(signupEmail, signupPassword, signupName);
+    const { error, data: signUpData } = await signUp(signupEmail, signupPassword, signupName);
 
     if (error) {
+      console.log("[auth-page] signUp error:", error.message);
       toast({
         variant: "destructive",
         title: "Erro ao criar conta",
         description: error.message,
       });
     } else {
+      dispatchN8nEvent("new_user", { email: signupEmail, name: signupName });
+
+      // AuthContext already set user/session if email confirmation is OFF
+      // Check if we have a user ready to go
+      const authData = signUpData as { session?: unknown; user?: { id: string } } | null;
+      if (authData?.session) {
+        toast({ title: "Cadastro realizado!", description: "Bem-vindo ao ImobCreator." });
+        navigate("/dashboard", { replace: true });
+        setIsLoading(false);
+        return;
+      }
+
+      // Email confirmation is ON — user must verify first
+      console.log("[auth-page] No session after signUp — email confirmation likely ON");
       toast({
         title: "Conta criada!",
         description: "Verifique seu email para confirmar sua conta.",
       });
-      dispatchN8nEvent("new_user", { email: signupEmail, name: signupName });
 
       // Record referral signup if a ref code was stored.
       // ref_code is only removed from localStorage after a successful insert —
@@ -193,7 +207,7 @@ const Auth = () => {
               <Home className="w-6 h-6 text-accent-foreground" />
             </div>
             <span className="text-2xl font-display font-bold text-primary-foreground">
-              DB8<span className="text-accent">Intelligence</span>
+              Imob<span className="text-accent">Creator</span> <span className="text-base text-primary-foreground/60">AI</span>
             </span>
           </div>
           <p className="text-primary-foreground/70">
@@ -406,7 +420,7 @@ const Auth = () => {
         </Card>
 
         <p className="text-center text-primary-foreground/60 text-sm mt-6">
-          © 2026 DB8 Intelligence. Todos os direitos reservados.
+          © 2026 ImobCreator AI. Todos os direitos reservados.
         </p>
       </div>
     </div>
