@@ -6,6 +6,8 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { TemplateCard } from "./TemplateCard";
+import { usePlanGate } from "@/hooks/usePlanGate";
+import { checkTemplateAccess } from "@/modules/monetization";
 import {
   CREATIVE_CATALOG,
   ALL_CATEGORIES,
@@ -27,6 +29,7 @@ interface TemplateCatalogProps {
 const ALL_STYLES: VisualStyle[] = ["luxury", "modern", "minimal", "corporate", "popular", "editorial", "dark"];
 
 export function TemplateCatalog({ selectedId, onSelect, lockedEngines = [], compact, initialCategory }: TemplateCatalogProps) {
+  const { plan, goUpgrade } = usePlanGate();
   const [activeCategory, setActiveCategory] = useState<CreativeCategory | "all">(initialCategory ?? "all");
   const [activeStyle,    setActiveStyle]    = useState<VisualStyle | "all">("all");
   const [query,          setQuery]          = useState("");
@@ -140,15 +143,23 @@ export function TemplateCatalog({ selectedId, onSelect, lockedEngines = [], comp
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {filtered.map((t) => (
-            <TemplateCard
-              key={t.id}
-              template={t}
-              selected={selectedId === t.id}
-              locked={lockedEngines.includes(t.primary_engine)}
-              onSelect={onSelect}
-            />
-          ))}
+          {filtered.map((t) => {
+            const engineLocked = lockedEngines.includes(t.primary_engine);
+            const access = checkTemplateAccess({ plan, templateMinTier: t.min_tier });
+            const isLocked = engineLocked || !access.allowed;
+
+            return (
+              <TemplateCard
+                key={t.id}
+                template={t}
+                selected={selectedId === t.id}
+                locked={isLocked}
+                isPremium={t.is_premium}
+                onSelect={onSelect}
+                onUpgrade={goUpgrade}
+              />
+            );
+          })}
         </div>
       )}
     </div>

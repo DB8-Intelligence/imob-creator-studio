@@ -60,6 +60,8 @@ export interface EditableField {
   maxLength?:  number;
 }
 
+export type TemplateTier = "standard" | "plus" | "premium";
+
 export interface CatalogTemplate {
   id:               string;
   name:             string;
@@ -76,6 +78,8 @@ export interface CatalogTemplate {
   status:           "active" | "beta" | "coming_soon";
   is_popular?:      boolean;
   is_new?:          boolean;
+  is_premium?:      boolean;      // badge premium na UI
+  min_tier?:        TemplateTier;  // plano mínimo necessário (default: standard = free)
   credit_cost:      number;
   prompt_base?:     string;       // prompt base enviado ao engine
   tags:             string[];
@@ -140,6 +144,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "openai_image",
     status: "active",
     is_popular: true,
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 1,
     tags: ["luxo", "feed", "alto padrão", "premium"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DETAILS, FIELD_PRICE, FIELD_LOGO, FIELD_CTA],
@@ -210,6 +216,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "openai_image",
     status: "active",
     is_new: true,
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 1,
     tags: ["editorial", "minimal", "branding", "sofisticado"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DETAILS, FIELD_LOGO],
@@ -231,6 +239,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "openai_image",
     status: "active",
     is_popular: true,
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 1,
     tags: ["luxo", "story", "cta", "tráfego"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DETAILS, FIELD_CTA, FIELD_LOGO],
@@ -286,6 +296,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "image_to_video",
     status: "active",
     is_new: true,
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 2,
     tags: ["reels", "cover", "luxo", "vídeo"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DETAILS, FIELD_LOGO],
@@ -376,6 +388,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     supported_engines: ["openai_image", "art_generator"],
     primary_engine: "openai_image",
     status: "active",
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 1,
     tags: ["landing", "hero", "luxo", "lançamento"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DESCRIPTION, FIELD_CTA, FIELD_LOGO],
@@ -413,6 +427,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "art_generator",
     status: "active",
     is_popular: true,
+    is_premium: true,
+    min_tier: "plus",
     credit_cost: 2,
     tags: ["luxo", "editorial", "premium", "artístico"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DESCRIPTION, FIELD_LOGO, FIELD_STYLE],
@@ -430,6 +446,8 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     primary_engine: "art_generator",
     status: "active",
     is_new: true,
+    is_premium: true,
+    min_tier: "premium",
     credit_cost: 2,
     tags: ["luxo", "dark", "cinema", "icônico"],
     editable_fields: [FIELD_IMAGE, FIELD_TITLE, FIELD_DETAILS, FIELD_PRICE, FIELD_LOGO],
@@ -511,6 +529,43 @@ export const CREATIVE_CATALOG: CatalogTemplate[] = [
     editable_fields: [FIELD_LOGO, FIELD_TITLE, FIELD_DESCRIPTION, FIELD_CTA],
     prompt_base: "Real estate agency institutional post, professional corporate design, brand identity showcase, trust and authority visual elements, clean modern layout",
   },
+
+  // ── LANÇAMENTO ─────────────────────────────────────────────────────────
+  {
+    id: "agent_black_gold_tower",
+    name: "Black Gold Tower",
+    category: "luxo",
+    visual_style: "dark",
+    aspect_ratio: "4:5",
+    preview_gradient: "from-yellow-900 to-gray-950",
+    recommended_for: ["lançamento", "torre residencial", "alto padrão", "empreendimento urbano"],
+    supported_engines: ["openai_image", "gemini_image"],
+    primary_engine: "openai_image",
+    status: "active",
+    is_new: true,
+    is_popular: true,
+    credit_cost: 1,
+    tags: ["lancamento", "tower", "dark", "dourado", "features-grid", "alto-padrao"],
+    editable_fields: [FIELD_TITLE, FIELD_DETAILS, FIELD_PRICE, FIELD_CTA, FIELD_IMAGE, FIELD_LOGO],
+    prompt_base: "Dark premium luxury real estate tower creative, dramatic golden hour lighting, modern glass facade high-rise building, dark atmospheric overlay with gold accents, split layout with features grid and price card, bold uppercase title, professional property marketing",
+  },
+  {
+    id: "agent_terreno_alphaville",
+    name: "Terreno Alphaville",
+    category: "popular",
+    visual_style: "dark",
+    aspect_ratio: "4:5",
+    preview_gradient: "from-blue-950 to-yellow-800",
+    recommended_for: ["terreno", "lote", "venda de terreno", "foto aérea", "urgência"],
+    supported_engines: ["openai_image", "gemini_image"],
+    primary_engine: "openai_image",
+    status: "active",
+    is_new: true,
+    credit_cost: 1,
+    tags: ["terreno", "venda", "urgencia", "alphaville", "aerial", "dark-gold", "brasileiro"],
+    editable_fields: [FIELD_TITLE, FIELD_LOCATION, FIELD_PRICE, FIELD_CTA, FIELD_IMAGE, FIELD_LOGO],
+    prompt_base: "Aerial drone photography premium gated community residential lot, corner plot, golden hour sunset, dark navy overlay with gold urgency text, bold price in gold, pill CTA with dark text on gold gradient, Brazilian real estate marketing",
+  },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -561,6 +616,14 @@ export function getActiveTemplates(): CatalogTemplate[] {
 
 export function getPopularTemplates(): CatalogTemplate[] {
   return CREATIVE_CATALOG.filter((t) => t.is_popular);
+}
+
+export function getPremiumTemplates(): CatalogTemplate[] {
+  return CREATIVE_CATALOG.filter((t) => t.is_premium);
+}
+
+export function getFreeTemplates(): CatalogTemplate[] {
+  return CREATIVE_CATALOG.filter((t) => !t.is_premium && t.status === "active");
 }
 
 export function searchTemplates(query: string): CatalogTemplate[] {

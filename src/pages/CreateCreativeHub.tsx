@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Wand2,
   ImageIcon,
+  Bot,
   Zap,
   Diamond,
   MousePointer2,
@@ -44,10 +45,21 @@ const COMPARATIVO = [
 
 const FLUXOS = [
   {
+    id: "studio",
+    icon: Bot,
+    badge: "Novo",
+    badgePrimary: true,
+    title: "Assistente IA ou Formulário",
+    desc: "Dois modos: deixe a IA te guiar passo a passo, ou preencha o formulário direto. Escolha template, faça upload, defina copy e gere criativos profissionais.",
+    steps: ["Upload + tema", "IA gera copy", "Criativo pronto na biblioteca"],
+    cta: "Abrir Criador de Criativos",
+    path: "/create/studio",
+  },
+  {
     id: "ideia",
     icon: Wand2,
-    badge: "Mais rápido",
-    badgePrimary: true,
+    badge: "Rápido",
+    badgePrimary: false,
     title: "A partir de uma ideia",
     desc: "Digite seu conceito ou ideia. A IA refina o texto e gera o post ou anúncio profissional em segundos — sem precisar saber design.",
     steps: ["Descreva sua ideia", "Escolha canal e formato", "IA gera o criativo"],

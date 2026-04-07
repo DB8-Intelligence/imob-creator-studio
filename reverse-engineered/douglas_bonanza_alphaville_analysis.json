@@ -1,0 +1,114 @@
+{
+  "tipo": "imagem",
+  "categoria": "anuncio_imovel",
+  "nicho": "imobiliario",
+
+  "composicao": {
+    "layout": "Foto full-body do corretor em pé à direita, com texto alinhado à esquerda. Fundo com carro de luxo (SUV escuro) e elementos 3D geométricos flutuantes (cubos azuis, formas douradas). Confetes dourados espalhados.",
+    "proporcao": "4:5",
+    "grid": "2 colunas visuais: texto (60% esquerda) + pessoa (40% direita). Vertical com hierarquia de cima para baixo.",
+    "hierarquia_visual": "Título grande > Subtítulo com números > CTA button > Logo",
+    "ponto_focal": "O corretor (pessoa) e o título 'Não Perca Dinheiro'",
+    "espacamento": "equilibrado",
+    "margens": "sem margem (full-bleed no fundo)"
+  },
+
+  "cores": {
+    "paleta_principal": ["#1a1a1a", "#c8a04e", "#2b4a8c"],
+    "paleta_secundaria": ["#ffffff", "#d4d4d4", "#3a3a3a"],
+    "fundo": "Cinza escuro/preto com textura geométrica angular (facetada, estilo diamante) + carro de luxo preto",
+    "texto_principal": "#ffffff",
+    "texto_secundario": "#c8a04e",
+    "accent": "#c8a04e",
+    "estilo_cor": "dark_premium",
+    "contraste": "alto",
+    "temperatura": "quente"
+  },
+
+  "tipografia": {
+    "fonte_titulo": "Playfair Display ou Lora (serifada elegante) com peso italic/bold",
+    "fonte_corpo": "Open Sans ou Montserrat (sem serifa)",
+    "tamanho_titulo": "muito grande",
+    "peso_titulo": "bold",
+    "peso_corpo": "medium",
+    "estilo_titulo": "capitalizado",
+    "alinhamento": "esquerda",
+    "efeitos_texto": "sombra sutil no título, texto dourado em palavras-chave",
+    "num_fontes": 2,
+    "hierarquia_tipografica": "3 camadas: (1) Título serifado grande branco/dourado 'Não Perca Dinheiro em Alphaville', (2) Subtítulo sans-serif médio branco com números em dourado '3 erros que custam R$ 200 mil', (3) CTA em botão com fundo escuro translúcido 'Baixar Guia Grátis'"
+  },
+
+  "elementos_graficos": {
+    "foto_principal": "Homem de negócios/corretor de ~55 anos, barba grisalha, terno azul marinho, camisa branca, calça cáqui, sapatos marrons. Pose confiante com mãos nos bolsos, sorrindo.",
+    "foto_tratamento": "original com iluminação de estúdio, leve pós-produção para integrar com fundo",
+    "overlay": "Fundo escuro com textura geométrica facetada (estilo diamante/cristal)",
+    "icones": ["moedas/dinheiro (emoji-style ao lado do subtítulo)", "documento/lista (emoji-style)"],
+    "badges": [],
+    "shapes": ["Cubos 3D azul marinho flutuantes", "Formas geométricas douradas/metálicas 3D", "Setas douradas >>>>", "Confetes dourados espalhados", "Anéis de luz dourados circulares (lens flare)"],
+    "bordas": "sem borda",
+    "sombras": "sim — sombra no corretor para separar do fundo, sombra no botão CTA",
+    "efeitos_especiais": "3d_elements (cubos, formas geométricas), particles (confetes dourados), lens_flare (anéis de luz)",
+    "logo": "Inferior direito — logo 'DOUGLAS Bonanza' com ícone DB estilizado, subtítulo 'ESPECIALISTA EM IMÓVEIS DE LUXO'",
+    "qr_code": false,
+    "foto_pessoa": "Corretor de imóveis de luxo, homem maduro, aparência confiável e bem-sucedida, terno azul marinho, barba grisalha. Em pé na frente de SUV de luxo preto (Porsche Cayenne ou similar)."
+  },
+
+  "textos_encontrados": {
+    "titulo": "Não Perca Dinheiro em Alphaville",
+    "subtitulo": "Descubra os 3 erros que custam R$ 200 mil aos compradores",
+    "corpo": "",
+    "cta": "Baixar Guia Grátis",
+    "preco": "R$ 200 mil (mencionado como custo dos erros)",
+    "contato": "",
+    "dados_tecnicos": "",
+    "outros_textos": ["DOUGLAS Bonanza", "ESPECIALISTA EM IMÓVEIS DE LUXO"]
+  },
+
+  "prompt_reproducao": {
+    "prompt_imagem": "Professional luxury real estate advertisement in 4:5 portrait format. Dark premium design with geometric faceted crystal background in charcoal gray and black tones. A confident mature businessman in his mid-50s with gray beard, wearing a navy blue blazer, white dress shirt, khaki trousers, and brown loafers, standing in a power pose with hands in pockets, smiling warmly. Behind him, a black luxury SUV (high-end European brand). Floating 3D geometric elements: navy blue cubes, metallic gold abstract shapes, golden confetti particles scattered throughout. Circular golden lens flare effects. Gold directional arrows (>>>>) near the headline. Text on the left side in elegant serif font: 'Don't Lose Money in Alphaville' in white and gold colors. Below: subtitle in sans-serif about '3 mistakes that cost R$200K'. Dark translucent CTA button at bottom: 'Download Free Guide'. Logo in bottom right corner. Luxury, aspirational, authority-driven composition. High contrast, warm color temperature, studio lighting on the person with dark moody background.",
+    "prompt_imagem_pt": "Anúncio imobiliário de luxo profissional em formato retrato 4:5. Design dark premium com fundo geométrico facetado tipo cristal em tons de cinza carvão e preto. Um empresário maduro confiante de ~55 anos com barba grisalha, vestindo blazer azul marinho, camisa branca, calça cáqui e mocassins marrons, em pose confiante com mãos nos bolsos, sorrindo. Atrás dele, um SUV de luxo preto (marca europeia premium). Elementos 3D geométricos flutuantes: cubos azul marinho, formas abstratas douradas metálicas, confetes dourados espalhados. Efeitos de lens flare circular dourado. Setas douradas (>>>>) próximas ao título. Texto no lado esquerdo em fonte serifada elegante: título em branco e dourado. Abaixo: subtítulo em sans-serif. Botão CTA translúcido escuro na parte inferior. Logo no canto inferior direito. Composição de luxo, aspiracional, transmitindo autoridade. Alto contraste, temperatura de cor quente, iluminação de estúdio na pessoa com fundo escuro e dramático.",
+    "negative_prompt": "low quality, blurry, pixelated, amateur design, bright background, cartoonish, clipart, watermark, stock photo watermark, distorted face, extra fingers, ugly, deformed, cheap looking, low resolution, noise, grain",
+    "prompt_template": "Professional luxury {NICHO} advertisement in {PROPORCAO} format. Dark premium design with geometric faceted crystal background in charcoal gray and black tones. A confident {DESCRICAO_PESSOA}, standing in a power pose. Behind them, {ELEMENTO_FUNDO}. Floating 3D geometric elements: navy blue cubes, metallic gold abstract shapes, golden confetti particles. Circular golden lens flare effects. Gold directional arrows near the headline. Text on the left side in elegant serif font: '{TITULO}' in white and gold colors. Below: subtitle about '{SUBTITULO}'. Dark translucent CTA button: '{CTA}'. Logo in bottom right corner. {ESTILO} composition. High contrast, warm color temperature, studio lighting on the person with dark moody background.",
+    "variaveis": {
+      "lista": ["NICHO", "PROPORCAO", "DESCRICAO_PESSOA", "ELEMENTO_FUNDO", "TITULO", "SUBTITULO", "CTA", "ESTILO", "COR_ACCENT", "LOGO_TEXTO"]
+    },
+    "modelo_recomendado": "flux_pro",
+    "steps_recomendados": 35,
+    "cfg_scale": 7.0,
+    "sampler": "euler_a"
+  },
+
+  "qualidade": {
+    "nivel_profissional": "premium",
+    "estimativa_ferramenta": "photoshop + ia_generativa (fundo e elementos 3D provavelmente gerados por IA, pessoa é foto real recortada e integrada)",
+    "pontos_fortes": [
+      "Composição dark premium transmite autoridade e luxo",
+      "Hierarquia tipográfica clara: título > subtítulo > CTA",
+      "Elementos 3D e confetes dourados adicionam sofisticação",
+      "Contraste alto garante legibilidade",
+      "Persona do corretor transmite confiança e sucesso",
+      "Carro de luxo reforça posicionamento premium",
+      "CTA claro e objetivo 'Baixar Guia Grátis'",
+      "Uso estratégico de números (3 erros, R$ 200 mil) para gerar curiosidade",
+      "Emoji-icons (moedas, documento) quebram monotonia do texto"
+    ],
+    "pontos_fracos": [
+      "Elementos 3D flutuantes podem distrair do conteúdo principal",
+      "Falta de informação de contato direto (telefone, WhatsApp)",
+      "Logo pequeno pode ser difícil de ler em mobile",
+      "Texto 'em Alphaville' poderia ter mais destaque geográfico"
+    ],
+    "sugestoes_melhoria": [
+      "Adicionar QR code ou @instagram para captura direta",
+      "Aumentar levemente o logo para brand awareness",
+      "Versão Stories (9:16) com mesma identidade visual",
+      "Versão carrossel: slide 1 = este criativo, slides 2-4 = os 3 erros, slide 5 = CTA download"
+    ]
+  },
+
+  "_source": {
+    "file": "douglas_bonanza_alphaville.png",
+    "analyzed_at": "2026-04-04T22:30:00.000Z",
+    "method": "visual_analysis_direct"
+  }
+}

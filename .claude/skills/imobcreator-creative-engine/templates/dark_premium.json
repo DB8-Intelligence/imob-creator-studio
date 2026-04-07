@@ -1,0 +1,157 @@
+{
+  "id": "dark_premium",
+  "nome": "Dark Premium",
+  "descricao": "Fundo escuro elegante com detalhes luminosos em destaque",
+  "categoria": "Imobiliário",
+  "tags": ["luxo", "alto padrão", "cobertura", "penthouse", "exclusivo"],
+  "tipo": ["post", "story", "reels"],
+  "ordem_exibicao": 1,
+  "creditos": 1,
+  "pipeline": {
+    "analise_claude": true,
+    "reestilizacao_flux": false,
+    "composicao_shotstack": true
+  },
+  "config_visual": {
+    "overlay": {
+      "lateral": "linear-gradient(to right, {{overlay_rgba_95}} 0%, {{overlay_rgba_60}} 40%, transparent 70%)",
+      "inferior": "linear-gradient(to top, {{overlay_rgba_95}} 0%, {{overlay_rgba_60}} 20%, transparent 45%)"
+    },
+    "tipografia": {
+      "titulo":    { "fonte": "Playfair Display", "peso": 800, "tamanho_post": 72, "tamanho_story": 56, "cor": "{{cor_primaria}}", "transform": "uppercase", "tracking": "-1.5px", "linha_altura": 0.92 },
+      "subtitulo": { "fonte": "Inter",            "peso": 300, "tamanho_post": 16, "tamanho_story": 14, "cor": "{{cor_texto_corpo}}", "linha_altura": 1.5 },
+      "script":    { "fonte": "Dancing Script",   "peso": 700, "tamanho_post": 26, "tamanho_story": 20, "cor": "{{cor_primaria}}" },
+      "cta":       { "fonte": "Inter",            "peso": 500, "tamanho": 15, "cor": "#FFFFFF" },
+      "badge":     { "fonte": "Inter",            "peso": 600, "tamanho": 10, "cor": "{{cor_accent}}", "transform": "uppercase", "tracking": "2px" },
+      "marca":     { "fonte": "Inter",            "peso": 700, "tamanho": 13, "cor": "#FFFFFF", "transform": "uppercase" },
+      "marca_script": { "fonte": "Dancing Script", "peso": 400, "tamanho": 13, "cor": "{{cor_primaria}}" },
+      "marca_sub": { "fonte": "Inter",            "peso": 400, "tamanho": 8, "cor": "rgba(200,190,170,0.5)", "transform": "uppercase", "tracking": "1.2px" }
+    },
+    "elementos": {
+      "linha_decorativa": { "largura": 40, "altura": 1.5, "cor": "{{cor_primaria}}", "opacidade": 0.70 },
+      "badge_box":  { "border_radius": 3, "padding": "3px 9px", "border": "1px solid {{cor_accent_40}}", "bg": "{{cor_accent_12}}" },
+      "cta_btn":    { "border_radius": 50, "padding": "11px 28px", "largura_pct": 62, "bg": "linear-gradient(135deg, {{cor_secundaria}}, {{cor_primaria}})", "border": "1.5px solid {{cor_accent_40}}" },
+      "logo_box":   { "border_radius": 6, "tamanho": 34, "border": "1.5px solid {{cor_accent_40}}", "bg": "{{cor_accent_08}}" }
+    },
+    "layout": {
+      "post":  { "texto_zona": "top_left", "texto_max_width_pct": 52, "badge_pos": "top_right", "cta_pos": "bottom_center", "logo_pos": "bottom_right" },
+      "story": { "texto_zona": "top_left", "texto_max_width_pct": 70, "badge_pos": "top_right", "cta_pos": "bottom_center", "logo_pos": "bottom_right" },
+      "reels": { "texto_zona": "top_left", "texto_max_width_pct": 70, "badge_pos": "top_left",  "cta_pos": "bottom_center", "logo_pos": "bottom_right" }
+    }
+  },
+  "prompt_flux": {
+    "post":  "Dark luxury real estate marketing photograph, {{prompt_flux.descricao_cena}}, dramatic moody low-key interior lighting with deep navy and charcoal overlay tones, warm golden accent highlights on architectural details, polished premium materials visible, generous dark negative space on left side for text overlay, dark footer zone at bottom 18%, {{prompt_flux.estilo_fotografico}}, cinematic color grading deep blacks warm amber highlights, editorial luxury real estate photography, 4:5 portrait format.",
+    "story": "Dark luxury real estate story, vertical 9:16, {{prompt_flux.descricao_cena}}, dramatic low-key cinematic lighting, deep navy overlay in upper 30% creating clean headline zone, subject in lower 65%, warm golden accent lighting, {{prompt_flux.estilo_fotografico}}, premium luxury marketing aesthetic.",
+    "reels": "Dark luxury real estate reel cover, vertical 9:16, {{prompt_flux.descricao_cena}}, moody atmospheric lighting, deep blacks, upper dark gradient for text, bottom branding zone, {{prompt_flux.estilo_fotografico}}, cinematic luxury."
+  },
+  "shotstack_template": {
+    "timeline": {
+      "background": "{{cor_fundo}}",
+      "tracks": [
+        {
+          "clips": [{
+            "asset": { "type": "image", "src": "{{imagem_url}}" },
+            "start": 0, "length": 5,
+            "fit": "cover",
+            "position": "{{posicao_foto_background}}"
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "html",
+              "html": "<div style='width:100%;height:100%;background:{{overlay_css_lateral}}'></div>",
+              "width": "{{largura}}", "height": "{{altura}}"
+            },
+            "start": 0, "length": 5
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "html",
+              "html": "<div style='width:100%;height:100%;background:{{overlay_css_inferior}}'></div>",
+              "width": "{{largura}}", "height": "{{altura}}"
+            },
+            "start": 0, "length": 5
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "html",
+              "html": "<div style='font-size:10px;font-weight:600;background:{{cor_accent_12}};border:1px solid {{cor_accent_40}};border-radius:3px;padding:3px 9px;color:{{cor_accent}};letter-spacing:2px;text-transform:uppercase;font-family:Inter,sans-serif;white-space:nowrap'>{{badge_texto}}</div>",
+              "width": 200, "height": 32
+            },
+            "start": 0, "length": 5,
+            "position": "topRight",
+            "offset": { "x": -0.05, "y": -0.44 }
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "title",
+              "text": "{{titulo_linha1}}\n{{titulo_linha2}}",
+              "style": "minimal",
+              "color": "{{cor_primaria}}",
+              "size": "xx-large"
+            },
+            "start": 0, "length": 5,
+            "position": "topLeft",
+            "offset": { "x": 0.07, "y": -0.35 }
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "title",
+              "text": "{{subtitulo}}",
+              "style": "minimal",
+              "color": "#E8DCCA",
+              "size": "small"
+            },
+            "start": 0, "length": 5,
+            "position": "topLeft",
+            "offset": { "x": 0.07, "y": -0.13 }
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "title",
+              "text": "{{script_elegante}}",
+              "style": "minimal",
+              "color": "{{cor_primaria}}",
+              "size": "medium"
+            },
+            "start": 0, "length": 5,
+            "position": "topLeft",
+            "offset": { "x": 0.07, "y": -0.05 }
+          }]
+        },
+        {
+          "clips": [{
+            "asset": {
+              "type": "html",
+              "html": "<div style='background:linear-gradient(135deg,{{cor_secundaria}},{{cor_primaria}});border:1.5px solid {{cor_accent_40}};border-radius:50px;padding:11px 0;color:#fff;font-family:Inter,sans-serif;font-weight:500;font-size:15px;text-align:center;width:100%'>{{cta_texto}}</div>",
+              "width": 340, "height": 48
+            },
+            "start": 0, "length": 5,
+            "position": "bottom",
+            "offset": { "x": 0, "y": 0.12 }
+          }]
+        },
+        {
+          "clips": [{
+            "asset": { "type": "image", "src": "{{logo_url}}" },
+            "start": 0, "length": 5,
+            "position": "bottomRight",
+            "offset": { "x": -0.05, "y": 0.04 },
+            "scale": 0.15
+          }]
+        }
+      ]
+    }
+  }
+}

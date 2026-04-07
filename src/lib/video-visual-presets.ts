@@ -126,3 +126,16 @@ export function styleToPresetId(style: string): VisualPresetId {
     default:            return "default";
   }
 }
+
+// ─── Bridge to Preset Engine ───────────────────────────────────────────────
+
+import { resolveLegacyPresetId } from "@/modules/presets";
+import type { VideoPresetId } from "@/modules/presets";
+
+/**
+ * Converte um VisualPresetId para o novo VideoPresetId do Preset Engine.
+ * Usado como ponte durante a migração.
+ */
+export function toVideoPresetId(visualPresetId: VisualPresetId): VideoPresetId {
+  return resolveLegacyPresetId(visualPresetId);
+}

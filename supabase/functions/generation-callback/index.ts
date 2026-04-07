@@ -46,11 +46,22 @@ serve(async (req) => {
 
   // ── Autenticação por service key ──────────────────────────────────
   const serviceKeyHeader = req.headers.get("x-service-key");
-  if (serviceKeyHeader !== supabaseServiceKey) {
-    // Fallback: aceitar JWT do usuário (para testes diretos)
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) {
+  const isServiceCall = serviceKeyHeader && serviceKeyHeader === supabaseServiceKey;
+
+  if (!isServiceCall) {
+    // Fallback: validate JWT properly
+    const authHeader = req.headers.get("authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
       return json({ error: "unauthorized" }, 401);
+    }
+    // Validate the JWT by attempting to get user
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { error: authErr } = await userClient.auth.getUser();
+    if (authErr) {
+      return json({ error: "invalid token" }, 401);
     }
   }
 
@@ -133,6 +144,54 @@ serve(async (req) => {
         if (error) console.warn("consume_credits error:", error.message);
       });
     }
+
+    // ── Automation log update ──────────────────────────────────────
+    // Se este job foi disparado por uma automação, atualizar automation_logs
+    const meta = (metadata ?? {}) as Record<string, unknown>;
+    if (meta.automation && meta.automation_log_id) {
+      const automationLogId = meta.automation_log_id as string;
+      const automationStatus = status === "done" ? "success" : "error";
+
+      // Buscar o primeiro asset gerado (se houver) para vincular
+      let assetId: string | null = null;
+      if (status === "done" && urls.length > 0) {
+        const { data: assets } = await client
+          .from("generated_assets")
+          .select("id")
+          .eq("job_id", job_id)
+          .limit(1);
+        assetId = assets?.[0]?.id ?? null;
+      }
+
+      const { error: automationLogErr } = await client
+        .from("automation_logs")
+        .update({
+          status: automationStatus,
+          asset_id: assetId,
+          error: status === "error" ? (error_message ?? "unknown error") : null,
+        })
+        .eq("id", automationLogId);
+
+      if (automationLogErr) {
+        console.warn("automation_logs update error:", automationLogErr.message);
+      } else {
+        console.log(`automation_logs: ${automationLogId} → ${automationStatus}`);
+      }
+    }
+
+    // ── Notification ──────────────────────────────────────────────────
+    await client.from("notifications").insert({
+      user_id: job.user_id,
+      type: status === "done" ? "generation_done" : "generation_error",
+      title: status === "done" ? "Criativo gerado!" : "Erro na geração",
+      message: status === "done"
+        ? `Seu criativo foi gerado com sucesso. ${urls.length} arquivo(s) pronto(s).`
+        : `Falha ao gerar criativo: ${error_message ?? "erro desconhecido"}`,
+      link: status === "done" ? "/biblioteca" : null,
+      metadata: { job_id, generation_type, urls_count: urls.length },
+    }).then(({ error: notifErr }) => {
+      if (notifErr) console.warn("notification insert error:", notifErr.message);
+    });
 
     // ── Log ──────────────────────────────────────────────────────────
     await client.from("generation_logs").insert({

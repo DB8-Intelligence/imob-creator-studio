@@ -1,88 +1,49 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
+import { checkBeforeDownload, checkBeforeReuse } from "@/modules/monetization";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useVideoModuleOverview } from "@/hooks/useVideoModule";
+import { useVideoGallery, useDeleteVideoAsset } from "@/hooks/useVideoGallery";
+import type { VideoGalleryItem } from "@/hooks/useVideoGallery";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
+import { useToast } from "@/hooks/use-toast";
+import { VideoGalleryCard } from "@/components/video/VideoGalleryCard";
+import { VideoPlayerDialog } from "@/components/video/VideoPlayerDialog";
 import {
   Film,
   Plus,
-  Download,
   Clock,
   TrendingUp,
   Zap,
-  Play,
   Lock,
   Crown,
   Star,
   ChevronRight,
   Palette,
   CreditCard,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { VideoTemplateId } from "@/lib/video-templates";
+import type { VisualPresetId } from "@/lib/video-visual-presets";
+import type { MusicMoodId } from "@/lib/video-music-moods";
 
-const FALLBACK_VIDEOS = [
-  {
-    id: "1",
-    title: "Apartamento Vila Mariana",
-    format: "reels",
-    style: "cinematic",
-    duration_seconds: 30,
-    created_at: "2026-03-20T14:30:00Z",
-    thumbnail_color: "from-slate-800 to-slate-900",
-    status: "completed",
-  },
-  {
-    id: "2",
-    title: "Casa Alphaville 420m²",
-    format: "youtube",
-    style: "luxury",
-    duration_seconds: 60,
-    created_at: "2026-03-19T10:15:00Z",
-    thumbnail_color: "from-amber-900 to-amber-950",
-    status: "completed",
-  },
-  {
-    id: "3",
-    title: "Studio Moema — Lançamento",
-    format: "feed",
-    style: "moderno",
-    duration_seconds: 15,
-    created_at: "2026-03-18T09:00:00Z",
-    thumbnail_color: "from-zinc-800 to-zinc-900",
-    status: "completed",
-  },
-];
-
-const FORMAT_LABEL: Record<string, string> = {
-  reels: "Reels 9:16",
-  feed: "Feed 1:1",
-  youtube: "YouTube 16:9",
-};
-const FORMAT_COLOR: Record<string, string> = {
-  reels: "bg-rose-500/15 text-rose-400",
-  feed: "bg-violet-500/15 text-violet-400",
-  youtube: "bg-red-500/15 text-red-400",
-};
-const STYLE_COLOR: Record<string, string> = {
-  cinematic: "bg-slate-500/15 text-slate-400",
-  luxury: "bg-amber-500/15 text-amber-400",
-  moderno: "bg-cyan-500/15 text-cyan-400",
-};
-
-function timeAgo(iso: string) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const d = Math.floor(diff / 86400000);
-  if (d === 0) return "Hoje";
-  if (d === 1) return "Ontem";
-  return `${d} dias atrás`;
-}
-
-// ── Plan Gate ─────────────────────────────────────────────────────────────────
+// ── Plan Gate ────────────────────────────────────────────────────────────���────
 const PlanGate = () => {
   const navigate = useNavigate();
   return (
@@ -103,10 +64,10 @@ const PlanGate = () => {
             <span className="font-semibold text-foreground">Pro</span>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ 20 vídeos/mês</li>
-            <li>✓ 4K Ultra HD</li>
-            <li>✓ 3 estilos visuais</li>
-            <li>✓ Reels, Feed e YouTube</li>
+            <li>20 vídeos/mês</li>
+            <li>4K Ultra HD</li>
+            <li>3 estilos visuais</li>
+            <li>Reels, Feed e YouTube</li>
           </ul>
         </div>
         <div className="rounded-2xl border border-accent/40 bg-accent/5 p-5">
@@ -116,10 +77,10 @@ const PlanGate = () => {
             <Badge className="bg-amber-500/10 text-amber-600 text-xs">Ilimitado</Badge>
           </div>
           <ul className="space-y-1.5 text-sm text-muted-foreground">
-            <li>✓ Vídeos ilimitados</li>
-            <li>✓ 4K garantido</li>
-            <li>✓ Todos os formatos</li>
-            <li>✓ Suporte dedicado</li>
+            <li>Vídeos ilimitados</li>
+            <li>4K garantido</li>
+            <li>Todos os formatos</li>
+            <li>Suporte dedicado</li>
           </ul>
         </div>
       </div>
@@ -137,13 +98,32 @@ const PlanGate = () => {
   );
 };
 
+// ── Filter tabs ───────────────────────────────────────────────────���──────────
+type FilterTab = "all" | "reels" | "feed" | "youtube" | "processing" | "error";
+
+const FILTER_TABS: { id: FilterTab; label: string }[] = [
+  { id: "all", label: "Todos" },
+  { id: "reels", label: "Reels 9:16" },
+  { id: "feed", label: "Feed 1:1" },
+  { id: "youtube", label: "YouTube 16:9" },
+  { id: "processing", label: "Em progresso" },
+  { id: "error", label: "Com erro" },
+];
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 const VideosDashboardPage = () => {
   const { data: plan } = useUserPlan();
   const { workspaceId } = useWorkspaceContext();
   const { data: overview } = useVideoModuleOverview(workspaceId);
+  const { data: gallery, isLoading: galleryLoading } = useVideoGallery(workspaceId);
+  const deleteAssetMutation = useDeleteVideoAsset(workspaceId);
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"all" | "reels" | "feed" | "youtube">("all");
+  const { toast } = useToast();
+
+  const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [playerItem, setPlayerItem] = useState<VideoGalleryItem | null>(null);
+  const [playerOpen, setPlayerOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState<VideoGalleryItem | null>(null);
 
   const hasVideoAccess = plan?.user_plan === "pro" || plan?.user_plan === "vip";
 
@@ -155,31 +135,93 @@ const VideosDashboardPage = () => {
     );
   }
 
-  const videos = useMemo(() => {
-    const dbVideos = overview?.jobs ?? [];
-    if (dbVideos.length > 0) {
-      return dbVideos.map((video) => ({
-        ...video,
-        thumbnail_color:
-          video.style === "luxury"
-            ? "from-amber-900 to-amber-950"
-            : video.style === "moderno"
-            ? "from-zinc-800 to-zinc-900"
-            : "from-slate-800 to-slate-900",
-      }));
-    }
-    return FALLBACK_VIDEOS;
-  }, [overview?.jobs]);
-
+  const videos = gallery ?? [];
   const activeAddonType = resolveVideoPlanTier(overview?.addOn?.addon_type ?? (plan?.user_plan === "vip" ? "premium" : plan?.user_plan === "pro" ? "plus" : "standard"));
   const planRule = getVideoPlanRule(activeAddonType);
   const videoLimit = overview?.addOn?.credits_total ?? planRule.monthlyCredits;
-  const videosUsed = overview?.addOn?.credits_used ?? videos.length;
+  const videosUsed = overview?.addOn?.credits_used ?? videos.filter((v) => v.status === "done").length;
   const pct = videoLimit ? Math.min((videosUsed / videoLimit) * 100, 100) : 0;
   const maxDurationLabel = `${planRule.maxDurationSeconds}s`;
   const maxPhotosLabel = `${planRule.maxUploadImages} fotos`;
 
-  const filtered = videos.filter((v) => activeTab === "all" || v.format === activeTab);
+  // Apply filter
+  const filtered = useMemo(() => {
+    switch (activeTab) {
+      case "reels":
+      case "feed":
+      case "youtube":
+        return videos.filter((v) => v.format === activeTab);
+      case "processing":
+        return videos.filter((v) => v.status === "processing" || v.status === "pending");
+      case "error":
+        return videos.filter((v) => v.status === "error");
+      default:
+        return videos;
+    }
+  }, [videos, activeTab]);
+
+  // ── Handlers ───────────────���────────────────────────────────────��─────────
+
+  const handlePreview = (item: VideoGalleryItem) => {
+    setPlayerItem(item);
+    setPlayerOpen(true);
+  };
+
+  const handleDownload = () => {
+    // ── Monetization: control point (before download) ─────────────
+    const downloadCheck = checkBeforeDownload({ plan: activeAddonType });
+    if (!downloadCheck.allowed) {
+      toast({ title: "Download bloqueado", description: downloadCheck.reason, variant: "destructive" });
+      return;
+    }
+    // Actual download is handled inside the card/dialog
+  };
+
+  const handleReuse = (item: VideoGalleryItem) => {
+    // ── Monetization: control point (before reuse) ────────────────
+    const reuseCheck = checkBeforeReuse({ plan: activeAddonType });
+    if (!reuseCheck.allowed) {
+      toast({ title: "Reuso bloqueado", description: reuseCheck.reason, variant: "destructive" });
+      return;
+    }
+    setPlayerOpen(false);
+    // Navigate to video-creator with prefill state
+    const meta = item.jobMetadata ?? {};
+    navigate("/video-creator", {
+      state: {
+        prefill: true,
+        templateId: item.templateId ?? undefined,
+        presetId: item.presetId ?? undefined,
+        moodId: item.moodId ?? undefined,
+        format: item.format ?? undefined,
+        aspectRatio: item.aspectRatio ?? undefined,
+        propertyId: item.propertyId ?? undefined,
+        imageUrls: item.imageUrls ?? undefined,
+        // pass job metadata for extra context
+        metadata: meta,
+      } satisfies VideoCreatorPrefill,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteItem) return;
+    try {
+      await deleteAssetMutation.mutateAsync(deleteItem.assetId);
+      toast({ title: "Vídeo excluído" });
+    } catch {
+      toast({ title: "Erro ao excluir", variant: "destructive" });
+    }
+    setDeleteItem(null);
+  };
+
+  const handleDeleteRequest = (item: VideoGalleryItem) => {
+    setPlayerOpen(false);
+    setDeleteItem(item);
+  };
+
+  // ── Count badges ─────────────────────────���────────────────────────────────
+  const processingCount = videos.filter((v) => v.status === "processing" || v.status === "pending").length;
+  const errorCount = videos.filter((v) => v.status === "error").length;
 
   return (
     <AppLayout>
@@ -188,9 +230,9 @@ const VideosDashboardPage = () => {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Dashboard de Vídeos IA</h1>
+            <h1 className="text-2xl font-bold text-foreground">Galeria de Vídeos</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Gerencie seus vídeos gerados e monitore o consumo do módulo.
+              Gerencie seus vídeos gerados, faça download e reutilize configurações.
             </p>
           </div>
           <div className="flex gap-3">
@@ -223,11 +265,10 @@ const VideosDashboardPage = () => {
               </div>
               <p className="text-3xl font-bold text-foreground">
                 {videosUsed}
-                {videoLimit && (
+                {videoLimit ? (
                   <span className="text-lg text-muted-foreground font-normal">/{videoLimit}</span>
-                )}
-                {!videoLimit && (
-                  <span className="text-lg text-amber-500 font-normal ml-1">∞</span>
+                ) : (
+                  <span className="text-lg text-amber-500 font-normal ml-1">&infin;</span>
                 )}
               </p>
               {videoLimit && (
@@ -239,13 +280,13 @@ const VideosDashboardPage = () => {
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                {`${Math.max(videoLimit - videosUsed, 0)} créditos restantes`}
+                {`${Math.max((videoLimit ?? 0) - videosUsed, 0)} créditos restantes`}
               </p>
             </CardContent>
           </Card>
 
           {[
-            { icon: Clock, label: "Minutos renderizados", value: "2h 45min", sub: "este mês" },
+            { icon: Clock, label: "Total na galeria", value: `${videos.length} vídeos`, sub: `${videos.filter((v) => v.status === "done").length} concluídos` },
             { icon: TrendingUp, label: "Capacidade atual", value: maxDurationLabel, sub: maxPhotosLabel },
             { icon: Zap, label: "Qualidade máxima", value: activeAddonType === "enterprise" ? "4K Ultra HD" : activeAddonType === "pro" ? "Full HD" : "HD / 1080p", sub: "disponível no plano atual" },
           ].map((s) => (
@@ -308,80 +349,85 @@ const VideosDashboardPage = () => {
           ))}
         </div>
 
-        {/* Recent videos */}
+        {/* Gallery */}
         <div>
           <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-            <h2 className="text-lg font-semibold text-foreground">Vídeos recentes</h2>
-            <div className="flex gap-1">
-              {(["all", "reels", "feed", "youtube"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                    activeTab === t
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-muted text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {t === "all" ? "Todos" : FORMAT_LABEL[t]}
-                </button>
-              ))}
+            <h2 className="text-lg font-semibold text-foreground">Vídeos</h2>
+            <div className="flex gap-1 flex-wrap">
+              {FILTER_TABS.map((t) => {
+                const count =
+                  t.id === "processing" ? processingCount :
+                  t.id === "error" ? errorCount : 0;
+                // Hide processing/error tabs if count is 0
+                if ((t.id === "processing" || t.id === "error") && count === 0) return null;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors inline-flex items-center gap-1",
+                      activeTab === t.id
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {t.label}
+                    {count > 0 && (
+                      <span className="bg-white/20 rounded-full px-1.5 text-[10px]">{count}</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {/* Loading state */}
+          {galleryLoading && (
+            <div className="rounded-2xl border border-border p-16 text-center">
+              <Loader2 className="w-8 h-8 text-muted-foreground/40 mx-auto mb-4 animate-spin" />
+              <p className="text-sm text-muted-foreground">Carregando galeria...</p>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!galleryLoading && filtered.length === 0 && (
             <div className="rounded-2xl border border-dashed border-border p-16 text-center">
               <Film className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="font-medium text-foreground">Nenhum vídeo gerado ainda</p>
-              <p className="text-sm text-muted-foreground mt-1 mb-6">
-                Crie seu primeiro vídeo imobiliário com IA em menos de 3 minutos.
+              <p className="font-medium text-foreground">
+                {activeTab === "all"
+                  ? "Nenhum vídeo gerado ainda"
+                  : activeTab === "processing"
+                  ? "Nenhum vídeo em processamento"
+                  : activeTab === "error"
+                  ? "Nenhum vídeo com erro"
+                  : `Nenhum vídeo no formato ${activeTab}`}
               </p>
-              <Button onClick={() => navigate("/video-creator")} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                <Plus className="w-4 h-4 mr-2" />
-                Criar primeiro vídeo
-              </Button>
+              <p className="text-sm text-muted-foreground mt-1 mb-6">
+                {activeTab === "all"
+                  ? "Crie seu primeiro vídeo imobiliário com IA em menos de 3 minutos."
+                  : "Altere o filtro ou crie um novo vídeo."}
+              </p>
+              {activeTab === "all" && (
+                <Button onClick={() => navigate("/video-creator")} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Criar primeiro vídeo
+                </Button>
+              )}
             </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((v) => (
-                <Card key={v.id} className="overflow-hidden group hover:-translate-y-0.5 transition-all hover:shadow-md">
-                  {/* Thumbnail */}
-                  <div className={cn("relative aspect-video bg-gradient-to-br", v.thumbnail_color)}>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Play className="w-6 h-6 text-white ml-0.5" />
-                      </div>
-                    </div>
-                    <div className="absolute bottom-2 right-2 flex gap-1.5">
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", FORMAT_COLOR[v.format])}>
-                        {FORMAT_LABEL[v.format]}
-                      </span>
-                      <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium", STYLE_COLOR[v.style])}>
-                        {v.style}
-                      </span>
-                    </div>
-                    <div className="absolute top-2 right-2">
-                      <span className="text-xs bg-black/40 text-white px-2 py-0.5 rounded-full">{v.duration_seconds}s</span>
-                    </div>
-                  </div>
+          )}
 
-                  {/* Info */}
-                  <CardContent className="p-4">
-                    <p className="font-medium text-foreground text-sm line-clamp-1">{v.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(v.created_at)}</p>
-                    <div className="flex gap-2 mt-3">
-                      <Button size="sm" variant="outline" className="flex-1 text-xs h-8">
-                        <Play className="w-3.5 h-3.5 mr-1.5" />
-                        Preview
-                      </Button>
-                      <Button size="sm" className="flex-1 bg-accent text-accent-foreground hover:bg-accent/90 text-xs h-8">
-                        <Download className="w-3.5 h-3.5 mr-1.5" />
-                        Baixar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Grid */}
+          {!galleryLoading && filtered.length > 0 && (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map((item) => (
+                <VideoGalleryCard
+                  key={item.id}
+                  item={item}
+                  onPreview={handlePreview}
+                  onDownload={handleDownload}
+                  onDelete={handleDeleteRequest}
+                  onReuse={handleReuse}
+                />
               ))}
 
               {/* Create new card */}
@@ -394,15 +440,58 @@ const VideosDashboardPage = () => {
                 </div>
                 <div>
                   <p className="font-medium text-foreground text-sm">Criar novo vídeo</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Fotos → Estilo → 4K pronto</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Fotos &rarr; Estilo &rarr; 4K pronto</p>
                 </div>
               </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Player dialog */}
+      <VideoPlayerDialog
+        item={playerItem}
+        open={playerOpen}
+        onOpenChange={setPlayerOpen}
+        onReuse={handleReuse}
+        onDelete={handleDeleteRequest}
+      />
+
+      {/* Delete confirmation */}
+      <AlertDialog open={Boolean(deleteItem)} onOpenChange={(open) => !open && setDeleteItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir vídeo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              O vídeo será removido permanentemente da sua galeria. Essa ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
+
+// ── Prefill type (exported for VideoCreatorPage) ────────────────────────────
+export interface VideoCreatorPrefill {
+  prefill: true;
+  templateId?: VideoTemplateId;
+  presetId?: VisualPresetId;
+  moodId?: MusicMoodId;
+  format?: "reels" | "feed" | "youtube";
+  aspectRatio?: string;
+  propertyId?: string;
+  imageUrls?: string[];
+  metadata?: Record<string, unknown>;
+}
 
 export default VideosDashboardPage;

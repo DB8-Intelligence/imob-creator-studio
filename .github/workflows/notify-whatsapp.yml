@@ -1,0 +1,21 @@
+name: Notificar Aprovação WhatsApp
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enviar WhatsApp
+        run: |
+          curl -s -X POST \
+          "${{ secrets.EVOLUTION_API_URL }}/message/sendText/${{ secrets.EVOLUTION_INSTANCE }}" \
+          -H "Content-Type: application/json" \
+          -H "apikey: ${{ secrets.EVOLUTION_API_KEY }}" \
+          -d '{
+            "number": "${{ secrets.OWNER_PHONE }}",
+            "text": "✅ *${{ github.event.repository.name }}*\n\n📦 *Branch:* ${{ github.ref_name }}\n📝 *Commit:* ${{ github.event.head_commit.message }}\n👤 *Claude Code*\n\n🔗 Preview Vercel em alguns minutos\n\nResponda *SIM* para aprovar merge\nResponda *NÃO* para revisar"
+          }'

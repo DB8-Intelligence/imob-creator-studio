@@ -3,6 +3,7 @@ import type { Database } from "@/integrations/supabase/types";
 import type { CreateVideoJobInput, CreateVideoJobSegmentsInput, VideoJob, VideoJobSegment, VideoModuleOverview, VideoPlanAddon } from "@/types/video";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
+import { resolveLegacyPresetId, getVideoPreset } from "@/modules/presets";
 
 function mapJob(row: any): VideoJob {
   return {
@@ -291,6 +292,7 @@ export async function renderVideoJobV2(params: {
   format: string;
   photos: File[];
   addonType?: string;
+  presetId?: string;
   property?: {
     address?: string;
     price?: string;
@@ -307,6 +309,7 @@ export async function renderVideoJobV2(params: {
     style,
     format,
     addonType = "standard",
+    presetId: explicitPresetId,
     property,
     audioMood,
   } = params;
@@ -343,13 +346,17 @@ export async function renderVideoJobV2(params: {
     youtube: "16:9",
   };
 
-  // 3. Map style to motion preset
-  const styleToPreset: Record<string, string> = {
-    cinematic: "default",
-    moderno: "fast_sales",
+  // 3. Resolve preset via Preset Engine
+  const videoPresetId = explicitPresetId
+    ? resolveLegacyPresetId(explicitPresetId)
+    : resolveLegacyPresetId(style);
+  const videoPreset = getVideoPreset(videoPresetId);
+
+  // Map new preset ID to legacy motion_preset for edge function compat
+  const presetToMotion: Record<string, string> = {
     luxury: "luxury",
-    drone: "default",
-    walkthrough: "default",
+    corporate: "default",
+    fast_sales: "fast_sales",
   };
 
   // 4. Invoke generate-video-v2
@@ -358,12 +365,28 @@ export async function renderVideoJobV2(params: {
       workspace_id: workspaceId,
       video_job_id: videoJobId,
       photo_urls: photoUrls,
-      motion_preset: styleToPreset[style] ?? "default",
+      motion_preset: presetToMotion[videoPresetId] ?? "default",
       aspect_ratio: aspectMap[format] ?? "9:16",
       resolution: addonType === "premium" ? "1080p" : addonType === "plus" ? "1080p" : "720p",
       property: property ?? undefined,
       audio: audioMood ? { mood: audioMood } : undefined,
       plan_tier: addonType,
+      // Preset Engine v2 metadata (for future backend upgrade)
+      preset_engine: {
+        preset_id: videoPresetId,
+        motion_profile: videoPreset.motion.id,
+        transition_profile: videoPreset.transition.id,
+        clip_duration: videoPreset.motion.clipDurationSeconds,
+        zoom_factor: videoPreset.motion.zoomFactor,
+        transition_type: videoPreset.transition.type,
+        transition_duration: videoPreset.transition.durationSeconds,
+        text_style: videoPreset.textStyle,
+        audio_defaults: {
+          mood: videoPreset.defaultAudioMood,
+          volume: videoPreset.defaultAudioVolume,
+          fade_out: videoPreset.defaultFadeOutSeconds,
+        },
+      },
     },
   });
 
