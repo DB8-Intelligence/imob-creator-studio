@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
+import { ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -110,13 +110,8 @@ const Header = () => {
     >
       <div className="container mx-auto px-6 h-18 flex items-center justify-between gap-4 py-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 shrink-0 group">
-          <div className="w-10 h-10 bg-gradient-to-br from-[var(--ds-gold)] to-[var(--ds-gold-light)] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(212,175,55,0.25)] group-hover:shadow-[rgba(212,175,55,0.4)] transition-shadow">
-            <Building2 className="w-5 h-5 text-black" />
-          </div>
-          <span className="font-display text-xl font-semibold">
-            <span style={{ color: "#002B5B" }} className="text-[var(--ds-fg)]">Imob</span><span style={{ color: "#FFD700" }}>Creator</span> <span className="text-sm text-[var(--ds-fg-muted)]">AI</span>
-          </span>
+        <Link to="/" className="shrink-0">
+          <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-10 w-auto" />
         </Link>
 
         {/* Desktop Nav */}

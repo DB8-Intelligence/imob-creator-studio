@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
@@ -202,14 +202,7 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center shadow-glow">
-              <Home className="w-6 h-6 text-accent-foreground" />
-            </div>
-            <span className="text-2xl font-display font-bold text-primary-foreground">
-              Imob<span className="text-accent">Creator</span> <span className="text-base text-primary-foreground/60">AI</span>
-            </span>
-          </div>
+          <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-12 w-auto mx-auto mb-4" />
           <p className="text-primary-foreground/70">
             Criativos profissionais em segundos
           </p>

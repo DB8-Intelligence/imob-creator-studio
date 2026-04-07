@@ -1,4 +1,3 @@
-import { Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -11,13 +10,8 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Logo + description */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 bg-gradient-to-br from-[var(--ds-gold)] to-[var(--ds-gold-light)] rounded-xl flex items-center justify-center shadow-lg shadow-[rgba(212,175,55,0.2)]">
-                <Building2 className="w-5 h-5 text-black" />
-              </div>
-              <span className="font-display text-xl font-semibold">
-                <span style={{ color: "#002B5B" }} className="text-[var(--ds-fg)]">Imob</span><span style={{ color: "#FFD700" }}>Creator</span> <span className="text-sm text-[var(--ds-fg-muted)]">AI</span>
-              </span>
+            <div className="mb-5">
+              <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-10 w-auto" />
             </div>
             <p className="text-[var(--ds-fg-muted)] max-w-md leading-relaxed text-sm">
               Plataforma completa de IA para o mercado imobiliário. Gere vídeos, artes, staging virtual, renders, demarcações e muito mais — tudo integrado em um único dashboard.
