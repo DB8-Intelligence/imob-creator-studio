@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
+import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
