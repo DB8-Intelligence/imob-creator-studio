@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "check:imports": "tsc --noEmit",
+    "prebuild": "npm run check:imports",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
