@@ -71,6 +71,7 @@ const AtendimentosHistoricoPage = lazy(() => import("./pages/max/AtendimentosHis
 const ImoveisListagemPage = lazy(() => import("./pages/max/ImoveisListagemPage"));
 const ImoveisEditorPage = lazy(() => import("./pages/max/ImoveisEditorPage"));
 const ImoveisUploadPage = lazy(() => import("./pages/max/ImoveisUploadPage"));
+const CreativesGalleryPage = lazy(() => import("./pages/CreativesGalleryPage"));
 const CriativosPostsPage = lazy(() => import("./pages/max/CriativosPostsPage"));
 const CriativosVideosPage = lazy(() => import("./pages/max/CriativosVideosPage"));
 const CriativosTemplatesPage = lazy(() => import("./pages/max/CriativosTemplatesPage"));
@@ -101,6 +102,12 @@ const BibliotecaVideosPage = lazy(() => import("./pages/max/BibliotecaVideosPage
 const BibliotecaDocumentosPage = lazy(() => import("./pages/max/BibliotecaDocumentosPage"));
 const RelatoriosPerformancePage = lazy(() => import("./pages/max/RelatoriosPerformancePage"));
 const ContentAnalyticsPage = lazy(() => import("./pages/max/ContentAnalyticsPage"));
+const SiteConfigPage = lazy(() => import("./pages/SiteConfigPage"));
+const AttendancesPage = lazy(() => import("./pages/AttendancesPage"));
+const LeadsPage = lazy(() => import("./pages/LeadsPage"));
+const AttendanceDetailPage = lazy(() => import("./pages/AttendanceDetailPage"));
+const ImportPage = lazy(() => import("./pages/ImportPage"));
+const ModulesPage = lazy(() => import("./pages/ModulesPage"));
 const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
 const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
 
@@ -191,6 +198,7 @@ const App = () => (
               <Route path="/imoveis/upload"       element={<ProtectedRoute><ImoveisUploadPage /></ProtectedRoute>} />
               {/* Criativos */}
               <Route path="/criativos"              element={<ProtectedRoute><CriativosPostsPage /></ProtectedRoute>} />
+              <Route path="/criativos/galeria"      element={<ProtectedRoute><CreativesGalleryPage /></ProtectedRoute>} />
               <Route path="/criativos/videos"       element={<ProtectedRoute><CriativosVideosPage /></ProtectedRoute>} />
               <Route path="/criativos/templates"    element={<ProtectedRoute><CriativosTemplatesPage /></ProtectedRoute>} />
               {/* Automações */}
@@ -220,6 +228,15 @@ const App = () => (
               <Route path="/configuracoes"              element={<ProtectedRoute><ConfigPerfilPage /></ProtectedRoute>} />
               <Route path="/configuracoes/prompts"      element={<ProtectedRoute><ConfigPromptsPage /></ProtectedRoute>} />
               <Route path="/configuracoes/plano"        element={<ProtectedRoute><ConfigPlanoPage /></ProtectedRoute>} />
+              <Route path="/configuracoes/modulos"      element={<ProtectedRoute><ModulesPage /></ProtectedRoute>} />
+              {/* Site */}
+              <Route path="/site"                     element={<ProtectedRoute><SiteConfigPage /></ProtectedRoute>} />
+              {/* Import */}
+              <Route path="/importar"                  element={<ProtectedRoute><ImportPage /></ProtectedRoute>} />
+              {/* CRM */}
+              <Route path="/crm/atendimentos"         element={<ProtectedRoute><AttendancesPage /></ProtectedRoute>} />
+              <Route path="/crm/atendimentos/:id"     element={<ProtectedRoute><AttendanceDetailPage /></ProtectedRoute>} />
+              <Route path="/crm/leads"                element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
               {/* Integrações */}
               <Route path="/integracoes"              element={<ProtectedRoute><IntegracoesApisPage /></ProtectedRoute>} />
               <Route path="/integracoes/webhooks"     element={<ProtectedRoute><IntegracoesWebhooksPage /></ProtectedRoute>} />

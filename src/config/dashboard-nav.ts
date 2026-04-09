@@ -58,6 +58,7 @@ import {
   Target,
   PieChart,
   Rss,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 
@@ -123,6 +124,7 @@ export const DASHBOARD_NAV: NavSection[] = [
       { icon: List, label: "Listagem / Inbox", path: "/imoveis" },
       { icon: PenSquare, label: "Editor de Imóvel", path: "/imoveis/editor" },
       { icon: Upload, label: "Upload de Imóvel", path: "/imoveis/upload" },
+      { icon: FileDown, label: "Importar Dados", path: "/importar" },
     ],
   },
 
@@ -133,8 +135,30 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🎨",
     items: [
       { icon: FileText, label: "Legendas & Posts", path: "/criativos" },
+      { icon: FolderOpen, label: "Galeria", path: "/criativos/galeria" },
       { icon: Video, label: "Vídeos", path: "/criativos/videos", badge: "IA" },
       { icon: LayoutGrid, label: "Templates", path: "/criativos/templates" },
+    ],
+  },
+
+  // ── Site & Portais ──
+  {
+    id: "site",
+    label: "Site & Portais",
+    emoji: "🌐",
+    items: [
+      { icon: Globe, label: "Meu Site", path: "/site" },
+    ],
+  },
+
+  // ── CRM ──
+  {
+    id: "crm",
+    label: "CRM",
+    emoji: "🤝",
+    items: [
+      { icon: Users, label: "Leads", path: "/crm/leads" },
+      { icon: CalendarDays, label: "Atendimentos", path: "/crm/atendimentos" },
     ],
   },
 
@@ -218,6 +242,7 @@ export const DASHBOARD_NAV: NavSection[] = [
       { icon: UserCircle, label: "Perfil & Marca", path: "/configuracoes" },
       { icon: SlidersHorizontal, label: "Prompts Customizados", path: "/configuracoes/prompts" },
       { icon: CreditCard, label: "Plano & Faturamento", path: "/configuracoes/plano" },
+      { icon: Zap, label: "Módulos & Assinatura", path: "/configuracoes/modulos" },
     ],
   },
 
