@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users } from "lucide-react";
+import { Building2, ChevronDown, Video, Image, Sofa, MapPin, CreditCard, Mail, Sparkles, Menu, X, UserCheck, Users, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -121,6 +121,15 @@ const Header = () => {
           </a>
 
           <DropdownMenu
+            label="Produtos"
+            icon={<Package className="w-3.5 h-3.5 text-[var(--ds-gold)]" />}
+            items={[
+              { label: "ImobCreator Criativos", href: "/criativos", internal: true, description: "Posts e artes com IA para imóveis", icon: <Image className="w-4 h-4 text-[var(--ds-gold-light)]" /> },
+              { label: "ImobCreator Vídeos",    href: "/videos",    internal: true, description: "Fotos viram Reels profissionais",   icon: <Video className="w-4 h-4 text-[#60C8FF]" /> },
+            ]}
+          />
+
+          <DropdownMenu
             label="Serviços IA"
             icon={<Sparkles className="w-3.5 h-3.5 text-[var(--ds-gold)]" />}
             items={[
@@ -186,6 +195,11 @@ const Header = () => {
             <div className="bg-[rgba(5,8,11,0.95)] backdrop-blur-xl border-t border-[var(--ds-border)]">
               <div className="container mx-auto px-6 py-5 flex flex-col gap-1">
                 <a href="#home"     onClick={() => setMobileOpen(false)} className="py-3 text-sm font-medium text-[var(--ds-fg)]">Home</a>
+                <div className="py-2">
+                  <div className="text-xs font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wider mb-2">Produtos</div>
+                  <Link to="/criativos" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">ImobCreator Criativos</Link>
+                  <Link to="/videos"    onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">ImobCreator Vídeos</Link>
+                </div>
                 <div className="py-2">
                   <div className="text-xs font-semibold text-[var(--ds-fg-subtle)] uppercase tracking-wider mb-2">Serviços IA</div>
                   <a href="#criativos" onClick={() => setMobileOpen(false)} className="block py-2.5 pl-3 text-sm text-[var(--ds-fg-muted)] hover:text-[var(--ds-fg)]">Gerar Criativos</a>
