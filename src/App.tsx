@@ -60,6 +60,8 @@ import ParaEquipesPage from "./pages/ParaEquipesPage";
 import CriarPostsImoveisPage from "./pages/lp/CriarPostsImoveisPage";
 import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
 import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
+import CriativosLpPage from "./pages/lp/CriativosPage";
+import VideosLpPage from "./pages/lp/VideosPage";
 
 // ── Dashboard MAX pages (lazy-loaded for code splitting) ────────────────────
 const LeadsPipelinePage = lazy(() => import("./pages/max/LeadsPipelinePage"));
@@ -196,11 +198,11 @@ const App = () => (
               <Route path="/imoveis/editor"       element={<ProtectedRoute><ImoveisEditorPage /></ProtectedRoute>} />
               <Route path="/imoveis/editor/:id"   element={<ProtectedRoute><ImoveisEditorPage /></ProtectedRoute>} />
               <Route path="/imoveis/upload"       element={<ProtectedRoute><ImoveisUploadPage /></ProtectedRoute>} />
-              {/* Criativos */}
-              <Route path="/criativos"              element={<ProtectedRoute><CriativosPostsPage /></ProtectedRoute>} />
-              <Route path="/criativos/galeria"      element={<ProtectedRoute><CreativesGalleryPage /></ProtectedRoute>} />
-              <Route path="/criativos/videos"       element={<ProtectedRoute><CriativosVideosPage /></ProtectedRoute>} />
-              <Route path="/criativos/templates"    element={<ProtectedRoute><CriativosTemplatesPage /></ProtectedRoute>} />
+              {/* Criativos (dashboard MAX) */}
+              <Route path="/max/criativos"              element={<ProtectedRoute><CriativosPostsPage /></ProtectedRoute>} />
+              <Route path="/max/criativos/galeria"      element={<ProtectedRoute><CreativesGalleryPage /></ProtectedRoute>} />
+              <Route path="/max/criativos/videos"       element={<ProtectedRoute><CriativosVideosPage /></ProtectedRoute>} />
+              <Route path="/max/criativos/templates"    element={<ProtectedRoute><CriativosTemplatesPage /></ProtectedRoute>} />
               {/* Automações */}
               <Route path="/automacoes"              element={<ProtectedRoute><AutomacoesFluxosPage /></ProtectedRoute>} />
               <Route path="/automacoes/construtor"   element={<ProtectedRoute><AutomacoesConstrutorPage /></ProtectedRoute>} />
@@ -249,6 +251,10 @@ const App = () => (
               <Route path="/relatorios/analytics"     element={<ProtectedRoute><ContentAnalyticsPage /></ProtectedRoute>} />
               <Route path="/relatorios/conversao"    element={<ProtectedRoute><RelatoriosConversaoPage /></ProtectedRoute>} />
               <Route path="/relatorios/roi"          element={<ProtectedRoute><RelatoriosRoiPage /></ProtectedRoute>} />
+
+              {/* ── Landing Pages Produto (públicas) ────────────────────── */}
+              <Route path="/criativos" element={<CriativosLpPage />} />
+              <Route path="/videos"    element={<VideosLpPage />} />
 
               <Route path="/para-corretores"       element={<ParaCorretoresPage />} />
               <Route path="/para-imobiliarias"    element={<ParaImobiliariasPage />} />
