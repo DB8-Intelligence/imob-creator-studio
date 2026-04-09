@@ -21,7 +21,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-ds">
+    <div className="min-h-screen" style={{ background: '#010101' }}>
       <Header />
       <HeroSection />
       <SocialProofBar variant="landing" />
