@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/dialog";
 import {
   Plug, Settings, Unplug, CheckCircle, Lock, ExternalLink,
-  Webhook, Plus, Copy, TestTube,
+  Webhook, Plus, Copy, TestTube, Smartphone,
 } from "lucide-react";
+import { WhatsAppConnect } from "@/components/WhatsAppConnect";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -95,6 +96,7 @@ export default function IntegracoesApisPage() {
           <TabsList>
             <TabsTrigger value="apis" className="gap-1.5"><Plug className="w-4 h-4" />APIs Conectadas</TabsTrigger>
             <TabsTrigger value="webhooks" className="gap-1.5"><Webhook className="w-4 h-4" />Webhooks</TabsTrigger>
+            <TabsTrigger value="whatsapp" className="gap-1.5"><Smartphone className="w-4 h-4" />WhatsApp</TabsTrigger>
             <TabsTrigger value="canais" className="gap-1.5"><Plug className="w-4 h-4" />Canais</TabsTrigger>
           </TabsList>
 
@@ -187,6 +189,19 @@ export default function IntegracoesApisPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* ── WhatsApp do Corretor ───────────── */}
+          <TabsContent value="whatsapp" className="mt-4">
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-foreground">Seu WhatsApp</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Conecte seu número para receber imóveis de parceiros e disparar automações.
+                </p>
+              </div>
+              <WhatsAppConnect />
+            </div>
           </TabsContent>
 
           {/* ── Canais de Publicação (DEV-30) ───────────── */}

@@ -1,0 +1,137 @@
+{
+  "_meta": {
+    "gerado_em": "2026-04-06T03:00:00Z",
+    "skill_version": "4.2.0",
+    "template_nome": "House For Sale Multi-Photo",
+    "template_slug": "agent_house_for_sale_multi",
+    "baseado_em": "2 criativos: House For Sale (multi-foto creme) + Dream Home For Sale (fundo azul marinho)",
+    "novidades": "campos_specs para m², quartos, suítes, vagas + thumbnail_url + preview_urls para hover no card"
+  },
+
+  "_instrucoes_implementacao": {
+    "passo_1": "Execute sql_migration no Supabase SQL Editor",
+    "passo_2": "Salve a imagem de referência em Supabase Storage > imobcreator/thumbnails/agent_house_for_sale_multi.jpg",
+    "passo_3": "Atualize thumbnail_url e preview_urls com as URLs do Storage",
+    "passo_4": "Salve template_shotstack em src/templates/agent_house_for_sale_multi.json",
+    "passo_5": "Execute api_create_command.curl_command",
+    "repositorio": "C:/Users/Douglas/imob-creator-studio",
+    "branch_recomendada": "feature/agent-house-for-sale-multi"
+  },
+
+  "_locais_no_projeto": {
+    "template_json":   "imob-creator-studio/src/templates/agent_house_for_sale_multi.json",
+    "migration_sql":   "imob-creator-studio/supabase/migrations/20260406030000_add_agent_house_for_sale_multi.sql",
+    "thumbnail":       "Supabase Storage > imobcreator-creatives/thumbnails/agent_house_for_sale_multi.jpg",
+    "prompt_file":     "imob-creator-studio/.claude/agents/agent_house_for_sale_multi/prompt_master.txt"
+  },
+
+  "_mapeamento_variaveis_campos_do_usuario": {
+    "campos_usuario_specs": {
+      "{{metragem}}":      "Campo 'Área Total' → ex: '280 m²'",
+      "{{quartos}}":       "Campo 'Quartos' → ex: '4'",
+      "{{suites}}":        "Campo 'Suítes' → ex: '2'",
+      "{{vagas}}":         "Campo 'Vagas de Garagem' → ex: '3'",
+      "{{preco_de}}":      "Campo 'Preço De' → preço antigo riscado (opcional)",
+      "{{preco_por}}":     "Campo 'Preço Por' → preço atual em destaque",
+      "{{desconto_pct}}":  "Calculado automaticamente: ((preco_de - preco_por) / preco_de * 100).toFixed(0) + '%'",
+      "{{bonus_1}}":       "Campo 'Bônus 1' → ex: 'Piscina'",
+      "{{bonus_2}}":       "Campo 'Bônus 2' → ex: 'Churrasqueira'",
+      "{{bonus_3}}":       "Campo 'Bônus 3' → ex: 'Segurança 24h'",
+      "{{bonus_4}}":       "Campo 'Bônus 4' → ex: 'Jardim'"
+    },
+    "campos_upload": {
+      "{{imagem_url}}":    "Upload principal — foto da fachada",
+      "{{imagem_2_url}}":  "Upload 2 — foto interna 1 (miniatura)",
+      "{{imagem_3_url}}":  "Upload 3 — foto interna 2 (miniatura)",
+      "{{imagem_4_url}}":  "Upload 4 — foto interna 3 (miniatura)"
+    },
+    "campos_perfil_usuario": {
+      "{{nome_corretor}}": "Perfil do usuário",
+      "{{whatsapp}}":      "Perfil do usuário",
+      "{{site}}":          "Perfil do usuário",
+      "{{logo_url}}":      "Logo salva no perfil"
+    },
+    "campos_gerados_copy": {
+      "{{titulo_linha1}}": "Agente de copy — ex: 'CASA À VENDA'",
+      "{{titulo_linha2}}": "Agente de copy — ex: 'no Alphaville 2 – Salvador/BA'",
+      "{{subtitulo}}":     "Agente de copy — frase de apoio",
+      "{{badge_texto}}":   "Agente de copy — ex: 'OPORTUNIDADE'",
+      "{{feature_1..5}}":  "Agente de copy — combina specs do usuário"
+    },
+    "campos_gerados_cores": {
+      "{{cor_primaria}}":  "Da logo ou da imagem",
+      "{{cor_secundaria}}":"Complementar da primária",
+      "{{cor_fundo}}":     "Off-white ou escuro conforme o tema"
+    }
+  },
+
+  "template_config": {
+    "id": "agent_house_for_sale_multi",
+    "nome": "House For Sale Multi-Photo",
+    "descricao": "Flyer multi-foto: card título + fachada + miniaturas internas + bonus panel + facilities + preço com desconto",
+    "categoria": "Imobiliário",
+    "tipo": ["post", "story", "quadrado"],
+    "creditos": 1,
+    "thumbnail_url": "https://[SUPABASE_URL]/storage/v1/object/public/imobcreator-creatives/thumbnails/agent_house_for_sale_multi.jpg",
+    "preview_urls": {
+      "post":   "https://[SUPABASE_URL]/storage/v1/object/public/imobcreator-creatives/previews/agent_house_for_sale_multi_post.jpg",
+      "story":  "https://[SUPABASE_URL]/storage/v1/object/public/imobcreator-creatives/previews/agent_house_for_sale_multi_story.jpg",
+      "square": "https://[SUPABASE_URL]/storage/v1/object/public/imobcreator-creatives/previews/agent_house_for_sale_multi_square.jpg"
+    },
+    "campos_specs": {
+      "ativo": true,
+      "campos": [
+        { "id": "metragem",  "label": "Área Total",        "tipo": "number", "sufixo": "m²", "placeholder": "Ex: 280",    "obrigatorio": false },
+        { "id": "quartos",   "label": "Quartos",            "tipo": "number", "sufixo": "",   "placeholder": "Ex: 4",      "obrigatorio": false },
+        { "id": "suites",    "label": "Suítes",             "tipo": "number", "sufixo": "",   "placeholder": "Ex: 2",      "obrigatorio": false },
+        { "id": "vagas",     "label": "Vagas de Garagem",   "tipo": "number", "sufixo": "",   "placeholder": "Ex: 3",      "obrigatorio": false },
+        { "id": "preco_de",  "label": "Preço De (riscado)", "tipo": "money",  "sufixo": "",   "placeholder": "Ex: 350000", "obrigatorio": false },
+        { "id": "preco_por", "label": "Preço Por",          "tipo": "money",  "sufixo": "",   "placeholder": "Ex: 290000", "obrigatorio": true  },
+        { "id": "bonus_1",   "label": "Bônus 1",            "tipo": "text",   "sufixo": "",   "placeholder": "Ex: Piscina","obrigatorio": false },
+        { "id": "bonus_2",   "label": "Bônus 2",            "tipo": "text",   "sufixo": "",   "placeholder": "Ex: Churrasqueira","obrigatorio": false },
+        { "id": "bonus_3",   "label": "Bônus 3",            "tipo": "text",   "sufixo": "",   "placeholder": "Ex: Segurança 24h","obrigatorio": false },
+        { "id": "bonus_4",   "label": "Bônus 4",            "tipo": "text",   "sufixo": "",   "placeholder": "Ex: Jardim","obrigatorio": false }
+      ]
+    },
+    "pipeline": { "analise_claude": true, "reestilizacao_flux": false, "composicao_shotstack": true },
+    "multi_imagem": {
+      "suporte": true,
+      "min_imagens": 1,
+      "max_imagens": 4,
+      "layout_miniaturas": "coluna_esquerda_empilhadas"
+    }
+  },
+
+  "agent_registry": {
+    "_nota": "ÚNICO BLOCO EXECUTADO. Usa EXCLUSIVAMENTE {{variaveis}}.",
+    "slug": "agent_house_for_sale_multi",
+    "name": "Agente House For Sale Multi-Photo",
+    "description": "Flyer multi-foto com card azul título, fachada principal, 3 miniaturas internas, bonus panel, facilities, preço com desconto e specs do imóvel (m², quartos, suítes, vagas).",
+    "category": "composicao",
+    "pipeline_stage": "composition",
+    "trigger_mode": "always",
+    "execution_order": 60,
+    "applies_to_flows": "both",
+    "prompt_master": "Você é o agente de composição visual do ImobCreator AI, estilo House For Sale Multi-Photo.\nRetorne APENAS o JSON Shotstack. Zero texto extra.\n\nEste template suporta ATÉ 4 IMAGENS:\n  {{imagem_url}}    — fachada principal (obrigatória)\n  {{imagem_2_url}}  — foto interna 1 (miniatura) — pode ser vazia\n  {{imagem_3_url}}  — foto interna 2 (miniatura) — pode ser vazia\n  {{imagem_4_url}}  — foto interna 3 (miniatura) — pode ser vazia\n\nVARIÁVEIS COMPLETAS:\n  Imagens: {{imagem_url}} {{imagem_2_url}} {{imagem_3_url}} {{imagem_4_url}} {{logo_url}}\n  Perfil: {{nome_corretor}} {{whatsapp}} {{site}} {{creci}}\n  Copy: {{titulo_linha1}} {{titulo_linha2}} {{subtitulo}} {{badge_texto}} {{cta_texto}}\n  Specs: {{metragem}} {{quartos}} {{suites}} {{vagas}}\n  Preço: {{preco_de}} {{preco_por}} {{desconto_pct}}\n  Bônus: {{bonus_1}} {{bonus_2}} {{bonus_3}} {{bonus_4}}\n  Cores: {{cor_primaria}} {{cor_secundaria}} {{cor_fundo}} {{cor_texto}} {{cor_texto_inv}}\n  Sistema: {{formato}} {{largura}} {{altura}}\n\nLAYOUT FEED 4:5 ({{altura}}=1350):\n  Fundo: {{cor_fundo}} (#F5F0E8 ou equivalente da marca)\n  \n  ZONA SUPERIOR (0 a 55% da altura):\n    Card azul título (top-left, 48% largura, 28% altura):\n      Background {{cor_primaria}}, radius 12px\n      Marca: ícone + {{nome_corretor}} Inter 12px {{cor_texto_inv}}\n      {{titulo_linha1}}: Inter ExtraBold ~80px {{cor_secundaria}} uppercase\n      {{titulo_linha2}}: Inter ExtraBold Italic ~60px {{cor_secundaria}} uppercase\n      {{subtitulo}}: Inter Regular ~13px rgba(255,255,255,0.80)\n    Foto fachada (direita, 60% largura, 55% altura):\n      {{imagem_url}} fit=cover sem border-radius encostado na borda direita\n    Miniaturas (coluna esquerda sob o card, se existirem):\n      {{imagem_2_url}}: 35% largura × 15% altura, radius 8px\n      {{imagem_3_url}}: igual, 8px abaixo\n      {{imagem_4_url}}: igual, 8px abaixo\n  \n  ZONA BÔNUS (55% a 68% da altura):\n    Painel horizontal {{cor_primaria}} radius 12px, 55% largura, lado direito\n    Label 'Bônus Inclusos' Inter SemiBold ~11px dourado no topo\n    Grid 4 colunas: ícone emoji + {{bonus_N}} Inter 11px branco\n    Mostrar apenas bônus não vazios\n  \n  ZONA FACILITIES (68% a 82%):\n    'FACILITIES' Inter Bold ~20px {{cor_primaria}} left\n    ✓ {{feature_1}} ✓ {{feature_2}} ✓ {{feature_3}} ✓ {{feature_4}}\n    Inter Regular ~13px {{cor_texto}}\n    Lado direito:\n      Se {{preco_de}} não vazio: preço riscado Inter Regular ~15px cinza\n      {{preco_por}}: Inter ExtraBold 800 ~42px {{cor_primaria}}\n      Se {{desconto_pct}} não vazio: 'PROMO SALE' Inter Bold ~13px {{cor_primaria}}\n  \n  RODAPÉ (82% a 100%):\n    Ícone 📞 + {{whatsapp}} | Ícone 🌐 + {{site}}\n    Inter Regular ~13px {{cor_primaria}}\n    Logo: {{logo_url}} scale 0.10 bottom-right\n\nREGRAS:\n1. {{imagem_url}} NUNCA modificada — sempre background principal\n2. Todas as cores via {{}} — nunca hardcodar\n3. Todos os textos via {{}} — nunca inventar\n4. Se {{imagem_2_url}} vazio → não renderizar miniaturas\n5. Se {{preco_de}} vazio → não mostrar preço riscado\n6. Se {{bonus_1}} vazio → não mostrar painel de bônus\n7. Se {{metragem}} vazio → não mostrar linha de m²\n8. Se {{logo_url}} vazio → omitir camada de logo\n9. {{desconto_pct}} calculado: Math.round((preco_de-preco_por)/preco_de*100)\n\nOUTPUT:\n{\"timeline\":{\"background\":\"{{cor_fundo}}\",\"tracks\":[...]},\"output\":{\"format\":\"jpg\",\"quality\":\"high\",\"size\":{\"width\":1080,\"height\":{{altura}}}}}"
+  },
+
+  "sql_migration": "-- imob-creator-studio/supabase/migrations/20260406030000_add_agent_house_for_sale_multi.sql\n\n-- Adicionar suporte a thumbnail e preview nos templates\nALTER TABLE creative_templates\n  ADD COLUMN IF NOT EXISTS thumbnail_url TEXT,\n  ADD COLUMN IF NOT EXISTS preview_urls JSONB DEFAULT '{}',\n  ADD COLUMN IF NOT EXISTS campos_specs JSONB DEFAULT '{\"ativo\":false,\"campos\":[]}';\n\n-- Inserir o agente\nINSERT INTO agent_registry (slug, name, description, prompt_master, category, pipeline_stage, trigger_mode, active, version)\nVALUES (\n  'agent_house_for_sale_multi',\n  'Agente House For Sale Multi-Photo',\n  'Flyer multi-foto: card título + fachada + 3 miniaturas + bonus panel + preço com desconto + specs imóvel',\n  '[copiar agent_registry.prompt_master deste arquivo]',\n  'composicao', 'composition', 'always', true, 1\n);\n\nINSERT INTO agent_bindings (agent_id, flow_type, stage_name, execution_order, active)\nVALUES (\n  (SELECT id FROM agent_registry WHERE slug = 'agent_house_for_sale_multi'),\n  'both', 'composition', 60, true\n);",
+
+  "weweb_component_campos_specs": {
+    "_descricao": "Lógica para o WeWeb renderizar os campos de specs dinamicamente quando um template os declara",
+    "logica": "Quando o usuário seleciona um template: GET /api/templates/{id} → verificar se campos_specs.ativo === true → se sim, renderizar os campos adicionais abaixo do upload de imagem",
+    "codigo_weweb_formula": "selectedTemplate?.campos_specs?.ativo === true ? selectedTemplate.campos_specs.campos : []",
+    "evento_on_change": "Para cada campo: armazenar em variável global specs_values[campo.id] = valor",
+    "envio_no_job": "Incluir specs_values no payload do POST /api/creative-jobs/create como campo 'specs'"
+  },
+
+  "api_create_command": {
+    "curl_command": "curl -X POST http://localhost:3000/api/agents/create -H 'Content-Type: application/json' -d '{\"name\":\"Agente House For Sale Multi-Photo\",\"description\":\"Flyer multi-foto com specs de imóvel\",\"prompt_master\":\"[copiar de agent_registry.prompt_master]\"}'"
+  },
+
+  "verificacao_pos_implementacao": {
+    "step_1": "curl http://localhost:3000/api/agents | jq '.[] | select(.slug == \"agent_house_for_sale_multi\")'",
+    "step_2": "SELECT slug, thumbnail_url FROM creative_templates WHERE id = 'agent_house_for_sale_multi';",
+    "step_3": "curl -X POST http://localhost:3000/api/creative-jobs/create -H 'Content-Type: application/json' -d '{\"mode\":\"form\",\"template_id\":\"agent_house_for_sale_multi\",\"formats\":[\"post\"],\"variation_count\":1,\"image_count\":4,\"input_images\":[\"URL1\",\"URL2\",\"URL3\",\"URL4\"],\"use_brand_identity\":true,\"user_description\":\"Casa 4 quartos à venda\",\"specs\":{\"metragem\":280,\"quartos\":4,\"suites\":2,\"vagas\":3,\"preco_de\":350000,\"preco_por\":290000}}'"
+  }
+}
