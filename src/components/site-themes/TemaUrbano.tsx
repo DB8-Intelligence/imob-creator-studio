@@ -6,7 +6,7 @@ const TemaUrbano: FC<{ config: SiteThemeConfig }> = ({ config }) => {
   const accent = "#F97316";
 
   return (
-    <div className="min-h-full w-full bg-gray-950 font-['Plus_Jakarta_Sans',sans-serif] text-white">
+    <div className="min-h-full w-full bg-gray-950 font-['Barlow',sans-serif] text-white">
       {/* Header */}
       <header
         className="flex items-center justify-between px-6 py-4"

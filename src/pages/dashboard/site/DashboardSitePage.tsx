@@ -32,6 +32,7 @@ import {
   Smartphone,
   Plus,
   Rss,
+  Settings,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -51,6 +52,7 @@ interface PortalCard {
   name: string;
   emoji: string;
   enabled: boolean;
+  color: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -101,16 +103,22 @@ const DashboardSitePage = () => {
 
   // --- Portals state ---
   const [portals, setPortals] = useState<PortalCard[]>([
-    { key: "zap", name: "ZAP Imóveis", emoji: "🏠", enabled: false },
-    { key: "olx", name: "OLX", emoji: "📦", enabled: false },
-    { key: "vivareal", name: "VivaReal", emoji: "🌐", enabled: false },
-    { key: "imovelweb", name: "ImovelWeb", emoji: "🏢", enabled: false },
+    { key: "zap", name: "ZAP Imóveis", emoji: "🏠", enabled: false, color: "#FF5F00" },
+    { key: "olx", name: "OLX", emoji: "📦", enabled: false, color: "#4E2D96" },
+    { key: "vivareal", name: "VivaReal", emoji: "🌐", enabled: false, color: "#0059B3" },
+    { key: "imovelweb", name: "ImovelWeb", emoji: "🏢", enabled: false, color: "#E63946" },
   ]);
 
   // --- SEO state ---
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [ogImageUrl, setOgImageUrl] = useState("");
+
+  // --- Advanced state ---
+  const [subdomain, setSubdomain] = useState("");
+  const [customDomain, setCustomDomain] = useState("");
+  const [showPrices, setShowPrices] = useState(true);
+  const [showFullAddress, setShowFullAddress] = useState(true);
 
   // --- Preview state ---
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
@@ -182,6 +190,10 @@ const DashboardSitePage = () => {
               <TabsTrigger value="seo" className="gap-1.5 text-xs">
                 <Search className="h-3.5 w-3.5" />
                 SEO
+              </TabsTrigger>
+              <TabsTrigger value="avancado" className="gap-1.5 text-xs">
+                <Settings className="h-3.5 w-3.5" />
+                Avançado
               </TabsTrigger>
             </TabsList>
 
@@ -381,11 +393,12 @@ const DashboardSitePage = () => {
                 {portals.map((portal) => (
                   <Card
                     key={portal.key}
-                    className={`transition ${
+                    className={`transition overflow-hidden ${
                       portal.enabled
                         ? "border-[#002B5B] shadow-sm"
                         : "border-gray-200"
                     }`}
+                    style={{ borderLeftWidth: 4, borderLeftColor: portal.color }}
                   >
                     <CardContent className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-3">
@@ -408,19 +421,16 @@ const DashboardSitePage = () => {
                 ))}
               </div>
 
-              <Button
-                variant="outline"
-                className="w-full gap-2 border-[#002B5B] text-[#002B5B] hover:bg-[#002B5B]/5"
-                onClick={() =>
-                  toast({
-                    title: "Feed XML",
-                    description: "Feed XML será gerado em breve.",
-                  })
-                }
-              >
-                <Rss className="h-4 w-4" />
-                Gerar Feed XML
-              </Button>
+              <div className="mt-6 p-4 bg-[#F8FAFF] rounded-xl border border-[#E5E7EB]">
+                <h4 className="font-semibold text-[#0A1628] mb-2">Feed XML para Portais</h4>
+                <p className="text-xs text-[#6B7280] mb-3">Use este link para cadastrar seus imóveis em qualquer portal</p>
+                <div className="flex items-center gap-2">
+                  <input type="text" readOnly aria-label="Feed XML URL" value={`https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/generate-xml-feed?workspace=${subdomain || "seu-workspace"}`}
+                    className="flex-1 px-3 py-2 bg-white border border-[#CBD5E1] rounded-lg text-xs text-[#374151] font-mono" />
+                  <button type="button" onClick={() => { navigator.clipboard.writeText(`https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/generate-xml-feed?workspace=${subdomain || "seu-workspace"}`); toast({ title: "Link copiado!" }); }}
+                    className="px-3 py-2 bg-[#002B5B] text-white text-xs font-semibold rounded-lg">Copiar</button>
+                </div>
+              </div>
 
               <p className="text-xs text-gray-400">
                 Configure a URL do feed no painel de cada portal para sincronizar
@@ -498,6 +508,38 @@ const DashboardSitePage = () => {
                   </p>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* ============ TAB: Avançado ============ */}
+            <TabsContent value="avancado" className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium text-[#0A1628] mb-1 block">Subdomínio</label>
+                  <div className="flex items-center gap-2">
+                    <input type="text" value={subdomain} onChange={(e) => setSubdomain(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                      className="flex-1 px-3 py-2 border border-[#CBD5E1] rounded-lg text-sm" placeholder="minha-imobiliaria" />
+                    <span className="text-sm text-[#6B7280]">.nexoimobai.com.br</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-[#0A1628] mb-1 block">Domínio customizado</label>
+                  <input type="text" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#CBD5E1] rounded-lg text-sm" placeholder="www.minhaImobiliaria.com.br (opcional)" />
+                </div>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={showPrices} onChange={(e) => setShowPrices(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-[#002B5B]" />
+                    <span className="text-sm text-[#374151]">Mostrar preços nos imóveis</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" checked={showFullAddress} onChange={(e) => setShowFullAddress(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-[#002B5B]" />
+                    <span className="text-sm text-[#374151]">Mostrar endereço completo</span>
+                  </label>
+                </div>
+                <button type="button" onClick={() => toast({ title: "Configurações avançadas salvas!" })} className="w-full bg-[#002B5B] hover:bg-[#001d3d] text-white font-semibold py-2.5 rounded-lg text-sm">
+                  Salvar Configurações
+                </button>
+              </div>
             </TabsContent>
           </Tabs>
         </div>

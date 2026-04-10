@@ -40,7 +40,7 @@ const TemaLitoral: FC<{ config: SiteThemeConfig }> = ({ config }) => {
           style={{ backgroundColor: gold }}
         />
         <h1
-          className="mb-3 text-3xl font-extrabold leading-tight tracking-wide"
+          className="mb-3 text-3xl font-extrabold leading-tight tracking-wide font-['Cormorant_Garamond']"
           style={{ color: gold }}
         >
           {config.nome_empresa || "Minha Imobiliária"}
@@ -57,7 +57,7 @@ const TemaLitoral: FC<{ config: SiteThemeConfig }> = ({ config }) => {
       {/* Properties Grid */}
       <section className="bg-gray-50 px-6 py-12">
         <h2
-          className="mb-8 text-center text-xl font-bold"
+          className="mb-8 text-center text-xl font-bold font-['Cormorant_Garamond']"
           style={{ color: navy }}
         >
           Imóveis Exclusivos
@@ -83,7 +83,7 @@ const TemaLitoral: FC<{ config: SiteThemeConfig }> = ({ config }) => {
               />
               <div className="p-4">
                 <h3
-                  className="text-sm font-bold truncate"
+                  className="text-sm font-bold truncate font-['Cormorant_Garamond']"
                   style={{ color: navy }}
                 >
                   {p.title}

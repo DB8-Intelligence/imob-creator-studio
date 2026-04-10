@@ -19,7 +19,7 @@ const TemaBreza: FC<{ config: SiteThemeConfig }> = ({ config }) => {
   const primary = config.cor_primaria || "#0EA5E9";
 
   return (
-    <div className="min-h-full w-full bg-white font-['Plus_Jakarta_Sans',sans-serif] text-gray-800">
+    <div className="min-h-full w-full bg-white font-['Nunito_Sans',sans-serif] text-gray-800">
       {/* Header */}
       <header
         className="flex items-center justify-between px-6 py-4"

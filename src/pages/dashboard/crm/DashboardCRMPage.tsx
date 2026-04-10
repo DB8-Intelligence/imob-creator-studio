@@ -4,6 +4,7 @@
  */
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,15 +70,8 @@ function MetricCard({
 function KanbanCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
   const temp = TEMPERATURA_CONFIG[lead.temperatura];
 
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    e.dataTransfer.setData("text/plain", lead.id);
-    e.dataTransfer.effectAllowed = "move";
-  };
-
   return (
     <div
-      draggable
-      onDragStart={handleDragStart}
       onClick={onClick}
       className="bg-white rounded-xl border border-gray-100 p-3.5 shadow-sm hover:shadow-md hover:border-[#FFD700]/40 transition-all cursor-grab active:cursor-grabbing"
     >
@@ -104,42 +98,14 @@ function KanbanCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
 function KanbanColumn({
   column,
   leads,
-  onDrop,
   onCardClick,
 }: {
   column: (typeof PIPELINE_COLUMNS)[number];
   leads: Lead[];
-  onDrop: (leadId: string, newStatus: LeadStatus) => void;
   onCardClick: (id: string) => void;
 }) {
-  const [dragOver, setDragOver] = useState(false);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOver(true);
-  };
-
-  const handleDragLeave = () => setDragOver(false);
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const leadId = e.dataTransfer.getData("text/plain");
-    if (leadId) onDrop(leadId, column.id);
-  };
-
   return (
-    <div
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-      className={`flex flex-col min-w-[260px] w-[280px] rounded-xl border transition-colors ${
-        dragOver
-          ? "border-[#FFD700] bg-[#FFD700]/5"
-          : `border-gray-100 bg-gray-50/60`
-      }`}
-    >
+    <div className="flex flex-col min-w-[260px] w-[280px] rounded-xl border border-gray-100 bg-gray-50/60">
       {/* Column header */}
       <div className={`flex items-center gap-2 px-4 py-3 rounded-t-xl border-b ${column.bgColor}`}>
         <span>{column.emoji}</span>
@@ -149,19 +115,39 @@ function KanbanColumn({
         </Badge>
       </div>
 
-      {/* Cards */}
-      <div className="flex-1 p-2.5 space-y-2 overflow-y-auto max-h-[calc(100vh-340px)]">
-        {leads.length === 0 && (
-          <p className="text-xs text-gray-400 text-center py-6">Nenhum lead</p>
+      {/* Droppable area */}
+      <Droppable droppableId={column.id}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`flex-1 p-2.5 space-y-2 overflow-y-auto max-h-[calc(100vh-340px)] transition-colors ${
+              snapshot.isDraggingOver ? "bg-[#FFD700]/5" : ""
+            }`}
+          >
+            {leads.length === 0 && !snapshot.isDraggingOver && (
+              <p className="text-xs text-gray-400 text-center py-6">Nenhum lead</p>
+            )}
+            {leads.map((lead, idx) => (
+              <Draggable key={lead.id} draggableId={lead.id} index={idx}>
+                {(dragProvided) => (
+                  <div
+                    ref={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    {...dragProvided.dragHandleProps}
+                  >
+                    <KanbanCard
+                      lead={lead}
+                      onClick={() => onCardClick(lead.id)}
+                    />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
         )}
-        {leads.map((lead) => (
-          <KanbanCard
-            key={lead.id}
-            lead={lead}
-            onClick={() => onCardClick(lead.id)}
-          />
-        ))}
-      </div>
+      </Droppable>
     </div>
   );
 }
@@ -353,6 +339,7 @@ export default function DashboardCRMPage() {
   const { data: appointments = [] } = useAppointments();
   const updateLead = useUpdateLead();
   const [search, setSearch] = useState("");
+  const [tempFilter, setTempFilter] = useState("all");
   const [newLeadOpen, setNewLeadOpen] = useState(false);
 
   // ── Metrics ────────────────────────────────────────────────────────────────
@@ -363,15 +350,16 @@ export default function DashboardCRMPage() {
 
   // ── Filtered leads ─────────────────────────────────────────────────────────
   const filteredLeads = useMemo(() => {
-    if (!search.trim()) return leads;
     const q = search.toLowerCase();
     return leads.filter(
       (l) =>
-        l.nome.toLowerCase().includes(q) ||
-        l.telefone?.toLowerCase().includes(q) ||
-        l.imovel_interesse_nome?.toLowerCase().includes(q)
+        (!search.trim() ||
+          l.nome.toLowerCase().includes(q) ||
+          l.telefone?.toLowerCase().includes(q) ||
+          l.imovel_interesse_nome?.toLowerCase().includes(q)) &&
+        (tempFilter === "all" || l.temperatura === tempFilter)
     );
-  }, [leads, search]);
+  }, [leads, search, tempFilter]);
 
   // ── Kanban grouped ─────────────────────────────────────────────────────────
   const columnLeads = useCallback(
@@ -379,11 +367,14 @@ export default function DashboardCRMPage() {
     [filteredLeads]
   );
 
-  // ── Drop handler ───────────────────────────────────────────────────────────
-  const handleDrop = (leadId: string, newStatus: LeadStatus) => {
-    const lead = leads.find((l) => l.id === leadId);
-    if (!lead || lead.status === newStatus) return;
-    updateLead.mutate({ id: leadId, status: newStatus });
+  // ── Drag-end handler (@hello-pangea/dnd) ──────────────────────────────────
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    const newStatus = result.destination.droppableId;
+    const leadId = result.draggableId;
+    if (newStatus === result.source.droppableId) return;
+    // Optimistic update
+    updateLead.mutate({ id: leadId, status: newStatus as any });
   };
 
   return (
@@ -404,6 +395,14 @@ export default function DashboardCRMPage() {
                 placeholder="Buscar lead..."
                 className="pl-9 w-56"
               />
+            </div>
+            <div className="flex gap-2">
+              {[{v:"all",l:"Todos"},{v:"quente",l:"\uD83D\uDD25 Quente"},{v:"morno",l:"\uD83C\uDF21\uFE0F Morno"},{v:"frio",l:"\u2744\uFE0F Frio"}].map(f => (
+                <button key={f.v} type="button" onClick={() => setTempFilter(f.v)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${tempFilter === f.v ? "bg-[#002B5B] text-white" : "bg-gray-100 text-gray-600"}`}>
+                  {f.l}
+                </button>
+              ))}
             </div>
             <Button
               onClick={() => setNewLeadOpen(true)}
@@ -429,19 +428,20 @@ export default function DashboardCRMPage() {
             <div className="w-8 h-8 border-2 border-[#002B5B] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="overflow-x-auto pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8">
-            <div className="flex gap-4" style={{ minWidth: "fit-content" }}>
-              {PIPELINE_COLUMNS.map((col) => (
-                <KanbanColumn
-                  key={col.id}
-                  column={col}
-                  leads={columnLeads(col.id)}
-                  onDrop={handleDrop}
-                  onCardClick={(id) => navigate(`/dashboard/crm/lead/${id}`)}
-                />
-              ))}
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="overflow-x-auto pb-4 -mx-4 px-4 lg:-mx-8 lg:px-8">
+              <div className="flex gap-4" style={{ minWidth: "fit-content" }}>
+                {PIPELINE_COLUMNS.map((col) => (
+                  <KanbanColumn
+                    key={col.id}
+                    column={col}
+                    leads={columnLeads(col.id)}
+                    onCardClick={(id) => navigate(`/dashboard/crm/lead/${id}`)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </DragDropContext>
         )}
       </div>
 
