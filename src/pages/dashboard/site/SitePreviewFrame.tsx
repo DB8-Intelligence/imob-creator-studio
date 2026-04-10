@@ -2,9 +2,10 @@ import type { FC } from "react";
 import TemaBreza from "@/components/site-themes/TemaBreza";
 import TemaUrbano from "@/components/site-themes/TemaUrbano";
 import TemaLitoral from "@/components/site-themes/TemaLitoral";
+import TemaHamilton from "@/components/site-themes/TemaHamilton";
 import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
 
-export type ThemeKey = "brisa" | "urbano" | "litoral";
+export type ThemeKey = "brisa" | "urbano" | "litoral" | "hamilton";
 
 interface SitePreviewFrameProps {
   theme: ThemeKey;
@@ -17,6 +18,7 @@ const themeComponents: Record<ThemeKey, FC<{ config: SiteThemeConfig }>> = {
   brisa: TemaBreza,
   urbano: TemaUrbano,
   litoral: TemaLitoral,
+  hamilton: TemaHamilton,
 };
 
 const SitePreviewFrame: FC<SitePreviewFrameProps> = ({

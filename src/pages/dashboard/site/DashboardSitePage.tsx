@@ -78,6 +78,12 @@ const THEMES: { key: ThemeKey; label: string; description: string; palette: stri
     description: "Elegante, navy & gold",
     palette: "bg-gradient-to-r from-[#002B5B] to-[#D4AF37]",
   },
+  {
+    key: "hamilton",
+    label: "Hamilton Classic",
+    description: "Profissional, topbar, busca",
+    palette: "bg-gradient-to-r from-[#003d4d] to-[#1685b6]",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
