@@ -77,12 +77,12 @@ export interface PipelineColumn {
 }
 
 export const PIPELINE_COLUMNS: PipelineColumn[] = [
-  { id: "novo",              label: "Novo Lead",         emoji: "🟡", color: "text-yellow-500",  bgColor: "bg-yellow-500/10 border-yellow-500/20" },
-  { id: "contato_feito",     label: "Contato Feito",     emoji: "🔵", color: "text-blue-500",    bgColor: "bg-blue-500/10 border-blue-500/20" },
-  { id: "visita_agendada",   label: "Visita Agendada",   emoji: "🟣", color: "text-purple-500",  bgColor: "bg-purple-500/10 border-purple-500/20" },
-  { id: "proposta_enviada",  label: "Proposta Enviada",  emoji: "🟠", color: "text-orange-500",  bgColor: "bg-orange-500/10 border-orange-500/20" },
-  { id: "fechado",           label: "Fechado",           emoji: "🟢", color: "text-emerald-500", bgColor: "bg-emerald-500/10 border-emerald-500/20" },
-  { id: "perdido",           label: "Perdido",           emoji: "🔴", color: "text-red-500",     bgColor: "bg-red-500/10 border-red-500/20" },
+  { id: "novo",              label: "Novo Lead",         emoji: "🟡", color: "text-yellow-500",  bgColor: "bg-[#EEF2FF]" },
+  { id: "contato_feito",     label: "Contato Feito",     emoji: "🔵", color: "text-blue-500",    bgColor: "bg-[#FFF7E0]" },
+  { id: "visita_agendada",   label: "Visita Agendada",   emoji: "🟣", color: "text-purple-500",  bgColor: "bg-[#F0FDF4]" },
+  { id: "proposta_enviada",  label: "Proposta Enviada",  emoji: "🟠", color: "text-orange-500",  bgColor: "bg-[#F0F9FF]" },
+  { id: "fechado",           label: "Fechado",           emoji: "🟢", color: "text-emerald-500", bgColor: "bg-[#DCFCE7]" },
+  { id: "perdido",           label: "Perdido",           emoji: "🔴", color: "text-red-500",     bgColor: "bg-[#FEF2F2]" },
 ];
 
 export const TEMPERATURA_CONFIG = {
