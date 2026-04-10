@@ -52,7 +52,7 @@ const UPGRADE_CONTENT: Record<
   },
   publish: {
     title: "Publique direto no Instagram e Facebook",
-    desc: "Conecte suas redes sociais e publique sem sair do ImobCreator.",
+    desc: "Conecte suas redes sociais e publique sem sair do NexoImob.",
     features: [
       "Publicação Instagram",
       "Publicação Facebook",

@@ -6,7 +6,7 @@
  */
 import { useEffect } from "react";
 
-const BASE_TITLE = "ImobCreator AI";
+const BASE_TITLE = "NexoImob AI";
 const BASE_DESC = "Gere posts, reels e criativos imobiliários com IA. Automatize do WhatsApp ao Instagram.";
 
 interface PageMeta {
@@ -57,7 +57,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   "/para-corretores": { title: "Para Corretores de Imóveis", description: "Crie conteúdo profissional para Instagram em 2 minutos. Posts, Stories, Reels e vídeos com IA. Sem designer, sem complicação." },
   "/para-imobiliarias": { title: "Para Imobiliárias", description: "Escale a produção de conteúdo da sua imobiliária com IA. Gestão de equipe, templates padronizados e automação de publicação." },
   "/para-equipes": { title: "Para Equipes Imobiliárias", description: "Padronize a comunicação visual da sua equipe. Brand kit, templates compartilhados e fluxo de aprovação com IA." },
-  "/auth": { title: "Entrar ou Criar Conta", description: "Acesse sua conta ImobCreator ou crie uma nova. Comece a gerar criativos com IA gratuitamente." },
+  "/auth": { title: "Entrar ou Criar Conta", description: "Acesse sua conta NexoImob ou crie uma nova. Comece a gerar criativos com IA gratuitamente." },
   "/studio": { title: "Studio de Criação", description: "Escolha um template e gere criativos profissionais com inteligência artificial.", noIndex: true },
   "/dashboard": { title: "Dashboard", noIndex: true },
   "/lp/criar-posts-imoveis": { title: "Criar Posts de Imóveis com IA", description: "Gere posts profissionais para Instagram e Facebook em segundos. Templates imobiliários otimizados para engajamento e conversão." },
