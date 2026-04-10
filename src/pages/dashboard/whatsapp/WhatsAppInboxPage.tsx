@@ -60,32 +60,55 @@ export default function WhatsAppInboxPage() {
   const [filter, setFilter] = useState("all");
 
   /* ---- Fetch ---- */
+  const loadMessages = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("whatsapp_inbox" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        // Table may not exist — graceful degradation
+        console.warn("whatsapp_inbox query:", error.message);
+        setMessages([]);
+      } else {
+        setMessages((data ?? []) as unknown as WhatsAppMessage[]);
+      }
+    } catch {
+      setMessages([]);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (!user) return;
-
-    async function load() {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from("whatsapp_messages" as any)
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (error) {
-          // Table may not exist — graceful degradation
-          console.warn("whatsapp_messages query:", error.message);
-          setMessages([]);
-        } else {
-          setMessages((data ?? []) as unknown as WhatsAppMessage[]);
-        }
-      } catch {
-        setMessages([]);
-      }
-      setLoading(false);
-    }
-
-    load();
+    loadMessages();
   }, [user]);
+
+  /* ---- Realtime subscription ---- */
+  useEffect(() => {
+    if (!workspaceId) return;
+    const channel = supabase
+      .channel("whatsapp-inbox-realtime")
+      .on(
+        "postgres_changes" as any,
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "whatsapp_inbox",
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
+        (payload: any) => {
+          setMessages((prev) => [payload.new as any, ...prev]);
+          toast({ title: `Nova mensagem de ${(payload.new as any).sender_name || (payload.new as any).sender_number}` });
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [workspaceId]);
 
   /* ---- Filters ---- */
   const filtered = messages.filter((m) => {
@@ -207,17 +230,39 @@ export default function WhatsAppInboxPage() {
                         {msg.status === "processed" ? "Processado" : "Pendente"}
                       </Badge>
 
-                      {/* Action */}
-                      {msg.message_type === "image" && (
-                        <Button
-                          size="sm"
-                          className="text-xs bg-[#002B5B] hover:bg-[#001d3d] text-white gap-1.5 shrink-0"
-                          onClick={() => navigate("/dashboard/criativos/novo")}
-                        >
-                          <PlusCircle className="h-3.5 w-3.5" />
-                          Criar Criativo
-                        </Button>
-                      )}
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {msg.status !== "processed" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await supabase
+                                .from("whatsapp_inbox" as any)
+                                .update({ status: "processed" } as any)
+                                .eq("id", msg.id);
+                              setMessages((prev) =>
+                                prev.map((m) =>
+                                  m.id === msg.id ? { ...m, status: "processed" as const } : m
+                                )
+                              );
+                              toast({ title: "Mensagem marcada como processada" });
+                            }}
+                            className="text-xs text-[#002B5B] hover:underline"
+                          >
+                            Marcar processado
+                          </button>
+                        )}
+                        {msg.message_type === "image" && (
+                          <Button
+                            size="sm"
+                            className="text-xs bg-[#002B5B] hover:bg-[#001d3d] text-white gap-1.5 shrink-0"
+                            onClick={() => navigate("/dashboard/criativos/novo")}
+                          >
+                            <PlusCircle className="h-3.5 w-3.5" />
+                            Criar Criativo
+                          </Button>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

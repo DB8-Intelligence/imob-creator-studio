@@ -138,6 +138,7 @@ const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsApp
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
+const SocialCallbackPage = lazy(() => import("./pages/dashboard/social/SocialCallbackPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -289,6 +290,7 @@ const App = () => (
               {/* Social */}
               <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><SocialConnectPage /></ProtectedRoute>} />
               <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><SocialCalendarioPage /></ProtectedRoute>} />
+              <Route path="/dashboard/social/callback"    element={<ProtectedRoute><SocialCallbackPage /></ProtectedRoute>} />
 
               {/* Integrações */}
               <Route path="/integracoes"              element={<ProtectedRoute><IntegracoesApisPage /></ProtectedRoute>} />

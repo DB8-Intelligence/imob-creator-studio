@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
@@ -50,23 +51,101 @@ export default function WhatsAppSetupPage() {
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected");
   const [showQr, setShowQr] = useState(false);
+  const [qrCode, setQrCode] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [profileName, setProfileName] = useState("");
+  const [stats, setStats] = useState({ messagesCount: 0, propertiesCount: 0, creativesCount: 0 });
+
+  /* ---- Load instance data on mount ---- */
+  useEffect(() => {
+    async function loadInstance() {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) return;
+      const { data } = await supabase
+        .from("user_whatsapp_instances" as any)
+        .select("*")
+        .eq("user_id", authUser.id)
+        .maybeSingle();
+      if (data?.status === "connected") {
+        setConnectionStatus("connected");
+        setPhoneNumber((data as any).phone_number || "");
+        setProfileName((data as any).profile_name || "");
+      }
+    }
+    loadInstance();
+  }, []);
+
+  /* ---- Poll for connection status while connecting ---- */
+  useEffect(() => {
+    if (connectionStatus !== "connecting") return;
+    const interval = setInterval(async () => {
+      const { data } = await supabase.functions.invoke("whatsapp-status");
+      if (data?.status === "connected") {
+        setConnectionStatus("connected");
+        clearInterval(interval);
+        toast({ title: "WhatsApp conectado!" });
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [connectionStatus]);
+
+  /* ---- Load stats when connected ---- */
+  useEffect(() => {
+    if (connectionStatus !== "connected" || !workspaceId) return;
+    async function loadStats() {
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayISO = today.toISOString();
+
+        const [msgRes, propRes, crRes] = await Promise.all([
+          supabase
+            .from("whatsapp_inbox" as any)
+            .select("id", { count: "exact", head: true })
+            .gte("created_at", todayISO),
+          supabase
+            .from("whatsapp_inbox" as any)
+            .select("id", { count: "exact", head: true })
+            .eq("message_type", "image"),
+          supabase
+            .from("whatsapp_inbox" as any)
+            .select("id", { count: "exact", head: true })
+            .eq("processed", true),
+        ]);
+        setStats({
+          messagesCount: msgRes.count ?? 0,
+          propertiesCount: propRes.count ?? 0,
+          creativesCount: crRes.count ?? 0,
+        });
+      } catch {
+        // Table may not exist yet
+      }
+    }
+    loadStats();
+  }, [connectionStatus, workspaceId]);
 
   /* ---- Handlers ---- */
-  const handleGenerateQr = () => {
+  const handleGenerateQr = async () => {
     setConnectionStatus("connecting");
     setShowQr(true);
-    toast({ title: "Gerando QR Code...", description: "Aguarde enquanto preparamos a conexao." });
-
-    // Simulated connection after 4 seconds
-    setTimeout(() => {
-      setConnectionStatus("connected");
-      toast({ title: "WhatsApp conectado com sucesso!" });
-    }, 4000);
+    const { data, error } = await supabase.functions.invoke("whatsapp-connect");
+    if (error) {
+      toast({ title: "Erro ao gerar QR Code", description: error.message, variant: "destructive" });
+      setConnectionStatus("disconnected");
+      setShowQr(false);
+      return;
+    }
+    if (data?.qrcode?.base64) {
+      setQrCode(data.qrcode.base64);
+    } else if (data?.qrcode) {
+      setQrCode(typeof data.qrcode === "string" ? data.qrcode : "");
+    }
   };
 
   const handleDisconnect = () => {
     setConnectionStatus("disconnected");
     setShowQr(false);
+    setQrCode("");
     toast({ title: "WhatsApp desconectado." });
   };
 
@@ -104,19 +183,27 @@ export default function WhatsAppSetupPage() {
             {/* QR Code area */}
             {connectionStatus !== "connected" && (
               <div className="flex flex-col items-center gap-4">
-                <div className="w-[200px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
-                  {showQr && connectionStatus === "connecting" ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <Loader2 className="h-8 w-8 text-[#002B5B] animate-spin" />
-                      <span className="text-xs text-gray-400">Carregando QR...</span>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-2">
-                      <QrCode className="h-12 w-12 text-gray-300" />
-                      <span className="text-xs text-gray-400">QR Code</span>
-                    </div>
-                  )}
-                </div>
+                {qrCode ? (
+                  <img
+                    src={qrCode.startsWith("data:") ? qrCode : `data:image/png;base64,${qrCode}`}
+                    alt="QR Code"
+                    className="w-56 h-56 mx-auto rounded-xl border"
+                  />
+                ) : (
+                  <div className="w-[200px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
+                    {showQr && connectionStatus === "connecting" ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="h-8 w-8 text-[#002B5B] animate-spin" />
+                        <span className="text-xs text-gray-400">Carregando QR...</span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2">
+                        <QrCode className="h-12 w-12 text-gray-300" />
+                        <span className="text-xs text-gray-400">QR Code</span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <Button
                   className="bg-[#002B5B] hover:bg-[#001d3d] text-white gap-2"
@@ -147,8 +234,11 @@ export default function WhatsAppSetupPage() {
 
                 <div className="text-center space-y-1">
                   <p className="text-sm font-semibold text-[#002B5B]">
-                    +55 (11) 99999-0000
+                    {phoneNumber || "+55 (...) ****-****"}
                   </p>
+                  {profileName && (
+                    <p className="text-xs text-[#002B5B] font-medium">{profileName}</p>
+                  )}
                   <p className="text-xs text-gray-500">Sessao ativa</p>
                   <Badge className="bg-green-100 text-green-700 border-0 text-[11px]">
                     Conectado
@@ -194,6 +284,24 @@ export default function WhatsAppSetupPage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Stats section */}
+        {connectionStatus === "connected" && (
+          <div className="grid grid-cols-3 gap-4 mt-6">
+            <div className="bg-[#F8FAFF] rounded-xl border border-[#E5E7EB] p-4 text-center">
+              <span className="text-2xl font-bold text-[#002B5B]">{stats.messagesCount}</span>
+              <p className="text-xs text-[#6B7280] mt-1">Mensagens hoje</p>
+            </div>
+            <div className="bg-[#F8FAFF] rounded-xl border border-[#E5E7EB] p-4 text-center">
+              <span className="text-2xl font-bold text-[#002B5B]">{stats.propertiesCount}</span>
+              <p className="text-xs text-[#6B7280] mt-1">Imoveis detectados</p>
+            </div>
+            <div className="bg-[#F8FAFF] rounded-xl border border-[#E5E7EB] p-4 text-center">
+              <span className="text-2xl font-bold text-[#002B5B]">{stats.creativesCount}</span>
+              <p className="text-xs text-[#6B7280] mt-1">Criativos via WA</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
