@@ -62,6 +62,10 @@ import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
 import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
 import CriativosLpPage from "./pages/lp/CriativosPage";
 import VideosLpPage from "./pages/lp/VideosPage";
+import SiteLpPage from "./pages/lp/SitePage";
+import CrmLpPage from "./pages/lp/CrmPage";
+import WhatsappLpPage from "./pages/lp/WhatsappPage";
+import SocialLpPage from "./pages/lp/SocialPage";
 
 // ── Dashboard MAX pages (lazy-loaded for code splitting) ────────────────────
 const LeadsPipelinePage = lazy(() => import("./pages/max/LeadsPipelinePage"));
@@ -255,6 +259,10 @@ const App = () => (
               {/* ── Landing Pages Produto (públicas) ────────────────────── */}
               <Route path="/criativos" element={<CriativosLpPage />} />
               <Route path="/videos"    element={<VideosLpPage />} />
+              <Route path="/site-imobiliario"      element={<SiteLpPage />} />
+              <Route path="/crm-imobiliario"       element={<CrmLpPage />} />
+              <Route path="/whatsapp-imobiliario"   element={<WhatsappLpPage />} />
+              <Route path="/publicacao-social"      element={<SocialLpPage />} />
 
               <Route path="/para-corretores"       element={<ParaCorretoresPage />} />
               <Route path="/para-imobiliarias"    element={<ParaImobiliariasPage />} />
