@@ -40,6 +40,18 @@ const TEMPLATES: Template[] = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  Loading messages                                                   */
+/* ------------------------------------------------------------------ */
+
+const LOADING_MESSAGES = [
+  "Analisando seu imóvel...",
+  "Aplicando estilo visual...",
+  "Gerando composição...",
+  "Ajustando cores e tipografia...",
+  "Finalizando criativo...",
+];
+
+/* ------------------------------------------------------------------ */
 /*  Step indicator                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -112,10 +124,13 @@ export default function NovoCriativoPage() {
 
   /* Step 2 state */
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [canal, setCanal] = useState<"instagram" | "facebook" | "ambos">("instagram");
+  const [formato, setFormato] = useState<"feed" | "story" | "reel">("feed");
 
   /* Step 3 state */
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [messageIdx, setMessageIdx] = useState(0);
 
   /* ---- Fetch properties ---- */
   useEffect(() => {
@@ -152,53 +167,52 @@ export default function NovoCriativoPage() {
     if (!user || !selectedProperty || !selectedTemplate) return;
     setGenerating(true);
     setProgress(0);
+    setMessageIdx(0);
 
-    // Insert into creatives_gallery with status "generating"
-    const { data: inserted, error } = await supabase
-      .from("creatives_gallery")
-      .insert({
-        user_id: user.id,
-        template_name: selectedTemplate.name,
-        template_slug: selectedTemplate.slug,
-        status: "generating",
-        property_id: selectedProperty.id,
-        credits_used: 1,
-      })
-      .select()
-      .single();
+    // Rotating loading messages
+    const msgInterval = setInterval(() => {
+      setMessageIdx((prev) => prev + 1);
+    }, 5000);
 
-    if (error) {
-      toast({ title: "Erro ao criar criativo", description: error.message, variant: "destructive" });
+    // Progress animation
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) return prev;
+        return prev + Math.random() * 10;
+      });
+    }, 600);
+
+    const { data: result, error: fnError } = await supabase.functions.invoke("gerar-criativo", {
+      body: {
+        prompt_base: `Criar criativo imobiliário no estilo ${selectedTemplate.name}`,
+        titulo: selectedProperty.title,
+        subtitulo: selectedProperty.address || "",
+        cta: "Saiba Mais",
+        canal: canal,
+        tipo: "post",
+        formatos: [formato],
+        quantidade: 1,
+        skip_credits: false,
+      },
+    });
+
+    if (fnError) {
+      clearInterval(msgInterval);
+      clearInterval(progressInterval);
+      toast({ title: "Erro", description: fnError.message, variant: "destructive" });
       setGenerating(false);
       return;
     }
 
-    // Simulate generation progress
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 95) return prev;
-        return prev + Math.random() * 15;
-      });
-    }, 400);
+    clearInterval(progressInterval);
+    setProgress(100);
 
-    // After 3s simulated delay: update to "ready" and navigate
-    setTimeout(async () => {
-      clearInterval(interval);
-      setProgress(100);
+    toast({ title: "Criativo gerado com sucesso!" });
 
-      if (inserted) {
-        await supabase
-          .from("creatives_gallery")
-          .update({ status: "ready" })
-          .eq("id", inserted.id);
-      }
-
-      toast({ title: "Criativo gerado com sucesso!" });
-
-      setTimeout(() => {
-        navigate("/dashboard/criativos");
-      }, 500);
-    }, 3000);
+    setTimeout(() => {
+      clearInterval(msgInterval);
+      navigate("/dashboard/criativos");
+    }, 500);
   };
 
   /* ---------------------------------------------------------------- */
@@ -299,6 +313,31 @@ export default function NovoCriativoPage() {
               </div>
             )}
 
+            {/* OR Tema Livre */}
+            <div className="flex items-center gap-4 py-2">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400 uppercase">ou</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+            <Card
+              className={`cursor-pointer transition-all ${
+                selectedProperty?.id === "tema-livre"
+                  ? "border-2 border-[#002B5B] shadow-md bg-[#002B5B]/5"
+                  : "border border-gray-200 hover:border-[#002B5B]/40"
+              }`}
+              onClick={() => setSelectedProperty({ id: "tema-livre", title: "Tema Livre", type: "Sem imóvel vinculado", address: null })}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="h-5 w-5 text-[#FFD700]" />
+                  <div>
+                    <h3 className="font-semibold text-sm text-[#002B5B]">Criar tema livre</h3>
+                    <p className="text-xs text-gray-500">Sem imóvel vinculado — personalize título e CTA</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="flex justify-end pt-2">
               <Button
                 className="bg-[#002B5B] hover:bg-[#001d3d] text-white px-8"
@@ -365,6 +404,32 @@ export default function NovoCriativoPage() {
                   </Card>
                 );
               })}
+            </div>
+
+            {/* Canal selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#0A1628]">Canal de publicação</label>
+              <div className="flex gap-2">
+                {(["instagram", "facebook", "ambos"] as const).map((c) => (
+                  <button key={c} type="button" onClick={() => setCanal(c)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${canal === c ? "bg-[#002B5B] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                    {c === "instagram" ? "📸 Instagram" : c === "facebook" ? "📘 Facebook" : "📸📘 Ambos"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Format selector */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#0A1628]">Formato</label>
+              <div className="flex gap-2">
+                {([{v:"feed",l:"Feed 1:1"},{v:"story",l:"Story 9:16"},{v:"reel",l:"Reel 9:16"}] as const).map((f) => (
+                  <button key={f.v} type="button" onClick={() => setFormato(f.v)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${formato === f.v ? "bg-[#002B5B] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
+                    {f.l}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="flex justify-between pt-2">
@@ -446,7 +511,7 @@ export default function NovoCriativoPage() {
                     <Sparkles className="h-6 w-6 text-[#FFD700] animate-pulse" />
                   </div>
                   <p className="text-sm font-medium text-[#002B5B]">
-                    Gerando seu criativo...
+                    {LOADING_MESSAGES[messageIdx % LOADING_MESSAGES.length]}
                   </p>
                   <p className="text-xs text-gray-500">
                     Isso pode levar alguns segundos

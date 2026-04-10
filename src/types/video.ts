@@ -1,6 +1,6 @@
 import type { VideoMotionPreset } from "@/lib/video-motion-presets";
 
-export type VideoStyle = "cinematic" | "moderno" | "luxury";
+export type VideoStyle = "cinematic" | "moderno" | "luxury" | "drone" | "walkthrough";
 export type VideoFormat = "reels" | "feed" | "youtube";
 export type VideoStatus = "draft" | "queued" | "processing" | "completed" | "failed";
 export type VideoPlanTier = "standard" | "plus" | "premium";
