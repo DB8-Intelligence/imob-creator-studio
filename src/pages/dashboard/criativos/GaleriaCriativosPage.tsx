@@ -4,6 +4,8 @@ import { Plus, Search, Images, Download, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { usePlanGate } from "@/hooks/usePlanGate";
+import { PlanGateBanner } from "@/components/dashboard/PlanGateBanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +80,8 @@ export default function GaleriaCriativosPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { check } = usePlanGate();
+  const canPublish = check.publish({ publicationsThisMonth: 0, channel: "instagram" }).allowed;
 
   const [creatives, setCreatives] = useState<GalleryCreative[]>([]);
   const [loading, setLoading] = useState(true);
@@ -268,14 +272,18 @@ export default function GaleriaCriativosPage() {
                         Baixar
                       </Button>
                       {creative.status === "ready" && (
-                        <Button
-                          size="sm"
-                          className="text-xs gap-1.5 bg-[#002B5B] hover:bg-[#001d3d] text-white"
-                          onClick={(e) => handleApprove(e, creative.id)}
-                        >
-                          <CheckCircle className="h-3.5 w-3.5" />
-                          Aprovar
-                        </Button>
+                        canPublish ? (
+                          <Button
+                            size="sm"
+                            className="text-xs gap-1.5 bg-[#002B5B] hover:bg-[#001d3d] text-white"
+                            onClick={(e) => handleApprove(e, creative.id)}
+                          >
+                            <CheckCircle className="h-3.5 w-3.5" />
+                            Aprovar
+                          </Button>
+                        ) : (
+                          <PlanGateBanner module="criativos" featureName="Aprovar criativos" />
+                        )
                       )}
                     </div>
                   </CardContent>

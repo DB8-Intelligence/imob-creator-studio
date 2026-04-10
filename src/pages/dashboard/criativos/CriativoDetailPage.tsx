@@ -12,6 +12,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { usePlanGate } from "@/hooks/usePlanGate";
+import { PlanGateBanner } from "@/components/dashboard/PlanGateBanner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +76,8 @@ export default function CriativoDetailPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { check } = usePlanGate();
+  const canPublish = check.publish({ publicationsThisMonth: 0, channel: "instagram" }).allowed;
 
   const [creative, setCreative] = useState<CreativeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -313,34 +317,40 @@ export default function CriativoDetailPage() {
                 Baixar
               </Button>
 
-              {creative.status === "ready" && (
-                <Button
-                  className="gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm"
-                  onClick={() => updateStatus("approved")}
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Aprovar
-                </Button>
-              )}
+              {canPublish ? (
+                <>
+                  {creative.status === "ready" && (
+                    <Button
+                      className="gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm"
+                      onClick={() => updateStatus("approved")}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Aprovar
+                    </Button>
+                  )}
 
-              {(creative.status === "ready" || creative.status === "approved") && (
-                <Button
-                  className="gap-1.5 bg-[#FFD700] hover:bg-[#e6c200] text-[#002B5B] text-sm font-semibold"
-                  onClick={() => updateStatus("scheduled")}
-                >
-                  <CalendarClock className="h-4 w-4" />
-                  Agendar
-                </Button>
-              )}
+                  {(creative.status === "ready" || creative.status === "approved") && (
+                    <Button
+                      className="gap-1.5 bg-[#FFD700] hover:bg-[#e6c200] text-[#002B5B] text-sm font-semibold"
+                      onClick={() => updateStatus("scheduled")}
+                    >
+                      <CalendarClock className="h-4 w-4" />
+                      Agendar
+                    </Button>
+                  )}
 
-              {(creative.status === "approved" || creative.status === "scheduled") && (
-                <Button
-                  className="gap-1.5 bg-[#002B5B] hover:bg-[#001d3d] text-white text-sm"
-                  onClick={() => updateStatus("published")}
-                >
-                  <Send className="h-4 w-4" />
-                  Publicar
-                </Button>
+                  {(creative.status === "approved" || creative.status === "scheduled") && (
+                    <Button
+                      className="gap-1.5 bg-[#002B5B] hover:bg-[#001d3d] text-white text-sm"
+                      onClick={() => updateStatus("published")}
+                    >
+                      <Send className="h-4 w-4" />
+                      Publicar
+                    </Button>
+                  )}
+                </>
+              ) : (
+                <PlanGateBanner module="criativos" featureName="Publicar e agendar" />
               )}
             </div>
           </div>

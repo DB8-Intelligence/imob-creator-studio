@@ -8,12 +8,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { usePlanGate } from "@/hooks/usePlanGate";
+import { PlanGateBanner } from "@/components/dashboard/PlanGateBanner";
 import { supabase } from "@/integrations/supabase/client";
 import type { VideoJob, VideoStatus } from "@/types/video";
 import {
   ChevronLeft,
   Download,
   Share2,
+  Send,
   Film,
   Clock,
   Image as ImageIcon,
@@ -75,6 +78,8 @@ const VideoPlayerPage = () => {
   const { user } = useAuth();
   const { workspaceId } = useWorkspaceContext();
   const { toast } = useToast();
+  const { check } = usePlanGate();
+  const canPublish = check.publish({ publicationsThisMonth: 0, channel: "instagram" }).allowed;
 
   // Fetch video job, auto-poll if processing/queued
   const {
@@ -307,6 +312,18 @@ const VideoPlayerPage = () => {
                 <Share2 className="w-4 h-4 mr-2" />
                 Compartilhar WA
               </Button>
+              {canPublish ? (
+                <Button
+                  variant="outline"
+                  className="gap-2"
+                  onClick={() => toast({ title: "Publicação", description: "Conecte seu Instagram em Configurações para publicar" })}
+                >
+                  <Send className="h-4 w-4" />
+                  Publicar no Instagram
+                </Button>
+              ) : (
+                <PlanGateBanner module="videos" featureName="Publicar no Instagram" />
+              )}
               <Button
                 variant="outline"
                 onClick={() => navigate("/dashboard/videos")}

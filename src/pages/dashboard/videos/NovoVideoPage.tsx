@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import AppLayout from "@/components/app/AppLayout";
@@ -136,6 +136,20 @@ const STYLE_OPTIONS: {
       "Tons dourados, motion suave e detalhes refinados. Para imoveis exclusivos.",
     gradient: "linear-gradient(135deg, #FFD700, #B8960C)",
   },
+  {
+    id: "drone",
+    name: "Vista Aérea",
+    description:
+      "Simula drone, pan & zoom. Ideal para destacar a localizacao e arredores do imovel.",
+    gradient: "linear-gradient(135deg, #38BDF8, #3B82F6)",
+  },
+  {
+    id: "walkthrough",
+    name: "Tour Virtual",
+    description:
+      "Sequencia de ambientes com transicoes suaves. Perfeito para mostrar o interior completo.",
+    gradient: "linear-gradient(135deg, #FDE68A, #FB923C)",
+  },
 ];
 
 // ── Music mood options ──────────────────────────────────────────────────────
@@ -145,6 +159,16 @@ const MUSIC_OPTIONS: { id: MusicMood; label: string; icon: typeof Music }[] = [
   { id: "inspirador", label: "Inspirador", icon: Sparkles },
   { id: "energetico", label: "Energetico", icon: Clock },
   { id: "elegante", label: "Elegante", icon: Film },
+];
+
+// ── Loading messages ────────────────────────────────────────────────────────
+
+const VIDEO_LOADING_MSGS = [
+  "Preparando suas fotos...",
+  "Aplicando efeito Ken Burns...",
+  "Sincronizando trilha sonora...",
+  "Renderizando vídeo...",
+  "Finalizando...",
 ];
 
 // ── Main Page ───────────────────────────────────────────────────────────────
@@ -166,7 +190,18 @@ const NovoVideoPage = () => {
   const [duration, setDuration] = useState<Duration>(30);
   const [format, setFormat] = useState<Format>("reels");
   const [musicMood, setMusicMood] = useState<MusicMood>("calmo");
+  const [showTextOverlay, setShowTextOverlay] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [messageIdx, setMessageIdx] = useState(0);
+
+  // Rotate loading messages every 4s while generating
+  useEffect(() => {
+    if (!isGenerating) return;
+    const interval = setInterval(() => {
+      setMessageIdx((prev) => (prev + 1) % VIDEO_LOADING_MSGS.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isGenerating]);
 
   // Fetch properties
   const { data: properties = [], isLoading: propsLoading } = useQuery<
@@ -258,6 +293,7 @@ const NovoVideoPage = () => {
         metadata: {
           music_mood: musicMood,
           manual_upload: useManualUpload,
+          show_text_overlay: showTextOverlay,
         },
         created_by: user?.id ?? null,
       });
@@ -608,6 +644,20 @@ const NovoVideoPage = () => {
                 ))}
               </div>
             </div>
+
+            {/* Text overlay */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#0A1628]">Texto no vídeo</label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showTextOverlay}
+                  onChange={(e) => setShowTextOverlay(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-[#002B5B]"
+                />
+                <span className="text-sm text-gray-600">Mostrar título e endereço no vídeo</span>
+              </label>
+            </div>
           </div>
         )}
 
@@ -683,10 +733,10 @@ const NovoVideoPage = () => {
                 />
                 <div>
                   <p
-                    className="font-semibold text-lg"
+                    className="font-semibold text-lg transition-opacity duration-500"
                     style={{ color: "#002B5B" }}
                   >
-                    Processando seu video...
+                    {VIDEO_LOADING_MSGS[messageIdx]}
                   </p>
                   <p className="text-sm text-gray-500 mt-1">
                     Isso pode levar alguns minutos. Voce pode sair desta pagina.
