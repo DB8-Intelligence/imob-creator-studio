@@ -109,7 +109,7 @@ const Auth = () => {
       // Check if we have a user ready to go
       const authData = signUpData as { session?: unknown; user?: { id: string } } | null;
       if (authData?.session) {
-        toast({ title: "Cadastro realizado!", description: "Bem-vindo ao ImobCreator." });
+        toast({ title: "Cadastro realizado!", description: "Bem-vindo ao NexoImob AI." });
         navigate("/dashboard", { replace: true });
         setIsLoading(false);
         return;
@@ -158,27 +158,45 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
+
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
       });
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao entrar com Google",
-          description: error.message,
-        });
+        toast({ variant: "destructive", title: "Erro ao entrar com Google", description: error.message });
       }
     } catch (e: unknown) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao entrar com Google",
-        description: e instanceof Error ? e.message : "Tente novamente",
-      });
+      toast({ variant: "destructive", title: "Erro ao entrar com Google", description: e instanceof Error ? e.message : "Tente novamente" });
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    setIsFacebookLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          scopes: "email,public_profile",
+        },
+      });
+      if (error) {
+        toast({ variant: "destructive", title: "Erro ao entrar com Facebook", description: error.message });
+      }
+    } catch (e: unknown) {
+      toast({ variant: "destructive", title: "Erro ao entrar com Facebook", description: e instanceof Error ? e.message : "Tente novamente" });
+    } finally {
+      setIsFacebookLoading(false);
     }
   };
 
@@ -202,9 +220,12 @@ const Auth = () => {
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
         <div className="text-center mb-8">
-          <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-12 w-auto mx-auto mb-4" />
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="text-3xl font-bold text-white" style={{ fontFamily: "Rubik, sans-serif" }}>NexoImob</span>
+            <span className="text-xs font-bold px-2 py-1 rounded bg-[#FFD700] text-[#002B5B]">AI</span>
+          </div>
           <p className="text-primary-foreground/70">
-            Criativos profissionais em segundos
+            Marketing imobiliário com IA
           </p>
         </div>
 
@@ -294,6 +315,23 @@ const Auth = () => {
                         </svg>
                       )}
                       Continuar com Google
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-[#1877F2] hover:bg-blue-50"
+                      onClick={handleFacebookSignIn}
+                      disabled={isFacebookLoading}
+                    >
+                      {isFacebookLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="#1877F2">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                      )}
+                      Continuar com Facebook
                     </Button>
                   </form>
               </TabsContent>
@@ -406,6 +444,23 @@ const Auth = () => {
                       )}
                       Continuar com Google
                     </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full border-[#1877F2] hover:bg-blue-50"
+                      onClick={handleFacebookSignIn}
+                      disabled={isFacebookLoading}
+                    >
+                      {isFacebookLoading ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="#1877F2">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                      )}
+                      Continuar com Facebook
+                    </Button>
                   </form>
               </TabsContent>
             </CardContent>
@@ -413,7 +468,7 @@ const Auth = () => {
         </Card>
 
         <p className="text-center text-primary-foreground/60 text-sm mt-6">
-          © 2026 ImobCreator AI. Todos os direitos reservados.
+          © 2026 NexoImob AI. Todos os direitos reservados.
         </p>
       </div>
     </div>
