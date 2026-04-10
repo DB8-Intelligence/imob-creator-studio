@@ -1,69 +1,136 @@
-# ImobCreator Studio
+# NexoImob AI
 
-Plataforma SaaS para criação automatizada de posts imobiliários com IA.
+Plataforma completa de marketing imobiliario com IA. Criativos, videos, site, CRM e WhatsApp integrados.
+
+**Empresa:** DB8 INTERPRICE COMERCIO E SERVICOS LTDA · CNPJ 31.982.768/0001-31
+**Dominio:** nexoimobai.com.br
 
 ## Stack
 
-- **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui
-- **Backend proxy:** Supabase Edge Functions (Deno)
-- **Backend principal:** Railway (`db8-agent-production.up.railway.app`)
-- **Auth / DB / Storage:** Supabase (Lovable Cloud)
+- **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui + Framer Motion
+- **Fontes:** Rubik (hero/titulos) + Plus Jakarta Sans (corpo)
+- **Backend:** Supabase Edge Functions (28 funcoes Deno)
+- **Auth / DB / Storage:** Supabase (`dsszhodrrchlaqfignky`)
+- **Pagamentos:** Kiwify (webhook integrado)
+- **Automacao:** n8n (`automacao.db8intelligence.com.br`)
+- **Deploy:** Vercel (frontend) + Supabase (edge functions)
+
+## Modulos
+
+| Modulo | Status | Rota |
+|--------|--------|------|
+| Criativos | Disponivel | `/criativos` |
+| Videos | Disponivel | `/videos` |
+| Site + Portais | Em breve | `/site-imobiliario` |
+| CRM | Em breve | `/crm-imobiliario` |
+| WhatsApp | Em breve | `/whatsapp-imobiliario` |
+| Publicacao Social | Em breve | `/publicacao-social` |
 
 ## Rodar localmente
 
 ```bash
 npm install
 npm run dev        # http://localhost:8080
-npm run build      # produção
+npm run build      # producao
 ```
 
-Copie `.env.example` para `.env` e preencha as variáveis.
+Copie `.env.example` para `.env` e preencha as variaveis.
 
-## Rotas principais
+## Rotas publicas
 
-| Rota | Descrição |
+| Rota | Descricao |
 |------|-----------|
-| `/` | Landing page pública |
+| `/` | Home — hero video, solucoes, tabs, metricas, depoimentos, FAQ |
+| `/criativos` | LP Criativos — checkout Kiwify |
+| `/videos` | LP Videos — checkout Kiwify |
+| `/site-imobiliario` | LP Site (em breve + waitlist) |
+| `/crm-imobiliario` | LP CRM (em breve + waitlist) |
+| `/whatsapp-imobiliario` | LP WhatsApp (em breve + waitlist) |
+| `/publicacao-social` | LP Social (em breve + waitlist) |
+| `/precos` | Pagina de precos (toggle mensal/anual) |
+| `/sobre` | Sobre a empresa |
+| `/contato` | Formulario de contato |
 | `/auth` | Login / Cadastro |
-| `/dashboard` | Dashboard (protegida) |
-| `/inbox` | Inbox de propriedades |
-| `/editor/:id` | Editor de propriedade |
-| `/posts` | Lista de posts |
-| `/upload` | Upload de imóvel |
-| `/templates` | Galeria de templates |
-| `/brand-templates` | Templates da marca |
-| `/settings/profile` | Perfil do corretor |
-| `/settings/prompts` | Prompts customizados |
-| `/plano` | Página de planos |
+| `/termos` | Termos de uso |
+| `/para-corretores` | LP ICP corretores |
+| `/para-imobiliarias` | LP ICP imobiliarias |
+| `/para-equipes` | LP ICP equipes |
 
-## Endpoints Railway esperados
+## Rotas protegidas (dashboard)
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/health` | Health check |
-| `GET` | `/properties` | Listar propriedades |
-| `POST` | `/properties` | Criar propriedade |
-| `PATCH` | `/properties/{id}?status=X` | Atualizar propriedade |
-| `GET` | `/me` | Info do plano do usuário |
-| `PATCH` | `/me` | Atualizar créditos/plano |
-| `POST` | `/generate-caption` | Gerar legenda com IA |
-| `GET` | `/templates` | Listar templates de marca |
-| `POST` | `/templates` | Criar template |
-| `PATCH` | `/templates/{id}` | Atualizar template |
-| `DELETE` | `/templates/{id}` | Excluir template |
+| Rota | Descricao |
+|------|-----------|
+| `/dashboard` | Dashboard principal |
+| `/studio` | Creative Studio |
+| `/video-creator` | Criador de videos |
+| `/create/ideia` | Gerar criativos com IA |
+| `/create/studio` | Creative Studio avancado |
+| `/leads` | CRM — Pipeline de leads |
+| `/imoveis` | Gestao de imoveis |
+| `/max/criativos` | Galeria de criativos |
+| `/automacoes` | Automacoes |
+| `/calendario` | Calendario de conteudo |
+| `/financeiro` | Financeiro |
+| `/configuracoes` | Configuracoes |
 
-## Edge Functions (proxy)
+## Edge Functions (Supabase)
 
-- `inbox-proxy` — Proxy genérico para Railway (GET/POST/PATCH/DELETE)
-- `generate-caption` — Proxy para geração de legendas com prompts customizados
-- `generate-art` — Proxy para geração de arte
+28 funcoes deployadas incluindo:
+- `kiwify-webhook` — Pagamentos Kiwify (compra, renovacao, cancelamento, chargeback)
+- `hotmart-webhook` — Pagamentos Hotmart
+- `asaas-webhook` — Pagamentos Asaas
+- `generate-caption` / `generate-art` / `gerar-criativo` — Geracao de conteudo
+- `generate-video` / `generate-video-v2` / `compose-video` — Pipeline de video
+- `n8n-bridge` — Integracao n8n
+- `publish-social` / `publish-dispatch` — Publicacao social
+- `whatsapp-events` / `whatsapp-instance` — WhatsApp Evolution API
 
-## Variáveis de ambiente obrigatórias
+## Checkout Kiwify
 
-| Variável | Onde | Descrição |
+**Criativos:**
+- Starter R$97/mes: `https://pay.kiwify.com.br/UjBaKio`
+- Basico R$197/mes: `https://pay.kiwify.com.br/gCd9MsZ`
+- PRO R$397/mes: `https://pay.kiwify.com.br/2ofOTll`
+
+**Videos:**
+- Starter R$97/mes: `https://kiwify.app/kMcnV7a`
+- Basico R$197/mes: `https://pay.kiwify.com.br/iJ5cYCJ`
+- PRO R$397/mes: `https://pay.kiwify.com.br/rJ4B7Op`
+
+## Webhook Kiwify
+
+URL: `https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/kiwify-webhook`
+Header: `x-kiwify-token: avod1gpyik0`
+
+## Variaveis de ambiente
+
+| Variavel | Onde | Descricao |
 |----------|------|-----------|
 | `VITE_SUPABASE_URL` | `.env` | URL do projeto Supabase |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | `.env` | Anon key do Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret (edge fn) | Service role para queries admin |
+| `KIWIFY_WEBHOOK_TOKEN` | Secret (edge fn) | Token de validacao webhook Kiwify |
+| `KIWIFY_CLIENT_ID` | Secret (edge fn) | Client ID Kiwify |
+| `KIWIFY_ACCOUNT_ID` | Secret (edge fn) | Account ID Kiwify |
+| `ANTHROPIC_API_KEY` | Secret (edge fn) | API key para geracao IA |
+| `N8N_WEBHOOK_URL` | Secret (edge fn) | URL webhook n8n |
 
-> **Nota:** Segredos e tokens do Railway ficam hardcoded nas edge functions (URL base). Nunca expor chaves privadas no frontend.
+## Design System
+
+```
+Hero/Dark:    #21346e (navy deep) + #FFD700 (gold)
+Geral:        #002B5B (navy) + #F8FAFF (off-white)
+Texto:        #0A1628 (dark) + #374151 (body) + #6B7280 (muted)
+Bordas:       #E5E7EB (padrao) + #002B5B (destaque)
+Fontes:       Rubik 700/800 (hero) + Plus Jakarta Sans 400-800 (corpo)
+Cards:        white bg + border 1.5px + radius 16px
+Botao navy:   bg #002B5B text white radius 10px
+Botao gold:   bg #FFD700 text #002B5B radius 10px
+```
+
+## Componentes UI compartilhados
+
+- `AnnouncementBanner` — Banner topo dismissivel (localStorage)
+- `PopupLeadCapture` — Exit intent + 30s timer, 1x/dia
+- `WhatsAppButton` — Flutuante bottom-right com tooltip
+- `CountUp` — Animacao de contador com IntersectionObserver
