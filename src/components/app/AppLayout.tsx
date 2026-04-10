@@ -126,7 +126,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <Menu className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="ImobCreator AI" className="h-8 w-auto" />
+          <img src="/logo.png" alt="NexoImob AI" className="h-8 w-auto" />
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -164,7 +164,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           <div className="min-h-16 flex items-start justify-between px-4 py-3 border-b border-border">
             <div>
               <Link to="/dashboard" className="flex items-center gap-2">
-                <img src="/logo.png" alt="ImobCreator AI" className="h-10 w-auto" />
+                <img src="/logo.png" alt="NexoImob AI" className="h-10 w-auto" />
               </Link>
               <div className="mt-2 pl-12">
                 <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Workspace ativo</p>

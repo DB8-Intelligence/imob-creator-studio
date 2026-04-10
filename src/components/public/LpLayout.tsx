@@ -40,7 +40,7 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
       >
         <div className="container mx-auto px-6 py-3.5 flex items-center justify-between">
           <Link to="/" className="shrink-0">
-            <img src="/images/logo-header.png" alt="ImobCreator AI" className="h-8 w-auto" />
+            <img src="/images/logo-header.png" alt="NexoImob AI" className="h-8 w-auto" />
           </Link>
 
           <Link to="/auth" className="btn-primary !py-2 !px-5 !text-sm">
@@ -56,7 +56,7 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
       {/* ── Minimal footer ── */}
       <footer className="py-8 border-t border-[var(--ds-border)] bg-[var(--ds-bg)]">
         <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[var(--ds-fg-subtle)] text-xs">
-          <span>© 2026 ImobCreator AI. Todos os direitos reservados.</span>
+          <span>© 2026 NexoImob AI. Todos os direitos reservados.</span>
           <div className="flex gap-5">
             <Link to="/termos" className="hover:text-[var(--ds-gold-light)] transition-colors">Termos de Uso</Link>
             <Link to="/termos" className="hover:text-[var(--ds-gold-light)] transition-colors">Privacidade</Link>
