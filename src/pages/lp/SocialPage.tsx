@@ -29,7 +29,7 @@ export default function SocialPage() {
         <div className="container mx-auto px-6 max-w-3xl text-center">
           <Reveal className="flex flex-col items-center gap-5">
             <motion.div variants={fadeUp}><span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#EEF2FF] border border-[#C7D7F5] text-[#3B5BDB]">📣 Publicação Social · Em breve</span></motion.div>
-            <motion.h1 variants={fadeUp} className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold text-[#0A1628] leading-[1.1] tracking-tight">Publique automaticamente no Instagram e Facebook sem sair do ImobCreator</motion.h1>
+            <motion.h1 variants={fadeUp} className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold text-[#0A1628] leading-[1.1] tracking-tight">Publique automaticamente no Instagram e Facebook sem sair do NexoImob</motion.h1>
             <motion.p variants={fadeUp} className="text-[#6B7280] text-base md:text-lg max-w-lg">Agende, publique e acompanhe o desempenho dos seus posts.</motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-3 mt-4 w-full max-w-md">
               {!submitted ? (<>
