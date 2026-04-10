@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { RouteTracker } from "@/components/app/RouteTracker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import AuthCallbackPage from "./pages/auth/AuthCallbackPage";
 import Dashboard from "./pages/Dashboard";
 import CreateCreativeHub from "./pages/CreateCreativeHub";
 import CreateSequencePage from "./pages/CreateSequencePage";
@@ -164,6 +165,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
