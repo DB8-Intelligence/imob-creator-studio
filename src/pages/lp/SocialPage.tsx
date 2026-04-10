@@ -20,7 +20,7 @@ export default function SocialPage() {
     <div className="min-h-screen bg-white text-[#374151]">
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-[#F0F0F0]">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="shrink-0"><img src="/images/logo-header.png" alt="ImobCreator AI" className="h-9 w-auto" /></Link>
+          <Link to="/" className="shrink-0"><span className="text-xl font-bold text-[#002B5B]" style={{ fontFamily: "Rubik, sans-serif" }}>NexoImob</span><span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FFD700] text-[#002B5B]">AI</span></Link>
           <Link to="/criativos" className="inline-flex items-center gap-2 bg-[#002B5B] text-white font-semibold text-sm px-5 py-2.5 rounded-[10px]">Ver produtos disponíveis</Link>
         </div>
       </header>
@@ -76,7 +76,7 @@ export default function SocialPage() {
 
       <footer className="py-8 border-t border-[#E5E7EB] bg-white">
         <div className="container mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#6B7280] text-xs">
-          <span>&copy; 2026 ImobCreator AI.</span>
+          <span>&copy; 2026 NexoImob AI.</span>
           <Link to="/termos" className="hover:text-[#002B5B]">Termos</Link>
         </div>
       </footer>

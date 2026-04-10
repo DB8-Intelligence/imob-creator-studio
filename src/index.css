@@ -79,6 +79,19 @@
   h1, h2, h3, h4, h5, h6 { font-family: 'Plus Jakarta Sans', sans-serif; }
 }
 
+/* ─── NexoImob design tokens ───────────────────────────────────────────── */
+:root {
+  --navy-deep:   #21346e;
+  --navy:        #002B5B;
+  --navy-light:  #1a4480;
+  --gold:        #FFD700;
+  --gold-dk:     #E6C200;
+  --off-white:   #F8FAFF;
+  --text-dark:   #0A1628;
+  --text-body:   #374151;
+  --text-muted:  #6B7280;
+}
+
 /* ─── Public marketing design system ────────────────────────────────────── */
 
 /* Design tokens as CSS custom properties */
