@@ -1,11 +1,6 @@
 /**
- * useLeads.ts — React Query hooks para o módulo de Leads
- *
- * Padrão: Supabase direct queries + React Query.
- * Tabela: "leads" (será criada via migration quando necessário).
- *
- * Enquanto a tabela não existe no Supabase, usa dados mockados
- * para permitir desenvolvimento do frontend.
+ * useLeads.ts — React Query hooks para o módulo de Leads (CRM)
+ * Conectado ao Supabase — tabela "leads".
  */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,118 +8,104 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 import type {
   Lead,
-  LeadStatus,
   CreateLeadInput,
   UpdateLeadInput,
 } from "@/types/lead";
 
-// ─── Mock data (usado enquanto tabela não existe) ──────────────────────────
+// ─── Supabase row → Lead type mapper ────────────────────────────────────────
 
-const MOCK_LEADS: Lead[] = [
-  {
-    id: "1", user_id: "u1", workspace_id: "w1", nome: "Carlos Mendes", telefone: "(11) 99999-1234", email: "carlos@email.com",
-    status: "novo", interesse_tipo: "compra", imovel_interesse_id: null, imovel_interesse_nome: "Apt Vila Mariana 3Q",
-    valor_estimado: 850000, fonte: "instagram", temperatura: "quente", notas: "Viu no reels, pediu mais info",
-    corretor_responsavel: null, ultimo_contato: "2026-04-04T14:30:00Z", created_at: "2026-04-01T10:00:00Z", updated_at: "2026-04-04T14:30:00Z",
-  },
-  {
-    id: "2", user_id: "u1", workspace_id: "w1", nome: "Ana Paula Silva", telefone: "(11) 98888-5678", email: "ana@email.com",
-    status: "contato_feito", interesse_tipo: "aluguel", imovel_interesse_id: null, imovel_interesse_nome: "Studio Moema",
-    valor_estimado: 3500, fonte: "whatsapp", temperatura: "morno", notas: "Quer visitar semana que vem",
-    corretor_responsavel: null, ultimo_contato: "2026-04-03T11:00:00Z", created_at: "2026-03-28T09:00:00Z", updated_at: "2026-04-03T11:00:00Z",
-  },
-  {
-    id: "3", user_id: "u1", workspace_id: "w1", nome: "Roberto Almeida", telefone: "(11) 97777-9012", email: null,
-    status: "visita_agendada", interesse_tipo: "compra", imovel_interesse_id: null, imovel_interesse_nome: "Casa Alphaville 420m²",
-    valor_estimado: 2200000, fonte: "indicacao", temperatura: "quente", notas: "Visita agendada para sábado 10h",
-    corretor_responsavel: null, ultimo_contato: "2026-04-05T08:00:00Z", created_at: "2026-03-25T14:00:00Z", updated_at: "2026-04-05T08:00:00Z",
-  },
-  {
-    id: "4", user_id: "u1", workspace_id: "w1", nome: "Mariana Costa", telefone: "(11) 96666-3456", email: "mari@email.com",
-    status: "proposta_enviada", interesse_tipo: "compra", imovel_interesse_id: null, imovel_interesse_nome: "Cobertura Itaim 200m²",
-    valor_estimado: 3500000, fonte: "site", temperatura: "quente", notas: "Proposta de R$ 3.2M enviada, aguardando retorno",
-    corretor_responsavel: null, ultimo_contato: "2026-04-04T16:00:00Z", created_at: "2026-03-20T11:00:00Z", updated_at: "2026-04-04T16:00:00Z",
-  },
-  {
-    id: "5", user_id: "u1", workspace_id: "w1", nome: "Fernando Souza", telefone: "(11) 95555-7890", email: "fernando@email.com",
-    status: "fechado", interesse_tipo: "compra", imovel_interesse_id: null, imovel_interesse_nome: "Apt Brooklin 2Q",
-    valor_estimado: 720000, fonte: "instagram", temperatura: "quente", notas: "Fechou! Escritura em andamento",
-    corretor_responsavel: null, ultimo_contato: "2026-04-02T10:00:00Z", created_at: "2026-03-10T09:00:00Z", updated_at: "2026-04-02T10:00:00Z",
-  },
-  {
-    id: "6", user_id: "u1", workspace_id: "w1", nome: "Juliana Prado", telefone: "(11) 94444-1234", email: null,
-    status: "perdido", interesse_tipo: "aluguel", imovel_interesse_id: null, imovel_interesse_nome: null,
-    valor_estimado: null, fonte: "whatsapp", temperatura: "frio", notas: "Não respondeu mais",
-    corretor_responsavel: null, ultimo_contato: "2026-03-15T09:00:00Z", created_at: "2026-03-12T08:00:00Z", updated_at: "2026-03-15T09:00:00Z",
-  },
-  {
-    id: "7", user_id: "u1", workspace_id: "w1", nome: "Ricardo Lima", telefone: "(11) 93333-5678", email: "ricardo@empresa.com",
-    status: "novo", interesse_tipo: "lancamento", imovel_interesse_id: null, imovel_interesse_nome: "Lançamento Pinheiros",
-    valor_estimado: 950000, fonte: "site", temperatura: "morno", notas: "Preencheu formulário do site",
-    corretor_responsavel: null, ultimo_contato: null, created_at: "2026-04-05T07:00:00Z", updated_at: "2026-04-05T07:00:00Z",
-  },
-  {
-    id: "8", user_id: "u1", workspace_id: "w1", nome: "Beatriz Nunes", telefone: "(11) 92222-9012", email: "bia@email.com",
-    status: "contato_feito", interesse_tipo: "compra", imovel_interesse_id: null, imovel_interesse_nome: "Casa Morumbi 350m²",
-    valor_estimado: 1800000, fonte: "indicacao", temperatura: "quente", notas: "Indicação do Fernando. Muito interessada.",
-    corretor_responsavel: null, ultimo_contato: "2026-04-04T09:00:00Z", created_at: "2026-04-02T15:00:00Z", updated_at: "2026-04-04T09:00:00Z",
-  },
-];
-
-// ─── Fetch (mock for now, Supabase-ready) ──────────────────────────────────
-
-async function fetchLeads(workspaceId: string): Promise<Lead[]> {
-  // TODO: Replace with real Supabase query when "leads" table is migrated
-  // const { data, error } = await supabase
-  //   .from("leads")
-  //   .select("*")
-  //   .eq("workspace_id", workspaceId)
-  //   .order("created_at", { ascending: false });
-  // if (error) throw error;
-  // return data ?? [];
-
-  // Mock: simulate async fetch
-  return new Promise((resolve) => setTimeout(() => resolve([...MOCK_LEADS]), 300));
+function rowToLead(row: Record<string, unknown>): Lead {
+  return {
+    id: String(row.id),
+    user_id: String(row.assigned_to ?? row.created_by ?? ""),
+    workspace_id: String(row.workspace_id),
+    nome: String(row.name ?? ""),
+    telefone: row.phone as string | null,
+    email: row.email as string | null,
+    status: (row.status as Lead["status"]) ?? "novo",
+    interesse_tipo: (row.interesse_tipo as Lead["interesse_tipo"]) ?? "compra",
+    imovel_interesse_id: row.imovel_interesse_id as string | null,
+    imovel_interesse_nome: row.imovel_interesse_nome as string | null,
+    valor_estimado: row.valor_estimado as number | null,
+    fonte: (row.source as Lead["fonte"]) ?? "outro",
+    temperatura: (row.temperatura as Lead["temperatura"]) ?? "morno",
+    notas: row.notas as string | null,
+    corretor_responsavel: row.corretor_responsavel as string | null,
+    ultimo_contato: row.ultimo_contato as string | null,
+    created_at: String(row.created_at),
+    updated_at: String(row.updated_at ?? row.created_at),
+  };
 }
 
-async function createLead(workspaceId: string, input: CreateLeadInput): Promise<Lead> {
-  const newLead: Lead = {
-    id: crypto.randomUUID(),
-    user_id: "current",
-    workspace_id: workspaceId,
-    nome: input.nome,
-    telefone: input.telefone ?? null,
-    email: input.email ?? null,
-    status: input.status ?? "novo",
-    interesse_tipo: input.interesse_tipo,
-    imovel_interesse_id: input.imovel_interesse_id ?? null,
-    imovel_interesse_nome: input.imovel_interesse_nome ?? null,
-    valor_estimado: input.valor_estimado ?? null,
-    fonte: input.fonte,
-    temperatura: input.temperatura ?? "morno",
-    notas: input.notas ?? null,
-    corretor_responsavel: input.corretor_responsavel ?? null,
-    ultimo_contato: null,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-  MOCK_LEADS.unshift(newLead);
-  return newLead;
+// ─── CRUD ─────────────────────────────────────────────────────────────────────
+
+async function fetchLeads(workspaceId: string): Promise<Lead[]> {
+  const { data, error } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("workspace_id", workspaceId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(rowToLead);
+}
+
+async function createLead(workspaceId: string, userId: string, input: CreateLeadInput): Promise<Lead> {
+  const { data, error } = await supabase
+    .from("leads")
+    .insert({
+      workspace_id: workspaceId,
+      name: input.nome,
+      phone: input.telefone ?? null,
+      email: input.email ?? null,
+      status: input.status ?? "novo",
+      source: input.fonte,
+      interesse_tipo: input.interesse_tipo,
+      imovel_interesse_id: input.imovel_interesse_id ?? null,
+      imovel_interesse_nome: input.imovel_interesse_nome ?? null,
+      valor_estimado: input.valor_estimado ?? null,
+      temperatura: input.temperatura ?? "morno",
+      notas: input.notas ?? null,
+      corretor_responsavel: input.corretor_responsavel ?? null,
+      assigned_to: userId,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToLead(data);
 }
 
 async function updateLead(leadId: string, input: UpdateLeadInput): Promise<Lead> {
-  const idx = MOCK_LEADS.findIndex((l) => l.id === leadId);
-  if (idx === -1) throw new Error("Lead não encontrado");
-  MOCK_LEADS[idx] = { ...MOCK_LEADS[idx], ...input, updated_at: new Date().toISOString() };
-  return MOCK_LEADS[idx];
+  const updates: Record<string, unknown> = {};
+  if (input.nome !== undefined) updates.name = input.nome;
+  if (input.telefone !== undefined) updates.phone = input.telefone;
+  if (input.email !== undefined) updates.email = input.email;
+  if (input.status !== undefined) updates.status = input.status;
+  if (input.interesse_tipo !== undefined) updates.interesse_tipo = input.interesse_tipo;
+  if (input.imovel_interesse_id !== undefined) updates.imovel_interesse_id = input.imovel_interesse_id;
+  if (input.imovel_interesse_nome !== undefined) updates.imovel_interesse_nome = input.imovel_interesse_nome;
+  if (input.valor_estimado !== undefined) updates.valor_estimado = input.valor_estimado;
+  if (input.fonte !== undefined) updates.source = input.fonte;
+  if (input.temperatura !== undefined) updates.temperatura = input.temperatura;
+  if (input.notas !== undefined) updates.notas = input.notas;
+  if (input.corretor_responsavel !== undefined) updates.corretor_responsavel = input.corretor_responsavel;
+  if (input.ultimo_contato !== undefined) updates.ultimo_contato = input.ultimo_contato;
+
+  const { data, error } = await supabase
+    .from("leads")
+    .update(updates)
+    .eq("id", leadId)
+    .select()
+    .single();
+  if (error) throw error;
+  return rowToLead(data);
 }
 
 async function deleteLead(leadId: string): Promise<void> {
-  const idx = MOCK_LEADS.findIndex((l) => l.id === leadId);
-  if (idx !== -1) MOCK_LEADS.splice(idx, 1);
+  const { error } = await supabase.from("leads").delete().eq("id", leadId);
+  if (error) throw error;
 }
 
-// ─── Hooks ─────────────────────────────────────────────────────────────────
+// ─── Hooks ───────────────────────────────────────────────────────────────────
 
 export function useLeads() {
   const { workspaceId } = useWorkspaceContext();
@@ -142,7 +123,10 @@ export function useCreateLead() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: (input: CreateLeadInput) => createLead(workspaceId as string, input),
+    mutationFn: async (input: CreateLeadInput) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return createLead(workspaceId as string, user?.id ?? "", input);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["leads", workspaceId] });
       toast({ title: "Lead criado com sucesso" });
@@ -156,6 +140,7 @@ export function useCreateLead() {
 export function useUpdateLead() {
   const { workspaceId } = useWorkspaceContext();
   const qc = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: ({ id, ...input }: UpdateLeadInput & { id: string }) => updateLead(id, input),
@@ -163,7 +148,6 @@ export function useUpdateLead() {
       qc.invalidateQueries({ queryKey: ["leads", workspaceId] });
     },
     onError: (err: Error) => {
-      const { toast } = useToast();
       toast({ title: "Erro ao atualizar lead", description: err.message, variant: "destructive" });
     },
   });
