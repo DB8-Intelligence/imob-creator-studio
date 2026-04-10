@@ -120,6 +120,25 @@ const ModulesPage = lazy(() => import("./pages/ModulesPage"));
 const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
 const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
 
+// ── Dashboard Module Pages (lazy-loaded) ──────────────────────────────────────
+const GaleriaCriativosPage = lazy(() => import("./pages/dashboard/criativos/GaleriaCriativosPage"));
+const CriativoDetailPage = lazy(() => import("./pages/dashboard/criativos/CriativoDetailPage"));
+const NovoCriativoPage = lazy(() => import("./pages/dashboard/criativos/NovoCriativoPage"));
+const DashboardVideosPage = lazy(() => import("./pages/dashboard/videos/DashboardVideosPage"));
+const NovoVideoPage = lazy(() => import("./pages/dashboard/videos/NovoVideoPage"));
+const VideoPlayerPage = lazy(() => import("./pages/dashboard/videos/VideoPlayerPage"));
+const DashboardCRMPage = lazy(() => import("./pages/dashboard/crm/DashboardCRMPage"));
+const LeadDetailPage = lazy(() => import("./pages/dashboard/crm/LeadDetailPage"));
+const ClientesCRMPage = lazy(() => import("./pages/dashboard/crm/ClientesPage"));
+const AgendaCRMPage = lazy(() => import("./pages/dashboard/crm/AgendaPage"));
+const ImportarLeadsCRMPage = lazy(() => import("./pages/dashboard/crm/ImportarLeadsPage"));
+const DashboardSitePage = lazy(() => import("./pages/dashboard/site/DashboardSitePage"));
+const WhatsAppSetupPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppSetupPage"));
+const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppInboxPage"));
+const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
+const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
+const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -246,6 +265,31 @@ const App = () => (
               <Route path="/crm/atendimentos"         element={<ProtectedRoute><AttendancesPage /></ProtectedRoute>} />
               <Route path="/crm/atendimentos/:id"     element={<ProtectedRoute><AttendanceDetailPage /></ProtectedRoute>} />
               <Route path="/crm/leads"                element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
+              {/* ── Dashboard Módulos ────────────────────────────────────── */}
+              {/* Criativos */}
+              <Route path="/dashboard/criativos"          element={<ProtectedRoute><GaleriaCriativosPage /></ProtectedRoute>} />
+              <Route path="/dashboard/criativos/novo"     element={<ProtectedRoute><NovoCriativoPage /></ProtectedRoute>} />
+              <Route path="/dashboard/criativos/:id"      element={<ProtectedRoute><CriativoDetailPage /></ProtectedRoute>} />
+              {/* Vídeos */}
+              <Route path="/dashboard/videos"             element={<ProtectedRoute><DashboardVideosPage /></ProtectedRoute>} />
+              <Route path="/dashboard/videos/novo"        element={<ProtectedRoute><NovoVideoPage /></ProtectedRoute>} />
+              <Route path="/dashboard/videos/:id"         element={<ProtectedRoute><VideoPlayerPage /></ProtectedRoute>} />
+              {/* CRM */}
+              <Route path="/dashboard/crm"                element={<ProtectedRoute><DashboardCRMPage /></ProtectedRoute>} />
+              <Route path="/dashboard/crm/lead/:id"       element={<ProtectedRoute><LeadDetailPage /></ProtectedRoute>} />
+              <Route path="/dashboard/crm/clientes"       element={<ProtectedRoute><ClientesCRMPage /></ProtectedRoute>} />
+              <Route path="/dashboard/crm/agenda"         element={<ProtectedRoute><AgendaCRMPage /></ProtectedRoute>} />
+              <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ImportarLeadsCRMPage /></ProtectedRoute>} />
+              {/* Site + Portais */}
+              <Route path="/dashboard/site"               element={<ProtectedRoute><DashboardSitePage /></ProtectedRoute>} />
+              {/* WhatsApp */}
+              <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><WhatsAppSetupPage /></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><WhatsAppInboxPage /></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><WhatsAppFluxosPage /></ProtectedRoute>} />
+              {/* Social */}
+              <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><SocialConnectPage /></ProtectedRoute>} />
+              <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><SocialCalendarioPage /></ProtectedRoute>} />
+
               {/* Integrações */}
               <Route path="/integracoes"              element={<ProtectedRoute><IntegracoesApisPage /></ProtectedRoute>} />
               <Route path="/integracoes/webhooks"     element={<ProtectedRoute><IntegracoesWebhooksPage /></ProtectedRoute>} />
