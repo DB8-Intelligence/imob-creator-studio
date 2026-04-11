@@ -216,6 +216,15 @@ async function processWebhook(
   const event = String(payload.type ?? payload.event ?? "");
   const order = payload;
 
+  // Proteger contas fundadoras — nunca alterar plano via webhook
+  const FOUNDER_USER_IDS = ["0a320fe4-ccd2-40f6-8484-c440be4e9668"];
+  const founderEmail = String(order.Customer?.email ?? order.customer?.email ?? "").toLowerCase();
+  const founderCheck = await supabase.from("profiles").select("id").eq("email", founderEmail).maybeSingle();
+  if (founderCheck.data && FOUNDER_USER_IDS.includes(founderCheck.data.id)) {
+    console.log("Conta fundador — ignorando webhook Kiwify");
+    return json({ ok: true, skipped: "founder" });
+  }
+
   async function findProduct(productId: string) {
     const { data } = await supabase
       .from("kiwify_products")
