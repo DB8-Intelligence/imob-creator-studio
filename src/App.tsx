@@ -121,6 +121,10 @@ const ModulesPage = lazy(() => import("./pages/ModulesPage"));
 const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
 const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
 
+// ── Gerador de Posts ──────────────────────────────────────────────────────────
+const GerarPostsPage = lazy(() => import("./pages/GerarPosts"));
+const GerarPostsImovelPage = lazy(() => import("./pages/GerarPostsImovel"));
+
 // ── Dashboard Module Pages (lazy-loaded) ──────────────────────────────────────
 const GaleriaCriativosPage = lazy(() => import("./pages/dashboard/criativos/GaleriaCriativosPage"));
 const CriativoDetailPage = lazy(() => import("./pages/dashboard/criativos/CriativoDetailPage"));
@@ -317,6 +321,9 @@ const App = () => (
               <Route path="/relatorios/analytics"     element={<ProtectedRoute><ContentAnalyticsPage /></ProtectedRoute>} />
               <Route path="/relatorios/conversao"    element={<ProtectedRoute><RelatoriosConversaoPage /></ProtectedRoute>} />
               <Route path="/relatorios/roi"          element={<ProtectedRoute><RelatoriosRoiPage /></ProtectedRoute>} />
+              {/* Gerador de Posts */}
+              <Route path="/gerar-posts"              element={<ProtectedRoute><GerarPostsPage /></ProtectedRoute>} />
+              <Route path="/gerar-posts/:imovelId"    element={<ProtectedRoute><GerarPostsImovelPage /></ProtectedRoute>} />
 
               {/* ── Landing Pages Produto (públicas) ────────────────────── */}
               <Route path="/criativos" element={<CriativosLpPage />} />
