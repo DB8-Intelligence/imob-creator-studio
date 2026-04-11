@@ -141,6 +141,12 @@ const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConn
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
 const SocialCallbackPage = lazy(() => import("./pages/dashboard/social/SocialCallbackPage"));
 
+// ── Site Imobiliário ──────────────────────────────────────────────────────────
+const SiteImobiliarioPage = lazy(() => import("./pages/SiteImobiliario"));
+const SiteLeadsPage = lazy(() => import("./pages/SiteLeads"));
+import SitePreview from "./pages/SitePreview";
+import SitePublico from "./pages/SitePublico";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -166,6 +172,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/site-preview" element={<SitePreview />} />
+              <Route path="/c/:slug" element={<SitePublico />} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
@@ -285,6 +293,9 @@ const App = () => (
               <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ImportarLeadsCRMPage /></ProtectedRoute>} />
               {/* Site + Portais */}
               <Route path="/dashboard/site"               element={<ProtectedRoute><DashboardSitePage /></ProtectedRoute>} />
+              {/* Site Imobiliário */}
+              <Route path="/site-imobiliario"             element={<ProtectedRoute><SiteImobiliarioPage /></ProtectedRoute>} />
+              <Route path="/site-leads"                   element={<ProtectedRoute><SiteLeadsPage /></ProtectedRoute>} />
               {/* WhatsApp */}
               <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><WhatsAppSetupPage /></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><WhatsAppInboxPage /></ProtectedRoute>} />
