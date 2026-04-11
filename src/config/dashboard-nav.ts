@@ -128,12 +128,13 @@ export const DASHBOARD_NAV: NavSection[] = [
     ],
   },
 
-  // ── Criativos ──
+  // ── Conteúdo ──
   {
-    id: "criativos",
-    label: "Criativos",
+    id: "conteudo",
+    label: "Conteúdo",
     emoji: "🎨",
     items: [
+      { icon: Zap, label: "Gerar Posts", path: "/gerar-posts", badge: "AI" },
       { icon: FileText, label: "Legendas & Posts", path: "/criativos" },
       { icon: FolderOpen, label: "Galeria", path: "/criativos/galeria" },
       { icon: Video, label: "Vídeos", path: "/criativos/videos", badge: "IA" },
@@ -279,6 +280,15 @@ export const DASHBOARD_NAV: NavSection[] = [
       { icon: BarChart3, label: "Analytics de Conteúdo", path: "/relatorios/analytics" },
       { icon: Target, label: "Conversão de Leads", path: "/relatorios/conversao" },
       { icon: PieChart, label: "ROI Geral", path: "/relatorios/roi" },
+    ],
+  },
+  // ── Admin (visível apenas para super_admin) ──
+  {
+    id: "admin",
+    label: "Admin",
+    emoji: "🛡️",
+    items: [
+      { icon: Shield, label: "Painel Admin", path: "/admin" },
     ],
   },
 ];
