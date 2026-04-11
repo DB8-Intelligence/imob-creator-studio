@@ -289,6 +289,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🛡️",
     items: [
       { icon: Shield, label: "Painel Admin", path: "/admin" },
+      { icon: BarChart3, label: "Diagnósticos", path: "/admin/diagnosticos" },
     ],
   },
 ];

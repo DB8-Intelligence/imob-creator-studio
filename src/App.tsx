@@ -68,6 +68,7 @@ import CrmLpPage from "./pages/lp/CrmPage";
 import WhatsappLpPage from "./pages/lp/WhatsappPage";
 import SocialLpPage from "./pages/lp/SocialPage";
 import PrecosPage from "./pages/public/Precos";
+import DiagnosticoPage from "./pages/public/Diagnostico";
 import SobrePage from "./pages/SobrePage";
 import ContatoPage from "./pages/ContatoPage";
 
@@ -121,6 +122,9 @@ const ModulesPage = lazy(() => import("./pages/ModulesPage"));
 const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
 const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
 const MeuPlanoPage = lazy(() => import("./pages/MeuPlano"));
+
+// ── Admin Pages ──────────────────────────────────────────────────────────────
+const AdminDiagnosticosPage = lazy(() => import("./pages/admin/AdminDiagnosticos"));
 
 // ── Gerador de Posts ──────────────────────────────────────────────────────────
 const GerarPostsPage = lazy(() => import("./pages/GerarPosts"));
@@ -334,6 +338,7 @@ const App = () => (
               <Route path="/whatsapp-imobiliario"   element={<WhatsappLpPage />} />
               <Route path="/publicacao-social"      element={<SocialLpPage />} />
               <Route path="/precos"                 element={<PrecosPage />} />
+              <Route path="/diagnostico"           element={<DiagnosticoPage />} />
               <Route path="/sobre"                  element={<SobrePage />} />
               <Route path="/contato"                element={<ContatoPage />} />
 
@@ -344,6 +349,9 @@ const App = () => (
               <Route path="/lp/criar-posts-imoveis"   element={<CriarPostsImoveisPage />} />
               <Route path="/lp/video-imobiliario"      element={<VideoImobiliarioPage />} />
               <Route path="/lp/automacao-imobiliaria"  element={<AutomacaoImobiliariaPage />} />
+              {/* ── Admin ────────────────────────────────────────────── */}
+              <Route path="/admin/diagnosticos" element={<ProtectedRoute><AdminDiagnosticosPage /></ProtectedRoute>} />
+
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
