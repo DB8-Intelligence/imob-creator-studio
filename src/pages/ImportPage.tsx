@@ -44,7 +44,7 @@ export default function ImportPage() {
         <div>
           <h1 className="text-2xl font-bold">Importar dados</h1>
           <p className="text-sm text-gray-500 mt-1">
-            Migre imóveis, clientes e leads de outra plataforma para o ImobCreator
+            Migre imóveis, clientes e leads de outra plataforma para o NexoImob
           </p>
         </div>
 

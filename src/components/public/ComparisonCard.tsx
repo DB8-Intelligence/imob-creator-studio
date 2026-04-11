@@ -26,7 +26,7 @@ function Cell({ value }: { value: boolean | string }) {
   return <span className="text-[var(--ds-fg)] text-sm">{value}</span>;
 }
 
-export function ComparisonCard({ ourLabel = "ImobCreator", theirLabel = "Concorrentes", rows, className = "" }: ComparisonCardProps) {
+export function ComparisonCard({ ourLabel = "NexoImob", theirLabel = "Concorrentes", rows, className = "" }: ComparisonCardProps) {
   return (
     <motion.div variants={fadeUpVariants} className={`glass rounded-2xl overflow-hidden ${className}`}>
       {/* header */}

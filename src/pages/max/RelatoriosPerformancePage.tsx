@@ -169,7 +169,7 @@ export default function RelatoriosPerformancePage() {
 
             <Card><CardContent className="p-6 text-center">
               <DollarSign className="w-10 h-10 text-accent mx-auto mb-3" />
-              <p className="text-lg font-semibold text-foreground">Cada R$ 1 investido no ImobCreator gerou R$ 133 em comissões</p>
+              <p className="text-lg font-semibold text-foreground">Cada R$ 1 investido no NexoImob gerou R$ 133 em comissões</p>
               <p className="text-sm text-muted-foreground mt-1">Baseado no faturamento e custo da plataforma neste período.</p>
             </CardContent></Card>
           </TabsContent>
