@@ -27,6 +27,7 @@ import { Coins } from "lucide-react";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 import { DASHBOARD_NAV, type NavSection } from "@/config/dashboard-nav";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -67,6 +68,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Admin check
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("admin_roles").select("role").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (data) setIsAdmin(true); });
+  }, [user]);
 
   const creditsRemaining = plan?.credits_remaining ?? 0;
   const creditsTotal = plan?.credits_total ?? 0;
@@ -187,7 +196,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
           </div>
 
           <nav className="flex-1 overflow-y-auto py-2 px-3 space-y-0.5">
-            {DASHBOARD_NAV.map((section) => {
+            {DASHBOARD_NAV.filter((section) => {
+              // Hide admin section for non-admins
+              if (section.id === "admin" && !isAdmin) return false;
+              return true;
+            }).map((section) => {
               const isExpanded = expandedSections[section.id] ?? false;
               const sectionHasActive = section.items.some(
                 (item) => location.pathname === item.path || location.pathname.startsWith(item.path + "/")
