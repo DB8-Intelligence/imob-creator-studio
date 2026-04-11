@@ -135,10 +135,9 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🎨",
     items: [
       { icon: Zap, label: "Gerar Posts", path: "/gerar-posts", badge: "AI" },
-      { icon: FileText, label: "Legendas & Posts", path: "/criativos" },
-      { icon: FolderOpen, label: "Galeria", path: "/criativos/galeria" },
-      { icon: Video, label: "Vídeos", path: "/criativos/videos", badge: "IA" },
-      { icon: LayoutGrid, label: "Templates", path: "/criativos/templates" },
+      { icon: FolderOpen, label: "Galeria", path: "/dashboard/criativos" },
+      { icon: PlusCircle, label: "Novo Criativo", path: "/dashboard/criativos/novo" },
+      { icon: Video, label: "Vídeos", path: "/dashboard/videos", badge: "IA" },
     ],
   },
 
@@ -148,7 +147,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Site & Portais",
     emoji: "🌐",
     items: [
-      { icon: Globe, label: "Meu Site", path: "/site" },
+      { icon: Globe, label: "Meu Site", path: "/site-imobiliario" },
     ],
   },
 
@@ -158,8 +157,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "CRM",
     emoji: "🤝",
     items: [
-      { icon: Users, label: "Leads", path: "/crm/leads" },
-      { icon: CalendarDays, label: "Atendimentos", path: "/crm/atendimentos" },
+      { icon: Users, label: "CRM Kanban", path: "/dashboard/crm" },
     ],
   },
 
@@ -288,7 +286,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Admin",
     emoji: "🛡️",
     items: [
-      { icon: Shield, label: "Painel Admin", path: "/admin" },
+      { icon: Shield, label: "Painel Admin", path: "/admin/diagnosticos" },
       { icon: BarChart3, label: "Diagnósticos", path: "/admin/diagnosticos" },
     ],
   },

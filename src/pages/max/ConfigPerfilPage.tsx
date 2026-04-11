@@ -37,7 +37,7 @@ export default function ConfigPerfilPage() {
   const [creci, setCreci] = useState("123456-F");
   const [bio, setBio] = useState("Corretor especializado em imóveis de alto padrão na zona sul de São Paulo.");
   const [temaCor, setTemaCor] = useState("#7c3aed");
-  const [nomeCustom, setNomeCustom] = useState("ImobCreator AI");
+  const [nomeCustom, setNomeCustom] = useState("NexoImob AI");
 
   const handleSave = () => toast({ title: "Configurações salvas" });
 
