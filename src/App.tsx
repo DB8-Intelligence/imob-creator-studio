@@ -67,7 +67,7 @@ import SiteLpPage from "./pages/lp/SitePage";
 import CrmLpPage from "./pages/lp/CrmPage";
 import WhatsappLpPage from "./pages/lp/WhatsappPage";
 import SocialLpPage from "./pages/lp/SocialPage";
-import PrecosPage from "./pages/PrecosPage";
+import PrecosPage from "./pages/public/Precos";
 import SobrePage from "./pages/SobrePage";
 import ContatoPage from "./pages/ContatoPage";
 
@@ -120,6 +120,7 @@ const ImportPage = lazy(() => import("./pages/ImportPage"));
 const ModulesPage = lazy(() => import("./pages/ModulesPage"));
 const RelatoriosConversaoPage = lazy(() => import("./pages/max/RelatoriosConversaoPage"));
 const RelatoriosRoiPage = lazy(() => import("./pages/max/RelatoriosRoiPage"));
+const MeuPlanoPage = lazy(() => import("./pages/MeuPlano"));
 
 // ── Gerador de Posts ──────────────────────────────────────────────────────────
 const GerarPostsPage = lazy(() => import("./pages/GerarPosts"));
@@ -200,7 +201,7 @@ const App = () => (
               <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
               <Route path="/posts" element={<ProtectedRoute><Posts /></ProtectedRoute>} />
               <Route path="/brand-templates" element={<ProtectedRoute><BrandTemplates /></ProtectedRoute>} />
-              <Route path="/plano" element={<ProtectedRoute><PlanPage /></ProtectedRoute>} />
+              <Route path="/plano" element={<ProtectedRoute><MeuPlanoPage /></ProtectedRoute>} />
               <Route path="/planos" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
