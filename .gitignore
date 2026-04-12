@@ -20,6 +20,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+.claude/settings.local.json
 .idea
 .DS_Store
 *.suo
@@ -27,6 +28,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Raw HTML templates — not part of the build
+sites_temas_para_implementar/
 
 # Build outputs — never commit
 .next/

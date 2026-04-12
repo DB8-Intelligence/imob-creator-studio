@@ -1,6 +1,6 @@
 # 📋 Documento de Especificação do Produto (PRD)
 
-## ImobCreator AI — Criativos Imobiliários Inteligentes
+## ImobCreator AI Studio — Criativos Imobiliários Inteligentes
 
 **Versão:** 1.0  
 **Data:** Fevereiro 2026  
@@ -11,12 +11,15 @@
 ## 1. Nome do Produto e Slogan
 
 ### Nome Principal
-**ImobCreator AI**
+
+ImobCreator AI Studio
 
 ### Slogan
+
 > *"Criativos profissionais em segundos. Sua marca, seu imóvel, sua venda."*
 
 ### Taglines Alternativas
+
 - "Do upload à publicação em 3 cliques"
 - "IA que entende o mercado imobiliário"
 - "Menos Canva, mais vendas"
@@ -26,6 +29,7 @@
 ## 2. Principais Funcionalidades
 
 ### 2.1 Upload de Mídia
+
 | Funcionalidade | Descrição |
 |----------------|-----------|
 | **Upload de Fotos** | Suporte a JPG, PNG, WebP (até 20MB por imagem) |
@@ -190,7 +194,7 @@ DE R$ 3.500.000 POR R$ 3.200.000
 #### Tela 1: Cadastro e Login
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     ImobCreator AI                          │
+│                  ImobCreator AI Studio                      │
 │                                                             │
 │   ┌─────────────────────────────────────────────────────┐   │
 │   │              🏠 Bem-vindo!                          │   │
@@ -212,7 +216,7 @@ DE R$ 3.500.000 POR R$ 3.200.000
 #### Tela 2: Seleção de Marca
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│   ← Voltar                          ImobCreator AI          │
+│   ← Voltar                   ImobCreator AI Studio         │
 │                                                             │
 │         Qual marca você representa?                         │
 │                                                             │
@@ -893,5 +897,5 @@ CREATE TABLE audit_logs (
 
 ---
 
-*Documento criado com ❤️ para ImobCreator AI*  
+*Documento criado com ❤️ para ImobCreator AI Studio*  
 *Última atualização: Fevereiro 2026*

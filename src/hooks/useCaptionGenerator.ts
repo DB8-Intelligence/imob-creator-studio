@@ -6,6 +6,7 @@
  */
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface CaptionRequest {
   propertyName: string;
@@ -87,9 +88,50 @@ export function useCaptionGenerator() {
     setIsGenerating(true);
     setResult(null);
     try {
-      // TODO: POST to Railway /generate-caption
-      await new Promise((r) => setTimeout(r, 1500));
-      const res = generateMock(request);
+      const fallback = generateMock(request);
+
+      const { data, error } = await supabase.functions.invoke("generate-caption", {
+        body: {
+          type: request.postType,
+          propertyData: {
+            title: request.propertyName,
+            cta: request.incluirCta ? request.objetivo : null,
+          },
+          aiPrompt: request.promptExtra ?? null,
+        },
+      });
+
+      let res: CaptionResult;
+
+      if (error || !data) {
+        res = fallback;
+      } else {
+        const payload = data as Record<string, unknown>;
+        const legendaRaw = payload.legenda ?? payload.caption ?? payload.copy_instagram;
+        const hashtagsRaw = payload.hashtags;
+        const ctaRaw = payload.cta;
+        const storiesRaw = payload.storiesVersion ?? payload.stories_version;
+
+        const parsedHashtags = Array.isArray(hashtagsRaw)
+          ? hashtagsRaw.map((h) => String(h))
+          : typeof hashtagsRaw === "string"
+            ? hashtagsRaw.split(/\s+/).filter((h) => h.startsWith("#"))
+            : [];
+
+        res = {
+          legenda: typeof legendaRaw === "string" && legendaRaw.trim().length > 0 ? legendaRaw : fallback.legenda,
+          hashtags: request.incluirHashtags ? parsedHashtags : [],
+          cta: request.incluirCta
+            ? (typeof ctaRaw === "string" && ctaRaw.trim().length > 0 ? ctaRaw : fallback.cta)
+            : "",
+          storiesVersion:
+            typeof storiesRaw === "string" && storiesRaw.trim().length > 0
+              ? storiesRaw
+              : fallback.storiesVersion,
+          generatedAt: new Date().toISOString(),
+        };
+      }
+
       setResult(res);
       toast({ title: "Pacote gerado!" });
     } catch {

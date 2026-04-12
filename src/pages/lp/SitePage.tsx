@@ -2,6 +2,7 @@ import { useState, useRef, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import ThemeGallerySection from "@/components/site/ThemeGallerySection";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -63,6 +64,9 @@ export default function SitePage() {
           </Reveal>
         </div>
       </section>
+
+      {/* ── Galeria de Temas ──────────────────────────────────────── */}
+      <ThemeGallerySection />
 
       <section className="py-20 px-6 bg-[#002B5B]">
         <div className="container mx-auto max-w-3xl text-center">

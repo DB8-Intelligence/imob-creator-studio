@@ -73,7 +73,7 @@ export function IcpHero({
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <a
-                href="https://wa.me/5571999733883?text=Olá!+Tenho+interesse+no+DB8+Intelligence"
+                href="https://wa.me/5571999733883?text=Olá!+Tenho+interesse+no+NexoImob+AI"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary"

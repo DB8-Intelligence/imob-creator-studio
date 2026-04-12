@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Heart,
   MessageCircle,
@@ -117,12 +118,24 @@ export default function PostPreviewModal({
     [posts]
   );
 
-  /* ── Debounced save (placeholder — wire to supabase) ──────────── */
+  /* ── Debounced save ───────────────────────────────────────────── */
   useEffect(() => {
+    const sameLegenda = legenda === activePost.legenda_gerada;
+    const sameHashtags = hashtags.join("|") === activePost.hashtags.join("|");
+    if (sameLegenda && sameHashtags) return;
+
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      // TODO: supabase update legenda + hashtags for activePost.id
-      // e.g. supabase.from('gerador_posts').update({legenda_gerada: legenda, hashtags}).eq('id', activePost.id)
+      void (async () => {
+        const { error } = await supabase
+          .from("gerador_posts")
+          .update({ legenda_gerada: legenda, hashtags })
+          .eq("id", activePost.id);
+
+        if (error) {
+          console.warn("Falha ao salvar legenda/hashtags", error);
+        }
+      })();
     }, 1000);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);

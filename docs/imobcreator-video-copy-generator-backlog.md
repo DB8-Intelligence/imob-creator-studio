@@ -2,7 +2,7 @@
 
 ## Contexto
 Este backlog consolida:
-- melhorias do gerador visual e de copy do ImobCreator AI
+- melhorias do gerador visual e de copy do ImobCreator AI Studio
 - evolução do módulo de vídeo como complemento vendável
 - aprendizados da análise competitiva contra iMOVIE
 
@@ -44,7 +44,7 @@ Este backlog consolida:
 **Aceite:** brand kit salvo e aplicável no gerador.
 
 ### FE-007 — Módulo comercial de vídeos na landing page
-**Objetivo:** vender vídeos IA como add-on dentro do ImobCreator AI.
+**Objetivo:** vender vídeos IA como add-on dentro do ImobCreator AI Studio.
 **Escopo:**
 - seção comparativa vs iMOVIE
 - seção de upsell do módulo
@@ -305,7 +305,7 @@ Campos principais:
 ---
 
 ## Resultado esperado
-Ao final, o ImobCreator AI deixa de ser apenas um gerador de posts e passa a operar como:
+Ao final, o ImobCreator AI Studio deixa de ser apenas um gerador de posts e passa a operar como:
 
 **plataforma de produção imobiliária com IA**
 - criativo

@@ -1,7 +1,7 @@
 # Deploy operacional — Módulo de Vídeo no Supabase
 
 ## Objetivo
-Publicar o módulo de vídeo do ImobCreator AI com:
+Publicar o módulo de vídeo do ImobCreator AI Studio com:
 - banco atualizado
 - storage preparado
 - edge function publicada

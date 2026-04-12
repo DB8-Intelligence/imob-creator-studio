@@ -124,7 +124,7 @@ const useCases = [
 
 const testimonials = [
   {
-    quote: "Implementamos o DB8 em 5 corretores e em 2 semanas triplicamos o volume de conteúdo. O inbox de aprovação mudou nossa operação — zero retrabalho.",
+    quote: "Implementamos o NexoImob AI em 5 corretores e em 2 semanas triplicamos o volume de conteúdo. O inbox de aprovação mudou nossa operação — zero retrabalho.",
     author: "Thiago Rodrigues",
     role: "Coordenador de Marketing · Grupo Imóveis SP",
     rating: 5,
@@ -177,7 +177,7 @@ const ParaEquipesPage = () => {
           <span className="text-gold">máquina de produção de conteúdo.</span>
         </>
       }
-      description="Chega de retrabalho, desalinhamento e conteúdo inconsistente. Com o DB8 Intelligence, seu time inteiro produz no mesmo padrão — com brand kit centralizado, fluxo de aprovação integrado e rastreabilidade completa."
+      description="Chega de retrabalho, desalinhamento e conteúdo inconsistente. Com o NexoImob AI, seu time inteiro produz no mesmo padrão — com brand kit centralizado, fluxo de aprovação integrado e rastreabilidade completa."
       ctaLabel="Começar com minha equipe"
       stats={[
         { value: "5 min", label: "para onboarding" },
@@ -237,7 +237,7 @@ const ParaEquipesPage = () => {
       <div className="section-container">
         <SectionHeader
           badge={<ProofBadge variant="cyan">Impacto mensurável</ProofBadge>}
-          title={<>O que times ganham <span className="text-gold">com o DB8 Intelligence</span></>}
+          title={<>O que times ganham <span className="text-gold">com o NexoImob AI</span></>}
           className="mb-12"
         />
         <StaggerChildren className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-5xl mx-auto">
@@ -286,7 +286,7 @@ const ParaEquipesPage = () => {
       <div className="section-container">
         <SectionHeader
           badge={<ProofBadge variant="gold">Casos de uso</ProofBadge>}
-          title={<>Como diferentes times <span className="text-gold">usam o DB8</span></>}
+          title={<>Como diferentes times <span className="text-gold">usam o NexoImob AI</span></>}
           className="mb-12"
         />
         <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">

@@ -36,7 +36,7 @@ const OnboardingChecklist = () => {
             </h2>
             {!isActivated && (
               <p className="text-sm text-muted-foreground mt-1">
-                Complete os passos abaixo para desbloquear o fluxo completo de produção.
+                Foque no primeiro resultado e complete o restante da operacao em seguida.
               </p>
             )}
           </div>

@@ -9,8 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 
 const QUICK_ACTIONS = [
-  { label: "Enviar imóvel",       path: "/upload",          accent: "cyan"   },
   { label: "Criar criativo",      path: "/create",          accent: "gold"   },
+  { label: "Enviar imóvel",       path: "/upload",          accent: "cyan"   },
   { label: "Ver templates",       path: "/templates",       accent: "purple" },
 ] as const;
 
@@ -53,7 +53,7 @@ export function WelcomeBanner() {
                   Bem-vindo, {firstName}!
                 </p>
                 <p className="text-xs text-[var(--ds-fg-muted)]">
-                  Vamos criar seu primeiro conteúdo imobiliário com IA.
+                  Vamos entregar seu primeiro resultado com IA e completar o resto depois.
                 </p>
               </div>
             </div>

@@ -100,7 +100,7 @@ const steps = [
 
 const testimonials = [
   {
-    quote: "Implementamos o DB8 Intelligence na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. Os vídeos cinematográficos impressionam os clientes.",
+    quote: "Implementamos o NexoImob AI na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. Os vídeos cinematográficos impressionam os clientes.",
     author: "Carlos Mendonça",
     role: "Diretor Comercial · Imobiliária Prime",
     rating: 5,
@@ -153,7 +153,7 @@ const ParaImobiliariasPage = () => {
           <span className="text-gold">com IA.</span>
         </>
       }
-      description="Enquanto sua equipe gasta horas em ferramentas desconectadas, a concorrência já produz 3x mais conteúdo com mais consistência. O DB8 Intelligence centraliza tudo: brand kits, aprovação, volume e rastreabilidade — em um único painel."
+      description="Enquanto sua equipe gasta horas em ferramentas desconectadas, a concorrência já produz 3x mais conteúdo com mais consistência. O NexoImob AI centraliza tudo: brand kits, aprovação, volume e rastreabilidade — em um único painel."
       ctaLabel="Solicitar demonstração"
       stats={[
         { value: "3x", label: "mais volume de conteúdo" },
@@ -262,7 +262,7 @@ const ParaImobiliariasPage = () => {
       <div className="section-container">
         <SectionHeader
           badge={<ProofBadge variant="gold">Cases</ProofBadge>}
-          title={<>Imobiliárias que <span className="text-gold">escalaram com o DB8</span></>}
+          title={<>Imobiliárias que <span className="text-gold">escalaram com o NexoImob AI</span></>}
           className="mb-12"
         />
         <StaggerChildren className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">

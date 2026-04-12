@@ -39,7 +39,7 @@ import type { OnboardingStepKey } from "@/hooks/useOnboardingProgress";
 
 const WIZARD_STEPS = [
   { id: 0, title: "Bem-vindo", icon: Rocket },
-  { id: 1, title: "Seu imóvel", icon: Building2 },
+  { id: 1, title: "Contexto opcional", icon: Building2 },
   { id: 2, title: "Primeiro criativo", icon: Sparkles },
   { id: 3, title: "Pronto!", icon: CheckCircle2 },
 ];
@@ -139,6 +139,11 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
     if (!user || !workspaceId) return;
     setGenerationStatus("generating");
 
+    trackEvent(user.id, "first_generation_started", {
+      workspaceId,
+      metadata: { onboarding: true, generation_type: generationType },
+    });
+
     try {
       const response = await dispatchGeneration({
         workspace_id: workspaceId,
@@ -166,6 +171,11 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
             }, { onConflict: "user_id" });
 
             trackEvent(user.id, "creative_generated", {
+              metadata: { onboarding: true, generation_type: generationType },
+            });
+
+            trackEvent(user.id, "first_generation_completed", {
+              workspaceId,
               metadata: { onboarding: true, generation_type: generationType },
             });
           }
@@ -265,11 +275,11 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               <div className="bg-card rounded-xl border p-4 text-left space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">1</div>
-                  <span className="text-sm">Cadastrar um imóvel</span>
+                  <span className="text-sm">Gerar seu primeiro criativo com IA</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">2</div>
-                  <span className="text-sm">Gerar seu primeiro criativo com IA</span>
+                  <span className="text-sm">Adicionar contexto do imóvel se quiser refinar o resultado</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent">3</div>
@@ -307,7 +317,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 </div>
                 <h2 className="text-xl font-display font-bold">Cadastre seu primeiro imóvel</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Preencha o básico — você pode completar depois.
+                  Esse passo e opcional. Se preferir, siga direto para o primeiro criativo.
                 </p>
               </div>
 
@@ -384,7 +394,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                   {isLoading ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Salvando...</>
                   ) : (
-                    <>Salvar e continuar <ArrowRight className="w-4 h-4 ml-2" /></>
+                    <>Salvar contexto <ArrowRight className="w-4 h-4 ml-2" /></>
                   )}
                 </Button>
               </div>
@@ -393,7 +403,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 onClick={() => { setStep(2); persistStep(2); }}
                 className="text-xs text-muted-foreground hover:text-foreground mx-auto block"
               >
-                Pular este passo
+                Continuar sem imovel agora
               </button>
             </motion.div>
           )}
@@ -413,7 +423,7 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
                 </div>
                 <h2 className="text-xl font-display font-bold">Gere seu primeiro criativo</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Escolha o tipo e a IA cria para você em segundos.
+                  Escolha o tipo e a IA cria para voce em segundos, com ou sem imovel cadastrado.
                 </p>
               </div>
 
@@ -527,20 +537,20 @@ export function OnboardingWizard({ onComplete, onSkip }: OnboardingWizardProps) 
               <div>
                 <h2 className="text-2xl font-display font-bold">Tudo pronto, {firstName}!</h2>
                 <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
-                  Seu workspace está configurado e seu primeiro criativo foi gerado. Explore o dashboard para descobrir tudo que você pode fazer.
+                  Seu primeiro resultado ja saiu. Agora voce pode completar o contexto do workspace no seu ritmo.
                 </p>
               </div>
 
               <div className="bg-card rounded-xl border p-4 text-left space-y-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Próximos passos</p>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-accent">1.</span> Configure seu Brand Kit em Configurações
+                  <span className="text-accent">1.</span> Adicione um imovel para refinar os proximos criativos
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-accent">2.</span> Agende publicações no Calendário
+                  <span className="text-accent">2.</span> Configure seu Brand Kit em Configuracoes
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-accent">3.</span> Conecte Instagram em Integrações
+                  <span className="text-accent">3.</span> Conecte Instagram em Integracoes
                 </div>
               </div>
 

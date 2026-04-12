@@ -1,5 +1,5 @@
 /**
- * adCampaigns.ts — Full paid-traffic structure for DB8 Intelligence.
+ * adCampaigns.ts — Full paid-traffic structure for NexoImob AI.
  * Used by CampaignBuilderPage to generate UTM links and export briefs.
  *
  * Covers:
@@ -63,18 +63,18 @@ const metaCampanha1: AdCampaign = {
       concept: "Antes/Depois — post amador vs profissional",
       hook: "Esse post fez o imóvel ser vendido em 2 dias.",
       format: ["feed", "reels"],
-      visualNote: "Split-screen: foto tirada com celular sem edição × post gerado pelo DB8 com copy e branding. Resultado: 'Vendido em 2 dias'.",
+      visualNote: "Split-screen: foto tirada com celular sem edição × post gerado pelo NexoImob AI com copy e branding. Resultado: 'Vendido em 2 dias'.",
       copy: [
         {
           id: "A",
           headline: "Post profissional em 3 minutos",
-          body: "Você passa horas editando posts de imóveis enquanto poderia estar fazendo visitas. DB8 Intelligence transforma 3 fotos em post profissional com copy pronta. Grátis para testar.",
+          body: "Você passa horas editando posts de imóveis enquanto poderia estar fazendo visitas. NexoImob AI transforma 3 fotos em post profissional com copy pronta. Grátis para testar.",
           cta: "Criar meu primeiro post",
         },
         {
           id: "B",
           headline: "3 fotos → post que vende",
-          body: "Corretores que postam mais, vendem mais. Mas criar post bom leva tempo — ou tirava. Agora leva 3 minutos. DB8 Intelligence faz tudo: layout, copy, legenda, branding.",
+          body: "Corretores que postam mais, vendem mais. Mas criar post bom leva tempo — ou tirava. Agora leva 3 minutos. NexoImob AI faz tudo: layout, copy, legenda, branding.",
           cta: "Testar grátis agora",
         },
       ],
@@ -89,13 +89,13 @@ const metaCampanha1: AdCampaign = {
         {
           id: "A",
           headline: "3 minutos. Post profissional.",
-          body: "Você filma. DB8 Intelligence transforma em post, legenda e story em menos de 3 minutos. Sem Canva, sem designer, sem espera.",
+          body: "Você filma. NexoImob AI transforma em post, legenda e story em menos de 3 minutos. Sem Canva, sem designer, sem espera.",
           cta: "Ver como funciona",
         },
         {
           id: "B",
           headline: "Menos edição, mais visitas",
-          body: "Cada hora editando posts é uma hora que você não passa com cliente. DB8 Intelligence elimina esse tempo — post profissional gerado automaticamente.",
+          body: "Cada hora editando posts é uma hora que você não passa com cliente. NexoImob AI elimina esse tempo — post profissional gerado automaticamente.",
           cta: "Testar grátis",
         },
       ],
@@ -116,7 +116,7 @@ const metaCampanha1: AdCampaign = {
         {
           id: "B",
           headline: "O corretor do lado já usa.",
-          body: "DB8 Intelligence já gerou mais de 18.000 posts profissionais para corretores em todo o Brasil. Seus concorrentes aparecem mais. Seus imóveis chegam primeiro.",
+          body: "NexoImob AI já gerou mais de 18.000 posts profissionais para corretores em todo o Brasil. Seus concorrentes aparecem mais. Seus imóveis chegam primeiro.",
           cta: "Criar minha conta grátis",
         },
       ],
@@ -131,13 +131,13 @@ const metaCampanha1: AdCampaign = {
         {
           id: "A",
           headline: "Poste todo dia sem esforço",
-          body: "Corretor que some do feed perde relevância. Com DB8 Intelligence você consegue criar post para cada imóvel do portfólio em minutos — e manter o Instagram ativo sem virar editor.",
+          body: "Corretor que some do feed perde relevância. Com NexoImob AI você consegue criar post para cada imóvel do portfólio em minutos — e manter o Instagram ativo sem virar editor.",
           cta: "Montar meu portfólio visual",
         },
         {
           id: "B",
           headline: "Consistência que vende",
-          body: "Os melhores corretores do Brasil postam todo dia. O segredo não é ter mais tempo — é ter IA trabalhando por você. DB8 Intelligence cria posts, legendas e stories no piloto automático.",
+          body: "Os melhores corretores do Brasil postam todo dia. O segredo não é ter mais tempo — é ter IA trabalhando por você. NexoImob AI cria posts, legendas e stories no piloto automático.",
           cta: "Começar gratuitamente",
         },
       ],
@@ -152,13 +152,13 @@ const metaCampanha1: AdCampaign = {
         {
           id: "A",
           headline: "\"Vendi em 5 dias com esse post\"",
-          body: "Rafael C., corretor em São Paulo, gerou um post com DB8 Intelligence e fechou a venda em 5 dias. 'O cliente disse que comprou pelo post antes de ver o imóvel pessoalmente.'",
+          body: "Rafael C., corretor em São Paulo, gerou um post com NexoImob AI e fechou a venda em 5 dias. 'O cliente disse que comprou pelo post antes de ver o imóvel pessoalmente.'",
           cta: "Quero resultados assim",
         },
         {
           id: "B",
           headline: "Avaliação 5 estrelas de corretores",
-          body: "Centenas de corretores no Brasil já usam DB8 Intelligence para criar posts profissionais. O retorno médio? Mais visitas, mais leads, menos tempo editando.",
+          body: "Centenas de corretores no Brasil já usam NexoImob AI para criar posts profissionais. O retorno médio? Mais visitas, mais leads, menos tempo editando.",
           cta: "Testar grátis — sem cartão",
         },
       ],
@@ -184,18 +184,18 @@ const metaCampanha2: AdCampaign = {
       concept: "Custo — economia vs designer freelancer",
       hook: "R$ 3.000/mês em designer freelancer para criar posts de imóveis.",
       format: ["feed"],
-      visualNote: "Comparativo visual: lista de custos (designer R$3k, agência R$5k, in-house R$6k) vs DB8 (plano da imobiliária). ROI claro.",
+      visualNote: "Comparativo visual: lista de custos (designer R$3k, agência R$5k, in-house R$6k) vs NexoImob AI (plano da imobiliária). ROI claro.",
       copy: [
         {
           id: "A",
           headline: "Corte R$3k/mês em design",
-          body: "Uma imobiliária com 10 corretores gasta em média R$3.000/mês para criar posts manualmente — entre freelancer, tempo interno e retrabalho. DB8 Intelligence elimina esse custo e mantém identidade visual profissional em todos os anúncios.",
+          body: "Uma imobiliária com 10 corretores gasta em média R$3.000/mês para criar posts manualmente — entre freelancer, tempo interno e retrabalho. NexoImob AI elimina esse custo e mantém identidade visual profissional em todos os anúncios.",
           cta: "Ver planos para imobiliárias",
         },
         {
           id: "B",
           headline: "Sua imobiliária gasta quanto em design?",
-          body: "Freelancer de design, Canva Pro, horas do gerente revisando posts... O custo real de criar conteúdo para 10+ corretores é alto. DB8 Intelligence centraliza tudo com IA e brand kit automático.",
+          body: "Freelancer de design, Canva Pro, horas do gerente revisando posts... O custo real de criar conteúdo para 10+ corretores é alto. NexoImob AI centraliza tudo com IA e brand kit automático.",
           cta: "Solicitar demo",
         },
       ],
@@ -210,13 +210,13 @@ const metaCampanha2: AdCampaign = {
         {
           id: "A",
           headline: "Brand kit para toda a equipe",
-          body: "Com DB8 Intelligence, todos os posts da sua imobiliária seguem a mesma identidade visual automaticamente. Cada corretor gera posts com sua logo, cores e fontes — sem precisar treinamento.",
+          body: "Com NexoImob AI, todos os posts da sua imobiliária seguem a mesma identidade visual automaticamente. Cada corretor gera posts com sua logo, cores e fontes — sem precisar treinamento.",
           cta: "Ver como funciona",
         },
         {
           id: "B",
           headline: "Identidade visual em escala",
-          body: "Imobiliárias que mantêm identidade visual consistente são percebidas como mais profissionais e confiáveis. DB8 Intelligence garante isso para todos os corretores da sua equipe ao mesmo tempo.",
+          body: "Imobiliárias que mantêm identidade visual consistente são percebidas como mais profissionais e confiáveis. NexoImob AI garante isso para todos os corretores da sua equipe ao mesmo tempo.",
           cta: "Quero ver uma demo",
         },
       ],
@@ -231,13 +231,13 @@ const metaCampanha2: AdCampaign = {
         {
           id: "A",
           headline: "Aprovação de posts em 1 clique",
-          body: "Com DB8 Intelligence, você revisa e aprova cada post antes de publicar. Sem posts com erro, sem identidade visual fora do padrão, sem surpresas no feed da imobiliária.",
+          body: "Com NexoImob AI, você revisa e aprova cada post antes de publicar. Sem posts com erro, sem identidade visual fora do padrão, sem surpresas no feed da imobiliária.",
           cta: "Controlar minha equipe",
         },
         {
           id: "B",
           headline: "Gestão de conteúdo para imobiliárias",
-          body: "Cada corretor cria. Você aprova. DB8 Intelligence conecta a criação de posts ao fluxo de aprovação da sua imobiliária — tudo centralizado em um painel.",
+          body: "Cada corretor cria. Você aprova. NexoImob AI conecta a criação de posts ao fluxo de aprovação da sua imobiliária — tudo centralizado em um painel.",
           cta: "Ver o painel de gestão",
         },
       ],
@@ -252,13 +252,13 @@ const metaCampanha2: AdCampaign = {
         {
           id: "A",
           headline: "Onboard em 5 minutos",
-          body: "Com DB8 Intelligence, qualquer novo corretor consegue criar posts profissionais no primeiro dia. Brand kit já configurado, IA já treinada com seu portfólio. Zero curva de aprendizado.",
+          body: "Com NexoImob AI, qualquer novo corretor consegue criar posts profissionais no primeiro dia. Brand kit já configurado, IA já treinada com seu portfólio. Zero curva de aprendizado.",
           cta: "Montar meu brand kit",
         },
         {
           id: "B",
           headline: "Sua equipe cria. A IA padroniza.",
-          body: "Não dependa do talento individual de cada corretor para ter posts profissionais. DB8 Intelligence garante qualidade consistente independente de quem cria o post.",
+          body: "Não dependa do talento individual de cada corretor para ter posts profissionais. NexoImob AI garante qualidade consistente independente de quem cria o post.",
           cta: "Conhecer os planos",
         },
       ],
@@ -273,7 +273,7 @@ const metaCampanha2: AdCampaign = {
         {
           id: "A",
           headline: "Relatório de produtividade por corretor",
-          body: "DB8 Intelligence mostra quem está criando mais conteúdo, quais imóveis estão com mais posts e qual corretor está mais ativo no marketing. Dados para gerir com precisão.",
+          body: "NexoImob AI mostra quem está criando mais conteúdo, quais imóveis estão com mais posts e qual corretor está mais ativo no marketing. Dados para gerir com precisão.",
           cta: "Ver o dashboard",
         },
         {
@@ -310,7 +310,7 @@ const metaCampanha3: AdCampaign = {
         {
           id: "A",
           headline: "1 cadastro → distribuição automática",
-          body: "Com DB8 Intelligence, você cadastra o imóvel uma vez e ele aparece no Instagram, no WhatsApp da equipe e nos portais — com posts profissionais criados pela IA, sem digitar uma linha.",
+          body: "Com NexoImob AI, você cadastra o imóvel uma vez e ele aparece no Instagram, no WhatsApp da equipe e nos portais — com posts profissionais criados pela IA, sem digitar uma linha.",
           cta: "Ver a automação em ação",
         },
         {
@@ -331,13 +331,13 @@ const metaCampanha3: AdCampaign = {
         {
           id: "A",
           headline: "Post aprovado em 1 clique",
-          body: "Você já tentou automatizar o marketing da sua imobiliária e desistiu porque era complexo demais? DB8 Intelligence faz tudo em 3 passos: cadastra, revisa, aprova. Sem código, sem integrações complicadas.",
+          body: "Você já tentou automatizar o marketing da sua imobiliária e desistiu porque era complexo demais? NexoImob AI faz tudo em 3 passos: cadastra, revisa, aprova. Sem código, sem integrações complicadas.",
           cta: "Testar a automação",
         },
         {
           id: "B",
           headline: "Do cadastro à publicação: 3 minutos",
-          body: "A maioria das ferramentas de automação não foi feita para imobiliárias. DB8 Intelligence foi. Entende tipos de imóvel, copy certa por categoria, formato ideal para cada canal.",
+          body: "A maioria das ferramentas de automação não foi feita para imobiliárias. NexoImob AI foi. Entende tipos de imóvel, copy certa por categoria, formato ideal para cada canal.",
           cta: "Ver demo ao vivo",
         },
       ],
@@ -352,13 +352,13 @@ const metaCampanha3: AdCampaign = {
         {
           id: "A",
           headline: "12 posts. 1 imóvel. 2 minutos.",
-          body: "DB8 Intelligence cria feed, story, carrossel e versão para reels do mesmo imóvel automaticamente. Variações de copy, formatos diferentes, tudo com seu branding. Pronto para publicar em todos os canais.",
+          body: "NexoImob AI cria feed, story, carrossel e versão para reels do mesmo imóvel automaticamente. Variações de copy, formatos diferentes, tudo com seu branding. Pronto para publicar em todos os canais.",
           cta: "Gerar meus primeiros posts",
         },
         {
           id: "B",
           headline: "Equipe de marketing sem contratar",
-          body: "Ter uma equipe de design e copy dedicada ao marketing imobiliário custa caro. DB8 Intelligence entrega o mesmo resultado — em escala, sem custo fixo, disponível 24h.",
+          body: "Ter uma equipe de design e copy dedicada ao marketing imobiliário custa caro. NexoImob AI entrega o mesmo resultado — em escala, sem custo fixo, disponível 24h.",
           cta: "Conhecer os planos",
         },
       ],
@@ -368,18 +368,18 @@ const metaCampanha3: AdCampaign = {
       concept: "Integrações — n8n + WhatsApp + CRM",
       hook: "Conecta com seu CRM, dispara no WhatsApp, publica no Instagram. Tudo sozinho.",
       format: ["feed"],
-      visualNote: "Diagrama de integrações: DB8 no centro, setas para logos de n8n, WhatsApp Business, RD Station, Kommo CRM. Tom técnico mas acessível.",
+      visualNote: "Diagrama de integrações: NexoImob AI no centro, setas para logos de n8n, WhatsApp Business, RD Station, Kommo CRM. Tom técnico mas acessível.",
       copy: [
         {
           id: "A",
           headline: "Conecta com seu CRM e WhatsApp",
-          body: "DB8 Intelligence se integra com as ferramentas que você já usa: n8n, WhatsApp Business, CRM imobiliário. Quando um imóvel é cadastrado, o marketing começa sozinho.",
+          body: "NexoImob AI se integra com as ferramentas que você já usa: n8n, WhatsApp Business, CRM imobiliário. Quando um imóvel é cadastrado, o marketing começa sozinho.",
           cta: "Ver as integrações",
         },
         {
           id: "B",
           headline: "Automação sem substituir seu stack",
-          body: "Não precisa abandonar o que funciona. DB8 Intelligence se encaixa no seu fluxo atual — captura do CRM, geração de posts com IA, disparo via WhatsApp Business, tudo conectado.",
+          body: "Não precisa abandonar o que funciona. NexoImob AI se encaixa no seu fluxo atual — captura do CRM, geração de posts com IA, disparo via WhatsApp Business, tudo conectado.",
           cta: "Solicitar uma demo",
         },
       ],
@@ -389,18 +389,18 @@ const metaCampanha3: AdCampaign = {
       concept: "ROI — horas salvas por semana",
       hook: "Sua equipe passa quantas horas por semana criando posts?",
       format: ["feed", "story"],
-      visualNote: "Calculadora visual: 10 imóveis × 45 min de edição = 7,5h/semana → com DB8: 10 imóveis × 3 min = 30 min. Economia visível.",
+      visualNote: "Calculadora visual: 10 imóveis × 45 min de edição = 7,5h/semana → com NexoImob AI: 10 imóveis × 3 min = 30 min. Economia visível.",
       copy: [
         {
           id: "A",
           headline: "7 horas salvas por semana",
-          body: "Uma imobiliária com 10 imóveis ativos gasta em média 7 horas por semana criando e editando posts. DB8 Intelligence reduz para 30 minutos. O que sua equipe faria com esse tempo?",
+          body: "Uma imobiliária com 10 imóveis ativos gasta em média 7 horas por semana criando e editando posts. NexoImob AI reduz para 30 minutos. O que sua equipe faria com esse tempo?",
           cta: "Calcular minha economia",
         },
         {
           id: "B",
           headline: "Menos trabalho repetitivo. Mais vendas.",
-          body: "Cada hora criando post manual é uma hora que um corretor não está prospectando, atendendo cliente ou fechando negócio. DB8 Intelligence automatiza o marketing para liberar o time para o que importa.",
+          body: "Cada hora criando post manual é uma hora que um corretor não está prospectando, atendendo cliente ou fechando negócio. NexoImob AI automatiza o marketing para liberar o time para o que importa.",
           cta: "Ver planos e preços",
         },
       ],
@@ -426,7 +426,7 @@ const metaCampanha4: AdCampaign = {
       concept: "Speed demo — fotos → vídeo cinemático",
       hook: "Essas 5 fotos viraram esse vídeo. Em 4 minutos.",
       format: ["reels"],
-      visualNote: "O próprio vídeo cinemático gerado pelo DB8 como criativo. Mostrar 5 fotos originais no início, depois o resultado final com trilha e movimento de câmera. CTA no final.",
+      visualNote: "O próprio vídeo cinemático gerado pelo NexoImob AI como criativo. Mostrar 5 fotos originais no início, depois o resultado final com trilha e movimento de câmera. CTA no final.",
       copy: [
         {
           id: "A",
@@ -437,7 +437,7 @@ const metaCampanha4: AdCampaign = {
         {
           id: "B",
           headline: "Sem produtora. Sem editor.",
-          body: "Corretores que usam vídeo vendem 3x mais rápido. Mas contratar produtora é caro e demorado. DB8 Intelligence cria vídeos cinemáticos a partir das suas fotos — em minutos, não em dias.",
+          body: "Corretores que usam vídeo vendem 3x mais rápido. Mas contratar produtora é caro e demorado. NexoImob AI cria vídeos cinemáticos a partir das suas fotos — em minutos, não em dias.",
           cta: "Gerar vídeo grátis",
         },
       ],
@@ -452,13 +452,13 @@ const metaCampanha4: AdCampaign = {
         {
           id: "A",
           headline: "3x mais visualizações com vídeo",
-          body: "Dados do Instagram confirmam: vídeos recebem 3 vezes mais visualizações que fotos estáticas. DB8 Intelligence transforma suas fotos em vídeo cinemático para você aparecer mais no feed.",
+          body: "Dados do Instagram confirmam: vídeos recebem 3 vezes mais visualizações que fotos estáticas. NexoImob AI transforma suas fotos em vídeo cinemático para você aparecer mais no feed.",
           cta: "Quero aparecer mais",
         },
         {
           id: "B",
           headline: "Reels que vendem antes da visita",
-          body: "Clientes que assistem ao vídeo do imóvel antes de visitar chegam mais qualificados e decidem mais rápido. DB8 Intelligence cria esse vídeo automaticamente das suas fotos.",
+          body: "Clientes que assistem ao vídeo do imóvel antes de visitar chegam mais qualificados e decidem mais rápido. NexoImob AI cria esse vídeo automaticamente das suas fotos.",
           cta: "Testar gratuitamente",
         },
       ],
@@ -473,13 +473,13 @@ const metaCampanha4: AdCampaign = {
         {
           id: "A",
           headline: "5 estilos cinemáticos de vídeo",
-          body: "Cada imóvel tem um estilo ideal. DB8 Intelligence oferece 5 opções: Cinematic (elegante), Luxury (premium), Drone (aéreo), Walkthrough (imersivo) e Moderno (dinâmico). Escolha e gere em minutos.",
+          body: "Cada imóvel tem um estilo ideal. NexoImob AI oferece 5 opções: Cinematic (elegante), Luxury (premium), Drone (aéreo), Walkthrough (imersivo) e Moderno (dinâmico). Escolha e gere em minutos.",
           cta: "Escolher meu estilo",
         },
         {
           id: "B",
           headline: "O vídeo certo para cada imóvel",
-          body: "Apartamento de luxo merece estilo diferente de casa popular. DB8 Intelligence tem 5 estilos cinemáticos — com movimento de câmera, trilha e ritmo únicos para cada perfil de imóvel.",
+          body: "Apartamento de luxo merece estilo diferente de casa popular. NexoImob AI tem 5 estilos cinemáticos — com movimento de câmera, trilha e ritmo únicos para cada perfil de imóvel.",
           cta: "Ver os estilos",
         },
       ],
@@ -489,18 +489,18 @@ const metaCampanha4: AdCampaign = {
       concept: "Dor — produtora é caro e demorado",
       hook: "Última vez que você contratou produtora de vídeo: quanto pagou e quanto demorou?",
       format: ["feed"],
-      visualNote: "Comparativo custo/tempo: Produtora (R$500–2000, 5–10 dias) vs DB8 Intelligence (plano mensal, 5 minutos). Tom direto.",
+      visualNote: "Comparativo custo/tempo: Produtora (R$500–2000, 5–10 dias) vs NexoImob AI (plano mensal, 5 minutos). Tom direto.",
       copy: [
         {
           id: "A",
           headline: "R$500 por vídeo vs R$X/mês ilimitado",
-          body: "Contratar produtora para cada imóvel é inviável em escala. DB8 Intelligence gera vídeos profissionais ilimitados por uma fração do custo — e em minutos, não dias.",
+          body: "Contratar produtora para cada imóvel é inviável em escala. NexoImob AI gera vídeos profissionais ilimitados por uma fração do custo — e em minutos, não dias.",
           cta: "Ver planos e preços",
         },
         {
           id: "B",
-          headline: "Produtora: R$500 e 5 dias. DB8: grátis e 5 min.",
-          body: "Para um corretor com 20 imóveis ativos, contratar produtora para cada um sai caro demais. DB8 Intelligence entrega qualidade de produção profissional sem o custo e a espera.",
+          headline: "Produtora: R$500 e 5 dias. NexoImob AI: grátis e 5 min.",
+          body: "Para um corretor com 20 imóveis ativos, contratar produtora para cada um sai caro demais. NexoImob AI entrega qualidade de produção profissional sem o custo e a espera.",
           cta: "Testar grátis agora",
         },
       ],
@@ -584,7 +584,7 @@ const googleCampanha1: GoogleCampaign = {
         "Posts Profissionais em 3 min",
         "IA para Corretor de Imóveis",
         "Crie Posts de Imóveis Agora",
-        "DB8 Intelligence — Grátis",
+        "NexoImob AI — Gratis",
         "Marketing que Vende Imóveis",
         "IA Imobiliária Número 1 no BR",
         "Teste Grátis — Sem Cartão",
@@ -594,7 +594,7 @@ const googleCampanha1: GoogleCampaign = {
       descriptions: [
         "Transforme fotos de imóveis em posts profissionais com IA. Sem designer, sem Canva. Pronto em 3 minutos.",
         "Mais de 18.000 posts criados por corretores em todo o Brasil. Teste grátis hoje, sem cartão de crédito.",
-        "DB8 Intelligence: IA especializada no mercado imobiliário. Posts, vídeos, automação e muito mais.",
+        "NexoImob AI: IA especializada no mercado imobiliario. Posts, videos, automacao e muito mais.",
         "Corretores que usam IA no marketing vendem mais rápido. Comece agora com 10 criativos grátis.",
       ],
       finalUrl:    "/lp/criar-posts-imoveis",
@@ -635,12 +635,12 @@ const googleCampanha2: GoogleCampaign = {
         "10 Criativos Grátis Hoje",
         "Feed, Story e Reels Prontos",
         "Posts que Vendem Imóveis",
-        "DB8 Intelligence — Teste",
+        "NexoImob AI — Teste",
       ],
       descriptions: [
         "Envie 3 fotos e a IA cria post profissional com copy e legenda. Pronto para Instagram em minutos.",
-        "Sem Canva, sem designer, sem esforço. DB8 Intelligence cria posts de imóveis automaticamente.",
-        "Corretores profissionais postam todo dia. Com DB8 Intelligence, você cria posts em 3 minutos.",
+        "Sem Canva, sem designer, sem esforco. NexoImob AI cria posts de imoveis automaticamente.",
+        "Corretores profissionais postam todo dia. Com NexoImob AI, voce cria posts em 3 minutos.",
         "Teste grátis — 10 criativos sem cartão de crédito. Posts para feed, story e reels com IA.",
       ],
       finalUrl:    "/lp/criar-posts-imoveis",
@@ -679,13 +679,13 @@ const googleCampanha3: GoogleCampaign = {
         "Reels de Imóveis Prontos",
         "Vídeo Profissional em Casa",
         "5 Estilos Cinemáticos",
-        "DB8 Intelligence — Grátis",
+        "NexoImob AI — Gratis",
         "Vídeo que Vende Imóveis",
         "Resultado em 5 Minutos",
       ],
       descriptions: [
         "Envie fotos do imóvel e receba vídeo cinemático em 5 minutos. 5 estilos: Cinematic, Luxury, Drone e mais.",
-        "Sem produtora, sem editor, sem espera. DB8 Intelligence transforma fotos em vídeo profissional com IA.",
+        "Sem produtora, sem editor, sem espera. NexoImob AI transforma fotos em video profissional com IA.",
         "Vídeos de imóveis no Reels geram 3x mais visualizações. Crie o seu agora — grátis para testar.",
         "Corretores que usam vídeo fecham mais rápido. Gere vídeo cinemático do seu imóvel em minutos.",
       ],
@@ -724,7 +724,7 @@ const googleCampanha4: GoogleCampaign = {
         "IA que Entende de Imóvel",
         "Automatize Sem Programar",
         "Integra com WhatsApp e CRM",
-        "DB8 Intelligence para Imob.",
+        "NexoImob AI para imob.",
         "Solicitar Demo Gratuita",
         "Escale sem Aumentar Equipe",
         "Automação Real p/ Imobiliária",
@@ -733,7 +733,7 @@ const googleCampanha4: GoogleCampaign = {
         "1 imóvel cadastrado → posts para Instagram, WhatsApp e portais criados automaticamente pela IA.",
         "Automação criada para o mercado imobiliário. Integra com seu CRM e WhatsApp Business sem código.",
         "Imobiliárias que automatizam o marketing geram mais leads com menos esforço. Veja como funciona.",
-        "Da captação do imóvel à publicação automática: DB8 Intelligence cuida do marketing enquanto você vende.",
+        "Da captacao do imovel a publicacao automatica: NexoImob AI cuida do marketing enquanto voce vende.",
       ],
       finalUrl:    "/lp/automacao-imobiliaria",
       displayPath: "db8intelligence.com.br/automacao",

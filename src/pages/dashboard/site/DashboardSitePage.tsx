@@ -3,6 +3,8 @@ import AppLayout from "@/components/app/AppLayout";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
+import type { TemaCorr } from "@/types/site";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,6 +86,36 @@ const THEMES: { key: ThemeKey; label: string; description: string; palette: stri
     description: "Profissional, topbar, busca",
     palette: "bg-gradient-to-r from-[#003d4d] to-[#1685b6]",
   },
+  {
+    key: "nestland" as ThemeKey,
+    label: "Nestland",
+    description: "Elegante, minimalista, dourado",
+    palette: "bg-gradient-to-r from-[#0f0f0f] to-[#b99755]",
+  },
+  {
+    key: "nexthm" as ThemeKey,
+    label: "NextHM",
+    description: "Verde natureza, serifado",
+    palette: "bg-gradient-to-r from-[#122122] to-[#2c686b]",
+  },
+  {
+    key: "ortiz" as ThemeKey,
+    label: "Ortiz",
+    description: "Azul classico, slider hero",
+    palette: "bg-gradient-to-r from-[#05344a] to-[#25a5de]",
+  },
+  {
+    key: "quarter" as ThemeKey,
+    label: "Quarter",
+    description: "Moderno, dark, vermelho",
+    palette: "bg-gradient-to-r from-[#071c1f] to-[#FF5A3C]",
+  },
+  {
+    key: "rethouse" as ThemeKey,
+    label: "Rethouse",
+    description: "Limpo, azul royal, clean",
+    palette: "bg-gradient-to-r from-[#1a2b6b] to-[#3454d1]",
+  },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -93,6 +125,9 @@ const THEMES: { key: ThemeKey; label: string; description: string; palette: stri
 const DashboardSitePage = () => {
   const { workspaceId, workspaceSlug } = useWorkspaceContext();
   const { toast } = useToast();
+
+  // --- View mode: "modelos" (default) or "config" ---
+  const [view, setView] = useState<"modelos" | "config">("modelos");
 
   // --- Site config state ---
   const [selectedTheme, setSelectedTheme] = useState<ThemeKey>("brisa");
@@ -167,11 +202,37 @@ const DashboardSitePage = () => {
   /*  Render                                                           */
   /* ---------------------------------------------------------------- */
 
+  // --- Handle theme selection from dashboard ---
+  const handleSelectThemeFromDashboard = (themeId: TemaCorr) => {
+    setSelectedTheme(themeId as ThemeKey);
+    setView("config");
+  };
+
+  // --- Models dashboard view ---
+  if (view === "modelos") {
+    return (
+      <AppLayout>
+        <SiteModelsDashboard
+          selectedTheme={selectedTheme as TemaCorr}
+          onSelectTheme={handleSelectThemeFromDashboard}
+        />
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="flex h-full flex-col gap-0 lg:flex-row">
         {/* ====================== LEFT — CONFIG PANEL ====================== */}
         <div className="w-full overflow-y-auto border-r border-gray-200 bg-white p-6 lg:w-[55%]">
+          {/* Back to models button */}
+          <button
+            type="button"
+            onClick={() => setView("modelos")}
+            className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#002B5B] hover:underline"
+          >
+            ← Voltar aos Modelos
+          </button>
           <h1 className="mb-1 text-2xl font-bold text-[#002B5B] font-['Plus_Jakarta_Sans',sans-serif]">
             Meu Site
           </h1>

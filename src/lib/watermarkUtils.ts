@@ -11,7 +11,7 @@ export interface WatermarkOptions {
   fontSize?: number;  // px, default 13
 }
 
-const DEFAULT_TEXT    = "Criado com DB8 Intelligence";
+const DEFAULT_TEXT    = "Criado com NexoImob AI";
 const DEFAULT_OPACITY = 0.82;
 const DEFAULT_SIZE    = 13;
 const PADDING_X       = 12;

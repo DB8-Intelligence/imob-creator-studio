@@ -33,7 +33,13 @@ const actions = [
     icon: Clapperboard,
     href: "/create/animate",
   },
-  // Vídeo IA — implementação futura (oculto do dashboard)
+  {
+    title: "Criar Vídeo IA",
+    description: "Transforme fotos de imóvel em vídeo para Reels, Feed e YouTube em fluxo guiado.",
+    badge: "Vídeo IA",
+    icon: Clapperboard,
+    href: "/video-creator",
+  },
   {
     title: "Upscale de Imagem",
     description: "Amplie e melhore a resolução de fotos de imóveis com IA. 0,3 créditos por imagem.",

@@ -145,7 +145,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Fire-and-forget: sync last-touch UTM if user returned via a campaign
-    if (data.user) syncLastTouchToDb(data.user.id);
+    if (data.user) {
+      syncLastTouchToDb(data.user.id);
+      trackEvent(data.user.id, "first_login");
+    }
 
     return { error: null };
   };

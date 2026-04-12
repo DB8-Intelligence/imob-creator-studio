@@ -1,4 +1,4 @@
-# Como Usar os Dados de Pesquisa no ImobCreator AI
+# Como Usar os Dados de Pesquisa no ImobCreator AI Studio
 
 ## Passo 1 — Clonar os dados para o projeto
 

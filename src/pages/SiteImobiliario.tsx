@@ -57,6 +57,11 @@ const THEME_GRADIENTS: Record<TemaCorr, string> = {
   litoral: "from-[#002B5B] to-[#D4AF37]",
   "dark-premium": "from-[#1E3A8A] to-[#D4AF37]",
   hamilton: "from-[#003d4d] to-[#1685b6]",
+  nestland: "from-[#0f0f0f] to-[#b99755]",
+  nexthm: "from-[#122122] to-[#2c686b]",
+  ortiz: "from-[#05344a] to-[#25a5de]",
+  quarter: "from-[#071c1f] to-[#FF5A3C]",
+  rethouse: "from-[#1a2b6b] to-[#3454d1]",
 };
 
 /* ------------------------------------------------------------------ */

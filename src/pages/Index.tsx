@@ -6,6 +6,8 @@ import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCa
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
+import ThemeGallerySection from "@/components/site/ThemeGallerySection";
+import SiteThemeMiniGrid from "@/components/site/SiteThemeMiniGrid";
 import { AnnouncementBanner } from "@/components/ui/AnnouncementBanner";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { PopupLeadCapture } from "@/components/ui/PopupLeadCapture";
@@ -76,12 +78,7 @@ const tabs = [
     title: "Site imobiliário com SEO automático", sub: "Portfólio online com domínio próprio, integrado com portais de imóveis.",
     benefits: ["Template responsivo otimizado", "SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "Formulário com WhatsApp"],
     cta: "Entrar na lista", href: "/site-imobiliario", accent: "bg-[#F0FDF4]",
-    mockup: (
-      <div className="rounded-lg border border-[#E5E7EB] overflow-hidden">
-        <div className="h-6 bg-[#F1F5F9] flex items-center gap-1.5 px-3"><div className="w-2 h-2 rounded-full bg-[#E5E7EB]" /><div className="w-2 h-2 rounded-full bg-[#E5E7EB]" /><div className="w-2 h-2 rounded-full bg-[#E5E7EB]" /></div>
-        <div className="p-4 bg-gradient-to-b from-[#F0FDF4] to-white space-y-2"><div className="h-3 w-1/2 bg-[#E5E7EB] rounded" /><div className="h-2 w-3/4 bg-[#E5E7EB] rounded" /><div className="grid grid-cols-3 gap-2 mt-3">{[1,2,3].map(i=><div key={i} className="aspect-square rounded bg-[#E5E7EB]" />)}</div></div>
-      </div>
-    ),
+    mockup: <SiteThemeMiniGrid />,
   },
   {
     id: "crm", emoji: "🤝", label: "CRM",
@@ -242,7 +239,7 @@ const Index = () => {
       {[
         { badge: "🎨 Módulo Criativos", title: "Crie posts profissionais sem saber design", desc: "Templates exclusivos para corretor. IA ajusta cores, texto e estilo da sua marca.", bullets: ["50 a 150 artes por mês", "Copy automática pela IA", "6 formatos profissionais", "Download ou publica direto"], href: "/criativos", cta: "Experimente agora", reverse: false, bg: "bg-white", accent: "from-[#EEF2FF] to-[#F8FAFF]", visual: <div className="grid grid-cols-3 gap-2">{["Dark Premium","IA Express","Black Gold","Captação","Clássico","Top"].map(s=><div key={s} className="aspect-square rounded-lg bg-gradient-to-br from-[#EEF2FF] to-white border border-[#E5E7EB] flex items-center justify-center"><span className="text-[8px] text-[#6B7280] text-center leading-tight">{s}</span></div>)}</div> },
         { badge: "🎬 Módulo Vídeos", title: "Transforme fotos em Reels cinematográficos", desc: "Ken Burns automático, trilha sonora e texto overlay. Pronto para o Instagram.", bullets: ["5 a 20 vídeos por mês", "Ken Burns + crossfade", "6 trilhas royalty-free", "Formato 9:16 para Reels"], href: "/videos", cta: "Experimente agora", reverse: true, bg: "bg-[#F8FAFF]", accent: "from-[#FFF7E0] to-[#F8FAFF]", visual: <div className="flex flex-col gap-3"><div className="aspect-video rounded-lg bg-gradient-to-br from-[#FFF7E0] to-white border border-[#E5E7EB] flex items-center justify-center"><div className="w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center"><div className="w-0 h-0 border-l-[8px] border-l-[#002B5B] border-y-[5px] border-y-transparent ml-0.5" /></div></div><div className="h-2 rounded-full bg-[#E5E7EB]"><div className="h-2 rounded-full bg-[#002B5B] w-2/3" /></div></div> },
-        { badge: "🏠 Site + Portais", title: "Seu site imobiliário com SEO por IA", desc: "Portfólio online profissional integrado com todos os portais de imóveis.", bullets: ["SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "Template responsivo", "Formulário com WhatsApp"], href: "/site-imobiliario", cta: "Entrar na lista", reverse: false, bg: "bg-white", accent: "from-[#F0FDF4] to-[#F8FAFF]", visual: <div className="rounded-lg border border-[#E5E7EB] overflow-hidden"><div className="h-5 bg-[#F1F5F9] flex items-center gap-1 px-2">{[1,2,3].map(i=><div key={i} className="w-1.5 h-1.5 rounded-full bg-[#CBD5E1]" />)}</div><div className="p-3 space-y-2"><div className="h-2.5 w-1/2 bg-[#E5E7EB] rounded" /><div className="grid grid-cols-3 gap-1.5 mt-2">{[1,2,3].map(i=><div key={i} className="aspect-square rounded bg-gradient-to-br from-[#F0FDF4] to-[#E5E7EB]" />)}</div></div></div> },
+        { badge: "🏠 Site + Portais", title: "Seu site imobiliário com SEO por IA", desc: "Portfólio online profissional integrado com todos os portais de imóveis.", bullets: ["SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "10 modelos profissionais", "Formulário com WhatsApp"], href: "/site-imobiliario", cta: "Entrar na lista", reverse: false, bg: "bg-white", accent: "from-[#F0FDF4] to-[#F8FAFF]", visual: <SiteThemeMiniGrid /> },
         { badge: "🤝 CRM Imobiliário", title: "Organize leads e feche mais negócios", desc: "Pipeline visual de vendas com histórico completo de cada lead.", bullets: ["Pipeline Kanban visual", "Distribuição automática de leads", "Automação de follow-up", "Relatórios de conversão"], href: "/crm-imobiliario", cta: "Entrar na lista", reverse: true, bg: "bg-[#F8FAFF]", accent: "from-[#F0F9FF] to-[#F8FAFF]", visual: <div className="flex gap-2">{["Novos","Negociação","Fechados"].map(c=><div key={c} className="flex-1 rounded-lg border border-[#E5E7EB] p-2 bg-white"><div className="text-[8px] font-bold text-[#6B7280] mb-1.5 text-center">{c}</div>{[1,2].map(i=><div key={i} className="h-5 rounded bg-[#F8FAFF] border border-[#E5E7EB] mb-1" />)}</div>)}</div> },
       ].map((block, idx) => (
         <section key={idx} className={`py-20 px-6 ${block.bg}`}>
@@ -262,6 +259,9 @@ const Index = () => {
           </div>
         </section>
       ))}
+
+      {/* ── S6b: Galeria de Temas de Site ─────────────────────────────── */}
+      <ThemeGallerySection />
 
       {/* ── S7: Diferenciais ─────────────────────────────────────────── */}
       <section className="py-20 px-6 bg-[#F8FAFF]">

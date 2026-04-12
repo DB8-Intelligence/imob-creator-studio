@@ -115,7 +115,7 @@ const testimonials = [
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
 
 const faqs = [
-  { q: "Preciso ter conhecimento técnico para usar?", a: "Não. A plataforma foi pensada para quem não tem equipe técnica. Se você consegue fazer upload de uma foto, você consegue usar o DB8 Intelligence." },
+  { q: "Preciso ter conhecimento técnico para usar?", a: "Não. A plataforma foi pensada para quem não tem equipe técnica. Se você consegue fazer upload de uma foto, você consegue usar o NexoImob AI." },
   { q: "Funciona para corretor sem equipe?", a: "Foi feito exatamente para isso. O plano Starter cobre todas as necessidades de um corretor autônomo com até 500 créditos mensais." },
   { q: "Posso usar minha logo e minhas cores?", a: "Sim. O brand kit permite configurar logo, paleta e fontes. Todos os criativos gerados já saem com a sua identidade." },
   { q: "Quanto custa por criativo?", a: "A partir de R$ 97/mês você tem 500 créditos. Cada criativo consome cerca de 10 créditos — ou seja, mais de 50 artes por mês no plano básico." },
@@ -146,7 +146,7 @@ const ParaCorretoresPage = () => {
           <span className="text-gold">minutos, sem depender de ninguém.</span>
         </>
       }
-      description="Chega de esperar designer, pagar caro por arte e postar de forma inconsistente. Com o DB8 Intelligence, você gera vídeos, artes e staging virtual direto do seu celular — em menos de 5 minutos por imóvel."
+      description="Chega de esperar designer, pagar caro por arte e postar de forma inconsistente. Com o NexoImob AI, você gera vídeos, artes e staging virtual direto do seu celular — em menos de 5 minutos por imóvel."
       ctaLabel="Criar meu primeiro criativo"
       stats={[
         { value: "< 5 min", label: "por criativo" },

@@ -3,8 +3,8 @@
  *
  * Steps:
  *   account_created      → always done (user is logged in)
- *   property_uploaded    → inferred from user_events (any 'creative_generated' or properties count)
  *   creative_generated   → inferred from user_events
+ *   property_uploaded    → inferred from properties count or explicit wizard step
  *   brand_kit_created    → inferred from user_events
  *   content_shared       → inferred from user_events ('first_share')
  *
@@ -43,20 +43,20 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     isCoreStep:  true,
   },
   {
-    key:         "property_uploaded",
-    label:       "Envie seu primeiro imóvel",
-    description: "Suba fotos de um imóvel para gerar criativos com IA.",
-    actionLabel: "Enviar imóvel",
-    actionPath:  "/upload",
-    isCoreStep:  true,
-  },
-  {
     key:         "creative_generated",
     label:       "Gere seu primeiro criativo",
     description: "Crie um post, story ou carrossel profissional em minutos.",
     actionLabel: "Criar criativo",
     actionPath:  "/create",
     isCoreStep:  true,
+  },
+  {
+    key:         "property_uploaded",
+    label:       "Adicione um imóvel",
+    description: "Cadastre um imóvel para deixar os próximos criativos mais completos.",
+    actionLabel: "Adicionar imóvel",
+    actionPath:  "/upload",
+    isCoreStep:  false,
   },
   {
     key:         "brand_kit_created",
@@ -122,18 +122,22 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
           .eq("user_id", user!.id)
           .maybeSingle();
 
-        // 2 — Infer steps from user_events
+        // 2 — Infer steps from user_events and properties
         const { data: events } = await supabase
           .from("user_events")
           .select("event_type")
           .eq("user_id", user!.id)
           .in("event_type", ["creative_generated", "brand_kit_created", "first_share"]);
 
+        const { count: propertiesCount } = await supabase
+          .from("properties")
+          .select("id", { count: "exact", head: true });
+
         const inferred = new Set<OnboardingStepKey>(["account_created"]);
         if (events?.some((e) => e.event_type === "creative_generated")) {
           inferred.add("creative_generated");
-          inferred.add("property_uploaded"); // can't generate without uploading
         }
+        if ((propertiesCount ?? 0) > 0) inferred.add("property_uploaded");
         if (events?.some((e) => e.event_type === "brand_kit_created")) inferred.add("brand_kit_created");
         if (events?.some((e) => e.event_type === "first_share"))        inferred.add("content_shared");
 
@@ -214,7 +218,7 @@ export function useOnboardingProgress(): UseOnboardingProgressResult {
   const isActivated = CORE_STEPS.every((k) => stepsDone.has(k as OnboardingStepKey));
   const pct         = Math.round((stepsDone.size / ONBOARDING_STEPS.length) * 100);
 
-  // Show wizard if: user exists, not dismissed, no wizard started, and only account_created is done
+  // Show wizard if: user exists, not dismissed, no wizard started, and no first output was generated yet
   const showWizard = Boolean(user) && !dismissed && !wizardStartedAt && stepsDone.size <= 1 && !loading;
 
   return {

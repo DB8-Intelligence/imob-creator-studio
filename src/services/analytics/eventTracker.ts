@@ -9,6 +9,7 @@ import { trackConversion } from "./trackingPixels";
 
 export type AcquisitionEvent =
   | "signup"
+  | "first_login"
   | "trial_start"
   | "paid_conversion"
   | "landing_view"
@@ -38,11 +39,17 @@ export type UsageEvent =
   | "first_share"
   | "brand_kit_created"
   | "funnel_viewed";
+  // ── Activation milestones ──
+  | "first_generation_started"
+  | "first_generation_completed"
+  | "video_module_viewed"
+  | "video_addon_activated";
 
 export type AppEvent = AcquisitionEvent | UsageEvent;
 
 export const EVENT_CATEGORY: Record<AppEvent, string> = {
   signup:              "acquisition",
+  first_login:         "acquisition",
   trial_start:         "acquisition",
   paid_conversion:     "acquisition",
   landing_view:        "acquisition",
@@ -70,6 +77,10 @@ export const EVENT_CATEGORY: Record<AppEvent, string> = {
   first_share:                 "usage",
   brand_kit_created:           "usage",
   funnel_viewed:               "usage",
+  first_generation_started:    "usage",
+  first_generation_completed:  "usage",
+  video_module_viewed:         "usage",
+  video_addon_activated:       "usage",
 };
 
 // ─── Track function ───────────────────────────────────────────────────────────

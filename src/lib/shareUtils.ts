@@ -29,11 +29,11 @@ export function buildShareUrl(params: ShareLinkParams = {}): string {
 // ── Caption + attribution ─────────────────────────────────────────────────────
 
 export function buildShareCaption(caption: string, shareUrl: string): string {
-  return `${caption}\n\n✨ Criado com DB8 Intelligence\n${shareUrl}`;
+  return `${caption}\n\n✨ Criado com NexoImob AI\n${shareUrl}`;
 }
 
 export function buildMinimalShareCaption(shareUrl: string): string {
-  return `✨ Criado com DB8 Intelligence — IA para o mercado imobiliário\n${shareUrl}`;
+  return `✨ Criado com NexoImob AI — IA para o mercado imobiliario\n${shareUrl}`;
 }
 
 // ── Platform links ────────────────────────────────────────────────────────────

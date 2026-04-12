@@ -286,7 +286,7 @@ export default function VideoImobiliarioPage() {
               <span className="text-gold">vídeo cinematográfico.</span>
             </h2>
             <p className="ds-body mb-8 max-w-md mx-auto">
-              Comece hoje. Sem produtora, sem editor, sem espera. O DB8 Intelligence transforma suas fotos em vídeos profissionais.
+              Comece hoje. Sem produtora, sem editor, sem espera. O NexoImob AI transforma suas fotos em vídeos profissionais.
             </p>
             <Link to="/auth" className="btn-primary text-base">
               Criar meu primeiro vídeo

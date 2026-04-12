@@ -9,11 +9,13 @@ import { Label } from "@/components/ui/label";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useCreateVideoJob, useReleaseVideoCredit, useUpdateVideoJobStatus, useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { createVideoJobSegments, renderVideoJob, renderVideoJobV2, generateVideoClipFromImage } from "@/services/videoModuleApi";
 import { pollJobUntilDone } from "@/services/generationApi";
 import { useVeoPolling } from "@/hooks/useVeoPolling";
 import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
+import { trackEvent } from "@/services/analytics/eventTracker";
 import { getUploadSummary, getVideoPlanRule, resolveVideoPlanTier } from "@/lib/video-plan-rules";
 import { getDefaultVideoMotionPreset, getVideoMotionPresetConfig } from "@/lib/video-motion-presets";
 import { VIDEO_TEMPLATE_LIST, getVideoTemplate, getDefaultVideoTemplate, estimateVideoDuration, type VideoTemplateId } from "@/lib/video-templates";
@@ -118,6 +120,7 @@ const PlanGate = () => {
 const VideoCreatorPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const locationState = (location.state ?? {}) as Partial<VideoCreatorPrefill> & { format?: Format };
   const prefill = locationState.prefill ? locationState : null;
   const { toast } = useToast();
@@ -179,6 +182,14 @@ const VideoCreatorPage = () => {
       window.history.replaceState({}, "");
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!user || !workspaceId) return;
+    trackEvent(user.id, "video_module_viewed", {
+      workspaceId,
+      metadata: { source: "video_creator" },
+    });
+  }, [user, workspaceId]);
 
   // When all polled clips finish, update the job status
   useEffect(() => {
@@ -294,6 +305,13 @@ const VideoCreatorPage = () => {
 
     let jobId: string | null = null;
 
+    if (user) {
+      trackEvent(user.id, "first_generation_started", {
+        workspaceId,
+        metadata: { generation_type: "video_compose_v2", source: "video_creator" },
+      });
+    }
+
     try {
       const createdJob = await createVideoJobMutation.mutateAsync({
         title: `${selectedTemplate.name} - ${FORMATS.find((f) => f.id === format)?.label ?? format}`,
@@ -395,6 +413,12 @@ const VideoCreatorPage = () => {
             pipeline_version: "v2",
           });
           toast({ title: "Vídeo gerado com sucesso!", description: "Vídeo profissional criado via FFmpeg." });
+          if (user) {
+            trackEvent(user.id, "first_generation_completed", {
+              workspaceId,
+              metadata: { generation_type: "video_compose_v2", source: "video_creator", engine: "ffmpeg_kenburns" },
+            });
+          }
           // ── Monetization: log video_completed ─────────────────────────
           logVideoCompleted({
             jobId,
@@ -466,6 +490,12 @@ const VideoCreatorPage = () => {
             total_clips: completedClips.length,
           });
           toast({ title: "Vídeo gerado com sucesso!", description: `${completedClips.length} clip(s) gerado(s) com Veo.` });
+          if (user) {
+            trackEvent(user.id, "first_generation_completed", {
+              workspaceId,
+              metadata: { generation_type: "video_compose_v2", source: "video_creator", engine: "veo_video" },
+            });
+          }
         } else if (processingClips.length > 0) {
           setPendingJobId(jobId);
           setGenerated(true);
@@ -511,6 +541,12 @@ const VideoCreatorPage = () => {
 
         await updateVideoJobStatusMutation.mutateAsync({ id: jobId, status: "completed", outputUrl: result.videoUrl });
         toast({ title: "Vídeo gerado com sucesso!" });
+        if (user) {
+          trackEvent(user.id, "first_generation_completed", {
+            workspaceId,
+            metadata: { generation_type: "video_compose_v2", source: "video_creator", engine: "legacy_v1" },
+          });
+        }
       }
     } catch (e: unknown) {
       if (jobId) {

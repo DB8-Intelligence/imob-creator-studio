@@ -1,4 +1,4 @@
-export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'hamilton'
+export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'hamilton' | 'nestland' | 'nexthm' | 'ortiz' | 'quarter' | 'rethouse'
 export type TipoImovel = 'apartamento' | 'casa' | 'terreno' | 'comercial' | 'rural' | 'cobertura' | 'studio'
 export type FinalidadeImovel = 'venda' | 'aluguel' | 'temporada'
 export type StatusImovel = 'disponivel' | 'reservado' | 'vendido' | 'alugado'
@@ -9,6 +9,11 @@ export const TEMAS: { id: TemaCorr; label: string; cor: string; preview: string 
   { id: 'litoral', label: 'Litoral', cor: '#D97706', preview: 'Areia dourada, tropical' },
   { id: 'dark-premium', label: 'Dark Premium', cor: '#1E3A8A', preview: 'Navy e dourado, luxo' },
   { id: 'hamilton', label: 'Hamilton Classic', cor: '#1685b6', preview: 'Profissional, topbar' },
+  { id: 'nestland', label: 'Nestland', cor: '#b99755', preview: 'Elegante, minimalista, dourado' },
+  { id: 'nexthm', label: 'NextHM', cor: '#2c686b', preview: 'Verde natureza, serifado' },
+  { id: 'ortiz', label: 'Ortiz', cor: '#25a5de', preview: 'Azul classico, slider hero' },
+  { id: 'quarter', label: 'Quarter', cor: '#FF5A3C', preview: 'Moderno, dark, vermelho' },
+  { id: 'rethouse', label: 'Rethouse', cor: '#3454d1', preview: 'Limpo, azul royal, clean' },
 ]
 
 export interface CorretorSite {

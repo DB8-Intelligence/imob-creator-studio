@@ -120,7 +120,7 @@ const heroStats = [
 
 const testimonials = [
   {
-    quote: "Implementamos o DB8 na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. O fluxo de aprovação eliminou 100% do retrabalho.",
+    quote: "Implementamos o NexoImob AI na nossa operação e triplicamos o volume de posts sem contratar mais ninguém. O fluxo de aprovação eliminou 100% do retrabalho.",
     author: "Carlos Mendonça",
     role: "Diretor Comercial · Imobiliária Prime",
     rating: 5,
@@ -165,7 +165,7 @@ export default function AutomacaoImobiliariaPage() {
             <span className="text-gold">com IA.</span>
           </>
         }
-        description="Pare de desperdiçar horas em tarefas repetitivas. O DB8 Intelligence automatiza a produção de posts, vídeos e legendas — mantendo consistência, escala e padrão visual em todos os seus canais, todos os dias."
+        description="Pare de desperdiçar horas em tarefas repetitivas. O NexoImob AI automatiza a produção de posts, vídeos e legendas — mantendo consistência, escala e padrão visual em todos os seus canais, todos os dias."
         ctaLabel="Começar a automatizar — grátis"
         trust="Sem cartão de crédito · Cancele quando quiser"
         stats={heroStats}
@@ -213,7 +213,7 @@ export default function AutomacaoImobiliariaPage() {
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--ds-gold)] to-transparent opacity-60" />
               <div className="flex items-center gap-2 mb-5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[var(--ds-gold-light)]" />
-                <span className="text-[var(--ds-gold-light)] font-semibold text-sm uppercase tracking-wide">Com DB8 Intelligence</span>
+                <span className="text-[var(--ds-gold-light)] font-semibold text-sm uppercase tracking-wide">Com NexoImob AI</span>
               </div>
               <ul className="flex flex-col gap-3">
                 {after.map((a) => (

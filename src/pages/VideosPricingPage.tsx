@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useVideoModuleOverview } from "@/hooks/useVideoModule";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Check, X, Film, Zap, Star, Crown, ChevronRight, ToggleLeft, ToggleRight, CheckCircle2, ChevronDown, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { KIWIFY_VIDEO_LINKS } from "@/lib/kiwify-links";
+import { trackEvent } from "@/services/analytics/eventTracker";
 
 type Billing = "monthly" | "yearly";
 
@@ -189,6 +191,7 @@ const FAQItem = ({ question, answer }: { question: string; answer: string }) => 
 
 const VideosPricingPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: plan } = useUserPlan();
   const { workspaceId, workspacePlan, workspaceName } = useWorkspaceContext();
   const { data: overview } = useVideoModuleOverview(workspaceId);
@@ -197,12 +200,36 @@ const VideosPricingPage = () => {
   const currentPlan = plan?.user_plan;
   const activePlans = PLANS[billing];
 
+  useEffect(() => {
+    if (!user || !workspaceId) return;
+
+    trackEvent(user.id, "video_module_viewed", {
+      workspaceId,
+      metadata: { source: "video_pricing" },
+    });
+
+    if (overview?.addOn?.addon_type) {
+      const key = `video_addon_activated:${workspaceId}:${overview.addOn.addon_type}`;
+      if (!localStorage.getItem(key)) {
+        trackEvent(user.id, "video_addon_activated", {
+          workspaceId,
+          metadata: {
+            source: "video_pricing",
+            addon_type: overview.addOn.addon_type,
+            billing_cycle: overview.addOn.billing_cycle,
+          },
+        });
+        localStorage.setItem(key, "1");
+      }
+    }
+  }, [user, workspaceId, overview?.addOn?.addon_type, overview?.addOn?.billing_cycle]);
+
   return (
     <AppLayout>
       <div className="max-w-5xl space-y-12">
         <div className="text-center max-w-2xl mx-auto">
           <Badge className="bg-accent/10 text-accent mb-4">Módulo Vídeo IA</Badge>
-          <h1 className="font-display text-3xl font-bold text-foreground mb-3">Planos de vídeo do DB8 Intelligence</h1>
+          <h1 className="font-display text-3xl font-bold text-foreground mb-3">Planos de vídeo do NexoImob AI</h1>
           <p className="text-muted-foreground">Aplicamos o padrão comercial Standard / Plus / Premium com resolução, créditos e limite de fotos alinhados ao benchmark visual.</p>
         </div>
 

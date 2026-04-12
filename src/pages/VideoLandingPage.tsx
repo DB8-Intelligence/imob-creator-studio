@@ -27,9 +27,9 @@ const comparison = [
 ];
 
 const plans = [
-  { name: "Starter", videos: "5 vídeos/mês", res: "1080p", badge: null, featured: false },
-  { name: "Pro", videos: "20 vídeos/mês", res: "4K Ultra HD", badge: "Mais escolhido", featured: true },
-  { name: "Enterprise", videos: "Volume custom", res: "4K + suporte", badge: null, featured: false },
+  { name: "Standard", videos: "300 créditos/mês", res: "720p", badge: null, featured: false, limit: "Até 10 fotos · até 50s" },
+  { name: "Plus", videos: "600 créditos/mês", res: "1080p Full HD", badge: "Mais escolhido", featured: true, limit: "Até 15 fotos · até 75s" },
+  { name: "Premium", videos: "800 créditos/mês", res: "4K Ultra HD", badge: null, featured: false, limit: "Até 20 fotos · até 90s" },
 ];
 
 const VideoLandingPage = () => {
@@ -166,6 +166,7 @@ const VideoLandingPage = () => {
                 )}
                 <p className="font-bold text-foreground text-lg mb-1">{p.name}</p>
                 <p className="text-sm text-muted-foreground mb-1">{p.videos}</p>
+                <p className="text-xs text-muted-foreground mb-1">{p.limit}</p>
                 <p className="text-xs text-accent font-semibold mb-4">{p.res}</p>
                 <div className="mt-auto">
                   <Link
