@@ -10,6 +10,7 @@
  * Quando a API estiver pronta, trocar sendMessage por POST ao n8n webhook.
  */
 import { useState, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { getInteractiveAgent } from "@/config/interactive-agents";
 
 export interface ChatMessage {
@@ -164,15 +165,25 @@ export function useAgentChat(agentId: string | null) {
     setMemory(updatedMemory);
     saveMemory(agentId, updatedMemory);
 
-    // Generate response
+    // Generate response — try Edge Function first, fallback to mock
     setIsTyping(true);
     try {
-      // TODO: Replace with real API call:
-      // const response = await supabase.functions.invoke("agent-chat", {
-      //   body: { agentId, message: content, memory: updatedMemory, history: updatedMessages.slice(-10) }
-      // });
-
-      const responseText = await generateMockResponse(agentId, content, updatedMemory);
+      let responseText: string;
+      try {
+        const { data, error } = await supabase.functions.invoke("agent-chat", {
+          body: {
+            agentId,
+            message: content,
+            memory: updatedMemory,
+            history: updatedMessages.slice(-10),
+          },
+        });
+        if (error || !data?.response) throw new Error(error?.message || "empty response");
+        responseText = data.response;
+      } catch {
+        // Fallback to mock responses when Edge Function is unavailable
+        responseText = await generateMockResponse(agentId, content, updatedMemory);
+      }
 
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),

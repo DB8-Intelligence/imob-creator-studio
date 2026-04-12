@@ -89,3 +89,26 @@ export const KIWIFY_VIDEO_LINKS = {
     yearly:  "https://pay.kiwify.com.br/TODO",              // TODO [ ] premium anual
   },
 } as const;
+
+// ─── Helper: validar link antes de redirecionar ──────────────────────────────
+
+/**
+ * Retorna true se o link Kiwify ja foi preenchido com URL real.
+ */
+export function isKiwifyLinkReady(url: string): boolean {
+  return !!url && url !== "#" && !url.includes("/TODO");
+}
+
+/**
+ * Abre o checkout Kiwify ou exibe fallback se o link ainda nao foi configurado.
+ * Uso nos botoes de compra: handleKiwifyCheckout(url) em vez de window.open(url).
+ */
+export function handleKiwifyCheckout(url: string): boolean {
+  if (isKiwifyLinkReady(url)) {
+    window.open(url, "_blank", "noopener");
+    return true;
+  }
+  const msg = encodeURIComponent("Ola! Tenho interesse em assinar um plano do ImobCreator AI. Podem me ajudar?");
+  window.open(`https://wa.me/5571999990000?text=${msg}`, "_blank", "noopener");
+  return false;
+}

@@ -1,25 +1,29 @@
 /**
- * PropertyLeadsTab.tsx — Aba "Leads Interessados" no editor de imóvel
+ * PropertyLeadsTab.tsx — Aba "Leads Interessados" no editor de imovel
  *
- * Lista de leads vinculados, status na pipeline, botão notificar todos.
+ * Lista de leads vinculados, status na pipeline, botao notificar todos via n8n webhook.
  */
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { MessageCircle, Users, Bell, ExternalLink } from "lucide-react";
+import { MessageCircle, Users, Bell, ExternalLink, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
   PIPELINE_COLUMNS,
   TEMPERATURA_CONFIG,
 } from "@/types/lead";
 import type { PropertyLeadSummary } from "@/hooks/usePropertyMAX";
+import { dispatchN8nEvent } from "@/services/n8nBridgeApi";
 
 interface PropertyLeadsTabProps {
   leads: PropertyLeadSummary[];
   propertyNome: string;
+  propertyId?: string;
 }
 
 function timeAgo(iso: string | null): string {
@@ -28,16 +32,46 @@ function timeAgo(iso: string | null): string {
   const days = Math.floor(diff / 86400000);
   if (days === 0) return "Hoje";
   if (days === 1) return "Ontem";
-  return `${days}d atrás`;
+  return `${days}d atras`;
 }
 
-export function PropertyLeadsTab({ leads, propertyNome }: PropertyLeadsTabProps) {
+export function PropertyLeadsTab({ leads, propertyNome, propertyId }: PropertyLeadsTabProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [notifying, setNotifying] = useState(false);
 
-  const handleNotifyAll = () => {
-    const phones = leads.filter((l) => l.telefone).map((l) => l.telefone);
-    // TODO: dispatch n8n webhook for bulk WhatsApp
-    alert(`Notificar ${phones.length} lead(s) sobre ${propertyNome} via WhatsApp (n8n webhook)`);
+  const handleNotifyAll = async () => {
+    const phonesAndNames = leads
+      .filter((l) => l.telefone)
+      .map((l) => ({ phone: l.telefone, name: l.nome }));
+
+    if (phonesAndNames.length === 0) {
+      toast({ title: "Nenhum lead com telefone", description: "Nao ha leads com telefone para notificar." });
+      return;
+    }
+
+    setNotifying(true);
+    try {
+      await dispatchN8nEvent("bulk_whatsapp_notify", {
+        property_id: propertyId,
+        property_name: propertyNome,
+        leads: phonesAndNames,
+        total: phonesAndNames.length,
+      });
+
+      toast({
+        title: "Notificacao enviada!",
+        description: `${phonesAndNames.length} lead(s) serao notificados via WhatsApp sobre "${propertyNome}".`,
+      });
+    } catch {
+      toast({
+        title: "Erro ao notificar",
+        description: "Nao foi possivel enviar a notificacao. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setNotifying(false);
+    }
   };
 
   return (
@@ -49,9 +83,9 @@ export function PropertyLeadsTab({ leads, propertyNome }: PropertyLeadsTabProps)
           <h3 className="font-semibold text-foreground">{leads.length} lead{leads.length !== 1 ? "s" : ""} interessado{leads.length !== 1 ? "s" : ""}</h3>
         </div>
         {leads.length > 0 && (
-          <Button size="sm" variant="outline" onClick={handleNotifyAll}>
-            <Bell className="w-3.5 h-3.5 mr-1.5" />
-            Notificar todos
+          <Button size="sm" variant="outline" onClick={handleNotifyAll} disabled={notifying}>
+            {notifying ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Bell className="w-3.5 h-3.5 mr-1.5" />}
+            {notifying ? "Enviando..." : "Notificar todos"}
           </Button>
         )}
       </div>
@@ -59,7 +93,7 @@ export function PropertyLeadsTab({ leads, propertyNome }: PropertyLeadsTabProps)
       {leads.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border p-8 text-center">
           <Users className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">Nenhum lead vinculado a este imóvel.</p>
+          <p className="text-sm text-muted-foreground">Nenhum lead vinculado a este imovel.</p>
         </div>
       ) : (
         <div className="rounded-xl border overflow-hidden">
@@ -70,7 +104,7 @@ export function PropertyLeadsTab({ leads, propertyNome }: PropertyLeadsTabProps)
                 <TableHead className="text-xs">Status</TableHead>
                 <TableHead className="text-xs hidden sm:table-cell">Temp.</TableHead>
                 <TableHead className="text-xs">Contato</TableHead>
-                <TableHead className="text-xs w-[80px]">Ações</TableHead>
+                <TableHead className="text-xs w-[80px]">Acoes</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

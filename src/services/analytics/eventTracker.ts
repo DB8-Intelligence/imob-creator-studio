@@ -38,7 +38,7 @@ export type UsageEvent =
   | "welcome_dismissed"
   | "first_share"
   | "brand_kit_created"
-  | "funnel_viewed";
+  | "funnel_viewed"
   // ── Activation milestones ──
   | "first_generation_started"
   | "first_generation_completed"

@@ -22,7 +22,8 @@ export type N8nEventType =
   | "new_user"
   | "video_addon_activated"
   | "generation_completed"
-  | "generation_failed";
+  | "generation_failed"
+  | "bulk_whatsapp_notify";
 
 export async function dispatchN8nEvent(
   eventType: N8nEventType,
