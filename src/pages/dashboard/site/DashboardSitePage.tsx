@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
@@ -123,6 +124,7 @@ const THEMES: { key: ThemeKey; label: string; description: string; palette: stri
 /* ------------------------------------------------------------------ */
 
 const DashboardSitePage = () => {
+  const navigate = useNavigate();
   const { workspaceId, workspaceSlug } = useWorkspaceContext();
   const { toast } = useToast();
 
@@ -383,13 +385,7 @@ const DashboardSitePage = () => {
                 <Button
                   size="sm"
                   className="gap-1.5 bg-[#002B5B] hover:bg-[#001f42]"
-                  onClick={() =>
-                    toast({
-                      title: "Em desenvolvimento",
-                      description:
-                        "O cadastro de imóveis estará disponível em breve.",
-                    })
-                  }
+                  onClick={() => navigate("/imoveis/upload")}
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Novo Imóvel
