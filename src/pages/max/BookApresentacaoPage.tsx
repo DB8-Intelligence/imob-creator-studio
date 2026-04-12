@@ -8,8 +8,14 @@
  * Uses @react-pdf/renderer for PDF generation.
  */
 import { useState, useEffect, useMemo, lazy, Suspense, useCallback } from "react";
-import { pdf } from "@react-pdf/renderer";
 import { useNavigate } from "react-router-dom";
+
+// Lazy load the heavy @react-pdf/renderer module — cached after first call
+let pdfModulePromise: Promise<typeof import("@react-pdf/renderer")> | null = null;
+const loadPdfModule = () => {
+  if (!pdfModulePromise) pdfModulePromise = import("@react-pdf/renderer");
+  return pdfModulePromise;
+};
 
 import AppLayout from "@/components/app/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,10 +59,8 @@ import { useSiteImoveis } from "@/hooks/useSiteImoveis";
 import type { CorretorSite, SiteImovel, SiteDepoimento } from "@/types/site";
 import BookDocument from "@/components/book/BookDocument";
 
-// Lazy-load PDFViewer for environments that support it
-const PDFViewer = lazy(() =>
-  import("@react-pdf/renderer").then((m) => ({ default: m.PDFViewer }))
-);
+// Lazy-load PDFViewer — shares the same chunk as loadPdfModule()
+const PDFViewer = lazy(() => loadPdfModule().then((m) => ({ default: m.PDFViewer })));
 
 // ─── Section toggles ────────────────────────────────────────────────────────
 
@@ -156,6 +160,7 @@ export default function BookApresentacaoPage() {
     if (!site) return;
     try {
       setGenerating(true);
+      const { pdf } = await loadPdfModule();
       const blob = await pdf(
         <BookDocument
           site={site}
@@ -196,6 +201,7 @@ export default function BookApresentacaoPage() {
     if (!site) return;
     try {
       setGenerating(true);
+      const { pdf } = await loadPdfModule();
       const blob = await pdf(
         <BookDocument
           site={site}
@@ -226,6 +232,7 @@ export default function BookApresentacaoPage() {
       setSharing(true);
 
       // 1. Generate PDF blob
+      const { pdf } = await loadPdfModule();
       const blob = await pdf(
         <BookDocument
           site={site}
