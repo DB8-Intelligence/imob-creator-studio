@@ -505,7 +505,7 @@ const TermsPage = () => {
               <Building2 className="w-4 h-4 text-primary" />
             </div>
             <span className="font-display text-base font-semibold text-foreground">
-              DB8 Intelligence <span className="text-gradient">AI</span>
+              NexoImob <span className="text-gradient">AI</span>
             </span>
           </Link>
           <Link

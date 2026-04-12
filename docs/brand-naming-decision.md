@@ -1,6 +1,6 @@
 # Decisao de Naming - Marca e Produto
 
-Status: draft para aprovacao
+Status: aprovado e em rollout
 Data: 2026-04-12
 Owner: Produto + Marketing + Engenharia
 
@@ -62,8 +62,31 @@ Essa variacao aparece em landing, app, pricing, utilitarios de share/watermark, 
 - Textos legais mantem DB8 Intelligence para conformidade juridica.
 - Documento aprovado por Produto e Marketing.
 
-## Decisao pendente
+## Decisao final
 
-- Confirmar se a marca externa oficial sera NexoImob AI ou ImobCreator AI.
+- Marca externa oficial: **NexoImob AI** (aprovado)
+- Produto/plataforma interna: **ImobCreator AI Studio**
+- Razao social/juridico/billing: **DB8 Intelligence**
 
-Se a decisao for ImobCreator AI como marca externa, executar substituicao controlada nas camadas publicas mantendo DB8 Intelligence somente em contexto juridico/comercial.
+## Execucao do rollout (2026-04-12)
+
+Fase A - Copy critica (concluida):
+
+- Header (src/components/Header.tsx) - ja usa NexoImob AI
+- Landing (src/pages/Index.tsx) - ja usa NexoImob AI
+- Pricing page (src/pages/PrecosPage.tsx) - sem marca conflitante
+- Video pricing - sem marca conflitante
+
+Fase B - Suporte (concluida):
+
+- shareUtils.ts - ja usa "Criado com NexoImob AI" na caption
+- watermarkUtils.ts - ja usa "Criado com NexoImob AI" como DEFAULT_TEXT
+- adCampaigns.ts - 4 displayPaths de campanha Google migrados de
+  `db8intelligence.com.br/*` para `nexoimob.com.br/*`
+- TermsPage.tsx header corrigido de "DB8 Intelligence AI" para "NexoImob AI"
+
+Fase C - Legal (mantido DB8 Intelligence):
+
+- TermsPage.tsx corpo do documento (emails, razao social)
+- Settings.tsx secao LGPD (contato juridico)
+- Estes locais sao contexto juridico e devem manter DB8 Intelligence

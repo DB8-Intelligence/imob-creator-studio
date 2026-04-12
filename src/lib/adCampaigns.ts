@@ -598,7 +598,7 @@ const googleCampanha1: GoogleCampaign = {
         "Corretores que usam IA no marketing vendem mais rápido. Comece agora com 10 criativos grátis.",
       ],
       finalUrl:    "/lp/criar-posts-imoveis",
-      displayPath: "db8intelligence.com.br/posts-imoveis",
+      displayPath: "nexoimob.com.br/posts-imoveis",
     },
   ],
 };
@@ -644,7 +644,7 @@ const googleCampanha2: GoogleCampaign = {
         "Teste grátis — 10 criativos sem cartão de crédito. Posts para feed, story e reels com IA.",
       ],
       finalUrl:    "/lp/criar-posts-imoveis",
-      displayPath: "db8intelligence.com.br/criar-posts",
+      displayPath: "nexoimob.com.br/criar-posts",
     },
   ],
 };
@@ -690,7 +690,7 @@ const googleCampanha3: GoogleCampaign = {
         "Corretores que usam vídeo fecham mais rápido. Gere vídeo cinemático do seu imóvel em minutos.",
       ],
       finalUrl:    "/lp/video-imobiliario",
-      displayPath: "db8intelligence.com.br/video",
+      displayPath: "nexoimob.com.br/video",
     },
   ],
 };
@@ -736,7 +736,7 @@ const googleCampanha4: GoogleCampaign = {
         "Da captacao do imovel a publicacao automatica: NexoImob AI cuida do marketing enquanto voce vende.",
       ],
       finalUrl:    "/lp/automacao-imobiliaria",
-      displayPath: "db8intelligence.com.br/automacao",
+      displayPath: "nexoimob.com.br/automacao",
     },
   ],
 };
