@@ -513,7 +513,7 @@ const Settings = () => {
                   Documentos aceitos
                 </CardTitle>
                 <CardDescription>
-                  Ao utilizar o DB8 Intelligence você declara ter lido e aceito os documentos abaixo. O aceite é automático ao clicar em "Comprar", "Assinar" ou "Finalizar compra".
+                  Ao utilizar o NexoImob AI você declara ter lido e aceito os documentos abaixo. O aceite é automático ao clicar em "Comprar", "Assinar" ou "Finalizar compra".
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -521,7 +521,7 @@ const Settings = () => {
                   { label: "Termos de Uso", tab: "termos", updated: "04/03/2026", desc: "Regras de uso, conteúdo proibido, responsabilidades e foro" },
                   { label: "Política de Privacidade (LGPD)", tab: "privacidade", updated: "04/03/2026", desc: "Dados coletados, finalidades, compartilhamento e direitos do titular" },
                   { label: "Política de Reembolso", tab: "reembolso", updated: "04/03/2026", desc: "Garantia de 7 dias, créditos, chargeback e como solicitar" },
-                  { label: "Política de Cancelamento", tab: "cancelamento", updated: "Em breve", desc: "Processo de cancelamento de assinatura" },
+                  { label: "Política de Cancelamento", tab: "cancelamento", updated: "04/03/2026", desc: "Processo de cancelamento de assinatura" },
                 ].map((doc) => (
                   <div key={doc.label} className="flex items-start justify-between gap-4 p-3 rounded-xl border border-border/60 bg-muted/20">
                     <div className="min-w-0">

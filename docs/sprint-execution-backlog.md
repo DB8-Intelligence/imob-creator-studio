@@ -5,17 +5,34 @@ Data: 2026-04-12
 
 ## Status de Execucao
 
+- Concluido: SP1-001 - Congelar naming oficial da marca (Fases A, B e C aplicadas; rollout NexoImob AI / ImobCreator AI Studio / DB8 Intelligence documentado em docs/brand-naming-decision.md)
 - Concluido: SP1-002 - Unificar nomenclatura de planos de video
-- Concluido: SP2-002 - Expor modulo de video no dashboard inicial
-- Em progresso: SP1-001 - Congelar naming oficial da marca (fase publica aplicada; pendente validar decisao final e ajustar docs/metadados)
-- Em progresso avancado: SP2-004 - Instrumentacao de eventos de ativacao (eventos implementados em auth, onboarding e modulo de video)
 - Concluido: SP2-001 - Hub pos-login por intencao
+- Concluido: SP2-002 - Expor modulo de video no dashboard inicial
 - Concluido: SP2-003 - Onboarding progressivo orientado a valor
+- Concluido: SP2-004 - Instrumentacao de eventos de ativacao (eventos em auth, onboarding e modulo de video)
 - Concluido: SP2-005 - Medicao de time-to-first-value
 - Concluido: SP3-001 - Wizard unico de criacao
 - Concluido: SP3-002 - Briefing dinamico por tipo de conteudo
 - Concluido: SP3-005 - Fechar TODOs criticos de copy e persistencia
-- Proximo item tecnico: SP3-003 - Preview comparativo A/B/C com acao rapida
+- Pendente: SP1-004 - Preencher 13 links de checkout Kiwify (bloqueado por NEG)
+- Pendente: SP3-003 - Preview comparativo A/B/C (proximo item tecnico de maior esforco)
+- Pendente: SP3-004 - Edicao inline de copy
+- Pendente: SP4-001 a SP4-004 - Video hardening e operacao
+
+## Entregas complementares (fora do backlog original)
+
+Aplicadas entre 2026-04-10 e 2026-04-12:
+
+- 5 novos temas de site (nestland, nexthm, ortiz, quarter, rethouse) - total de 10 temas disponiveis
+- Dashboard dark de modelos de site (adaptado do intermetrix) em src/pages/dashboard/site/DashboardSitePage.tsx
+- Upload real de imoveis no Supabase (properties + property_media + storage property-media)
+- WhatsApp bulk notify via n8n bridge (PropertyLeadsTab) - removido alert placeholder
+- Agent Chat integrado com Edge Function supabase.functions.invoke('agent-chat') com fallback mock
+- Build unblocked: fix critico em eventTracker.ts (semicolon prematuro na union type)
+- Code splitting agressivo: index.js 2.4MB->1.6MB (-32%), BookApresentacaoPage 1.5MB->24KB (-98%)
+- Kiwify checkout fallback para WhatsApp quando link ainda nao configurado
+- Cleanup de badges "Em breve" em modulos ja implementados (Header, Index, PrecosPage, LPs)
 
 ## Convencoes
 
