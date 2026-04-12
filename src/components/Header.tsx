@@ -47,10 +47,10 @@ function Dropdown({ label, items, cols = 1 }: { label: string; items: DDItem[]; 
 const solutions: DDItem[] = [
   { label: "Criativos", href: "/criativos", emoji: "🎨", desc: "Posts e artes com IA", badge: "Disponível" },
   { label: "Vídeos", href: "/videos", emoji: "🎬", desc: "Fotos viram Reels", badge: "Disponível" },
-  { label: "Site + Portais", href: "/site-imobiliario", emoji: "🏠", desc: "SEO e integração portais", badge: "Em breve" },
-  { label: "CRM", href: "/crm-imobiliario", emoji: "🤝", desc: "Organize leads", badge: "Em breve" },
-  { label: "WhatsApp", href: "/whatsapp-imobiliario", emoji: "📱", desc: "Foto → Post automático", badge: "Em breve" },
-  { label: "Social", href: "/publicacao-social", emoji: "📣", desc: "Agende e publique", badge: "Em breve" },
+  { label: "Site + Portais", href: "/site-imobiliario", emoji: "🏠", desc: "10 modelos + SEO automático", badge: "Disponível" },
+  { label: "CRM", href: "/crm-imobiliario", emoji: "🤝", desc: "Pipeline de leads completo", badge: "Disponível" },
+  { label: "WhatsApp", href: "/whatsapp-imobiliario", emoji: "📱", desc: "Inbox + automações n8n", badge: "Disponível" },
+  { label: "Social", href: "/publicacao-social", emoji: "📣", desc: "Agende IG + FB", badge: "Disponível" },
 ];
 
 const recursos: DDItem[] = [

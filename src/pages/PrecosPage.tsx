@@ -89,23 +89,25 @@ export default function PrecosPage() {
         </div>
       </section>
 
-      {/* Em breve */}
+      {/* Modulos inclusos */}
       <section className="py-16 px-6 bg-white">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-2xl font-bold text-[#0A1628] mb-8">Módulos em breve</h2>
+          <h2 className="text-2xl font-bold text-[#0A1628] mb-2">Modulos inclusos no plano</h2>
+          <p className="text-[#6B7280] text-sm mb-8">Todos os planos incluem acesso completo a estes modulos imobiliarios.</p>
           <Reveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { emoji: "🏠", title: "Site + Portais", href: "/site-imobiliario" },
-              { emoji: "🤝", title: "CRM", href: "/crm-imobiliario" },
-              { emoji: "📱", title: "WhatsApp", href: "/whatsapp-imobiliario" },
-              { emoji: "📣", title: "Social", href: "/publicacao-social" },
+              { emoji: "🏠", title: "Site + Portais", desc: "10 modelos + SEO", href: "/site-imobiliario" },
+              { emoji: "🤝", title: "CRM", desc: "Pipeline Kanban", href: "/crm-imobiliario" },
+              { emoji: "📱", title: "WhatsApp", desc: "Inbox + automacoes", href: "/whatsapp-imobiliario" },
+              { emoji: "📣", title: "Social", desc: "Agende IG + FB", href: "/publicacao-social" },
             ].map(m => (
               <motion.div key={m.title} variants={fadeUp}>
-                <Link to={m.href} className="block bg-white rounded-2xl border-[1.5px] border-dashed border-[#CBD5E1] p-6 text-center opacity-80 hover:opacity-100 transition-all">
+                <Link to={m.href} className="block bg-white rounded-2xl border border-[#E5E7EB] hover:border-[#002B5B] hover:shadow-md p-6 text-center transition-all">
                   <span className="text-3xl mb-2 block">{m.emoji}</span>
                   <h3 className="text-[#0A1628] font-bold text-base mb-1">{m.title}</h3>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#F3F4F6] text-[#6B7280]">Em breve</span>
-                  <p className="text-[#002B5B] text-sm font-semibold mt-3 inline-flex items-center gap-1">Entrar na lista <ArrowRight size={12} /></p>
+                  <p className="text-[11px] text-[#6B7280] mb-2">{m.desc}</p>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#DCFCE7] text-[#166534]">Disponivel</span>
+                  <p className="text-[#002B5B] text-sm font-semibold mt-3 inline-flex items-center gap-1">Acessar <ArrowRight size={12} /></p>
                 </Link>
               </motion.div>
             ))}

@@ -29,7 +29,7 @@ export default function SitePage() {
       <section className="pt-28 md:pt-36 pb-20 bg-gradient-to-b from-[#F8FAFF] to-white">
         <div className="container mx-auto px-6 max-w-3xl text-center">
           <Reveal className="flex flex-col items-center gap-5">
-            <motion.div variants={fadeUp}><span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-[#059669]">🏠 Site + Portais Imobiliários · Em breve</span></motion.div>
+            <motion.div variants={fadeUp}><span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full bg-[#DCFCE7] border border-[#86EFAC] text-[#166534]">🏠 Site + Portais · 10 modelos disponiveis</span></motion.div>
             <motion.h1 variants={fadeUp} className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold text-[#0A1628] leading-[1.1] tracking-tight">Seu site imobiliário com SEO automático e integração com todos os portais</motion.h1>
             <motion.p variants={fadeUp} className="text-[#6B7280] text-base md:text-lg max-w-lg">ZAP, OLX, VivaReal e ImovelWeb integrados. Site profissional em minutos.</motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center gap-3 mt-4 w-full max-w-md">
@@ -47,18 +47,18 @@ export default function SitePage() {
 
       <section className="py-20 px-6 bg-[#F8FAFF]">
         <div className="container mx-auto max-w-5xl">
-          <Reveal className="text-center mb-12"><motion.h2 variants={fadeUp} className="text-2xl font-extrabold text-[#0A1628]">O que está vindo</motion.h2></Reveal>
+          <Reveal className="text-center mb-12"><motion.h2 variants={fadeUp} className="text-2xl font-extrabold text-[#0A1628]">Recursos disponiveis</motion.h2></Reveal>
           <Reveal className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { emoji: "📡", title: "Feed XML automático", desc: "Para todos os portais de imóveis." },
               { emoji: "🔍", title: "SEO automático por IA", desc: "Para cada imóvel publicado." },
-              { emoji: "🏗️", title: "Site personalizável", desc: "Sem precisar de programador." },
+              { emoji: "🏗️", title: "Site personalizável", desc: "10 modelos prontos, sem programador." },
             ].map((f) => (
-              <motion.div key={f.title} variants={fadeUp} className="bg-white rounded-2xl border-[1.5px] border-dashed border-[#CBD5E1] p-7 text-center opacity-80">
+              <motion.div key={f.title} variants={fadeUp} className="bg-white rounded-2xl border border-[#E5E7EB] p-7 text-center">
                 <span className="text-3xl mb-3 block">{f.emoji}</span>
                 <h3 className="text-[#0A1628] font-bold text-base mb-1">{f.title}</h3>
                 <p className="text-[#6B7280] text-sm">{f.desc}</p>
-                <span className="inline-block mt-3 text-[10px] font-semibold px-2 py-0.5 rounded bg-[#F1F5F9] text-[#6B7280]">Em desenvolvimento</span>
+                <span className="inline-block mt-3 text-[10px] font-semibold px-2 py-0.5 rounded bg-[#DCFCE7] text-[#166534]">Disponível</span>
               </motion.div>
             ))}
           </Reveal>

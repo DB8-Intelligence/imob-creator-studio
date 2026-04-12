@@ -77,14 +77,14 @@ const tabs = [
     id: "site", emoji: "🏠", label: "Site+Portais",
     title: "Site imobiliário com SEO automático", sub: "Portfólio online com domínio próprio, integrado com portais de imóveis.",
     benefits: ["Template responsivo otimizado", "SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "Formulário com WhatsApp"],
-    cta: "Entrar na lista", href: "/site-imobiliario", accent: "bg-[#F0FDF4]",
+    cta: "Acessar agora", href: "/site-imobiliario", accent: "bg-[#F0FDF4]",
     mockup: <SiteThemeMiniGrid />,
   },
   {
     id: "crm", emoji: "🤝", label: "CRM",
     title: "Organize leads e feche mais negócios", sub: "Pipeline visual com histórico completo de cada lead.",
     benefits: ["Pipeline Kanban de vendas", "Histórico de interações", "Automação de follow-up", "Relatórios de conversão"],
-    cta: "Entrar na lista", href: "/crm-imobiliario", accent: "bg-[#F0F9FF]",
+    cta: "Acessar CRM", href: "/crm-imobiliario", accent: "bg-[#F0F9FF]",
     mockup: (
       <div className="flex gap-2">
         {["Novos", "Negociação", "Fechados"].map((c) => (
@@ -100,7 +100,7 @@ const tabs = [
     id: "whatsapp", emoji: "📱", label: "WhatsApp",
     title: "Foto no WA → post no Instagram", sub: "Parceiro envia fotos pelo WhatsApp, a IA cria e publica automaticamente.",
     benefits: ["Recepção automática via WA", "IA analisa e gera criativos", "Publicação automática no IG", "Notificação ao corretor"],
-    cta: "Entrar na lista", href: "/whatsapp-imobiliario", accent: "bg-[#FFF0F5]",
+    cta: "Configurar agora", href: "/whatsapp-imobiliario", accent: "bg-[#FFF0F5]",
     mockup: (
       <div className="rounded-xl border border-[#E5E7EB] bg-[#F0FDF4] p-4 space-y-2">
         <div className="flex gap-2"><div className="w-6 h-6 rounded-full bg-[#25D366]" /><div className="bg-white rounded-lg px-3 py-2 text-[10px] text-[#374151] border border-[#E5E7EB]">📸 Novas fotos do apto 302</div></div>
@@ -113,10 +113,10 @@ const tabs = [
 const modules = [
   { emoji: "🎨", title: "Criativos", desc: "Posts e artes profissionais com IA", href: "/criativos", accent: "bg-[#EEF2FF]", available: true },
   { emoji: "🎬", title: "Vídeos", desc: "Fotos viram Reels cinematográficos", href: "/videos", accent: "bg-[#FFF7E0]", available: true },
-  { emoji: "🏠", title: "Site + Portais", desc: "Site com SEO e integração portais", href: "/site-imobiliario", accent: "bg-[#F0FDF4]", available: false },
-  { emoji: "🤝", title: "CRM", desc: "Organize leads e feche mais", href: "/crm-imobiliario", accent: "bg-[#F0F9FF]", available: false },
-  { emoji: "📱", title: "WhatsApp", desc: "Foto no WA → Post no IG", href: "/whatsapp-imobiliario", accent: "bg-[#FFF0F5]", available: false },
-  { emoji: "📣", title: "Publicação Social", desc: "Agende e publique IG + FB", href: "/publicacao-social", accent: "bg-[#FFFBEB]", available: false },
+  { emoji: "🏠", title: "Site + Portais", desc: "10 modelos profissionais + SEO automático", href: "/site-imobiliario", accent: "bg-[#F0FDF4]", available: true },
+  { emoji: "🤝", title: "CRM", desc: "Pipeline Kanban completo de leads", href: "/crm-imobiliario", accent: "bg-[#F0F9FF]", available: true },
+  { emoji: "📱", title: "WhatsApp", desc: "Inbox + automações inteligentes", href: "/whatsapp-imobiliario", accent: "bg-[#FFF0F5]", available: true },
+  { emoji: "📣", title: "Publicação Social", desc: "Agende e publique IG + FB", href: "/publicacao-social", accent: "bg-[#FFFBEB]", available: true },
 ];
 
 // ─── Page ────────────────────────────────────────────────────────────────────
@@ -239,8 +239,8 @@ const Index = () => {
       {[
         { badge: "🎨 Módulo Criativos", title: "Crie posts profissionais sem saber design", desc: "Templates exclusivos para corretor. IA ajusta cores, texto e estilo da sua marca.", bullets: ["50 a 150 artes por mês", "Copy automática pela IA", "6 formatos profissionais", "Download ou publica direto"], href: "/criativos", cta: "Experimente agora", reverse: false, bg: "bg-white", accent: "from-[#EEF2FF] to-[#F8FAFF]", visual: <div className="grid grid-cols-3 gap-2">{["Dark Premium","IA Express","Black Gold","Captação","Clássico","Top"].map(s=><div key={s} className="aspect-square rounded-lg bg-gradient-to-br from-[#EEF2FF] to-white border border-[#E5E7EB] flex items-center justify-center"><span className="text-[8px] text-[#6B7280] text-center leading-tight">{s}</span></div>)}</div> },
         { badge: "🎬 Módulo Vídeos", title: "Transforme fotos em Reels cinematográficos", desc: "Ken Burns automático, trilha sonora e texto overlay. Pronto para o Instagram.", bullets: ["5 a 20 vídeos por mês", "Ken Burns + crossfade", "6 trilhas royalty-free", "Formato 9:16 para Reels"], href: "/videos", cta: "Experimente agora", reverse: true, bg: "bg-[#F8FAFF]", accent: "from-[#FFF7E0] to-[#F8FAFF]", visual: <div className="flex flex-col gap-3"><div className="aspect-video rounded-lg bg-gradient-to-br from-[#FFF7E0] to-white border border-[#E5E7EB] flex items-center justify-center"><div className="w-10 h-10 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center"><div className="w-0 h-0 border-l-[8px] border-l-[#002B5B] border-y-[5px] border-y-transparent ml-0.5" /></div></div><div className="h-2 rounded-full bg-[#E5E7EB]"><div className="h-2 rounded-full bg-[#002B5B] w-2/3" /></div></div> },
-        { badge: "🏠 Site + Portais", title: "Seu site imobiliário com SEO por IA", desc: "Portfólio online profissional integrado com todos os portais de imóveis.", bullets: ["SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "10 modelos profissionais", "Formulário com WhatsApp"], href: "/site-imobiliario", cta: "Entrar na lista", reverse: false, bg: "bg-white", accent: "from-[#F0FDF4] to-[#F8FAFF]", visual: <SiteThemeMiniGrid /> },
-        { badge: "🤝 CRM Imobiliário", title: "Organize leads e feche mais negócios", desc: "Pipeline visual de vendas com histórico completo de cada lead.", bullets: ["Pipeline Kanban visual", "Distribuição automática de leads", "Automação de follow-up", "Relatórios de conversão"], href: "/crm-imobiliario", cta: "Entrar na lista", reverse: true, bg: "bg-[#F8FAFF]", accent: "from-[#F0F9FF] to-[#F8FAFF]", visual: <div className="flex gap-2">{["Novos","Negociação","Fechados"].map(c=><div key={c} className="flex-1 rounded-lg border border-[#E5E7EB] p-2 bg-white"><div className="text-[8px] font-bold text-[#6B7280] mb-1.5 text-center">{c}</div>{[1,2].map(i=><div key={i} className="h-5 rounded bg-[#F8FAFF] border border-[#E5E7EB] mb-1" />)}</div>)}</div> },
+        { badge: "🏠 Site + Portais", title: "Seu site imobiliário com SEO por IA", desc: "Portfólio online profissional integrado com todos os portais de imóveis.", bullets: ["SEO automático por imóvel", "Integração ZAP, OLX, VivaReal", "10 modelos profissionais", "Formulário com WhatsApp"], href: "/site-imobiliario", cta: "Acessar agora", reverse: false, bg: "bg-white", accent: "from-[#F0FDF4] to-[#F8FAFF]", visual: <SiteThemeMiniGrid /> },
+        { badge: "🤝 CRM Imobiliário", title: "Organize leads e feche mais negócios", desc: "Pipeline visual de vendas com histórico completo de cada lead.", bullets: ["Pipeline Kanban visual", "Distribuição automática de leads", "Automação de follow-up", "Relatórios de conversão"], href: "/crm-imobiliario", cta: "Acessar CRM", reverse: true, bg: "bg-[#F8FAFF]", accent: "from-[#F0F9FF] to-[#F8FAFF]", visual: <div className="flex gap-2">{["Novos","Negociação","Fechados"].map(c=><div key={c} className="flex-1 rounded-lg border border-[#E5E7EB] p-2 bg-white"><div className="text-[8px] font-bold text-[#6B7280] mb-1.5 text-center">{c}</div>{[1,2].map(i=><div key={i} className="h-5 rounded bg-[#F8FAFF] border border-[#E5E7EB] mb-1" />)}</div>)}</div> },
       ].map((block, idx) => (
         <section key={idx} className={`py-20 px-6 ${block.bg}`}>
           <div className="container mx-auto max-w-5xl">
@@ -365,7 +365,7 @@ const Index = () => {
             { q: "Posso cancelar a qualquer momento?", a: "Sim, sem fidelidade ou multa. Cancele quando quiser pelo painel ou por e-mail." },
             { q: "O conteúdo gerado é exclusivo para mim?", a: "Sim, 100%. Cada criativo ou vídeo é gerado sob medida para seu imóvel e sua marca. Sem marca d'água." },
             { q: "Tem suporte disponível?", a: "Sim! Suporte via WhatsApp em horário comercial. Respondemos em até 2 horas." },
-            { q: "Como funciona a integração com portais?", a: "O módulo Site+Portais (em breve) gera feeds XML automáticos compatíveis com ZAP, OLX, VivaReal e ImovelWeb." },
+            { q: "Como funciona a integração com portais?", a: "O módulo Site+Portais gera feeds XML automáticos compatíveis com ZAP, OLX, VivaReal e ImovelWeb." },
           ].map((f) => <Accordion key={f.q} {...f} />)}
         </div>
       </section>
