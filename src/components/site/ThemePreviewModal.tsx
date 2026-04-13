@@ -5,7 +5,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, Home, Building2, User, MessageSquare, Phone, LayoutGrid } from "lucide-react";
 import type { TemaCorr, CorretorSite, SiteImovel, SiteDepoimento } from "@/types/site";
-import TemaRendererV2 from "@/components/site-temas/TemaRendererV2";
+import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 
 /* ------------------------------------------------------------------ */
 /*  Demo data                                                          */
@@ -241,7 +241,7 @@ export default function ThemePreviewModal({
           onScroll={handleScroll}
           className="w-full max-w-5xl overflow-y-auto rounded-xl bg-white shadow-2xl"
         >
-          <TemaRendererV2
+          <ThemeRenderer
             site={previewSite}
             imoveis={DEMO_IMOVEIS}
             depoimentos={DEMO_DEPOIMENTOS}

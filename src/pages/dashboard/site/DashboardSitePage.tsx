@@ -5,7 +5,7 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
-import type { TemaCorr } from "@/types/site";
+import type { CorretorSite, TemaCorr } from "@/types/site";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,8 +23,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import SitePreviewFrame, { type ThemeKey } from "./SitePreviewFrame";
-import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
+import SitePreviewFrame from "./SitePreviewFrame";
+
+type ThemeKey = TemaCorr;
 
 import {
   Paintbrush,
@@ -80,12 +81,6 @@ const THEMES: { key: ThemeKey; label: string; description: string; palette: stri
     label: "Litoral",
     description: "Elegante, navy & gold",
     palette: "bg-gradient-to-r from-[#002B5B] to-[#D4AF37]",
-  },
-  {
-    key: "hamilton",
-    label: "Hamilton Classic",
-    description: "Profissional, topbar, busca",
-    palette: "bg-gradient-to-r from-[#003d4d] to-[#1685b6]",
   },
   {
     key: "nestland" as ThemeKey,
@@ -184,14 +179,18 @@ const DashboardSitePage = () => {
       });
   }, [workspaceId]);
 
-  // --- Derived preview config ---
-  const previewConfig: SiteThemeConfig = {
-    nome_empresa: nomeEmpresa,
+  // --- Derived preview site (synthetic CorretorSite for renderer) ---
+  const previewSite = {
+    id: "preview",
+    user_id: "preview",
+    nome_completo: nomeEmpresa,
     whatsapp,
-    email,
+    email_contato: email,
     cor_primaria: corPrimaria,
-    properties: properties.filter((p) => p.status === "published" || p.status === "available"),
-  };
+    cor_secundaria: corSecundaria,
+    tema: selectedTheme,
+    publicado: false,
+  } as unknown as CorretorSite;
 
   // --- Portal toggle ---
   const togglePortal = (key: string) => {
@@ -640,8 +639,7 @@ const DashboardSitePage = () => {
           </div>
 
           <SitePreviewFrame
-            theme={selectedTheme}
-            config={previewConfig}
+            site={previewSite}
             slug={workspaceSlug ?? "meu-site"}
             viewMode={viewMode}
           />

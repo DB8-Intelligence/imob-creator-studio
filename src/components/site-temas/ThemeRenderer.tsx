@@ -21,7 +21,7 @@ const THEMES: Record<string, React.FC<TemaProps>> = {
   rethouse: RethouseLayout,
 };
 
-export default function TemaRendererV2(props: TemaProps) {
+export default function ThemeRenderer(props: TemaProps) {
   const themeKey = props.site.tema || "brisa";
   const ThemeComponent = THEMES[themeKey] || BrisaLayout;
 

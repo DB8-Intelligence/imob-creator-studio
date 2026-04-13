@@ -30,8 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useSite, useUpdateSite, usePublishSite } from "@/hooks/useCorretorSite";
 import { TEMAS, type CorretorSite, type TemaCorr } from "@/types/site";
-import ThemeRenderer from "@/components/site-themes/ThemeRenderer";
-import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
+import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 import { SiteOnboardingWizard } from "@/components/site/SiteOnboardingWizard";
 
 /* ------------------------------------------------------------------ */
@@ -56,7 +55,6 @@ const THEME_GRADIENTS: Record<TemaCorr, string> = {
   urbano: "from-gray-800 to-orange-500",
   litoral: "from-[#002B5B] to-[#D4AF37]",
   "dark-premium": "from-[#1E3A8A] to-[#D4AF37]",
-  hamilton: "from-[#003d4d] to-[#1685b6]",
   nestland: "from-[#0f0f0f] to-[#b99755]",
   nexthm: "from-[#122122] to-[#2c686b]",
   ortiz: "from-[#05344a] to-[#25a5de]",
@@ -140,17 +138,17 @@ export default function SiteImobiliario() {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Preview config                                                   */
+  /*  Preview site (live draft → CorretorSite shape)                   */
   /* ---------------------------------------------------------------- */
 
-  const previewConfig: SiteThemeConfig = {
-    nome_empresa: draft.nome_completo || "Seu Nome",
-    whatsapp: draft.whatsapp || "",
-    email: draft.email_contato || "",
+  const previewSite = {
+    ...(site ?? {}),
+    ...draft,
+    nome_completo: draft.nome_completo || "Seu Nome",
     cor_primaria: draft.cor_primaria || "#0284C7",
     cor_secundaria: draft.cor_secundaria || "#F59E0B",
-    properties: [],
-  };
+    tema: (draft.tema as TemaCorr) || "brisa",
+  } as CorretorSite;
 
   /* ---------------------------------------------------------------- */
   /*  Render                                                           */
@@ -735,10 +733,7 @@ export default function SiteImobiliario() {
                   transform: "scale(0.5)",
                 }}
               >
-                <ThemeRenderer
-                  config={previewConfig}
-                  theme={draft.tema || "brisa"}
-                />
+                <ThemeRenderer site={previewSite} imoveis={[]} depoimentos={[]} />
               </div>
             </div>
           </div>

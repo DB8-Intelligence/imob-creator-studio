@@ -73,13 +73,6 @@ const THEME_CARDS: ThemeCard[] = [
     isNew: false, isPremium: true, category: "Premium",
   },
   {
-    id: "hamilton", label: "Hamilton Classic", description: "Profissional, topbar",
-    longDescription: "Layout classico com topbar profissional e barra de busca integrada.",
-    icon: "🏛️", gradient: "linear-gradient(135deg, #003d4d, #1685b6)", color: "#1685b6",
-    features: ["Topbar completo", "Busca integrada", "Layout profissional"],
-    isNew: false, isPremium: false, category: "Classico",
-  },
-  {
     id: "nestland", label: "Nestland", description: "Elegante, minimalista, dourado",
     longDescription: "Minimalismo sofisticado com preto e dourado. Fontes serifadas e espacamento generoso.",
     icon: "🏡", gradient: "linear-gradient(135deg, #0f0f0f, #b99755)", color: "#b99755",

@@ -1,34 +1,22 @@
 import type { FC } from "react";
-import TemaBreza from "@/components/site-themes/TemaBreza";
-import TemaUrbano from "@/components/site-themes/TemaUrbano";
-import TemaLitoral from "@/components/site-themes/TemaLitoral";
-import TemaHamilton from "@/components/site-themes/TemaHamilton";
-import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
-
-export type ThemeKey = "brisa" | "urbano" | "litoral" | "hamilton";
+import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
+import type { CorretorSite, SiteImovel, SiteDepoimento } from "@/types/site";
 
 interface SitePreviewFrameProps {
-  theme: ThemeKey;
-  config: SiteThemeConfig;
+  site: CorretorSite;
+  imoveis?: SiteImovel[];
+  depoimentos?: SiteDepoimento[];
   slug?: string;
   viewMode?: "desktop" | "mobile";
 }
 
-const themeComponents: Record<ThemeKey, FC<{ config: SiteThemeConfig }>> = {
-  brisa: TemaBreza,
-  urbano: TemaUrbano,
-  litoral: TemaLitoral,
-  hamilton: TemaHamilton,
-};
-
 const SitePreviewFrame: FC<SitePreviewFrameProps> = ({
-  theme,
-  config,
+  site,
+  imoveis = [],
+  depoimentos = [],
   slug = "meu-site",
   viewMode = "desktop",
 }) => {
-  const ThemeComponent = themeComponents[theme];
-
   const innerWidth = viewMode === "desktop" ? 1280 : 390;
   const containerWidth = viewMode === "desktop" ? 640 : 195;
   const scale = containerWidth / innerWidth;
@@ -59,7 +47,7 @@ const SitePreviewFrame: FC<SitePreviewFrameProps> = ({
             transform: `scale(${scale})`,
           }}
         >
-          <ThemeComponent config={config} />
+          <ThemeRenderer site={site} imoveis={imoveis} depoimentos={depoimentos} />
         </div>
       </div>
     </div>

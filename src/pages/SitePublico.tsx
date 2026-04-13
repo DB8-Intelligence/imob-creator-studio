@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import ThemeRenderer from "@/components/site-themes/ThemeRenderer";
-import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
+import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 import type {
   CorretorSite,
   SiteImovel,
@@ -175,25 +174,6 @@ export default function SitePublico() {
     );
   }
 
-  /* ---------------------------------------------------------------- */
-  /*  Build theme config                                               */
-  /* ---------------------------------------------------------------- */
-
-  const themeConfig: SiteThemeConfig = {
-    nome_empresa: site.nome_completo || "Corretor",
-    whatsapp: site.whatsapp || "",
-    email: site.email_contato || "",
-    cor_primaria: site.cor_primaria || "#0284C7",
-    cor_secundaria: site.cor_secundaria || "#F59E0B",
-    properties: imoveis.map((im) => ({
-      id: im.id,
-      title: im.titulo,
-      price: im.preco ?? null,
-      property_type: im.tipo,
-      status: im.status,
-    })),
-  };
-
   const whatsappNumber = (site.whatsapp || "").replace(/\D/g, "");
 
   /* ---------------------------------------------------------------- */
@@ -202,63 +182,8 @@ export default function SitePublico() {
 
   return (
     <div className="relative min-h-screen">
-      {/* Theme render */}
-      <ThemeRenderer config={themeConfig} theme={site.tema || "brisa"} />
-
-      {/* ── Depoimentos Section ─────────────────────────────────── */}
-      {depoimentos.length > 0 && (
-        <section className="bg-gray-50 px-6 py-12">
-          <div className="mx-auto max-w-4xl">
-            <h2 className="mb-8 text-center text-2xl font-bold text-gray-800">
-              O que dizem sobre mim
-            </h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {depoimentos.map((dep) => (
-                <div
-                  key={dep.id}
-                  className="rounded-xl bg-white p-5 shadow-sm border border-gray-100"
-                >
-                  <div className="mb-3 flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span
-                        key={i}
-                        className="text-sm"
-                        style={{
-                          color: i < dep.avaliacao ? "#f5a623" : "#e5e7eb",
-                        }}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  <p className="mb-3 text-sm italic text-gray-600">
-                    "{dep.texto}"
-                  </p>
-                  <div className="flex items-center gap-3">
-                    {dep.foto_url && (
-                      <img
-                        src={dep.foto_url}
-                        alt={dep.nome_cliente}
-                        className="h-8 w-8 rounded-full object-cover"
-                      />
-                    )}
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">
-                        {dep.nome_cliente}
-                      </p>
-                      {dep.tipo_negocio && (
-                        <p className="text-xs text-gray-400">
-                          {dep.tipo_negocio}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Theme render — depoimentos rendered internally by V2 layouts */}
+      <ThemeRenderer site={site} imoveis={imoveis} depoimentos={depoimentos} />
 
       {/* ── Contact Form Section ────────────────────────────────── */}
       <section className="bg-white px-6 py-12" id="contato">

@@ -7,8 +7,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Eye } from "lucide-react";
-import ThemeRenderer from "@/components/site-themes/ThemeRenderer";
-import type { SiteThemeConfig } from "@/components/site-themes/TemaBreza";
+import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 import type { CorretorSite, SiteImovel, SiteDepoimento } from "@/types/site";
 
 /* ------------------------------------------------------------------ */
@@ -125,25 +124,6 @@ export default function SitePreview() {
   }
 
   /* ---------------------------------------------------------------- */
-  /*  Build theme config                                               */
-  /* ---------------------------------------------------------------- */
-
-  const themeConfig: SiteThemeConfig = {
-    nome_empresa: site.nome_completo || "Corretor",
-    whatsapp: site.whatsapp || "",
-    email: site.email_contato || "",
-    cor_primaria: site.cor_primaria || "#0284C7",
-    cor_secundaria: site.cor_secundaria || "#F59E0B",
-    properties: imoveis.map((im) => ({
-      id: im.id,
-      title: im.titulo,
-      price: im.preco ?? null,
-      property_type: im.tipo,
-      status: im.status,
-    })),
-  };
-
-  /* ---------------------------------------------------------------- */
   /*  Render                                                           */
   /* ---------------------------------------------------------------- */
 
@@ -156,10 +136,7 @@ export default function SitePreview() {
       </div>
 
       {/* Theme render */}
-      <ThemeRenderer
-        config={themeConfig}
-        theme={site.tema || "brisa"}
-      />
+      <ThemeRenderer site={site} imoveis={imoveis} depoimentos={depoimentos} />
     </div>
   );
 }
