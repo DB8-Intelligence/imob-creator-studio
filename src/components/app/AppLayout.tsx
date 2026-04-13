@@ -38,7 +38,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { data: plan } = useUserPlan();
   const { workspaceName, workspaceRole } = useWorkspaceContext();
   const { toast } = useToast();
