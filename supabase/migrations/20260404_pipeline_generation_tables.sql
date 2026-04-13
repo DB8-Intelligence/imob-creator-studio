@@ -8,7 +8,7 @@
 --   generation_logs      — log estruturado de eventos por job
 --
 -- Nota: estas tabelas podem já existir no banco de produção
--- (dsszhodrrchlaqfignky / spjnymdizezgmzwoskoj). Esta migration
+-- (spjnymdizezgmzwoskoj / spjnymdizezgmzwoskoj). Esta migration
 -- usa CREATE TABLE IF NOT EXISTS para ser idempotente.
 -- ============================================================
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================
 # setup-secrets.sh — Configura secrets das Supabase Edge Functions
-# Projeto: imob-creator-studio (dsszhodrrchlaqfignky)
+# Projeto: imob-creator-studio (spjnymdizezgmzwoskoj)
 #
-# ⚠️  NOTA IMPORTANTE: dsszhodrrchlaqfignky é um projeto Lovable.
+# ⚠️  NOTA IMPORTANTE: spjnymdizezgmzwoskoj é um projeto Lovable.
 #     Para acessar via CLI, faça login com a conta Lovable no Supabase.
 #     Alternativamente, use este projeto de teste (já configurado):
 #       spjnymdizezgmzwoskoj (ImobCreatorAi)
@@ -13,14 +13,14 @@
 # Pré-requisitos (projeto Lovable):
 #   1. Supabase CLI instalado:  npm install -g supabase
 #   2. Login com conta Lovable: supabase login
-#   3. Projeto linkado:         cd imob-creator-studio && supabase link --project-ref dsszhodrrchlaqfignky
+#   3. Projeto linkado:         cd imob-creator-studio && supabase link --project-ref spjnymdizezgmzwoskoj
 #
 # Uso: bash setup-secrets.sh
 # ============================================================
 
 set -e
 
-PROJECT_REF="${SUPABASE_PROJECT_REF:-dsszhodrrchlaqfignky}"
+PROJECT_REF="${SUPABASE_PROJECT_REF:-spjnymdizezgmzwoskoj}"
 N8N_WEBHOOK_URL="https://automacao.db8intelligence.com.br/webhook/db8intelligence-events"
 
 echo "🔐 Configurando secrets para projeto Supabase: ${PROJECT_REF}"

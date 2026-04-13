@@ -13,11 +13,11 @@
 #      npm install -g @supabase/cli  (ou download do binário)
 #      supabase login
 #   2. Projeto linkado:
-#      supabase link --project-ref dsszhodrrchlaqfignky
+#      supabase link --project-ref spjnymdizezgmzwoskoj
 #
-# ⚠️  IMPORTANTE: O projeto dsszhodrrchlaqfignky está na conta Lovable.
+# ⚠️  IMPORTANTE: O projeto spjnymdizezgmzwoskoj está na conta Lovable.
 #     Para acesso, faça login com as credenciais Lovable:
-#     https://supabase.com/dashboard/project/dsszhodrrchlaqfignky
+#     https://supabase.com/dashboard/project/spjnymdizezgmzwoskoj
 #
 # Uso: bash deploy.sh
 # ============================================================
@@ -25,7 +25,7 @@
 set -e
 
 # ── Configuração ─────────────────────────────────────────────
-PROJECT_REF="${SUPABASE_PROJECT_REF:-dsszhodrrchlaqfignky}"
+PROJECT_REF="${SUPABASE_PROJECT_REF:-spjnymdizezgmzwoskoj}"
 N8N_WEBHOOK_URL="https://automacao.db8intelligence.com.br/webhook/db8intelligence-events"
 ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:?Defina a variável ANTHROPIC_API_KEY antes de executar}"
 

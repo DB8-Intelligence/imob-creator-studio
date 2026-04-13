@@ -2,7 +2,7 @@
 
 Guia pratico para validar manualmente o modulo de video em producao.
 
-- Projeto Supabase: `dsszhodrrchlaqfignky`
+- Projeto Supabase: `spjnymdizezgmzwoskoj`
 - Pre-requisito: deploy ja aplicado conforme `docs/video-module-supabase-deploy-checklist.md`
 - Duracao estimada da bateria completa: 25-35 min
 - Executor: preencher os campos de resultado no fim de cada teste

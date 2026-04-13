@@ -9,7 +9,7 @@ Publicar o módulo de vídeo do ImobCreator AI Studio com:
 - smoke test de ponta a ponta
 
 Projeto Supabase atual:
-- `dsszhodrrchlaqfignky`
+- `spjnymdizezgmzwoskoj`
 
 ---
 
@@ -65,7 +65,7 @@ Antes do deploy, confirmar:
 
 ## Etapa 1 — Linkar o projeto Supabase
 ```bash
-supabase link --project-ref dsszhodrrchlaqfignky
+supabase link --project-ref spjnymdizezgmzwoskoj
 ```
 
 ## Etapa 2 — Aplicar migrations
@@ -88,7 +88,7 @@ supabase functions deploy inbox-proxy
 ## Etapa 5 — Conferir secrets/config do projeto
 Se necessário, configurar secrets:
 ```bash
-supabase secrets set SUPABASE_URL=https://dsszhodrrchlaqfignky.supabase.co
+supabase secrets set SUPABASE_URL=https://spjnymdizezgmzwoskoj.supabase.co
 supabase secrets set SUPABASE_ANON_KEY=***
 supabase secrets set SUPABASE_SERVICE_ROLE_KEY=***
 ```

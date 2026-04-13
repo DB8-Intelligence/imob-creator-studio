@@ -3,7 +3,7 @@
 ## Hotmart Webhook
 
 **Endpoint (Edge Function Supabase):**
-https://dsszhodrrchlaqfignky.supabase.co/functions/v1/hotmart-webhook
+https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/hotmart-webhook
 
 **Configurar no Hotmart:**
 Hotmart → Ferramentas → Webhooks → Nova notificação → URL acima

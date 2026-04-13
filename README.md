@@ -10,7 +10,7 @@ Plataforma completa de marketing imobiliario com IA. Criativos, videos, site, CR
 - **Frontend:** React 18 + Vite + TypeScript + Tailwind CSS + shadcn/ui + Framer Motion
 - **Fontes:** Rubik (hero/titulos) + Plus Jakarta Sans (corpo)
 - **Backend:** Supabase Edge Functions (28 funcoes Deno)
-- **Auth / DB / Storage:** Supabase (`dsszhodrrchlaqfignky`)
+- **Auth / DB / Storage:** Supabase (`spjnymdizezgmzwoskoj`)
 - **Pagamentos:** Kiwify (webhook integrado)
 - **Automacao:** n8n (`automacao.db8intelligence.com.br`)
 - **Deploy:** Vercel (frontend) + Supabase (edge functions)
