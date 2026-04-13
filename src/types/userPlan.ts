@@ -6,11 +6,13 @@ export interface UserPlanInfo {
   id: string;
   email?: string;
   user_plan: UserPlan;
+  plan_slug: PlanSlug | null;
+  plan_name: string | null;
   credits_remaining: number;
   credits_total: number;
 }
 
-/** Shape returned by the my_plan view (Hotmart-based plans) */
+/** Shape returned by the my_plan view (Hotmart/Kiwify-based plans) */
 export interface HotmartPlanInfo {
   plan_slug: PlanSlug;
   plan_name: string;

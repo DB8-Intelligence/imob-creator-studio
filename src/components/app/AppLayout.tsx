@@ -79,7 +79,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   const creditsRemaining = plan?.credits_remaining ?? 0;
   const creditsTotal = plan?.credits_total ?? 0;
-  const isUnlimited = plan?.user_plan === "pro" || plan?.user_plan === "vip";
+  const isUnlimited = plan?.plan_slug === "max" || plan?.user_plan === "pro" || plan?.user_plan === "vip";
   const creditPct = creditsTotal > 0 ? Math.min((creditsRemaining / creditsTotal) * 100, 100) : 0;
 
   // Credit bar ref — sets --credit-pct CSS var imperatively to avoid inline style lint warning
@@ -330,7 +330,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                   <div className="flex-1 text-left">
                     <p className="text-sm font-medium text-foreground">{profile?.full_name || "Usuário"}</p>
                     <p className="text-xs text-muted-foreground">
-                      Plano {plan?.user_plan?.toUpperCase?.() || "CRÉDITOS"}
+                      {plan?.plan_name || (plan?.plan_slug ? `Plano ${plan.plan_slug.toUpperCase()}` : "Plano CRÉDITOS")}
                     </p>
                   </div>
                 </button>
