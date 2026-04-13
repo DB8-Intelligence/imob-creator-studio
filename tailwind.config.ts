@@ -16,6 +16,7 @@ export default {
         display: ["'Playfair Display'", "serif"],
         body:    ["'Inter'", "sans-serif"],
         mono:    ["'JetBrains Mono'", "'Fira Code'", "monospace"],
+        rubik:   ["'Rubik'", "sans-serif"],
       },
 
       // ─── Design-system color tokens ───────────────────────────────────────
