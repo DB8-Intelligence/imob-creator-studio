@@ -22,25 +22,12 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split heavy PDF library into its own chunk
-          "react-pdf": ["@react-pdf/renderer"],
-          // Split excel/csv export library
-          "xlsx": ["xlsx"],
-          // Split chart library
-          "recharts": ["recharts"],
-          // Split animation library
-          "framer-motion": ["framer-motion"],
-          // Split all Radix UI primitives
-          "radix-ui": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-select",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-toast",
-            "@radix-ui/react-tooltip",
-          ],
+        manualChunks(id) {
+          if (id.includes("@react-pdf/renderer")) return "react-pdf";
+          if (id.includes("node_modules/exceljs") || id.includes("node_modules/xlsx")) return "xlsx";
+          if (id.includes("node_modules/recharts")) return "recharts";
+          if (id.includes("node_modules/framer-motion")) return "framer-motion";
+          if (id.includes("node_modules/@radix-ui/")) return "radix-ui";
         },
       },
     },

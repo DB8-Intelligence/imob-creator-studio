@@ -250,45 +250,71 @@ export default function FinanceiroReceitasPage() {
     return Object.entries(byCategoria).map(([name, value]) => ({ name, value }));
   }, [receitas]);
 
-  /* ── Export XLSX (CSV fallback) ────────────────────────── */
   const handleExport = useCallback(async () => {
     try {
-      const XLSX = await import("xlsx");
+      const ExcelJS = (await import("exceljs")).default;
+      const wb = new ExcelJS.Workbook();
 
-      // Sheet 1 - Receitas
-      const recSheet = receitas.map((r) => ({
-        Descricao: r.descricao,
-        Categoria: CATEGORIAS_RECEITA[r.categoria as CategoriaReceita]?.label ?? r.categoria,
-        Competencia: r.mes_competencia,
-        Recebimento: r.data_recebimento ?? "",
-        Valor: Number(r.valor),
-        Status: r.status,
+      const recSheet = wb.addWorksheet("Receitas");
+      recSheet.columns = [
+        { header: "Descricao", key: "descricao" },
+        { header: "Categoria", key: "categoria" },
+        { header: "Competencia", key: "competencia" },
+        { header: "Recebimento", key: "recebimento" },
+        { header: "Valor", key: "valor" },
+        { header: "Status", key: "status" },
+      ];
+      receitas.forEach((r) => recSheet.addRow({
+        descricao: r.descricao,
+        categoria: CATEGORIAS_RECEITA[r.categoria as CategoriaReceita]?.label ?? r.categoria,
+        competencia: r.mes_competencia,
+        recebimento: r.data_recebimento ?? "",
+        valor: Number(r.valor),
+        status: r.status,
       }));
 
-      // Sheet 2 - Despesas
-      const despSheet = despesas.map((d) => ({
-        Descricao: d.descricao,
-        Categoria: CATEGORIAS_DESPESA[d.categoria as CategoriaDespesa]?.label ?? d.categoria,
-        Competencia: d.mes_competencia,
-        Pagamento: d.data_pagamento ?? "",
-        Valor: Number(d.valor),
-        Status: d.status,
-        Recorrente: d.recorrente ? "Sim" : "Nao",
+      const despSheet = wb.addWorksheet("Despesas");
+      despSheet.columns = [
+        { header: "Descricao", key: "descricao" },
+        { header: "Categoria", key: "categoria" },
+        { header: "Competencia", key: "competencia" },
+        { header: "Pagamento", key: "pagamento" },
+        { header: "Valor", key: "valor" },
+        { header: "Status", key: "status" },
+        { header: "Recorrente", key: "recorrente" },
+      ];
+      despesas.forEach((d) => despSheet.addRow({
+        descricao: d.descricao,
+        categoria: CATEGORIAS_DESPESA[d.categoria as CategoriaDespesa]?.label ?? d.categoria,
+        competencia: d.mes_competencia,
+        pagamento: d.data_pagamento ?? "",
+        valor: Number(d.valor),
+        status: d.status,
+        recorrente: d.recorrente ? "Sim" : "Nao",
       }));
 
-      // Sheet 3 - DRE
-      const dreSheet = anual.map((row) => ({
-        Mes: row.label,
-        Receitas: row.receitas,
-        Despesas: row.despesas,
-        Resultado: row.resultado,
+      const dreSheet = wb.addWorksheet("DRE");
+      dreSheet.columns = [
+        { header: "Mes", key: "mes" },
+        { header: "Receitas", key: "receitas" },
+        { header: "Despesas", key: "despesas" },
+        { header: "Resultado", key: "resultado" },
+      ];
+      anual.forEach((row) => dreSheet.addRow({
+        mes: row.label,
+        receitas: row.receitas,
+        despesas: row.despesas,
+        resultado: row.resultado,
       }));
 
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(recSheet), "Receitas");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(despSheet), "Despesas");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dreSheet), "DRE");
-      XLSX.writeFile(wb, `Financeiro_${ano}_${String(mes).padStart(2, "0")}.xlsx`);
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Financeiro_${ano}_${String(mes).padStart(2, "0")}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
       toast({ title: "XLSX exportado com sucesso" });
     } catch {
       // Fallback to CSV
