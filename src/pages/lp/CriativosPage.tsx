@@ -2,12 +2,7 @@ import { useState, useEffect, ReactNode, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Plus, Minus } from "lucide-react";
-
-const CHECKOUT = {
-  starter: "https://pay.kiwify.com.br/UjBaKio",
-  basico:  "https://pay.kiwify.com.br/gCd9MsZ",
-  pro:     "https://pay.kiwify.com.br/2ofOTll",
-};
+import { KIWIFY_CHECKOUT_CRIATIVOS as CHECKOUT } from "@/lib/kiwify-links";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };

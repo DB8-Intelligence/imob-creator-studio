@@ -1,114 +1,77 @@
 /**
- * kiwify-links.ts — Fonte única de verdade para todos os checkouts Kiwify.
+ * kiwify-links.ts — Fonte única para checkouts Kiwify (10 produtos NexoImob).
  *
- * ════════════════════════════════════════════════════════════════════
- *  CHECKLIST DE PREENCHIMENTO (17 entradas)
- * ════════════════════════════════════════════════════════════════════
- *
- *  ASSINATURAS ImobCreator  (KIWIFY_SUBSCRIPTION_LINKS)
- *  [ ] starter   mensal
- *  [ ] starter   anual
- *  [ ] standard  mensal
- *  [ ] standard  anual
- *  [ ] plus      mensal
- *  [ ] plus      anual
- *  [ ] premium   mensal
- *  [ ] premium   anual
- *
- *  CRÉDITOS AVULSOS ImobCreator  (KIWIFY_CREDIT_LINKS)
- *  [ ] 20  créditos  — R$ 59
- *  [ ] 50  créditos  — R$ 97
- *  [ ] 150 créditos  — R$ 197
- *
- *  VÍDEO Omnix Reels  (KIWIFY_VIDEO_LINKS)
- *  [x] standard  mensal  ← já tem link real
- *  [ ] standard  anual   ← criar produto anual no Kiwify, substituir aqui
- *  [ ] plus      mensal
- *  [ ] plus      anual
- *  [ ] premium   mensal
- *  [ ] premium   anual
- *
- * ════════════════════════════════════════════════════════════════════
- *  CONSUMIDORES — não editar estas páginas, só editar aqui
- * ════════════════════════════════════════════════════════════════════
- *  KIWIFY_SUBSCRIPTION_LINKS → src/pages/PlansPage.tsx
- *                               src/views/PlansPage.tsx
- *  KIWIFY_CREDIT_LINKS       → src/pages/PlanPage.tsx
- *  KIWIFY_VIDEO_LINKS        → src/components/VideoPricingCards.tsx
- *                               src/pages/VideosPricingPage.tsx
- *
- *  COMO PEGAR OS LINKS:
- *  Kiwify → Produtos → (produto) → Copiar link de checkout
- *  Formato: https://pay.kiwify.com.br/XXXXXXX
+ * Prioriza env vars do Vercel (`VITE_KIWIFY_*`). Quando ausente, usa a URL
+ * definitiva como fallback. A tabela Supabase `kiwify_products` é a fonte
+ * de verdade final — este arquivo é o cache client-side.
  */
 
-// ─── Assinaturas ImobCreator ─────────────────────────────────────────────────
+// ─── Produtos definitivos (env var > fallback hardcoded) ─────────────
+export const KIWIFY_PRODUCTS = {
+  profissional: import.meta.env.VITE_KIWIFY_PROFISSIONAL_URL || "https://pay.kiwify.com.br/TMeCHm5",
+  addonVideos: import.meta.env.VITE_KIWIFY_ADDON_VIDEOS_URL || "https://pay.kiwify.com.br/pHXcSm9",
+  addonWhatsapp: import.meta.env.VITE_KIWIFY_ADDON_WHATSAPP_URL || "https://pay.kiwify.com.br/8rAK0uZ",
+  addonSocial: import.meta.env.VITE_KIWIFY_ADDON_SOCIAL_URL || "https://pay.kiwify.com.br/y7gAGN7",
+  criativosStarter: import.meta.env.VITE_KIWIFY_CREATOR_CRIATIVOS_STARTER || "https://pay.kiwify.com.br/UjBaKio",
+  criativosBasico: import.meta.env.VITE_KIWIFY_CREATOR_CRIATIVOS_BASICO || "https://pay.kiwify.com.br/gCd9MsZ",
+  criativosPro: import.meta.env.VITE_KIWIFY_CREATOR_CRIATIVOS_PRO || "https://pay.kiwify.com.br/2ofOTll",
+  videosStarter: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_STARTER || "https://pay.kiwify.com.br/Cp7NNZm",
+  videosBasico: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_BASICO || "https://pay.kiwify.com.br/iJ5cYCJ",
+  videosPro: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_PRO || "https://pay.kiwify.com.br/rJ4B7Op",
+} as const;
+
+// ─── Taxonomia por módulo (usado pelas LPs de Criativos e Vídeos) ────
+export const KIWIFY_CHECKOUT_CRIATIVOS = {
+  starter: KIWIFY_PRODUCTS.criativosStarter,
+  basico: KIWIFY_PRODUCTS.criativosBasico,
+  pro: KIWIFY_PRODUCTS.criativosPro,
+} as const;
+
+export const KIWIFY_CHECKOUT_VIDEOS = {
+  starter: KIWIFY_PRODUCTS.videosStarter,
+  basico: KIWIFY_PRODUCTS.videosBasico,
+  pro: KIWIFY_PRODUCTS.videosPro,
+} as const;
+
+// ─── Shims legados — mantém as páginas antigas funcionando ───────────
+// As páginas PlansPage/VideosPricingPage/VideoPricingCards esperam
+// { [tier]: { monthly, yearly } }. Como Kiwify usa o mesmo link para
+// mensal e anual (preço calculado na UI), apontamos ambos para a mesma URL.
 
 export const KIWIFY_SUBSCRIPTION_LINKS = {
-  starter: {
-    monthly: "https://pay.kiwify.com.br/TODO",  // TODO [ ] starter mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] starter anual
-  },
-  standard: {
-    monthly: "https://pay.kiwify.com.br/TODO",  // TODO [ ] standard mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] standard anual
-  },
-  plus: {
-    monthly: "https://pay.kiwify.com.br/TODO",  // TODO [ ] plus mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] plus anual
-  },
-  premium: {
-    monthly: "https://pay.kiwify.com.br/TODO",  // TODO [ ] premium mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] premium anual
-  },
+  starter:  { monthly: KIWIFY_PRODUCTS.criativosStarter, yearly: KIWIFY_PRODUCTS.criativosStarter },
+  standard: { monthly: KIWIFY_PRODUCTS.criativosBasico,  yearly: KIWIFY_PRODUCTS.criativosBasico  },
+  plus:     { monthly: KIWIFY_PRODUCTS.criativosPro,     yearly: KIWIFY_PRODUCTS.criativosPro     },
+  premium:  { monthly: KIWIFY_PRODUCTS.profissional,     yearly: KIWIFY_PRODUCTS.profissional     },
 } as const;
-
-// ─── Créditos avulsos ImobCreator ────────────────────────────────────────────
-
-export const KIWIFY_CREDIT_LINKS: Record<number, string> = {
-  20:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] 20 créditos  — R$ 59
-  50:  "https://pay.kiwify.com.br/TODO",  // TODO [ ] 50 créditos  — R$ 97
-  150: "https://pay.kiwify.com.br/TODO",  // TODO [ ] 150 créditos — R$ 197
-};
-
-// ─── Planos de vídeo Omnix Reels ─────────────────────────────────────────────
-// ⚠ standard.yearly usa o mesmo link do mensal enquanto o produto anual
-//   não for criado no Kiwify. Substitua quando criar o produto anual.
 
 export const KIWIFY_VIDEO_LINKS = {
-  standard: {
-    monthly: "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr",  // ✅ REAL (mensal)
-    yearly:  "https://pay.kiwify.com.br/4LRnoknhsh2Fpxr",  // ⚠ TODO [ ] criar produto anual e substituir
-  },
-  plus: {
-    monthly: "https://pay.kiwify.com.br/TODO",              // TODO [ ] plus mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",              // TODO [ ] plus anual
-  },
-  premium: {
-    monthly: "https://pay.kiwify.com.br/TODO",              // TODO [ ] premium mensal
-    yearly:  "https://pay.kiwify.com.br/TODO",              // TODO [ ] premium anual
-  },
+  starter:  { monthly: KIWIFY_PRODUCTS.videosStarter, yearly: KIWIFY_PRODUCTS.videosStarter },
+  standard: { monthly: KIWIFY_PRODUCTS.videosBasico,  yearly: KIWIFY_PRODUCTS.videosBasico  },
+  plus:     { monthly: KIWIFY_PRODUCTS.videosPro,     yearly: KIWIFY_PRODUCTS.videosPro     },
+  premium:  { monthly: KIWIFY_PRODUCTS.videosPro,     yearly: KIWIFY_PRODUCTS.videosPro     },
 } as const;
 
-// ─── Helper: validar link antes de redirecionar ──────────────────────────────
+// Créditos avulsos ainda não têm produto Kiwify — mantemos placeholder
+// para que handleKiwifyCheckout roteie para WhatsApp via fallback.
+export const KIWIFY_CREDIT_LINKS: Record<number, string> = {
+  20:  "https://pay.kiwify.com.br/TODO",
+  50:  "https://pay.kiwify.com.br/TODO",
+  150: "https://pay.kiwify.com.br/TODO",
+};
 
-/**
- * Retorna true se o link Kiwify ja foi preenchido com URL real.
- */
+// ─── Helpers ─────────────────────────────────────────────────────────
+
 export function isKiwifyLinkReady(url: string): boolean {
   return !!url && url !== "#" && !url.includes("/TODO");
 }
 
-/**
- * Abre o checkout Kiwify ou exibe fallback se o link ainda nao foi configurado.
- * Uso nos botoes de compra: handleKiwifyCheckout(url) em vez de window.open(url).
- */
 export function handleKiwifyCheckout(url: string): boolean {
   if (isKiwifyLinkReady(url)) {
     window.open(url, "_blank", "noopener");
     return true;
   }
-  const msg = encodeURIComponent("Ola! Tenho interesse em assinar um plano do ImobCreator AI. Podem me ajudar?");
+  const msg = encodeURIComponent("Olá! Tenho interesse em assinar um plano do NexoImob AI. Podem me ajudar?");
   window.open(`https://wa.me/5571999990000?text=${msg}`, "_blank", "noopener");
   return false;
 }

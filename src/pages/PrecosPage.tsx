@@ -5,6 +5,7 @@ import { ArrowRight, Check, Plus, Minus } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { KIWIFY_CHECKOUT_CRIATIVOS, KIWIFY_CHECKOUT_VIDEOS } from "@/lib/kiwify-links";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -26,20 +27,17 @@ function Accordion({ q, a }: { q: string; a: string }) {
   );
 }
 
-const CHECKOUT_CRIATIVOS = { starter: "https://pay.kiwify.com.br/UjBaKio", basico: "https://pay.kiwify.com.br/gCd9MsZ", pro: "https://pay.kiwify.com.br/2ofOTll" };
-const CHECKOUT_VIDEOS = { starter: "https://kiwify.app/kMcnV7a", basico: "https://pay.kiwify.com.br/iJ5cYCJ", pro: "https://pay.kiwify.com.br/rJ4B7Op" };
-
 interface Plan { name: string; price: number; features: string[]; url: string; highlighted?: boolean; badge?: string }
 
 const criativosPlans: Plan[] = [
-  { name: "Starter", price: 97, features: ["50 criativos/mês", "Feed + Story", "Download direto", "Programa de afiliados"], url: CHECKOUT_CRIATIVOS.starter },
-  { name: "Básico", price: 197, highlighted: true, badge: "Mais popular", features: ["100 criativos/mês", "Feed + Story + Reel", "Publicação IG + FB", "Programa de afiliados"], url: CHECKOUT_CRIATIVOS.basico },
-  { name: "PRO", price: 397, features: ["150 criativos/mês", "Todos os formatos", "Publicação IG + FB", "Programa de afiliados"], url: CHECKOUT_CRIATIVOS.pro },
+  { name: "Starter", price: 97, features: ["50 criativos/mês", "Feed + Story", "Download direto", "Programa de afiliados"], url: KIWIFY_CHECKOUT_CRIATIVOS.starter },
+  { name: "Básico", price: 197, highlighted: true, badge: "Mais popular", features: ["100 criativos/mês", "Feed + Story + Reel", "Publicação IG + FB", "Programa de afiliados"], url: KIWIFY_CHECKOUT_CRIATIVOS.basico },
+  { name: "PRO", price: 397, features: ["150 criativos/mês", "Todos os formatos", "Publicação IG + FB", "Programa de afiliados"], url: KIWIFY_CHECKOUT_CRIATIVOS.pro },
 ];
 const videosPlans: Plan[] = [
-  { name: "Starter", price: 97, features: ["5 vídeos/mês", "Duração até 30s", "3 moods de música", "Download direto"], url: CHECKOUT_VIDEOS.starter },
-  { name: "Básico", price: 197, highlighted: true, badge: "Mais popular", features: ["10 vídeos/mês", "Duração até 60s", "6 moods de música", "Publicação IG Reels"], url: CHECKOUT_VIDEOS.basico },
-  { name: "PRO", price: 397, features: ["20 vídeos/mês", "Duração até 90s", "6 moods de música", "Publicação IG Reels"], url: CHECKOUT_VIDEOS.pro },
+  { name: "Starter", price: 97, features: ["5 vídeos/mês", "Duração até 30s", "3 moods de música", "Download direto"], url: KIWIFY_CHECKOUT_VIDEOS.starter },
+  { name: "Básico", price: 197, highlighted: true, badge: "Mais popular", features: ["10 vídeos/mês", "Duração até 60s", "6 moods de música", "Publicação IG Reels"], url: KIWIFY_CHECKOUT_VIDEOS.basico },
+  { name: "PRO", price: 397, features: ["20 vídeos/mês", "Duração até 90s", "6 moods de música", "Publicação IG Reels"], url: KIWIFY_CHECKOUT_VIDEOS.pro },
 ];
 
 function PlanCard({ plan, annual }: { plan: Plan; annual: boolean }) {
