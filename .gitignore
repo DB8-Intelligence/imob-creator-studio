@@ -39,3 +39,8 @@ sites_temas_para_implementar/
 # Supabase CLI temp files
 supabase/.temp/
 docs/templates/*.zip
+
+# Large binary assets — never commit
+docs/**/*.zip
+docs/**/*.rar
+*.zip
