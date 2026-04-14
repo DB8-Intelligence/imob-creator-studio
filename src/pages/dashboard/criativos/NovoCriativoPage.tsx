@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Check, Building2, Palette, Sparkles, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -131,6 +131,13 @@ export default function NovoCriativoPage() {
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [messageIdx, setMessageIdx] = useState(0);
+  const msgIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+  }, []);
 
   /* ---- Fetch properties ---- */
   useEffect(() => {
@@ -170,12 +177,14 @@ export default function NovoCriativoPage() {
     setMessageIdx(0);
 
     // Rotating loading messages
-    const msgInterval = setInterval(() => {
+    if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+    msgIntervalRef.current = setInterval(() => {
       setMessageIdx((prev) => prev + 1);
     }, 5000);
 
     // Progress animation
-    const progressInterval = setInterval(() => {
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    progressIntervalRef.current = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 95) return prev;
         return prev + Math.random() * 10;
@@ -197,20 +206,24 @@ export default function NovoCriativoPage() {
     });
 
     if (fnError) {
-      clearInterval(msgInterval);
-      clearInterval(progressInterval);
+      if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+      msgIntervalRef.current = null;
+      progressIntervalRef.current = null;
       toast({ title: "Erro", description: fnError.message, variant: "destructive" });
       setGenerating(false);
       return;
     }
 
-    clearInterval(progressInterval);
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
+    progressIntervalRef.current = null;
     setProgress(100);
 
     toast({ title: "Criativo gerado com sucesso!" });
 
     setTimeout(() => {
-      clearInterval(msgInterval);
+      if (msgIntervalRef.current) clearInterval(msgIntervalRef.current);
+      msgIntervalRef.current = null;
       navigate("/dashboard/criativos");
     }, 500);
   };

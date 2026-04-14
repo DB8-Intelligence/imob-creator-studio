@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ImportPlatform = "tecimob" | "jetimob" | "univen" | "buscaimo" | "generic";
@@ -17,6 +17,11 @@ export function useImport() {
   const [preview, setPreview] = useState<ImportPreview | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("idle");
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+  }, []);
 
   const callEdge = async (action: string, body: Record<string, unknown>) => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -64,14 +69,16 @@ export function useImport() {
     setStatus("processing");
     await callEdge("confirm", { job_id: jobId });
 
-    const poll = setInterval(async () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
       const data = await callEdge("status", { job_id: jobId });
       const pct = data?.total_records > 0
         ? Math.round((data.imported_records / data.total_records) * 100) : 0;
       setProgress(pct);
       setStatus(data?.status ?? "processing");
       if (data?.status === "done" || data?.status === "error") {
-        clearInterval(poll);
+        if (pollRef.current) clearInterval(pollRef.current);
+        pollRef.current = null;
         setImporting(false);
       }
     }, 3000);
