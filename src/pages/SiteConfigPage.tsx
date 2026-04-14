@@ -207,7 +207,7 @@ export default function SiteConfigPage() {
           {/* Domain */}
           <TabsContent value="domain" className="space-y-4 mt-4">
             <Card>
-              <CardHeader><CardTitle>Subdomínio ImobCreator</CardTitle></CardHeader>
+              <CardHeader><CardTitle>Subdomínio NexoImob</CardTitle></CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
                   <Input value={config.subdomain} onChange={(e) => update("subdomain", e.target.value)} placeholder="meu-site" />
