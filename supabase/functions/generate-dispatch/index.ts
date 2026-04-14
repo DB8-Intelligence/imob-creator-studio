@@ -279,7 +279,7 @@ serve(async (req) => {
       p_user_id: userId,
       p_amount:  credit_cost,
     }).then(({ error }) => {
-      if (error) console.warn("consume_credits error:", error.message);
+      if (error) 
     });
 
     await logJob(serviceClient, jobId, "info", `Concluído — ${resultUrls.length} asset(s) gerado(s)`);

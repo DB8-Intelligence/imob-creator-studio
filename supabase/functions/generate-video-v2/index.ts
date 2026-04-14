@@ -131,7 +131,6 @@ serve(async (req) => {
     const dims = RESOLUTION_MAP[effectiveResolution]?.[aspect_ratio]
       ?? RESOLUTION_MAP["1080p"]["9:16"];
 
-    console.log(`[generate-video-v2] ${totalClips} clips, ${totalDuration.toFixed(1)}s, ${dims.w}x${dims.h}, preset: ${motion_preset}`);
 
     // ── Build FFmpeg job spec ────────────────────────────────────────
     const clips = effectivePhotos.map((url: string, i: number) => ({
@@ -215,7 +214,6 @@ serve(async (req) => {
       .single();
 
     if (genJobError) {
-      console.warn("generation_jobs insert error:", genJobError.message);
     }
 
     const generationJobId = genJob?.id ?? video_job_id;
@@ -235,14 +233,11 @@ serve(async (req) => {
         });
 
         if (res.ok) {
-          console.log(`[generate-video-v2] Dispatched to FFmpeg backend (${res.status})`);
           return;
         }
 
         // Backend returned error (404 = endpoint not deployed yet)
-        console.warn(`[generate-video-v2] Backend returned ${res.status}, falling back to n8n`);
       } catch (err) {
-        console.warn(`[generate-video-v2] Backend unreachable, falling back to n8n:`, err);
       }
 
       // Fallback: dispatch to n8n generation-router (which can route video_compose_v2)
@@ -258,7 +253,6 @@ serve(async (req) => {
             source: "generate-video-v2",
           }),
         });
-        console.log("[generate-video-v2] Dispatched to n8n fallback");
       } catch (n8nErr) {
         console.error("[generate-video-v2] Both backend and n8n failed:", n8nErr);
         // Mark jobs as failed

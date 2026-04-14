@@ -216,7 +216,7 @@ serve(async (req) => {
       message: `A regra "${rule.name}" disparou uma geração automaticamente.`,
       link: "/agentes/logs",
       metadata: { automation_id, job_id: dispatchData.job_id, rule_name: rule.name },
-    }).then(({ error: ne }) => { if (ne) console.warn("notif err:", ne.message); });
+    }).then(({ error: ne }) => { if (ne)  });
 
     return jsonResponse(200, {
       log_id: log.id,

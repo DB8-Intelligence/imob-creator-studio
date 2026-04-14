@@ -25,7 +25,6 @@ serve(async (req: Request) => {
   const event   = payload.event as string;
   const payment = payload.payment as Record<string, unknown>;
 
-  console.log("Asaas event:", event, "payment:", payment?.id);
 
   // ── PAYMENT_RECEIVED — ativar módulo ─────────────────────────
   if (event === "PAYMENT_RECEIVED") {
@@ -120,7 +119,6 @@ serve(async (req: Request) => {
       asaas_raw:             payload,
     }, { onConflict: "asaas_subscription_id" });
 
-    console.log("Módulo ativado:", prod.module_id, prod.plan_slug, "para", email);
   }
 
   // ── PAYMENT_OVERDUE — marcar como inadimplente ────────────────

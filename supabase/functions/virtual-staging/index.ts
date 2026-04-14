@@ -126,13 +126,6 @@ Output a single high-quality photorealistic image of the furnished room.`;
       imageContent = { fileData: { fileUri: imageUrl, mimeType: "image/jpeg" } };
     }
 
-    console.log("Virtual staging request:", {
-      style: selectedStyle,
-      environmentType: envType,
-      hasCustomPrompt: !!customPrompt,
-      hasBase64: !!imageBase64,
-      hasUrl: !!imageUrl,
-    });
 
     // Call Gemini 2.0 Flash Experimental for image generation/editing
     // gemini-2.0-flash-exp is the model that supports responseModalities: ["IMAGE"]
@@ -216,7 +209,6 @@ Output a single high-quality photorealistic image of the furnished room.`;
     const { data: urlData } = supabase.storage.from("creatives").getPublicUrl(storagePath);
     const publicUrl = urlData.publicUrl;
 
-    console.log("Virtual staging completed:", { style: selectedStyle, publicUrl });
 
     return new Response(
       JSON.stringify({

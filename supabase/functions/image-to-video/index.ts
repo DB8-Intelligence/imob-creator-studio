@@ -90,12 +90,6 @@ serve(async (req) => {
     const selectedAspectRatio = aspectRatio || "16:9"; // 16:9 or 9:16
     const promptText = STYLE_PROMPTS[selectedStyle] || STYLE_PROMPTS.cinematic;
 
-    console.log("Image-to-video request:", {
-      style: selectedStyle,
-      aspectRatio: selectedAspectRatio,
-      jobId,
-      segmentIndex,
-    });
 
     // Prepare image for Veo API
     let imagePayload: Record<string, unknown>;
@@ -232,7 +226,6 @@ serve(async (req) => {
         .eq("sequence_index", segmentIndex);
     }
 
-    console.log("Veo operation started:", operationName);
 
     return new Response(
       JSON.stringify({

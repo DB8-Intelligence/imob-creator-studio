@@ -160,7 +160,6 @@ serve(async (req) => {
         .eq("sequence_index", segmentIndex);
     }
 
-    console.log("Video ready:", publicUrl);
 
     return new Response(
       JSON.stringify({

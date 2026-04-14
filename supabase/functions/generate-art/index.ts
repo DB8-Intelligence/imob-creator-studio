@@ -75,7 +75,6 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
       prompt += `\n\nAdditional instructions from the user: ${customPrompt}`;
     }
 
-    console.log("Generating art:", { format: selectedFormat, brand: brand.name, hasCustomPrompt: !!customPrompt });
 
     // Download the image and convert to base64 for Gemini API
     const imageResponse = await fetch(imageUrl);
@@ -188,7 +187,6 @@ Style: Premium real estate marketing material, Instagram-ready, high contrast te
       }
     }
 
-    console.log("Art generated and uploaded:", publicUrl);
 
     return new Response(
       JSON.stringify({

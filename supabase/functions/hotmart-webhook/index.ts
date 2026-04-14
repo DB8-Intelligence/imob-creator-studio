@@ -64,7 +64,6 @@ serve(async (req: Request) => {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  console.log("Evento Hotmart recebido:", payload.event);
 
   const event        = payload.event as string;
   const data         = payload.data as Record<string, unknown>;
@@ -104,7 +103,6 @@ serve(async (req: Request) => {
   switch (event) {
     case "PURCHASE_APPROVED": {
       if (!mod) {
-        console.warn("Produto não mapeado:", productId);
         // Salva em user_plans (legacy) para análise posterior
         await supabase.from("user_plans").insert({
           user_id: profile?.id ?? null,
@@ -139,7 +137,7 @@ serve(async (req: Request) => {
       }, { onConflict: "hotmart_subscription_id" });
 
       if (error) console.error("Erro Supabase upsert:", error);
-      else console.log("Módulo ativado:", mod.module_id, mod.plan_name, "para", email);
+      else 
 
       // Dispara boas-vindas via n8n -> WhatsApp
       if (phone) {
@@ -163,7 +161,7 @@ serve(async (req: Request) => {
         .update({ status: "canceled", canceled_at: new Date().toISOString() })
         .eq("hotmart_subscription_id", subscriptionId);
       if (error) console.error("Erro ao cancelar:", error);
-      else console.log("Assinatura cancelada:", subscriptionId);
+      else 
       break;
     }
 
@@ -173,12 +171,11 @@ serve(async (req: Request) => {
         .update({ status: "refunded" })
         .eq("hotmart_transaction_id", transactionId);
       if (error) console.error("Erro ao reembolsar:", error);
-      else console.log("Assinatura reembolsada:", transactionId);
+      else 
       break;
     }
 
     default:
-      console.log("Evento não tratado (ignorado):", event);
   }
 
   return new Response(JSON.stringify({ ok: true, event }), {
@@ -189,7 +186,6 @@ serve(async (req: Request) => {
 async function notifyN8n(data: Record<string, unknown>) {
   const url = Deno.env.get("N8N_WEBHOOK_HOTMART");
   if (!url) {
-    console.warn("N8N_WEBHOOK_HOTMART não configurado");
     return;
   }
   try {
@@ -198,7 +194,6 @@ async function notifyN8n(data: Record<string, unknown>) {
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify(data),
     });
-    console.log("n8n notificado, status:", res.status);
   } catch (e) {
     console.error("Falha ao notificar n8n:", e);
   }

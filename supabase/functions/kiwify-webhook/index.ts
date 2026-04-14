@@ -52,18 +52,15 @@ serve(async (req: Request) => {
   // 3. Validar token com timing-safe comparison
   // ============================================
   if (!receivedToken) {
-    console.warn("⚠️  Webhook request rejected: no token provided");
     return json({ ok: false, error: "Missing authentication token" }, 401);
   }
 
   const isValid = await timingSafeEqual(receivedToken, expectedToken);
 
   if (!isValid) {
-    console.warn("⚠️  Webhook request rejected: invalid token");
     return json({ ok: false, error: "Invalid authentication token" }, 401);
   }
 
-  console.log("✅ Token validation passed");
 
   // ============================================
   // 4. Parse payload
@@ -80,7 +77,6 @@ serve(async (req: Request) => {
   const event = String(payload.type ?? payload.event ?? "");
   const order = payload;
 
-  console.log("📦 Kiwify event:", event, "order_id:", order?.order_id);
 
   // ============================================
   // 5. Process webhook
@@ -140,7 +136,6 @@ async function processWebhook(
       .eq("email", founderEmail)
       .maybeSingle();
     if (founderCheck && FOUNDER_USER_IDS.includes(founderCheck.id)) {
-      console.log("🛡️  Conta fundador — ignorando webhook Kiwify");
       return;
     }
   }
@@ -241,9 +236,6 @@ async function processWebhook(
       throw userSubError;
     }
 
-    console.log(
-      `✅ ATIVO: ${product.module_id} ${product.plan_slug} — ${product.credits_total} créditos para ${email}`
-    );
   }
 
   // ============================================
@@ -285,7 +277,6 @@ async function processWebhook(
         throw kiwifyError;
       }
 
-      console.log(`✅ RENOVADO: ${email}`);
     }
   }
 
@@ -327,7 +318,6 @@ async function processWebhook(
       throw kiwifyError;
     }
 
-    console.log(`✅ CANCELADO: order ${orderId}`);
   }
 
   // ============================================

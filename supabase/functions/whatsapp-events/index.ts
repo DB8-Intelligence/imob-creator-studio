@@ -118,7 +118,6 @@ async function extractPropertyData(
 ): Promise<Record<string, unknown>> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
-    console.warn("ANTHROPIC_API_KEY not set, skipping AI extraction");
     return {};
   }
 

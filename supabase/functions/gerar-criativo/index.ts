@@ -76,7 +76,6 @@ ${cta ? `Call to action button: "${cta}"` : ""}
 
 Brazilian real estate market style. Professional marketing design. High quality, Instagram-ready visual composition. Do not include any real people faces. Text should be clearly readable.`;
 
-    console.log("Generating creative with DALL-E 3:", { formato, size, n, canal, tipo });
 
     // Gera imagens (1 de cada vez para DALL-E 3)
     const urls: string[] = [];
@@ -160,13 +159,10 @@ Brazilian real estate market style. Professional marketing design. High quality,
       if (creditError) {
         console.error("Erro ao debitar créditos:", creditError.message);
       } else {
-        console.log(`${creditAmount} crédito(s) debitado(s) para usuário ${userId}`);
       }
     } else if (skip_credits) {
-      console.log("skip_credits=true — débito delegado ao generation-callback");
     }
 
-    console.log("Criativos gerados:", urls.length);
 
     return new Response(
       JSON.stringify({ success: true, urls }),

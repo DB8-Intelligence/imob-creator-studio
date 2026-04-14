@@ -115,7 +115,7 @@ serve(async (req) => {
         message: `Conteúdo publicado com sucesso no canal ${item.channel}.`,
         link: external_url ?? "/calendario",
         metadata: { publication_id, channel: item.channel, external_id },
-      }).then(({ error: ne }) => { if (ne) console.warn("notif err:", ne.message); });
+      }).then(({ error: ne }) => { if (ne)  });
 
       return jsonRes(200, {
         ok: true,
@@ -153,7 +153,7 @@ serve(async (req) => {
         message: `Falha ao publicar no ${item.channel}: ${errMsg}`,
         link: "/calendario",
         metadata: { publication_id, channel: item.channel, error: errMsg },
-      }).then(({ error: ne }) => { if (ne) console.warn("notif err:", ne.message); });
+      }).then(({ error: ne }) => { if (ne)  });
 
       return jsonRes(200, {
         ok: true,

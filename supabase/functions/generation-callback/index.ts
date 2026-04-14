@@ -141,7 +141,7 @@ serve(async (req) => {
         p_user_id: job.user_id,
         p_amount:  creditCost,
       }).then(({ error }) => {
-        if (error) console.warn("consume_credits error:", error.message);
+        if (error) 
       });
     }
 
@@ -173,9 +173,7 @@ serve(async (req) => {
         .eq("id", automationLogId);
 
       if (automationLogErr) {
-        console.warn("automation_logs update error:", automationLogErr.message);
       } else {
-        console.log(`automation_logs: ${automationLogId} → ${automationStatus}`);
       }
     }
 
@@ -190,7 +188,7 @@ serve(async (req) => {
       link: status === "done" ? "/biblioteca" : null,
       metadata: { job_id, generation_type, urls_count: urls.length },
     }).then(({ error: notifErr }) => {
-      if (notifErr) console.warn("notification insert error:", notifErr.message);
+      if (notifErr) 
     });
 
     // ── Log ──────────────────────────────────────────────────────────
@@ -203,7 +201,6 @@ serve(async (req) => {
       details: { n8n_execution_id, metadata },
     });
 
-    console.log(`generation-callback: job ${job_id} → ${status}`);
 
     return json({ ok: true, job_id, status, assets_created: urls.length });
 
