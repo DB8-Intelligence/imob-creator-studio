@@ -37,9 +37,9 @@ export function useConsumeCredits() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (amount: number) => consumeCredits(amount),
-    onSuccess: (newRemaining) => {
+    onSuccess: (result) => {
       qc.setQueryData<UserPlanInfo>(USER_PLAN_KEY, (old) =>
-        old ? { ...old, credits_remaining: newRemaining } : old
+        old ? { ...old, credits_remaining: result.credits_remaining } : old
       );
     },
     onError: (err: Error) => {

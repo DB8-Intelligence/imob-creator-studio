@@ -2147,7 +2147,7 @@ export type Database = {
       }
       consume_credits: {
         Args: { p_amount: number; p_user_id: string }
-        Returns: number
+        Returns: Json
       }
       consume_video_credit: {
         Args: { target_workspace_id: string }

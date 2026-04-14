@@ -43,7 +43,19 @@ export async function fetchHotmartPlan(): Promise<HotmartPlanInfo | null> {
   return data as HotmartPlanInfo | null;
 }
 
-export async function consumeCredits(amount: number): Promise<number> {
+export interface ConsumeCreditsResult {
+  success: boolean;
+  unlimited?: boolean;
+  credits_remaining: number;
+  credits_used?: number;
+  credits_total?: number;
+  plan_slug?: string | null;
+  plan_name?: string | null;
+  error?: string;
+  message?: string;
+}
+
+export async function consumeCredits(amount: number): Promise<ConsumeCreditsResult> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Usuário não autenticado");
 
@@ -53,5 +65,10 @@ export async function consumeCredits(amount: number): Promise<number> {
   });
 
   if (error) throw new Error(error.message);
-  return data as number;
+
+  const result = data as unknown as ConsumeCreditsResult;
+  if (!result?.success) {
+    throw new Error(result?.message || "Falha ao consumir créditos");
+  }
+  return result;
 }
