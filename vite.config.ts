@@ -20,6 +20,15 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    // Production: terser strips all console.* + debugger. Prod errors should
+    // go to error-tracking, not browser console. Dev build keeps them.
+    minify: mode === "production" ? "terser" : "esbuild",
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
