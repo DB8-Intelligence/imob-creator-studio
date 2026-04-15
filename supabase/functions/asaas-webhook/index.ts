@@ -101,11 +101,41 @@ async function processWebhook(
 
   // ── PAYMENT_RECEIVED — ativar módulo ─────────────────────────
   if (event === "PAYMENT_RECEIVED") {
-    const email          = String(payment.customer ?? "").toLowerCase();
-    const subscriptionId = String(payment.subscription ?? "");
+    const customerId     = String(payment.customer ?? "");
+    // For one-off Pix/boleto payments, payment.subscription is empty.
+    // Use payment.id as the unique identifier so the upsert keys don't collide.
+    const subscriptionId = String(payment.subscription ?? "") || String(payment.id ?? "");
     const value          = Number(payment.value ?? 0);
     const description    = String(payment.description ?? "");
     const dueDate        = String(payment.dueDate ?? "");
+
+    // Asaas payload only carries customer ID (cus_xxx), not email.
+    // Resolve the email by calling Asaas /customers/{id}.
+    const apiKey = Deno.env.get("NEXOIMOB_ASAAS_API_KEY");
+    if (!apiKey) {
+      console.error("❌ NEXOIMOB_ASAAS_API_KEY not configured — cannot resolve customer email");
+      throw new Error("NEXOIMOB_ASAAS_API_KEY not configured");
+    }
+    let email = "";
+    try {
+      const custRes = await fetch(`https://api.asaas.com/v3/customers/${encodeURIComponent(customerId)}`, {
+        headers: { "access_token": apiKey, "Content-Type": "application/json" },
+      });
+      if (!custRes.ok) {
+        const text = await custRes.text();
+        console.error(`❌ Asaas /customers/${customerId} error ${custRes.status}: ${text}`);
+        throw new Error(`Asaas customer lookup failed: ${custRes.status}`);
+      }
+      const customer = await custRes.json();
+      email = String(customer?.email ?? "").toLowerCase();
+      if (!email) {
+        console.error("❌ Asaas customer has no email:", customerId);
+        throw new Error(`Asaas customer ${customerId} has no email`);
+      }
+    } catch (err) {
+      console.error("❌ Failed to fetch Asaas customer:", String(err));
+      throw err;
+    }
 
     // Busca produto pelo nome/descrição
     let prod: Record<string, unknown> | null = null;
@@ -137,21 +167,18 @@ async function processWebhook(
       throw new Error(`Asaas product not found: ${description} / ${value}`);
     }
 
-    // Busca workspace pelo email
+    // Busca workspace pelo email — public.profiles não tem coluna email,
+    // resolver via RPC que faz join auth.users → workspaces.
     let workspaceId: string | null = null;
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
+    const { data: wsId, error: wsErr } = await supabase.rpc("get_workspace_id_by_email", { p_email: email });
+    if (wsErr) {
+      console.error("❌ get_workspace_id_by_email error:", wsErr);
+    }
+    workspaceId = (wsId as string | null) ?? null;
 
-    if (profile) {
-      const { data: ws } = await supabase
-        .from("workspaces")
-        .select("id")
-        .eq("owner_user_id", profile.id)
-        .maybeSingle();
-      workspaceId = ws?.id ?? null;
+    if (!workspaceId) {
+      console.error(`❌ Asaas: workspace não encontrado para email ${email}. Pagamento ignorado (usuário não tem conta).`);
+      throw new Error(`No workspace for email ${email}`);
     }
 
     // Upsert em user_subscriptions

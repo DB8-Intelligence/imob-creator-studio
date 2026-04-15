@@ -49,7 +49,7 @@ async function asaasFetch(endpoint: string, apiKey: string): Promise<any> {
   const res = await fetch(`${ASAAS_API_BASE}${endpoint}`, {
     method: "GET",
     headers: {
-      "X-API-Key": apiKey,
+      "access_token": apiKey,
       "Content-Type": "application/json",
     },
   });

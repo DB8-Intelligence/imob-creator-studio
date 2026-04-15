@@ -142,18 +142,13 @@ async function processWebhook(
   }
 
   async function findWorkspace(email: string) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", email)
-      .maybeSingle();
-    if (!profile) return null;
-    const { data: ws } = await supabase
-      .from("workspaces")
-      .select("id")
-      .eq("owner_user_id", profile.id)
-      .maybeSingle();
-    return ws?.id ?? null;
+    // public.profiles não tem coluna email — usar RPC que resolve via auth.users.
+    const { data, error } = await supabase.rpc("get_workspace_id_by_email", { p_email: email });
+    if (error) {
+      console.error("get_workspace_id_by_email error:", error);
+      return null;
+    }
+    return (data as string | null) ?? null;
   }
 
   // ============================================
