@@ -52,15 +52,19 @@ serve(async (req: Request) => {
   // 3. Validar token com timing-safe comparison
   // ============================================
   if (!receivedToken) {
+    console.warn("⚠️  Webhook request rejected: no token provided");
     return json({ ok: false, error: "Missing authentication token" }, 401);
   }
 
+  // Timing-safe comparison (evita side-channel attacks)
   const isValid = await timingSafeEqual(receivedToken, expectedToken);
 
   if (!isValid) {
+    console.warn("⚠️  Webhook request rejected: invalid token");
     return json({ ok: false, error: "Invalid authentication token" }, 401);
   }
 
+  console.log("✅ Token validation passed");
 
   // ============================================
   // 4. Parse payload
@@ -77,6 +81,7 @@ serve(async (req: Request) => {
   const event = String(payload.type ?? payload.event ?? "");
   const order = payload;
 
+  console.log("📦 Kiwify event:", event, "order_id:", order?.order_id);
 
   // ============================================
   // 5. Process webhook
@@ -99,11 +104,13 @@ serve(async (req: Request) => {
 
 /**
  * Timing-safe string comparison (prevents side-channel attacks)
+ * Deno.core.opSync is not available, so we use a manual approach
  */
 async function timingSafeEqual(a: string, b: string): Promise<boolean> {
   const aBytes = new TextEncoder().encode(a);
   const bBytes = new TextEncoder().encode(b);
 
+  // Se lengths diferentes, pad com zeros
   const maxLen = Math.max(aBytes.length, bBytes.length);
   let result = aBytes.length === bBytes.length ? 0 : 1;
 
@@ -123,22 +130,6 @@ async function processWebhook(
 ): Promise<void> {
   const event = String(payload.type ?? payload.event ?? "");
   const order = payload;
-
-  // Proteger contas fundadoras — nunca alterar plano via webhook
-  const FOUNDER_USER_IDS = ["0a320fe4-ccd2-40f6-8484-c440be4e9668"];
-  const founderEmail = String(
-    order.Customer?.email ?? order.customer?.email ?? ""
-  ).toLowerCase();
-  if (founderEmail) {
-    const { data: founderCheck } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", founderEmail)
-      .maybeSingle();
-    if (founderCheck && FOUNDER_USER_IDS.includes(founderCheck.id)) {
-      return;
-    }
-  }
 
   async function findProduct(productId: string) {
     const { data } = await supabase
@@ -236,6 +227,9 @@ async function processWebhook(
       throw userSubError;
     }
 
+    console.log(
+      `✅ ATIVO: ${product.module_id} ${product.plan_slug} — ${product.credits_total} créditos para ${email}`
+    );
   }
 
   // ============================================
@@ -277,6 +271,7 @@ async function processWebhook(
         throw kiwifyError;
       }
 
+      console.log(`✅ RENOVADO: ${email}`);
     }
   }
 
@@ -318,6 +313,7 @@ async function processWebhook(
       throw kiwifyError;
     }
 
+    console.log(`✅ CANCELADO: order ${orderId}`);
   }
 
   // ============================================
