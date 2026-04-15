@@ -14,25 +14,98 @@ serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // Validar token Asaas
-  const token = req.headers.get("asaas-access-token");
-  if (token !== Deno.env.get("ASAAS_WEBHOOK_TOKEN")) {
-    console.error("Token inválido:", token);
-    return new Response("Unauthorized", { status: 401 });
+  // ============================================
+  // 1. Ler NEXOIMOB_ASAAS_WEBHOOK_API_KEY — fail-closed
+  // ============================================
+  const expectedToken = Deno.env.get("NEXOIMOB_ASAAS_WEBHOOK_API_KEY");
+
+  if (!expectedToken) {
+    console.error("🚨 CRITICAL: NEXOIMOB_ASAAS_WEBHOOK_API_KEY not configured in Supabase Secrets");
+    return json({ ok: false, error: "Server configuration error: webhook token not configured" }, 500);
   }
 
-  const payload = await req.json();
-  const event   = payload.event as string;
-  const payment = payload.payment as Record<string, unknown>;
+  // ============================================
+  // 2. Extrair token (3 fontes, em ordem)
+  // ============================================
+  // Primário: header asaas-access-token (formato oficial Asaas)
+  // Fallback 1: ?signature= query param
+  // Fallback 2: Authorization: Bearer
+  const url = new URL(req.url);
+  const tokenFromHeader = req.headers.get("asaas-access-token");
+  const tokenFromQuery  = url.searchParams.get("signature");
+  const tokenFromAuth   = req.headers.get("authorization")?.replace("Bearer ", "");
 
+  const receivedToken = tokenFromHeader || tokenFromQuery || tokenFromAuth;
+
+  if (!receivedToken) {
+    console.warn("⚠️  Asaas webhook rejected: no token provided");
+    return json({ ok: false, error: "Missing authentication token" }, 401);
+  }
+
+  const isValid = await timingSafeEqual(receivedToken, expectedToken);
+  if (!isValid) {
+    console.warn("⚠️  Asaas webhook rejected: invalid token");
+    return json({ ok: false, error: "Invalid authentication token" }, 401);
+  }
+
+  console.log("✅ Asaas token validation passed");
+
+  // ============================================
+  // 3. Parse payload
+  // ============================================
+  let payload: Record<string, any>;
+  try {
+    payload = await req.json();
+  } catch (error) {
+    console.error("❌ Invalid JSON payload:", String(error));
+    return json({ ok: false, error: "Invalid JSON in request body" }, 400);
+  }
+
+  const event   = String(payload.event ?? "");
+  const payment = (payload.payment ?? {}) as Record<string, unknown>;
+
+  console.log("📦 Asaas event:", event, "payment_id:", payment?.id);
+
+  // ============================================
+  // 4. Process webhook
+  // ============================================
+  try {
+    await processWebhook(event, payload, payment, supabase);
+    return json({ ok: true, event });
+  } catch (error) {
+    console.error("❌ Asaas webhook processing error:", String(error));
+    return json({ ok: false, error: "Processing error", message: String(error) }, 500);
+  }
+});
+
+/**
+ * Timing-safe string comparison (prevents side-channel attacks)
+ */
+async function timingSafeEqual(a: string, b: string): Promise<boolean> {
+  const aBytes = new TextEncoder().encode(a);
+  const bBytes = new TextEncoder().encode(b);
+  const maxLen = Math.max(aBytes.length, bBytes.length);
+  let result = aBytes.length === bBytes.length ? 0 : 1;
+  for (let i = 0; i < maxLen; i++) {
+    result |= (aBytes[i] ?? 0) ^ (bBytes[i] ?? 0);
+  }
+  return result === 0;
+}
+
+async function processWebhook(
+  event: string,
+  payload: Record<string, any>,
+  payment: Record<string, unknown>,
+  supabase: any
+): Promise<void> {
 
   // ── PAYMENT_RECEIVED — ativar módulo ─────────────────────────
   if (event === "PAYMENT_RECEIVED") {
-    const email           = String(payment.customer ?? "").toLowerCase();
-    const subscriptionId  = String(payment.subscription ?? "");
-    const value           = Number(payment.value ?? 0);
-    const description     = String(payment.description ?? "");
-    const dueDate         = String(payment.dueDate ?? "");
+    const email          = String(payment.customer ?? "").toLowerCase();
+    const subscriptionId = String(payment.subscription ?? "");
+    const value          = Number(payment.value ?? 0);
+    const description    = String(payment.description ?? "");
+    const dueDate        = String(payment.dueDate ?? "");
 
     // Busca produto pelo nome/descrição
     let prod: Record<string, unknown> | null = null;
@@ -60,11 +133,8 @@ serve(async (req: Request) => {
     }
 
     if (!prod) {
-      console.error("Produto não encontrado para:", description, value);
-      return new Response(JSON.stringify({ ok: false, error: "Product not found" }), {
-        status: 200, // retornar 200 para Asaas não retentar
-        headers: { ...cors, "Content-Type": "application/json" },
-      });
+      console.error("❌ Asaas: produto não encontrado para:", description, value);
+      throw new Error(`Asaas product not found: ${description} / ${value}`);
     }
 
     // Busca workspace pelo email
@@ -85,7 +155,7 @@ serve(async (req: Request) => {
     }
 
     // Upsert em user_subscriptions
-    await supabase.from("user_subscriptions").upsert({
+    const { error: userSubError } = await supabase.from("user_subscriptions").upsert({
       workspace_id:            workspaceId,
       email,
       module_id:               prod.module_id,
@@ -101,8 +171,13 @@ serve(async (req: Request) => {
       hotmart_raw:             payload,
     }, { onConflict: "hotmart_subscription_id" });
 
+    if (userSubError) {
+      console.error("❌ Error upserting user_subscriptions:", userSubError);
+      throw userSubError;
+    }
+
     // Registrar em asaas_subscriptions
-    await supabase.from("asaas_subscriptions").upsert({
+    const { error: asaasSubError } = await supabase.from("asaas_subscriptions").upsert({
       workspace_id:          workspaceId,
       asaas_subscription_id: subscriptionId,
       asaas_customer_id:     String(payment.customer ?? ""),
@@ -119,6 +194,12 @@ serve(async (req: Request) => {
       asaas_raw:             payload,
     }, { onConflict: "asaas_subscription_id" });
 
+    if (asaasSubError) {
+      console.error("❌ Error upserting asaas_subscriptions:", asaasSubError);
+      throw asaasSubError;
+    }
+
+    console.log(`✅ ATIVO Asaas: ${prod.module_id} ${prod.plan_slug} — ${prod.credits} créditos para ${email}`);
   }
 
   // ── PAYMENT_OVERDUE — marcar como inadimplente ────────────────
@@ -132,6 +213,8 @@ serve(async (req: Request) => {
       await supabase.from("asaas_subscriptions")
         .update({ status: "overdue" })
         .eq("asaas_subscription_id", subscriptionId);
+
+      console.log(`⚠️  OVERDUE Asaas: subscription ${subscriptionId}`);
     }
   }
 
@@ -146,6 +229,8 @@ serve(async (req: Request) => {
       await supabase.from("asaas_subscriptions")
         .update({ status: "canceled", canceled_at: new Date().toISOString() })
         .eq("asaas_subscription_id", subscriptionId);
+
+      console.log(`✅ CANCELADO Asaas: subscription ${subscriptionId}`);
     }
   }
 
@@ -160,7 +245,7 @@ serve(async (req: Request) => {
         .from("workspaces").select("id")
         .eq("owner_user_id", userId).maybeSingle();
 
-      await supabase.from("asaas_subscriptions").upsert({
+      const { error: subError } = await supabase.from("asaas_subscriptions").upsert({
         asaas_subscription_id: String(sub.id),
         asaas_customer_id:     String(sub.customer),
         module_id:             moduleId,
@@ -170,10 +255,20 @@ serve(async (req: Request) => {
         status:                "pending",
         asaas_raw:             payload,
       }, { onConflict: "asaas_subscription_id" });
+
+      if (subError) {
+        console.error("❌ Error creating asaas_subscription:", subError);
+        throw subError;
+      }
+
+      console.log(`✅ Asaas subscription registered: ${sub.id}`);
     }
   }
+}
 
-  return new Response(JSON.stringify({ ok: true, event }), {
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
     headers: { ...cors, "Content-Type": "application/json" },
   });
-});
+}
