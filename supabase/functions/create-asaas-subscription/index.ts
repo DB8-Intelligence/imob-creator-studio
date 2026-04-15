@@ -51,7 +51,15 @@ serve(async (req: Request) => {
     .eq("id", user.id)
     .maybeSingle();
 
-  const apiKey = Deno.env.get("ASAAS_API_KEY")!;
+  // Canonical: NEXOIMOB_ASAAS_API_KEY (per DB8 convention).
+  // LEGACY fallback: ASAAS_API_KEY — remove once all environments are migrated.
+  const apiKey =
+    Deno.env.get("NEXOIMOB_ASAAS_API_KEY") ??
+    Deno.env.get("ASAAS_API_KEY");
+  if (!apiKey) {
+    console.error("CRITICAL: NEXOIMOB_ASAAS_API_KEY (nor legacy ASAAS_API_KEY) configured");
+    return json({ error: "Server configuration error: Asaas API key not configured" }, 500);
+  }
   const headers = {
     "Content-Type": "application/json",
     "access_token": apiKey,
