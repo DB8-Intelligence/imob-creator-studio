@@ -100,7 +100,15 @@ Copie `.env.example` para `.env` e preencha as variaveis.
 ## Webhook Kiwify
 
 URL: `https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/kiwify-webhook`
-Header: `x-kiwify-token: avod1gpyik0`
+
+Autenticação: token estático via header `x-kiwify-token` OU query param `?signature=`.
+O valor do token fica apenas em:
+
+- Railway `db8-agent` → Variables → `KIWIFY_WEBHOOK_TOKEN`
+- Supabase → Edge Functions Secrets → `KIWIFY_WEBHOOK_TOKEN`
+- Kiwify Dashboard → Webhook config (URL com `?signature=...`)
+
+**Nunca commitar o valor do token no código nem na documentação.**
 
 ## Variaveis de ambiente
 
