@@ -1,12 +1,9 @@
-import { useState, useRef, useCallback, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useRef, useCallback } from "react";
 import AppLayout from "@/components/app/AppLayout";
 import { PlanGate, userPlanToTier } from "@/components/app/PlanGate";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserPlan, useConsumeCredits, USER_PLAN_KEY } from "@/hooks/useUserPlan";
+import { useUserPlan, useConsumeCredits } from "@/hooks/useUserPlan";
 import { CREDIT_COSTS } from "@/lib/plan-rules";
-import { dispatchGeneration, pollJobUntilDone, uploadGenerationInput } from "@/services/generationApi";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Upload,
@@ -18,7 +15,6 @@ import {
   ArrowLeftRight,
   RotateCcw,
   Sparkles,
-  X,
 } from "lucide-react";
 
 type StagingStyle =
@@ -49,20 +45,7 @@ const STYLES: StyleOption[] = [
   { id: "classico", label: "Clássico", description: "Tradicional, elegante, atemporal", emoji: "🏛️" },
 ];
 
-// Mapa visual_style do Studio → StagingStyle local
-const VISUAL_TO_STAGING: Record<string, StagingStyle> = {
-  luxury:    "luxo",
-  modern:    "moderno",
-  minimal:   "minimalista",
-  corporate: "corporativo",
-  editorial: "moderno",
-  dark:      "moderno",
-  popular:   "moderno",
-};
-
-const VirtualStagingPage = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+const ImageRestorationPage = () => {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const [stagedImage, setStagedImage] = useState<string | null>(null);
@@ -73,32 +56,10 @@ const VirtualStagingPage = () => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const comparisonRef = useRef<HTMLDivElement>(null);
-  const [studioContext, setStudioContext] = useState<{ template_name?: string; template_id?: string } | null>(null);
 
   const { data: plan } = useUserPlan();
   const consumeCredits = useConsumeCredits();
   const userTier = userPlanToTier(plan?.user_plan);
-  const queryClient = useQueryClient();
-
-  // ── Leitura do estado vindo do Studio ──────────────────────────────────────
-  useEffect(() => {
-    const state = location.state as Record<string, unknown> | null;
-    if (!state?.from_studio) return;
-
-    // Pré-selecionar estilo de mobiliário com base no visual_style do template
-    if (typeof state.visual_style === "string") {
-      const mapped = VISUAL_TO_STAGING[state.visual_style];
-      if (mapped) setSelectedStyle(mapped);
-    }
-
-    // Guardar contexto para o banner e retorno
-    if (typeof state.template_name === "string" || typeof state.template_id === "string") {
-      setStudioContext({
-        template_name: state.template_name as string | undefined,
-        template_id:   state.template_id   as string | undefined,
-      });
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Plan gate: check if commercial staging is needed
   const canCommercial = environmentType === "comercial";
@@ -138,12 +99,12 @@ const VirtualStagingPage = () => {
   }, []);
 
   const handleGenerate = async () => {
-    if (!originalImage || !originalFile) {
+    if (!originalImage) {
       toast.error("Envie uma foto do ambiente primeiro");
       return;
     }
 
-    const creditCost = CREDIT_COSTS.virtual_staging;
+    const creditCost = CREDIT_COSTS.image_restoration;
     if (plan && plan.credits_remaining < creditCost) {
       toast.error(`Créditos insuficientes. Necessário: ${creditCost} créditos.`);
       return;
@@ -154,59 +115,34 @@ const VirtualStagingPage = () => {
     setShowComparison(false);
 
     try {
-      // 1. Upload da imagem local → URL pública no bucket
-      const imageUrl = await uploadGenerationInput(originalFile, "staging-inputs");
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
 
-      // 2. Enviar payload padrão para generate-dispatch (async → n8n router)
-      const response = await dispatchGeneration({
-        generation_type: "virtual_staging",
-        engine_id:       "virtual_staging",
-        from_studio:     !!studioContext,
-        template_id:     studioContext?.template_id,
-        template_name:   studioContext?.template_name,
-        image_urls:      [imageUrl],
-        style:           selectedStyle,
-        editable_fields: { roomType: environmentType === "comercial" ? "office" : "living" },
-        callback_mode:   "async",
-        credit_cost:     creditCost,
+      const response = await supabase.functions.invoke("image-restoration", {
+        body: {
+          imageBase64: originalImage,
+          style: selectedStyle,
+          environmentType,
+        },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
-      // 3. Poll até o job terminar
-      const job = await pollJobUntilDone(response.job_id, { timeoutMs: 150_000 });
+      if (response.error) throw new Error(response.error.message);
 
-      if (!job || job.status === "error") {
-        throw new Error(job?.error_message ?? "Staging falhou. Tente novamente.");
-      }
+      const data = response.data;
+      if (!data?.success) throw new Error(data?.error || "Erro ao gerar staging");
 
-      const resultUrl = (job.result_url as string | null) ?? null;
-      if (!resultUrl) throw new Error("Staging não retornou imagem.");
-
-      setStagedImage(resultUrl);
+      setStagedImage(data.stagedImageUrl);
       setShowComparison(true);
 
-      // Atualiza créditos no cache local (já debitados server-side)
-      queryClient.invalidateQueries({ queryKey: USER_PLAN_KEY });
+      // Consume credits
+      consumeCredits.mutate(creditCost);
 
       toast.success("Ambiente mobilado com sucesso!");
-
-      // Retornar ao Studio com o resultado se veio de lá
-      if (studioContext && resultUrl) {
-        navigate("/studio", {
-          state: {
-            from_studio:   true,
-            result_url:    resultUrl,
-            template_id:   studioContext.template_id,
-            template_name: studioContext.template_name,
-            engine_id:     "virtual_staging",
-            status:        "done",
-          },
-        });
-        return;
-      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erro desconhecido";
       toast.error(message);
-      console.error("Virtual staging error:", err);
+      console.error("Image restoration error:", err);
     } finally {
       setIsGenerating(false);
     }
@@ -262,24 +198,6 @@ const VirtualStagingPage = () => {
         minimumTier={canCommercial ? "standard" : "starter"}
       >
       <div className="max-w-5xl mx-auto space-y-8 pb-12">
-        {/* Studio context banner */}
-        {studioContext && (
-          <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 text-sm">
-            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="text-foreground">
-              Template <span className="font-semibold text-emerald-400">{studioContext.template_name}</span> — estilo pré-selecionado via Studio
-            </span>
-            <button
-              type="button"
-              title="Fechar"
-              onClick={() => setStudioContext(null)}
-              className="ml-auto text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        )}
-
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -376,7 +294,7 @@ const VirtualStagingPage = () => {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Mobiliar ambiente ({CREDIT_COSTS.virtual_staging} créditos)
+                  Mobiliar ambiente ({CREDIT_COSTS.image_restoration} créditos)
                 </>
               )}
             </button>
@@ -533,4 +451,4 @@ const VirtualStagingPage = () => {
   );
 };
 
-export default VirtualStagingPage;
+export default ImageRestorationPage;

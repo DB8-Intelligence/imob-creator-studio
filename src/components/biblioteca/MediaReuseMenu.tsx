@@ -4,7 +4,7 @@
  * Exibe fluxos disponíveis para reutilizar o asset selecionado:
  * - Gerar Post
  * - Gerar Vídeo
- * - Virtual Staging
+ * - Image Restoration
  * - Gerar Variação
  *
  * Navega para a rota do fluxo com prefill state (template, preset, mood, etc.)
@@ -35,7 +35,7 @@ const FLOW_ICONS: Record<ReuseFlow, typeof FileText> = {
 const FLOW_DESCRIPTIONS: Record<ReuseFlow, string> = {
   post: "Criar post ou legenda usando este asset como base",
   video: "Gerar vídeo a partir deste asset com preset e template",
-  staging: "Aplicar virtual staging nesta imagem",
+  staging: "Aplicar restauração de imagem neste asset",
   variation: "Gerar uma nova variação mantendo os mesmos parâmetros",
 };
 

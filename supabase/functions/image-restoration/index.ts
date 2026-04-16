@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 /**
- * Virtual Staging — Mobiliar Ambientes com IA
+ * Image Restoration — Restauração e Mobilização de Ambientes com IA
  *
  * Recebe uma foto de ambiente (vazio ou mobiliado) e gera uma versão
  * decorada no estilo solicitado usando Gemini 2.5 Flash (image generation).
@@ -192,7 +192,7 @@ Output a single high-quality photorealistic image of the furnished room.`;
 
     const ext = generatedMimeType.includes("png") ? "png" : "jpg";
     const fileName = `staging-${selectedStyle}-${Date.now()}.${ext}`;
-    const storagePath = `virtual-staging/${workspaceId || "global"}/${fileName}`;
+    const storagePath = `image-restoration/${workspaceId || "global"}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from("creatives")
@@ -221,7 +221,7 @@ Output a single high-quality photorealistic image of the furnished room.`;
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("virtual-staging error:", error);
+    console.error("image-restoration error:", error);
     return new Response(
       JSON.stringify({ error: error.message || "Erro interno no servidor" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

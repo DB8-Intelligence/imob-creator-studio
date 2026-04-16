@@ -4,7 +4,7 @@
  * Constrói prefill state a partir de qualquer MediaItem para diferentes fluxos:
  * - post: gerar post a partir do asset
  * - video: gerar vídeo a partir do asset
- * - staging: virtual staging
+ * - staging: image restoration
  * - variation: gerar variação do mesmo tipo
  *
  * Mantém vínculo com asset original via sourceAssetId no state.
@@ -53,7 +53,7 @@ export function getAvailableFlows(item: MediaItem): ReuseFlow[] {
 const FLOW_CONFIG: Record<ReuseFlow, { label: string; route: string; icon: string }> = {
   post:      { label: "Gerar Post",           route: "/criativos",       icon: "FileText" },
   video:     { label: "Gerar Vídeo",          route: "/video-creator",   icon: "Video" },
-  staging:   { label: "Virtual Staging",      route: "/criativos",       icon: "Paintbrush" },
+  staging:   { label: "Image Restoration",    route: "/criativos",       icon: "Paintbrush" },
   variation: { label: "Gerar Variação",       route: "",                 icon: "RefreshCw" },
 };
 

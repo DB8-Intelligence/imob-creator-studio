@@ -19,7 +19,7 @@ export interface PlanFeatures {
   upscaleBasic: boolean;
   upscalePremium: boolean;
 
-  /** Virtual Staging — mobiliar ambientes */
+  /** Image Restoration — mobiliar ambientes */
   stagingResidential: boolean;
   stagingCommercial: boolean;
 
@@ -179,7 +179,7 @@ export function getOriginalYearlyPrice(tier: PlanTier): number {
 /** Crédito por operação */
 export const CREDIT_COSTS = {
   video_generation: 10,
-  virtual_staging: 3,
+  image_restoration: 3,
   upscale_basic: 1,
   upscale_premium: 2,
   renovate_property: 3,

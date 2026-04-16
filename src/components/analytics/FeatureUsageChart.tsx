@@ -15,7 +15,7 @@ const FEATURE_DEFS: FeatureDef[] = [
   { event: "upscale_used",        label: "Upscale",              category: "Ferramentas"  },
   { event: "reverse_prompt_used", label: "Reverse Prompt Lab",   category: "Ferramentas"  },
   { event: "video_creator_used",  label: "Criar Vídeo",          category: "Vídeos IA"    },
-  { event: "virtual_staging_used",label: "Mobiliar Ambientes",   category: "IA Imobiliária" },
+  { event: "image_restoration_used",label: "Mobiliar Ambientes",   category: "IA Imobiliária" },
   { event: "renovate_used",       label: "Reformar Imóvel",      category: "IA Imobiliária" },
   { event: "sketch_render_used",  label: "Render de Esboços",    category: "IA Imobiliária" },
   { event: "ai_agents_used",      label: "Agentes IA",           category: "Ferramentas"  },

@@ -80,7 +80,7 @@ const StudioPage = () => {
     const state = location.state as Record<string, unknown> | null;
     if (!state) return;
 
-    // ── Resultado vindo de um flow (/create/ideia, /virtual-staging, etc.) ─
+    // ── Resultado vindo de um flow (/create/ideia, /image-restoration, etc.) ─
     const resUrl    = state.result_url as string | undefined;
     const resEngine = state.engine_id  as AIEngineId | undefined;
     const resTplId  = state.template_id as string | undefined;

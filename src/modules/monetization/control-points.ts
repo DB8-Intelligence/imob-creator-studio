@@ -128,8 +128,8 @@ export function checkBeforeImageGenerate(params: {
     return { allowed: false, reason: "Arte premium requer plano Plus ou superior.", code: "feature_locked", requiredPlan: "plus" };
   }
 
-  if (params.generationType === "virtual_staging" && !flags.canVirtualStaging) {
-    return { allowed: false, reason: "Virtual Staging requer plano Plus ou superior.", code: "feature_locked", requiredPlan: "plus" };
+  if (params.generationType === "image_restoration" && !flags.canImageRestoration) {
+    return { allowed: false, reason: "Image Restoration requer plano Plus ou superior.", code: "feature_locked", requiredPlan: "plus" };
   }
 
   return { allowed: true };

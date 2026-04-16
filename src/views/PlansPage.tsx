@@ -303,7 +303,7 @@ const PlansPage = () => {
             {Object.entries(CREDIT_COSTS).map(([key, cost]) => {
               const labels: Record<string, string> = {
                 video_generation: "Geração de vídeo",
-                virtual_staging: "Mobiliar ambientes",
+                image_restoration: "Mobiliar ambientes",
                 upscale_basic: "Upscale básico (2x)",
                 upscale_premium: "Upscale premium",
                 renovate_property: "Reformar e valorizar",

@@ -100,7 +100,7 @@ const SketchRenderPage = () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
-      const response = await supabase.functions.invoke("virtual-staging", {
+      const response = await supabase.functions.invoke("image-restoration", {
         body: {
           imageBase64: originalImage,
           style: "moderno",

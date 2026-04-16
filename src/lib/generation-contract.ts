@@ -3,7 +3,7 @@
  *
  * Contrato padrão de geração do ImobCreator AI.
  *
- * Todos os fluxos de geração (gerar post, virtual staging, upscale,
+ * Todos os fluxos de geração (gerar post, image restoration, upscale,
  * sketch-render, empty-lot, vídeo, etc.) usam este contrato único.
  * O campo `generation_type` é o discriminante de roteamento no n8n.
  *
@@ -32,7 +32,7 @@ export type GenerationType =
   | "gerar_story"         // story / reels cover (9:16)
   | "gerar_banner"        // banner tráfego pago
   | "gerar_arte_premium"  // editorial / luxo
-  | "virtual_staging"     // mobiliar ambiente vazio
+  | "image_restoration"   // restauração / mobiliar ambiente
   | "upscale"             // melhorar resolução
   | "sketch_render"       // render de esboço / terreno
   | "empty_lot"           // lote vazio com render 3D
@@ -183,7 +183,7 @@ export const GENERATION_TYPE_TO_FUNCTION: Record<GenerationType, string> = {
   gerar_story:        "gerar-criativo",
   gerar_banner:       "gerar-criativo",
   gerar_arte_premium: "generate-art",
-  virtual_staging:    "virtual-staging",
+  image_restoration:  "image-restoration",
   upscale:            "generate-art",
   sketch_render:      "gerar-criativo",
   empty_lot:          "gerar-criativo",
@@ -201,7 +201,7 @@ export const USE_CASE_TO_GENERATION_TYPE: Record<string, GenerationType> = {
   gerar_story:          "gerar_story",
   gerar_banner:         "gerar_banner",
   gerar_arte_premium:   "gerar_arte_premium",
-  mobiliar_ambiente:    "virtual_staging",
+  mobiliar_ambiente:    "image_restoration",
   melhorar_imagem:      "upscale",
   render_espaco:        "sketch_render",
   transformar_em_video: "image_to_video",

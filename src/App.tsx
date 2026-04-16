@@ -34,7 +34,7 @@ import PlansPage from "./pages/PlansPage";
 import IdeaCreativePage from "./pages/IdeaCreativePage";
 import ReversePromptLabPage from "./pages/ReversePromptLabPage";
 import UpscaleImagePage from "./pages/UpscaleImagePage";
-import VirtualStagingPage from "./pages/VirtualStagingPage";
+import ImageRestorationPage from "./pages/ImageRestorationPage";
 import RenovatePropertyPage from "./pages/RenovatePropertyPage";
 import SketchRenderPage from "./pages/SketchRenderPage";
 import EmptyLotPage from "./pages/EmptyLotPage";
@@ -209,7 +209,7 @@ const App = () => (
               <Route path="/planos" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
               <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
-              <Route path="/virtual-staging" element={<ProtectedRoute><VirtualStagingPage /></ProtectedRoute>} />
+              <Route path="/image-restoration" element={<ProtectedRoute><ImageRestorationPage /></ProtectedRoute>} />
               <Route path="/renovate" element={<ProtectedRoute><RenovatePropertyPage /></ProtectedRoute>} />
               <Route path="/sketch-render" element={<ProtectedRoute><SketchRenderPage /></ProtectedRoute>} />
               <Route path="/empty-lot" element={<ProtectedRoute><EmptyLotPage /></ProtectedRoute>} />

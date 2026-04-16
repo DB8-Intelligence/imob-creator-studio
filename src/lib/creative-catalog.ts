@@ -35,7 +35,7 @@ export type AspectRatio = "1:1" | "4:5" | "9:16" | "16:9" | "1.91:1";
 export type AIEngineId =
   | "gemini_image"
   | "openai_image"
-  | "virtual_staging"
+  | "image_restoration"
   | "caption_generator"
   | "art_generator"
   | "video_generator"

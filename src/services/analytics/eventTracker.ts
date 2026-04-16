@@ -25,7 +25,7 @@ export type UsageEvent =
   | "video_creator_used"
   | "ai_agents_used"
   | "reel_script_used"
-  | "virtual_staging_used"
+  | "image_restoration_used"
   | "renovate_used"
   | "sketch_render_used"
   | "empty_lot_used"
@@ -62,7 +62,7 @@ export const EVENT_CATEGORY: Record<AppEvent, string> = {
   video_creator_used:  "usage",
   ai_agents_used:      "usage",
   reel_script_used:    "usage",
-  virtual_staging_used:"usage",
+  image_restoration_used:"usage",
   renovate_used:       "usage",
   sketch_render_used:  "usage",
   empty_lot_used:      "usage",

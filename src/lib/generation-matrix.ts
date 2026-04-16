@@ -167,9 +167,9 @@ export const GENERATION_MATRIX: GenerationMatrixEntry[] = [
 
   {
     use_case_id:      "mobiliar_ambiente",
-    generation_type:  "virtual_staging",
-    engine_id:        "virtual_staging",
-    edge_function:    "virtual-staging",
+    generation_type:  "image_restoration",
+    engine_id:        "image_restoration",
+    edge_function:    "image-restoration",
     input_type:       "image_required",
     output_type:      "enhanced_image",
     category:         "transformar",
@@ -179,7 +179,7 @@ export const GENERATION_MATRIX: GenerationMatrixEntry[] = [
     readiness:        "production",
     avg_time_seconds: 25,
     description_user: "Coloca móveis em ambientes vazios com IA",
-    description_tech: "Gemini 2.0 Flash via virtual-staging. Input: foto do ambiente. Output: imagem mobiliada.",
+    description_tech: "Gemini 2.0 Flash via image-restoration. Input: foto do ambiente. Output: imagem mobiliada.",
   },
   {
     use_case_id:      "transformar_em_video",

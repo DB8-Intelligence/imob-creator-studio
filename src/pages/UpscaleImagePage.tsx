@@ -59,11 +59,11 @@ export default function UpscaleImagePage() {
       await consumeCredits(UPSCALE_CREDIT_COST);
       setCreditsUsed((prev) => prev + UPSCALE_CREDIT_COST);
 
-      // Call virtual-staging edge function with an upscale-specific prompt
+      // Call image-restoration edge function with an upscale-specific prompt
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData.session?.access_token;
 
-      const response = await supabase.functions.invoke("virtual-staging", {
+      const response = await supabase.functions.invoke("image-restoration", {
         body: {
           imageBase64: image.dataUrl,
           style: "moderno",

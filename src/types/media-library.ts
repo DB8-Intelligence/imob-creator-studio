@@ -51,5 +51,5 @@ export interface AssetReusePrefill {
 export type ReuseFlow =
   | "post"        // gerar post a partir do asset
   | "video"       // gerar vídeo a partir do asset
-  | "staging"     // virtual staging
+  | "staging"     // image restoration
   | "variation";  // gerar variação do mesmo tipo

@@ -34,7 +34,7 @@ export interface VideoPlanFlags {
   // ── Geração de imagem/post ─────────────────────────────────────────
   canGenerateImage: boolean;
   canGeneratePremiumArt: boolean;
-  canVirtualStaging: boolean;
+  canImageRestoration: boolean;
   imageCreditsPerMonth: number;
 
   // ── Automação (DEV-26) ─────────────────────────────────────────────
@@ -73,7 +73,7 @@ export const VIDEO_PLAN_FLAGS: Record<VideoPlanLevel, VideoPlanFlags> = {
     // Imagem
     canGenerateImage: true,
     canGeneratePremiumArt: false,
-    canVirtualStaging: false,
+    canImageRestoration: false,
     imageCreditsPerMonth: 50,
     // Automação
     canAutomate: true,
@@ -105,7 +105,7 @@ export const VIDEO_PLAN_FLAGS: Record<VideoPlanLevel, VideoPlanFlags> = {
     // Imagem
     canGenerateImage: true,
     canGeneratePremiumArt: true,
-    canVirtualStaging: true,
+    canImageRestoration: true,
     imageCreditsPerMonth: 150,
     // Automação
     canAutomate: true,
@@ -137,7 +137,7 @@ export const VIDEO_PLAN_FLAGS: Record<VideoPlanLevel, VideoPlanFlags> = {
     // Imagem
     canGenerateImage: true,
     canGeneratePremiumArt: true,
-    canVirtualStaging: true,
+    canImageRestoration: true,
     imageCreditsPerMonth: 500,
     // Automação
     canAutomate: true,

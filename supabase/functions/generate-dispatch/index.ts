@@ -39,8 +39,8 @@
  *   gerar_arte_premium / generate_art / upscale
  *     → generate-art  (Gemini 2.0 Flash)
  *
- *   virtual_staging
- *     → virtual-staging  (Gemini 2.0 Flash)
+ *   image_restoration
+ *     → image-restoration  (Gemini 2.0 Flash)
  *
  *   image_to_video
  *     → image-to-video  (Veo)
@@ -73,7 +73,7 @@ const TYPE_TO_FUNCTION: Record<string, string> = {
   gerar_arte_premium: "generate-art",
   generate_art:       "generate-art",
   upscale:            "generate-art",
-  virtual_staging:    "virtual-staging",
+  image_restoration:  "image-restoration",
   sketch_render:      "gerar-criativo",
   empty_lot:          "gerar-criativo",
   image_to_video:     "image-to-video",
@@ -402,7 +402,7 @@ function buildFunctionPayload(
         workspaceId:  req.workspace_id ?? null,
       };
 
-    case "virtual_staging":
+    case "image_restoration":
       return {
         skip_credits: true,
         imageUrl:     (req.image_urls as string[])?.[0] ?? "",

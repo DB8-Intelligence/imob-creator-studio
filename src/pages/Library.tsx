@@ -65,7 +65,7 @@ const GENERATION_TYPE_LABELS: Record<string, string> = {
   gerar_post:        "Post gerado",
   gerar_story:       "Story gerado",
   gerar_banner:      "Banner gerado",
-  virtual_staging:   "Staging virtual",
+  image_restoration: "Restauração de imagem",
   gerar_arte_premium:"Arte premium",
   generate_art:      "Arte gerada",
   upscale:           "Imagem aprimorada",
@@ -78,7 +78,7 @@ const GENERATION_TYPE_FORMAT: Record<string, string> = {
   gerar_post:         "feed",
   gerar_story:        "story",
   gerar_banner:       "feed",
-  virtual_staging:    "feed",
+  image_restoration:  "feed",
   gerar_arte_premium: "feed",
   generate_art:       "feed",
 };
