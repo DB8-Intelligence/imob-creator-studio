@@ -1,37 +1,30 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
 import {
   MessageSquare,
   Image,
   Video,
   FileText,
-  Filter,
-  PlusCircle,
   Inbox,
+  Loader2,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import ChatWindow from "@/components/whatsapp/ChatWindow";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface WhatsAppMessage {
-  id: string;
-  sender_number: string;
-  sender_name: string | null;
-  message_type: "text" | "image" | "video" | "document";
-  body: string | null;
-  media_url: string | null;
-  status: "pending" | "processed";
-  created_at: string;
+interface Contact {
+  phone: string;
+  name: string | null;
+  lastMessage: string;
+  lastAt: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -45,231 +38,207 @@ const TYPE_ICONS: Record<string, React.ReactNode> = {
   document: <FileText className="h-4 w-4 text-orange-500" />,
 };
 
+function formatRelativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "agora";
+  if (mins < 60) return `${mins}min`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d`;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function WhatsAppInboxPage() {
   const { user } = useAuth();
-  const { workspaceId } = useWorkspaceContext();
   const { toast } = useToast();
-  const navigate = useNavigate();
 
-  const [messages, setMessages] = useState<WhatsAppMessage[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [selectedPhone, setSelectedPhone] = useState<string | null>(null);
 
-  /* ---- Fetch ---- */
-  const loadMessages = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("whatsapp_inbox" as any)
-        .select("*")
-        .order("created_at", { ascending: false });
+  const callEdge = useCallback(
+    async (action: string, params?: Record<string, string>) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Nao autenticado");
 
-      if (error) {
-        // Table may not exist — graceful degradation
-        console.warn("whatsapp_inbox query:", error.message);
-        setMessages([]);
-      } else {
-        setMessages((data ?? []) as unknown as WhatsAppMessage[]);
-      }
-    } catch {
-      setMessages([]);
-    }
-    setLoading(false);
-  };
+      const qs = new URLSearchParams({ action, ...(params ?? {}) });
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?${qs}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      return res.json();
+    },
+    [],
+  );
 
+  /* ---- Load contacts ---- */
   useEffect(() => {
     if (!user) return;
-    loadMessages();
-  }, [user]);
+    setLoading(true);
+    callEdge("contacts")
+      .then((data) => {
+        setContacts(data.contacts ?? []);
+      })
+      .catch(() => {
+        setContacts([]);
+      })
+      .finally(() => setLoading(false));
+  }, [user, callEdge]);
 
-  /* ---- Realtime subscription ---- */
+  /* ---- Realtime: add new contacts when messages arrive ---- */
   useEffect(() => {
-    if (!workspaceId) return;
     const channel = supabase
-      .channel("whatsapp-inbox-realtime")
+      .channel("whatsapp-inbox-realtime-contacts")
       .on(
-        "postgres_changes" as any,
+        "postgres_changes" as never,
         {
           event: "INSERT",
           schema: "public",
           table: "whatsapp_inbox",
-          filter: `workspace_id=eq.${workspaceId}`,
         },
-        (payload: any) => {
-          setMessages((prev) => [payload.new as any, ...prev]);
-          toast({ title: `Nova mensagem de ${(payload.new as any).sender_name || (payload.new as any).sender_number}` });
-        }
+        (payload: { new: Record<string, unknown> }) => {
+          const row = payload.new;
+          const phone = row.from_phone as string;
+          const name = (row.from_name as string | null) ?? null;
+          const text = (row.message_text as string) ?? "";
+          const at = (row.received_at as string) ?? new Date().toISOString();
+
+          setContacts((prev) => {
+            const exists = prev.find((c) => c.phone === phone);
+            if (exists) {
+              return prev.map((c) =>
+                c.phone === phone ? { ...c, lastMessage: text, lastAt: at, name: name ?? c.name } : c,
+              );
+            }
+            return [{ phone, name, lastMessage: text, lastAt: at }, ...prev];
+          });
+
+          toast({ title: `Nova mensagem de ${name ?? phone}` });
+        },
       )
       .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [workspaceId]);
+    return () => { supabase.removeChannel(channel); };
+  }, [toast]);
 
-  /* ---- Filters ---- */
-  const filtered = messages.filter((m) => {
-    if (filter === "photos") return m.message_type === "image";
-    if (filter === "pending") return m.status === "pending";
-    return true;
-  });
+  /* ---- Filter ---- */
+  const filtered = search
+    ? contacts.filter(
+        (c) =>
+          c.phone.includes(search) ||
+          c.name?.toLowerCase().includes(search.toLowerCase()),
+      )
+    : contacts;
+
+  const selectedContact = contacts.find((c) => c.phone === selectedPhone) ?? null;
 
   /* ---- Render ---- */
   return (
     <div className="min-h-screen bg-white font-['Plus_Jakarta_Sans']">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-[#002B5B]">
-              Mensagens Recebidas
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Inbox do WhatsApp — mensagens de imagens, textos e mais.
-            </p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-[#002B5B]">
+            Conversas WhatsApp
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Visualize e responda mensagens recebidas pelo WhatsApp.
+          </p>
         </div>
 
-        {/* Filter tabs */}
-        <Tabs value={filter} onValueChange={setFilter}>
-          <TabsList>
-            <TabsTrigger value="all">Todas</TabsTrigger>
-            <TabsTrigger value="photos">Fotos</TabsTrigger>
-            <TabsTrigger value="pending">Pendentes</TabsTrigger>
-          </TabsList>
-
-          {/* Content area — same for all tabs, filtering is in JS */}
-          <TabsContent value={filter} className="mt-4">
-            {loading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-4 flex items-center gap-4">
-                      <Skeleton className="h-12 w-12 rounded" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-1/3" />
-                        <Skeleton className="h-3 w-2/3" />
-                      </div>
-                      <Skeleton className="h-6 w-20" />
-                    </CardContent>
-                  </Card>
-                ))}
+        {/* Split-pane layout */}
+        <div className="flex gap-0 border border-gray-200 rounded-xl overflow-hidden h-[calc(100vh-200px)] min-h-[500px]">
+          {/* Left: Contact list */}
+          <div className="w-[340px] shrink-0 border-r border-gray-200 flex flex-col bg-white">
+            {/* Search */}
+            <div className="p-3 border-b border-gray-100">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Buscar contato..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 text-sm h-9"
+                />
               </div>
-            ) : filtered.length === 0 ? (
-              /* Empty state */
-              <div className="text-center py-20">
-                <div className="mx-auto w-16 h-16 rounded-full bg-[#002B5B]/10 flex items-center justify-center mb-4">
-                  <Inbox className="h-8 w-8 text-[#002B5B]/40" />
+            </div>
+
+            {/* Contact list */}
+            <div className="flex-1 overflow-y-auto">
+              {loading ? (
+                <div className="flex items-center justify-center gap-2 py-12 text-gray-400">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm">Carregando...</span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-700">
-                  Nenhuma mensagem recebida
-                </h3>
-                <p className="text-sm text-gray-500 mt-1 mb-6">
-                  Conecte seu WhatsApp primeiro para comecar a receber mensagens.
-                </p>
-                <Link to="/dashboard/whatsapp/setup">
-                  <Button className="bg-[#002B5B] hover:bg-[#001d3d] text-white gap-2">
-                    Conectar WhatsApp
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              /* Message list */
-              <div className="space-y-2">
-                {filtered.map((msg) => (
-                  <Card
-                    key={msg.id}
-                    className="hover:shadow-md transition-shadow border border-gray-200"
+              ) : filtered.length === 0 ? (
+                <div className="text-center py-12 px-4">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-[#002B5B]/10 flex items-center justify-center mb-3">
+                    <Inbox className="h-6 w-6 text-[#002B5B]/40" />
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    {search ? "Nenhum contato encontrado" : "Nenhuma conversa ainda"}
+                  </p>
+                </div>
+              ) : (
+                filtered.map((contact) => (
+                  <button
+                    key={contact.phone}
+                    type="button"
+                    onClick={() => setSelectedPhone(contact.phone)}
+                    className={`w-full text-left px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
+                      selectedPhone === contact.phone ? "bg-[#002B5B]/[0.04]" : ""
+                    }`}
                   >
-                    <CardContent className="p-4 flex items-center gap-4">
-                      {/* Thumbnail / type icon */}
-                      {msg.message_type === "image" ? (
-                        <div className="h-12 w-12 rounded bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
-                          <Image className="h-5 w-5 text-blue-400" />
-                        </div>
-                      ) : (
-                        <div className="h-12 w-12 rounded bg-gray-50 flex items-center justify-center shrink-0">
-                          {TYPE_ICONS[msg.message_type] ?? TYPE_ICONS.text}
-                        </div>
-                      )}
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-sm text-[#002B5B] truncate">
+                        {contact.name ?? contact.phone}
+                      </span>
+                      <span className="text-[11px] text-gray-400 shrink-0 ml-2">
+                        {formatRelativeTime(contact.lastAt)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 truncate mt-0.5">
+                      {contact.lastMessage || "[mensagem]"}
+                    </p>
+                    {contact.name && (
+                      <p className="text-[11px] text-gray-400 mt-0.5">{contact.phone}</p>
+                    )}
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-sm text-[#002B5B] truncate">
-                            {msg.sender_name ?? msg.sender_number}
-                          </span>
-                          <span className="text-xs text-gray-400">
-                            {msg.sender_name ? msg.sender_number : ""}
-                          </span>
-                        </div>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
-                          {msg.body ?? `[${msg.message_type}]`}
-                        </p>
-                        <span className="text-[11px] text-gray-400">
-                          {new Date(msg.created_at).toLocaleDateString("pt-BR", {
-                            day: "2-digit",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-
-                      {/* Status badge */}
-                      <Badge
-                        className={`shrink-0 border-0 text-[11px] ${
-                          msg.status === "processed"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {msg.status === "processed" ? "Processado" : "Pendente"}
-                      </Badge>
-
-                      {/* Actions */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        {msg.status !== "processed" && (
-                          <button
-                            type="button"
-                            onClick={async () => {
-                              await supabase
-                                .from("whatsapp_inbox" as any)
-                                .update({ status: "processed" } as any)
-                                .eq("id", msg.id);
-                              setMessages((prev) =>
-                                prev.map((m) =>
-                                  m.id === msg.id ? { ...m, status: "processed" as const } : m
-                                )
-                              );
-                              toast({ title: "Mensagem marcada como processada" });
-                            }}
-                            className="text-xs text-[#002B5B] hover:underline"
-                          >
-                            Marcar processado
-                          </button>
-                        )}
-                        {msg.message_type === "image" && (
-                          <Button
-                            size="sm"
-                            className="text-xs bg-[#002B5B] hover:bg-[#001d3d] text-white gap-1.5 shrink-0"
-                            onClick={() => navigate("/dashboard/criativos/novo")}
-                          >
-                            <PlusCircle className="h-3.5 w-3.5" />
-                            Criar Criativo
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+          {/* Right: Chat window */}
+          <div className="flex-1 flex flex-col bg-white">
+            {selectedPhone && selectedContact ? (
+              <ChatWindow
+                key={selectedPhone}
+                phone={selectedPhone}
+                contactName={selectedContact.name}
+              />
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-center px-8">
+                <div>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-[#002B5B]/10 flex items-center justify-center mb-4">
+                    <MessageSquare className="h-8 w-8 text-[#002B5B]/30" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    Selecione uma conversa
+                  </h3>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Escolha um contato na lista para ver e responder mensagens.
+                  </p>
+                </div>
               </div>
             )}
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );

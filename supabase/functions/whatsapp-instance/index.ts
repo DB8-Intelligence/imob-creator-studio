@@ -147,6 +147,179 @@ serve(async (req: Request) => {
         });
       }
 
+      // ── SEND: send text message via Evolution API ─────────────────────
+      case "send": {
+        if (req.method !== "POST") {
+          return new Response("Method not allowed", { status: 405, headers: corsHeaders });
+        }
+
+        const body = await req.json();
+        const { phone, text } = body as { phone?: string; text?: string };
+
+        if (!phone || !text) {
+          return new Response(JSON.stringify({ ok: false, error: "phone and text are required" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Verify instance is connected
+        const { data: inst } = await supabase
+          .from("user_whatsapp_instances")
+          .select("status")
+          .eq("user_id", userId)
+          .maybeSingle();
+
+        if (inst?.status !== "connected") {
+          return new Response(JSON.stringify({ ok: false, error: "WhatsApp not connected" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Send via Evolution API
+        const sendRes = await fetch(`${EVOLUTION_URL}/message/sendText/${instanceName}`, {
+          method: "POST",
+          headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            number: phone.replace(/[^\d]/g, ""),
+            text,
+            linkPreview: true,
+          }),
+        });
+
+        const sendData = await sendRes.json();
+
+        if (!sendRes.ok) {
+          return new Response(JSON.stringify({ ok: false, error: sendData.message ?? "Evolution API error" }), {
+            status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Audit log: save sent message
+        await supabase.from("whatsapp_sent_messages").insert({
+          user_id:   userId,
+          to_phone:  phone.replace(/[^\d]/g, ""),
+          body:      text,
+          evolution_response: sendData,
+        });
+
+        return new Response(JSON.stringify({
+          ok:         true,
+          message_id: sendData.key?.id ?? null,
+        }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      // ── MESSAGES: fetch conversation history for a phone number ───────
+      case "messages": {
+        const phoneParam = url.searchParams.get("phone");
+        if (!phoneParam) {
+          return new Response(JSON.stringify({ ok: false, error: "phone param required" }), {
+            status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        const cleanPhone = phoneParam.replace(/[^\d]/g, "");
+
+        // Find workspace
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", userId)
+          .maybeSingle();
+
+        if (!ws) {
+          return new Response(JSON.stringify({ ok: true, messages: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Fetch incoming messages from whatsapp_inbox
+        const { data: incoming } = await supabase
+          .from("whatsapp_inbox")
+          .select("id, from_phone, from_name, message_type, message_text, media_urls, received_at")
+          .eq("workspace_id", ws.id)
+          .eq("from_phone", cleanPhone)
+          .order("received_at", { ascending: true })
+          .limit(100);
+
+        // Fetch outgoing messages from whatsapp_sent_messages
+        const { data: outgoing } = await supabase
+          .from("whatsapp_sent_messages")
+          .select("id, to_phone, body, created_at")
+          .eq("user_id", userId)
+          .eq("to_phone", cleanPhone)
+          .order("created_at", { ascending: true })
+          .limit(100);
+
+        // Merge and sort by timestamp
+        const merged = [
+          ...(incoming ?? []).map((m: Record<string, unknown>) => ({
+            id:        m.id,
+            direction: "incoming" as const,
+            phone:     m.from_phone,
+            name:      m.from_name,
+            text:      m.message_text ?? "",
+            type:      m.message_type ?? "text",
+            media:     m.media_urls ?? [],
+            timestamp: m.received_at,
+          })),
+          ...(outgoing ?? []).map((m: Record<string, unknown>) => ({
+            id:        m.id,
+            direction: "outgoing" as const,
+            phone:     m.to_phone,
+            name:      null,
+            text:      m.body ?? "",
+            type:      "text",
+            media:     [],
+            timestamp: m.created_at,
+          })),
+        ].sort((a, b) => new Date(a.timestamp as string).getTime() - new Date(b.timestamp as string).getTime());
+
+        return new Response(JSON.stringify({ ok: true, messages: merged }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ── CONTACTS: list unique contacts from inbox ─────────────────────
+      case "contacts": {
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("id")
+          .eq("owner_id", userId)
+          .maybeSingle();
+
+        if (!ws) {
+          return new Response(JSON.stringify({ ok: true, contacts: [] }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        // Get distinct contacts with their latest message
+        const { data: inboxRows } = await supabase
+          .from("whatsapp_inbox")
+          .select("from_phone, from_name, message_text, received_at")
+          .eq("workspace_id", ws.id)
+          .order("received_at", { ascending: false })
+          .limit(500);
+
+        // Deduplicate by phone, keep most recent
+        const contactMap = new Map<string, { phone: string; name: string | null; lastMessage: string; lastAt: string }>();
+        for (const row of (inboxRows ?? []) as Array<Record<string, unknown>>) {
+          const phone = row.from_phone as string;
+          if (!contactMap.has(phone)) {
+            contactMap.set(phone, {
+              phone,
+              name:        (row.from_name as string | null) ?? null,
+              lastMessage: (row.message_text as string) ?? "",
+              lastAt:      row.received_at as string,
+            });
+          }
+        }
+
+        return new Response(JSON.stringify({ ok: true, contacts: Array.from(contactMap.values()) }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       default:
         return new Response("Action not found", { status: 404 });
     }

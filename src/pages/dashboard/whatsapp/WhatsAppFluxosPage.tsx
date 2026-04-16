@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Camera,
   Bell,
@@ -7,11 +8,14 @@ import {
   Clock,
   Zap,
   Info,
+  PlusCircle,
+  Pencil,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +75,7 @@ const DEFAULT_FLOWS = [
 /* ------------------------------------------------------------------ */
 
 export default function WhatsAppFluxosPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { workspaceId } = useWorkspaceContext();
   const { toast } = useToast();
@@ -194,14 +199,23 @@ export default function WhatsAppFluxosPage() {
     <div className="min-h-screen bg-white font-['Plus_Jakarta_Sans']">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-[#002B5B]">
-            <Zap className="inline-block h-5 w-5 mr-2 -mt-0.5 text-[#FFD700]" />
-            Fluxos de Automacao
-          </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Ative automacoes para processar mensagens e interagir com leads.
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[#002B5B]">
+              <Zap className="inline-block h-5 w-5 mr-2 -mt-0.5 text-[#FFD700]" />
+              Fluxos de Automacao
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Ative automacoes para processar mensagens e interagir com leads.
+            </p>
+          </div>
+          <Button
+            onClick={() => navigate("/dashboard/whatsapp/fluxos/novo")}
+            className="bg-[#002B5B] hover:bg-[#001d3d] text-white gap-1.5"
+          >
+            <PlusCircle className="h-4 w-4" />
+            Novo Fluxo
+          </Button>
         </div>
 
         {/* Flow cards */}
@@ -253,14 +267,28 @@ export default function WhatsAppFluxosPage() {
           ))}
         </div>
 
-        {/* Note */}
-        <div className="flex items-start gap-2 bg-gray-50 rounded-lg p-4">
-          <Info className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-          <p className="text-xs text-gray-500">
-            Fluxos customizados em breve. Entre em contato para configuracoes
-            avancadas.
-          </p>
-        </div>
+        {/* Flow Builder CTA */}
+        <Card className="border border-dashed border-[#002B5B]/20 bg-[#002B5B]/[0.02]">
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="h-10 w-10 rounded-lg bg-[#002B5B]/10 flex items-center justify-center shrink-0">
+              <Pencil className="h-5 w-5 text-[#002B5B]" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm text-[#002B5B]">Flow Builder</h3>
+              <p className="text-xs text-gray-500">
+                Crie fluxos personalizados com gatilhos, condicoes e acoes encadeadas.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/dashboard/whatsapp/fluxos/novo")}
+              className="shrink-0"
+            >
+              Criar Fluxo
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

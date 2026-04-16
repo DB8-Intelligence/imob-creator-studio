@@ -147,6 +147,7 @@ const DashboardSitePage = lazy(() => import("./pages/dashboard/site/DashboardSit
 const WhatsAppSetupPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppSetupPage"));
 const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppInboxPage"));
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
+const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFlowBuilderPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
 const SocialCallbackPage = lazy(() => import("./pages/dashboard/social/SocialCallbackPage"));
@@ -310,6 +311,8 @@ const App = () => (
               <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><WhatsAppSetupPage /></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><WhatsAppInboxPage /></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><WhatsAppFluxosPage /></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
               {/* Social */}
               <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><SocialConnectPage /></ProtectedRoute>} />
               <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><SocialCalendarioPage /></ProtectedRoute>} />
