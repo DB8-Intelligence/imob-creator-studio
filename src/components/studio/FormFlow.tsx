@@ -77,6 +77,7 @@ export function FormFlow({ onSubmit, isSubmitting }: FormFlowProps) {
   const [images, setImages] = useState<UploadedFile[]>([]);
   const [logoFile, setLogoFile] = useState<UploadedFile | null>(null);
   const [useBrandIdentity, setUseBrandIdentity] = useState(false);
+  const [autoRestore, setAutoRestore] = useState(true);
 
   // Step 2
   const [selectedTemplate, setSelectedTemplate] = useState<CatalogTemplate | null>(null);
@@ -193,6 +194,7 @@ export function FormFlow({ onSubmit, isSubmitting }: FormFlowProps) {
       manual_copy: !useAiCopy ? copy : null,
       metadata: {
         logo_file: logoFile ? true : false,
+        auto_restore: autoRestore,
       },
     });
   };
@@ -351,6 +353,17 @@ export function FormFlow({ onSubmit, isSubmitting }: FormFlowProps) {
                 <span className="text-xs text-[var(--ds-fg-muted)]">Usar identidade visual personalizada</span>
               </div>
             </div>
+          </section>
+
+          {/* Auto-restore toggle */}
+          <section className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Switch checked={autoRestore} onCheckedChange={setAutoRestore} />
+              <span className="text-sm text-[var(--ds-fg)]">Restaurar qualidade automaticamente</span>
+            </div>
+            <p className="text-[11px] text-[var(--ds-fg-muted)] ml-11">
+              Remove ruido e melhora resolucao de fotos com qualidade baixa/media (denoise + upscale via Gemini).
+            </p>
           </section>
 
           {/* Next */}
@@ -540,6 +553,7 @@ export function FormFlow({ onSubmit, isSubmitting }: FormFlowProps) {
             {titulo && <SummaryRow label="Título" value={titulo} />}
             {logoFile && <SummaryRow label="Logo" value="Incluído" />}
             <SummaryRow label="Identidade visual" value={useBrandIdentity ? "Sim" : "Padrão"} />
+            <SummaryRow label="Restaurar qualidade" value={autoRestore ? "Sim (auto)" : "Nao"} />
           </div>
 
           {/* Preview images */}
