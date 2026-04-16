@@ -14,70 +14,87 @@ serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // ============================================
-  // 1. Ler NEXOIMOB_ASAAS_WEBHOOK_API_KEY — fail-closed
-  // ============================================
+  // ── 1. Token fail-closed ────────────────────────────────
   const expectedToken = Deno.env.get("NEXOIMOB_ASAAS_WEBHOOK_API_KEY");
-
   if (!expectedToken) {
-    console.error("🚨 CRITICAL: NEXOIMOB_ASAAS_WEBHOOK_API_KEY not configured in Supabase Secrets");
+    logEvent({ status: "config_error", reason: "NEXOIMOB_ASAAS_WEBHOOK_API_KEY not configured" });
     return json({ ok: false, error: "Server configuration error: webhook token not configured" }, 500);
   }
 
-  // ============================================
-  // 2. Extrair token (3 fontes, em ordem)
-  // ============================================
-  // Primário: header asaas-access-token (formato oficial Asaas)
-  // Fallback 1: ?signature= query param
-  // Fallback 2: Authorization: Bearer
+  // ── 2. Extract token (header > query > Authorization) ──
   const url = new URL(req.url);
-  const tokenFromHeader = req.headers.get("asaas-access-token");
-  const tokenFromQuery  = url.searchParams.get("signature");
-  const tokenFromAuth   = req.headers.get("authorization")?.replace("Bearer ", "");
-
-  const receivedToken = tokenFromHeader || tokenFromQuery || tokenFromAuth;
+  const receivedToken =
+    req.headers.get("asaas-access-token") ||
+    url.searchParams.get("signature") ||
+    req.headers.get("authorization")?.replace("Bearer ", "");
 
   if (!receivedToken) {
-    console.warn("⚠️  Asaas webhook rejected: no token provided");
+    logEvent({ status: "token_missing", reason: "no token provided" });
     return json({ ok: false, error: "Missing authentication token" }, 401);
   }
 
-  const isValid = await timingSafeEqual(receivedToken, expectedToken);
-  if (!isValid) {
-    console.warn("⚠️  Asaas webhook rejected: invalid token");
+  const tokenOk = await timingSafeEqual(receivedToken, expectedToken);
+  if (!tokenOk) {
+    logEvent({ status: "token_invalid", reason: "timing-safe mismatch" });
     return json({ ok: false, error: "Invalid authentication token" }, 401);
   }
 
-  console.log("✅ Asaas token validation passed");
-
-  // ============================================
-  // 3. Parse payload
-  // ============================================
+  // ── 3. Parse payload ───────────────────────────────────
   let payload: Record<string, any>;
   try {
     payload = await req.json();
   } catch (error) {
-    console.error("❌ Invalid JSON payload:", String(error));
+    logEvent({ status: "invalid_json", reason: String(error) });
     return json({ ok: false, error: "Invalid JSON in request body" }, 400);
   }
 
   const event   = String(payload.event ?? "");
-  const payment = (payload.payment ?? {}) as Record<string, unknown>;
+  const payment = (payload.payment ?? {}) as Record<string, any>;
+  const paymentId = String(payment?.id ?? "");
 
-  console.log("📦 Asaas event:", event, "payment_id:", payment?.id);
+  if (!event || !paymentId) {
+    logEvent({ status: "invalid_payload", reason: "missing event or payment.id", event, payment_id: paymentId });
+    return json({ ok: false, error: "Missing event or payment.id" }, 400);
+  }
 
-  // ============================================
-  // 4. Process webhook
-  // ============================================
+  // ── 4. Idempotency (INSERT-before-process + rollback-on-error) ──
+  const dedupeKey = `asaas_${event}_${paymentId}`;
+  const { error: insertErr } = await supabase
+    .from("webhook_events")
+    .insert({ id: dedupeKey, provider: "asaas", event_type: event, order_id: paymentId });
+
+  if (insertErr) {
+    if ((insertErr as any).code === "23505") {
+      logEvent({ status: "duplicate", event, payment_id: paymentId, dedupe_key: dedupeKey });
+      return json({ ok: true, duplicate: true, event }, 200);
+    }
+    logEvent({ status: "dedupe_insert_error", reason: String((insertErr as any).message ?? insertErr), payment_id: paymentId });
+    return json({ ok: false, error: "Dedupe store unavailable" }, 500);
+  }
+
+  // ── 5. Process webhook (rollback dedupe row on error) ──
   try {
     await processWebhook(event, payload, payment, supabase);
+    logEvent({ status: "success", event, payment_id: paymentId });
     return json({ ok: true, event });
   } catch (error) {
     const msg = error instanceof Error ? error.message : (error as any)?.message || JSON.stringify(error);
-    console.error("❌ Asaas webhook processing error:", msg, error);
+    await supabase.from("webhook_events").delete().eq("id", dedupeKey);
+    logEvent({ status: "error", event, payment_id: paymentId, reason: msg });
     return json({ ok: false, error: "Processing error", message: msg }, 500);
   }
 });
+
+// ── Helpers ─────────────────────────────────────────────
+
+/** Structured JSON log. Never include tokens or secrets. */
+function logEvent(data: Record<string, any>) {
+  console.log(JSON.stringify({
+    event: "asaas_webhook",
+    timestamp: new Date().toISOString(),
+    ...data,
+  }));
+}
 
 /**
  * Timing-safe string comparison (prevents side-channel attacks)
@@ -166,6 +183,25 @@ async function processWebhook(
     if (!prod) {
       console.error("❌ Asaas: produto não encontrado para:", description, value);
       throw new Error(`Asaas product not found: ${description} / ${value}`);
+    }
+
+    // ── DEV-3B: Integrity check — expected price vs paid value ──
+    // Does not block (spec: "NÃO bloquear automaticamente"), but flags
+    // suspect payments in structured log for later antifraud review.
+    const expectedPrice = Number(prod.price ?? 0);
+    const priceDelta = Math.abs(expectedPrice - value);
+    if (priceDelta > 0.01 && expectedPrice > 0) {
+      console.log(JSON.stringify({
+        event: "asaas_webhook",
+        timestamp: new Date().toISOString(),
+        status: "suspect_value_mismatch",
+        payment_id: String(payment.id ?? ""),
+        description,
+        expected_price: expectedPrice,
+        paid_value: value,
+        delta: Number(priceDelta.toFixed(2)),
+        action: "flagged_not_blocked",
+      }));
     }
 
     // Busca workspace pelo email — public.profiles não tem coluna email,

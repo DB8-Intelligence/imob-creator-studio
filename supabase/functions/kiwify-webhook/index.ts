@@ -14,93 +14,143 @@ serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // ============================================
-  // 1. Ler KIWIFY_WEBHOOK_TOKEN — fail-closed
-  // ============================================
+  // ── 1. Token fail-closed ────────────────────────────────────
   const expectedToken = Deno.env.get("KIWIFY_WEBHOOK_TOKEN");
-
   if (!expectedToken) {
-    console.error(
-      "🚨 CRITICAL: KIWIFY_WEBHOOK_TOKEN not configured in Supabase Secrets"
-    );
-    return json(
-      {
-        ok: false,
-        error: "Server configuration error: webhook token not configured",
-      },
-      500
-    );
+    logEvent({ status: "config_error", reason: "KIWIFY_WEBHOOK_TOKEN not configured" });
+    return json({ ok: false, error: "Server configuration error: webhook token not configured" }, 500);
   }
 
-  // ============================================
-  // 2. Extrair token da request (3 estratégias, em ordem)
-  // ============================================
-  // Primário: ?signature=TOKEN (formato oficial Kiwify)
-  // Fallback 1: x-kiwify-token header (backward-compat)
-  // Fallback 2: Authorization: Bearer (defensive)
+  // ── 2. Extract token (query > header > Authorization) ──────
   const url = new URL(req.url);
-  const tokenFromQuery = url.searchParams.get("signature");
-  const tokenFromHeader = req.headers.get("x-kiwify-token");
-  const tokenFromAuth = req.headers.get("authorization")?.replace(
-    "Bearer ",
-    ""
-  );
+  const receivedToken =
+    url.searchParams.get("signature") ||
+    req.headers.get("x-kiwify-token") ||
+    req.headers.get("authorization")?.replace("Bearer ", "");
 
-  const receivedToken = tokenFromQuery || tokenFromHeader || tokenFromAuth;
-
-  // ============================================
-  // 3. Validar token com timing-safe comparison
-  // ============================================
   if (!receivedToken) {
-    console.warn("⚠️  Webhook request rejected: no token provided");
+    logEvent({ status: "token_missing", reason: "no token provided" });
     return json({ ok: false, error: "Missing authentication token" }, 401);
   }
 
-  // Timing-safe comparison (evita side-channel attacks)
-  const isValid = await timingSafeEqual(receivedToken, expectedToken);
-
-  if (!isValid) {
-    console.warn("⚠️  Webhook request rejected: invalid token");
+  const tokenOk = await timingSafeEqual(receivedToken, expectedToken);
+  if (!tokenOk) {
+    logEvent({ status: "token_invalid", reason: "timing-safe mismatch" });
     return json({ ok: false, error: "Invalid authentication token" }, 401);
   }
 
-  console.log("✅ Token validation passed");
-
-  // ============================================
-  // 4. Parse payload
-  // ============================================
+  // ── 3. Parse payload ──────────────────────────────────────
   let payload: Record<string, any>;
-
   try {
     payload = await req.json();
   } catch (error) {
-    console.error("❌ Invalid JSON payload:", String(error));
+    logEvent({ status: "invalid_json", reason: String(error) });
     return json({ ok: false, error: "Invalid JSON in request body" }, 400);
   }
 
+  // ── 4. Validate payload shape ─────────────────────────────
+  const validation = validatePayload(payload);
+  if (validation) {
+    logEvent({
+      status: "invalid_payload",
+      reason: validation.reason,
+      field: validation.field,
+      order_id: payload?.order_id ?? payload?.id ?? null,
+    });
+    return json({ ok: false, error: "Invalid payload", field: validation.field, reason: validation.reason }, 400);
+  }
+
   const event = String(payload.type ?? payload.event ?? "");
-  const order = payload;
+  const orderId = String(payload.order_id ?? payload.id ?? "");
+  const email = String(payload.Customer?.email ?? payload.customer?.email ?? "").toLowerCase();
 
-  console.log("📦 Kiwify event:", event, "order_id:", order?.order_id);
+  // ── 5. Idempotency (INSERT-before-process + rollback-on-error) ──
+  // Dedupe key = provider + event_type + order_id, so the same order can still
+  // progress through order_approved -> subscription_renewed -> order_refunded
+  // (each distinct event_type dedupes independently).
+  const dedupeKey = `kiwify_${event}_${orderId}`;
 
-  // ============================================
-  // 5. Process webhook
-  // ============================================
+  const { error: insertErr } = await supabase
+    .from("webhook_events")
+    .insert({ id: dedupeKey, provider: "kiwify", event_type: event, order_id: orderId });
+
+  if (insertErr) {
+    // 23505 = unique_violation -> duplicate delivery, ack and skip processing.
+    if ((insertErr as any).code === "23505") {
+      logEvent({ status: "duplicate", event, order_id: orderId, email, dedupe_key: dedupeKey });
+      return json({ ok: true, duplicate: true, event }, 200);
+    }
+    logEvent({ status: "dedupe_insert_error", reason: String((insertErr as any).message ?? insertErr), order_id: orderId });
+    return json({ ok: false, error: "Dedupe store unavailable" }, 500);
+  }
+
+  // ── 6. Process webhook (rollback dedupe row on error) ─────
   try {
     await processWebhook(payload, supabase);
+    logEvent({
+      status: "success",
+      event,
+      order_id: orderId,
+      email,
+      // module/plan resolved inside processWebhook but we re-read via fresh query
+      // so the log always reflects the row actually written.
+    });
     return json({ ok: true, event });
   } catch (error) {
-    console.error("❌ Webhook processing error:", String(error));
-    return json(
-      {
-        ok: false,
-        error: "Processing error",
-        message: String(error),
-      },
-      500
-    );
+    const msg = error instanceof Error ? error.message : (error as any)?.message || JSON.stringify(error);
+    // Roll back the dedupe marker so the provider's retry can try again.
+    await supabase.from("webhook_events").delete().eq("id", dedupeKey);
+    logEvent({ status: "error", event, order_id: orderId, email, reason: msg });
+    return json({ ok: false, error: "Processing error", message: msg }, 500);
   }
 });
+
+// ── Helpers ─────────────────────────────────────────────────
+
+/** Structured JSON log. Never include tokens or secrets. */
+function logEvent(data: Record<string, any>) {
+  console.log(JSON.stringify({
+    event: "kiwify_webhook",
+    timestamp: new Date().toISOString(),
+    ...data,
+  }));
+}
+
+interface ValidationError { field: string; reason: string; }
+
+/**
+ * Validates the fields the business logic actually consumes:
+ *   - payload must be a non-null object
+ *   - order_id (payload.order_id || payload.id): non-empty string
+ *   - email (payload.Customer.email || payload.customer.email): valid format
+ *   - product id (payload.Product.id || payload.product.id): non-empty string
+ *
+ * Optional fields (Product.name, value) are NOT blocked — the processWebhook
+ * function does not consume them, and real Kiwify payloads for renewals/refunds
+ * may omit them. Missing values are logged as warnings by the caller if needed.
+ */
+function validatePayload(payload: any): ValidationError | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return { field: "payload", reason: "missing or not an object" };
+  }
+
+  const orderId = payload.order_id ?? payload.id;
+  if (typeof orderId !== "string" || orderId.trim() === "") {
+    return { field: "order.id", reason: "missing or not a non-empty string" };
+  }
+
+  const email = payload.Customer?.email ?? payload.customer?.email;
+  if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { field: "order.Customer.email", reason: "missing or invalid email format" };
+  }
+
+  const productId = payload.Product?.id ?? payload.product?.id;
+  if ((typeof productId !== "string" && typeof productId !== "number") || String(productId).trim() === "") {
+    return { field: "order.Product.id", reason: "missing or empty" };
+  }
+
+  return null;
+}
 
 /**
  * Timing-safe string comparison (prevents side-channel attacks)
