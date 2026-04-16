@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { funnel } from "@/lib/funnel";
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,7 +45,7 @@ export default function HeroSection() {
 
         {/* CTAs */}
         <div className="flex items-center gap-4 flex-wrap mb-20">
-          <button type="button" onClick={() => navigate("/criativos")} className="relative transition-transform duration-150 hover:scale-105 active:scale-95 focus:outline-none" style={{ width: "184px", height: "65px" }}>
+          <button type="button" onClick={() => { funnel.clickCTA("hero_primary", { destination: "/criativos" }); navigate("/criativos"); }} className="relative transition-transform duration-150 hover:scale-105 active:scale-95 focus:outline-none" style={{ width: "184px", height: "65px" }}>
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 184 65" fill="none">
               <path d="M6 0H178L184 10V55L178 65H6L0 55V10L6 0Z" fill="#FFD700" />
             </svg>

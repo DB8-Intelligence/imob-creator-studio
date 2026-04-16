@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Plus, Minus, Zap, Target, Link2, Award } from "lucide-react";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
+import { funnel } from "@/lib/funnel";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import Footer from "@/components/Footer";
@@ -127,6 +128,7 @@ const Index = () => {
   useEffect(() => {
     captureAttribution();
     captureLastTouch();
+    funnel.viewLanding();
   }, []);
 
   const tab = tabs.find((t) => t.id === activeTab)!;

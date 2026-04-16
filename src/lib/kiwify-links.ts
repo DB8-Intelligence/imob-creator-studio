@@ -66,7 +66,25 @@ export function isKiwifyLinkReady(url: string): boolean {
   return !!url && url !== "#" && !url.includes("/TODO");
 }
 
-export function handleKiwifyCheckout(url: string): boolean {
+export interface CheckoutTrackContext {
+  plan?: string;
+  module?: string;
+}
+
+export function handleKiwifyCheckout(url: string, ctx: CheckoutTrackContext = {}): boolean {
+  // Fire-and-forget funnel tracking. Dynamic import so this file stays safe
+  // to call from contexts where sessionStorage might not be available
+  // (server-side rendering, tests).
+  import("@/lib/funnel")
+    .then(({ funnel }) => {
+      if (isKiwifyLinkReady(url)) {
+        funnel.clickCheckout(ctx.plan ?? "unknown", ctx.module ?? "unknown", { url, outcome: "opened" });
+      } else {
+        funnel.clickCheckout(ctx.plan ?? "unknown", ctx.module ?? "unknown", { outcome: "fallback_whatsapp" });
+      }
+    })
+    .catch(() => { /* tracking never blocks checkout */ });
+
   if (isKiwifyLinkReady(url)) {
     window.open(url, "_blank", "noopener");
     return true;

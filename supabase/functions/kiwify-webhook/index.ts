@@ -78,32 +78,67 @@ serve(async (req: Request) => {
     // 23505 = unique_violation -> duplicate delivery, ack and skip processing.
     if ((insertErr as any).code === "23505") {
       logEvent({ status: "duplicate", event, order_id: orderId, email, dedupe_key: dedupeKey });
+      trackFunnel(supabase, "webhook_received", email, {
+        provider: "kiwify", event_type: event, order_id: orderId, duplicate: true,
+      });
       return json({ ok: true, duplicate: true, event }, 200);
     }
     logEvent({ status: "dedupe_insert_error", reason: String((insertErr as any).message ?? insertErr), order_id: orderId });
     return json({ ok: false, error: "Dedupe store unavailable" }, 500);
   }
 
+  trackFunnel(supabase, "webhook_received", email, {
+    provider: "kiwify", event_type: event, order_id: orderId,
+  });
+
   // ── 6. Process webhook (rollback dedupe row on error) ─────
   try {
     await processWebhook(payload, supabase);
-    logEvent({
-      status: "success",
-      event,
-      order_id: orderId,
-      email,
-      // module/plan resolved inside processWebhook but we re-read via fresh query
-      // so the log always reflects the row actually written.
-    });
+    logEvent({ status: "success", event, order_id: orderId, email });
+
+    // Backend funnel events: payment_approved and credits_released.
+    // Fire-and-forget so a funnel-write failure never blocks the webhook.
+    if (event === "order_approved" || event === "compra_aprovada") {
+      trackFunnel(supabase, "payment_approved", email, {
+        provider: "kiwify", order_id: orderId,
+      });
+      trackFunnel(supabase, "credits_released", email, {
+        provider: "kiwify", order_id: orderId,
+      });
+    }
+
     return json({ ok: true, event });
   } catch (error) {
     const msg = error instanceof Error ? error.message : (error as any)?.message || JSON.stringify(error);
     // Roll back the dedupe marker so the provider's retry can try again.
     await supabase.from("webhook_events").delete().eq("id", dedupeKey);
     logEvent({ status: "error", event, order_id: orderId, email, reason: msg });
+    trackFunnel(supabase, "webhook_error", email, {
+      provider: "kiwify", order_id: orderId, reason: msg,
+    });
     return json({ ok: false, error: "Processing error", message: msg }, 500);
   }
 });
+
+/**
+ * Fire-and-forget funnel event insert. Never throws; uses service_role client
+ * so it can always write. Called from the main serve() flow; failures are
+ * logged but never propagated so tracking cannot degrade the webhook.
+ */
+function trackFunnel(supabase: any, event: string, email: string, metadata: Record<string, any>) {
+  supabase
+    .from("funnel_events")
+    .insert({ event, email: email || null, metadata })
+    .then(({ error }: { error: any }) => {
+      if (error) console.warn(JSON.stringify({
+        event: "kiwify_webhook",
+        timestamp: new Date().toISOString(),
+        status: "funnel_track_failed",
+        funnel_event: event,
+        reason: String(error.message ?? error),
+      }));
+    });
+}
 
 // ── Helpers ─────────────────────────────────────────────────
 

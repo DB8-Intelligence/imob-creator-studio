@@ -66,21 +66,46 @@ serve(async (req: Request) => {
   if (insertErr) {
     if ((insertErr as any).code === "23505") {
       logEvent({ status: "duplicate", event, payment_id: paymentId, dedupe_key: dedupeKey });
+      trackFunnel(supabase, "webhook_received", null, {
+        provider: "asaas", event_type: event, payment_id: paymentId, duplicate: true,
+      });
       return json({ ok: true, duplicate: true, event }, 200);
     }
     logEvent({ status: "dedupe_insert_error", reason: String((insertErr as any).message ?? insertErr), payment_id: paymentId });
     return json({ ok: false, error: "Dedupe store unavailable" }, 500);
   }
 
+  trackFunnel(supabase, "webhook_received", null, {
+    provider: "asaas", event_type: event, payment_id: paymentId,
+  });
+
   // ── 5. Process webhook (rollback dedupe row on error) ──
   try {
     await processWebhook(event, payload, payment, supabase);
     logEvent({ status: "success", event, payment_id: paymentId });
+
+    // Backend funnel events for revenue-stage conversions.
+    if (event === "PAYMENT_RECEIVED") {
+      trackFunnel(supabase, "payment_approved", null, {
+        provider: "asaas", payment_id: paymentId,
+      });
+      trackFunnel(supabase, "credits_released", null, {
+        provider: "asaas", payment_id: paymentId,
+      });
+    } else if (event === "SUBSCRIPTION_CREATED") {
+      trackFunnel(supabase, "subscription_created", null, {
+        provider: "asaas", payment_id: paymentId,
+      });
+    }
+
     return json({ ok: true, event });
   } catch (error) {
     const msg = error instanceof Error ? error.message : (error as any)?.message || JSON.stringify(error);
     await supabase.from("webhook_events").delete().eq("id", dedupeKey);
     logEvent({ status: "error", event, payment_id: paymentId, reason: msg });
+    trackFunnel(supabase, "webhook_error", null, {
+      provider: "asaas", payment_id: paymentId, reason: msg,
+    });
     return json({ ok: false, error: "Processing error", message: msg }, 500);
   }
 });
@@ -94,6 +119,26 @@ function logEvent(data: Record<string, any>) {
     timestamp: new Date().toISOString(),
     ...data,
   }));
+}
+
+/**
+ * Fire-and-forget funnel event insert. Never throws; uses the service_role
+ * supabase client the webhook already has. Failures are warn-logged but never
+ * propagated so tracking cannot degrade the webhook.
+ */
+function trackFunnel(supabase: any, event: string, email: string | null, metadata: Record<string, any>) {
+  supabase
+    .from("funnel_events")
+    .insert({ event, email, metadata })
+    .then(({ error }: { error: any }) => {
+      if (error) console.warn(JSON.stringify({
+        event: "asaas_webhook",
+        timestamp: new Date().toISOString(),
+        status: "funnel_track_failed",
+        funnel_event: event,
+        reason: String(error.message ?? error),
+      }));
+    });
 }
 
 /**
