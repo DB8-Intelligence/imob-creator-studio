@@ -73,8 +73,9 @@ serve(async (req: Request) => {
     await processWebhook(event, payload, payment, supabase);
     return json({ ok: true, event });
   } catch (error) {
-    console.error("❌ Asaas webhook processing error:", String(error));
-    return json({ ok: false, error: "Processing error", message: String(error) }, 500);
+    const msg = error instanceof Error ? error.message : (error as any)?.message || JSON.stringify(error);
+    console.error("❌ Asaas webhook processing error:", msg, error);
+    return json({ ok: false, error: "Processing error", message: msg }, 500);
   }
 });
 
