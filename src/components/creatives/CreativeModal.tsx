@@ -20,6 +20,7 @@ import {
 import { useCreativeActions } from "@/hooks/useCreativeActions";
 import { useModules } from "@/hooks/useModuleAccess";
 import { UpgradePrompt } from "./UpgradePrompt";
+import { RestorationBadgeWithTooltip } from "@/components/disclaimers/RestorationDisclaimer";
 import type { Creative } from "@/hooks/useCreativesGallery";
 
 interface CreativeModalProps {
@@ -93,7 +94,7 @@ export function CreativeModal({
           )}
 
           {/* Preview image */}
-          <div className="flex justify-center bg-gray-50 rounded-xl p-4">
+          <div className="relative flex justify-center bg-gray-50 rounded-xl p-4">
             {formats[selectedFormat]?.url ? (
               <img
                 src={formats[selectedFormat].url}
@@ -104,6 +105,9 @@ export function CreativeModal({
               <div className="h-80 flex items-center justify-center text-gray-400">
                 <Loader2 className="h-8 w-8 animate-spin" />
               </div>
+            )}
+            {creative.restoration_applied && (
+              <RestorationBadgeWithTooltip position="bottom-right" />
             )}
           </div>
 

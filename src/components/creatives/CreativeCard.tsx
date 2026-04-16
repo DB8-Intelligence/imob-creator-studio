@@ -7,6 +7,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Creative } from "@/hooks/useCreativesGallery";
+import { RestorationBadge } from "@/components/disclaimers/RestorationDisclaimer";
 
 const STATUS_CONFIG: Record<
   Creative["status"],
@@ -60,6 +61,9 @@ export function CreativeCard({
           <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-0.5 rounded-full">
             {formatCount} {formatCount === 1 ? "formato" : "formatos"}
           </div>
+        )}
+        {creative.restoration_applied && (
+          <RestorationBadge variant="compact" className="top-auto bottom-2 right-2" />
         )}
         <div
           className={`absolute top-2 left-2 flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${cfg.color}`}

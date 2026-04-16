@@ -17,6 +17,8 @@ export interface Creative {
   published_at: string | null;
   expires_at: string;
   created_at: string;
+  restoration_applied?: boolean;
+  original_image_url?: string | null;
 }
 
 export type GalleryTab = "images" | "sequences" | "videos";
