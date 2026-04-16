@@ -11,12 +11,14 @@ import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
 import { ActivationFunnelCard } from "@/components/dashboard/ActivationFunnelCard";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { MODULE_WIDGETS } from "@/components/dashboard/ModuleWidgets";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
+import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Megaphone, Clapperboard, Package2, Instagram } from "lucide-react";
+import { ArrowRight, Megaphone, Clapperboard, Package2, Instagram, PlusCircle } from "lucide-react";
 
 function formatTimeToValue(start: string | undefined, end: string | null) {
   if (!start) return "—";
@@ -97,6 +99,8 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  const { subscriptions } = useUserSubscriptions();
+
   const firstName = profile?.full_name?.split(" ")[0] ?? "Corretor";
   const credits = planInfo?.credits_remaining ?? null;
   const timeToValueLabel = formatTimeToValue(user?.created_at, firstGenerationAt);
@@ -114,6 +118,28 @@ const Dashboard = () => {
       <div className="space-y-8">
         <WelcomeBanner />
         <CreditHeroCard credits={credits} firstName={firstName} />
+
+        {/* ── Módulos Ativos (subscription-based) ──────────────────── */}
+        {subscriptions.length > 0 && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-display font-bold text-foreground">Seus Módulos</h2>
+                <p className="text-sm text-muted-foreground mt-1">{subscriptions.length} módulo(s) ativo(s)</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => navigate("/planos")}>
+                <PlusCircle className="w-4 h-4 mr-1.5" /> Adicionar módulo
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {subscriptions.map((sub) => {
+                const Widget = MODULE_WIDGETS[sub.module_id];
+                if (!Widget) return null;
+                return <Widget key={sub.id} subscription={sub} />;
+              })}
+            </div>
+          </section>
+        )}
 
         <section className="space-y-4">
           <div>
