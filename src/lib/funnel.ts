@@ -104,4 +104,9 @@ export const funnel = {
                    trackEvent("click_checkout", { metadata: { plan, module: mod, ...meta } }),
   selectPlan:    (plan: string, meta?: Record<string, unknown>) =>
                    trackEvent("select_plan", { metadata: { plan, ...meta } }),
+  scrollSection: (section: string, meta?: Record<string, unknown>) =>
+                   trackEvent("scroll_section", { metadata: { section, ...meta } }),
+  startSignup:   (meta?: Record<string, unknown>) => trackEvent("start_signup", { metadata: meta }),
+  completeSignup:(email: string, meta?: Record<string, unknown>) =>
+                   trackEvent("complete_signup", { email, metadata: meta }),
 };

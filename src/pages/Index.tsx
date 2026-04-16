@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, ReactNode } from "react";
+import { useEffect, useState, useRef, useCallback, ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Plus, Minus, Zap, Target, Link2, Award } from "lucide-react";
@@ -41,6 +41,32 @@ function Accordion({ q, a }: { q: string; a: string }) {
       </AnimatePresence>
     </div>
   );
+}
+
+/** Tracks when a section scrolls into view (fires once per section per session). */
+function useSectionTracker(sectionName: string, variant: string) {
+  const ref = useRef<HTMLElement>(null);
+  const firedRef = useRef(false);
+  const onIntersect = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (firedRef.current) return;
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          firedRef.current = true;
+          funnel.scrollSection(sectionName, { variant });
+        }
+      }
+    },
+    [sectionName, variant],
+  );
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(onIntersect, { threshold: 0.25 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [onIntersect]);
+  return ref;
 }
 
 // ─── Tabs data ───────────────────────────────────────────────────────────────
@@ -205,6 +231,16 @@ const Index = () => {
   const isB = variant === "b";
   const modules = isB ? modulesB : modulesA;
 
+  // Scroll section tracking (fires once per section per session)
+  const solucoesRef = useSectionTracker("solucoes", variant);
+  const featuresRef = useSectionTracker("features", variant);
+  const metricsRef = useSectionTracker("metrics", variant);
+  const differentialsRef = useSectionTracker("diferenciais", variant);
+  const testimonialsRef = useSectionTracker("testimonials", variant);
+  const pricingRef = useSectionTracker("pricing", variant);
+  const ctaFinalRef = useSectionTracker("cta_final", variant);
+  const faqRef = useSectionTracker("faq", variant);
+
   useEffect(() => {
     captureAttribution();
     captureLastTouch();
@@ -236,7 +272,7 @@ const Index = () => {
       </section>
 
       {/* ── S3: Soluções Grid ────────────────────────────────────────── */}
-      <section id="solucoes" className="py-20 px-6 bg-white scroll-mt-20">
+      <section id="solucoes" ref={solucoesRef} className="py-20 px-6 bg-white scroll-mt-20">
         <div className="container mx-auto max-w-6xl">
           <Reveal className="text-center mb-14 flex flex-col items-center gap-3">
             <motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]" data-ab-test="solucoes-heading" data-variant={variant}>
@@ -269,7 +305,7 @@ const Index = () => {
       </section>
 
       {/* ── S4: Feature Tabs ─────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#F8FAFF]">
+      <section ref={featuresRef} className="py-20 px-6 bg-[#F8FAFF]">
         <div className="container mx-auto max-w-5xl">
           <Reveal className="text-center mb-12 flex flex-col items-center gap-3">
             <motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]" data-ab-test="features-heading" data-variant={variant}>
@@ -308,7 +344,7 @@ const Index = () => {
       </section>
 
       {/* ── S5: Metrics ──────────────────────────────────────────────── */}
-      <section className="py-16 px-6 bg-white border-y border-[#F0F0F0]">
+      <section ref={metricsRef} className="py-16 px-6 bg-white border-y border-[#F0F0F0]">
         <div className="container mx-auto max-w-5xl grid grid-cols-2 md:grid-cols-4 gap-8 text-center" data-ab-test="metrics" data-variant={variant}>
           {(isB ? [
             { end: 500, suffix: "+", label: "corretores ativos no Brasil" },
@@ -358,7 +394,7 @@ const Index = () => {
       <ThemeGallerySection />
 
       {/* ── S7: Diferenciais ─────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#F8FAFF]">
+      <section ref={differentialsRef} className="py-20 px-6 bg-[#F8FAFF]">
         <div className="container mx-auto max-w-5xl">
           <Reveal className="text-center mb-12"><motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]">Por que escolher a <span className="text-[#002B5B]">NexoImob AI?</span></motion.h2></Reveal>
           <Reveal className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
@@ -379,7 +415,7 @@ const Index = () => {
       </section>
 
       {/* ── S8: Depoimentos ──────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-white">
+      <section ref={testimonialsRef} className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-5xl">
           <Reveal className="text-center mb-12"><motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]" data-ab-test="testimonials-heading" data-variant={variant}>{isB ? <>Resultados reais de quem já usa a <span className="text-[#002B5B]">NexoImob</span></> : <>Corretores que já usam a <span className="text-[#002B5B]">NexoImob</span></>}</motion.h2></Reveal>
           <Reveal className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -410,7 +446,7 @@ const Index = () => {
       </section>
 
       {/* ── S9: Planos preview ───────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#F8FAFF]">
+      <section ref={pricingRef} className="py-20 px-6 bg-[#F8FAFF]">
         <div className="container mx-auto max-w-5xl">
           <Reveal className="text-center mb-12 flex flex-col items-center gap-3">
             <motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]" data-ab-test="pricing-heading" data-variant={variant}>
@@ -457,7 +493,7 @@ const Index = () => {
       </section>
 
       {/* ── S12: CTA Final ───────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-[#002B5B] relative overflow-hidden" data-ab-test="cta-final" data-variant={variant}>
+      <section ref={ctaFinalRef} className="py-20 px-6 bg-[#002B5B] relative overflow-hidden" data-ab-test="cta-final" data-variant={variant}>
         <div className="absolute inset-0 opacity-[0.04] bg-[radial-gradient(circle,rgba(255,255,255,0.8)_1px,transparent_1px)] bg-[length:24px_24px]" />
         <div className="container mx-auto max-w-3xl relative z-10 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55 }} className="flex flex-col items-center gap-5">
@@ -487,7 +523,7 @@ const Index = () => {
       </section>
 
       {/* ── S13: FAQ ─────────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-white">
+      <section ref={faqRef} className="py-20 px-6 bg-white">
         <div className="container mx-auto max-w-2xl">
           <Reveal className="text-center mb-10"><motion.h2 variants={fadeUp} className="text-[clamp(1.6rem,3.5vw,2.25rem)] font-extrabold text-[#0A1628]">Perguntas frequentes</motion.h2></Reveal>
           {(isB ? [

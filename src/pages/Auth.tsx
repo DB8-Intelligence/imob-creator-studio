@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
+import { funnel } from "@/lib/funnel";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ const Auth = () => {
   useEffect(() => {
     captureAttribution();
     captureLastTouch();
+    funnel.startSignup({ variant: localStorage.getItem("ab_variant") ?? undefined });
     const ref = new URLSearchParams(window.location.search).get("ref");
     if (ref) localStorage.setItem("ref_code", ref);
   }, []);
@@ -104,6 +106,7 @@ const Auth = () => {
       });
     } else {
       dispatchN8nEvent("new_user", { email: signupEmail, name: signupName });
+      funnel.completeSignup(signupEmail, { variant: localStorage.getItem("ab_variant") ?? undefined, name: signupName });
 
       // AuthContext already set user/session if email confirmation is OFF
       // Check if we have a user ready to go

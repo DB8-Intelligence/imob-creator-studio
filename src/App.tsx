@@ -125,6 +125,7 @@ const MeuPlanoPage = lazy(() => import("./pages/MeuPlano"));
 
 // ── Admin Pages ──────────────────────────────────────────────────────────────
 const AdminDiagnosticosPage = lazy(() => import("./pages/admin/AdminDiagnosticos"));
+const AdminFunnelAnalyticsPage = lazy(() => import("./pages/admin/AdminFunnelAnalytics"));
 
 // ── Gerador de Posts ──────────────────────────────────────────────────────────
 const GerarPostsPage = lazy(() => import("./pages/GerarPosts"));
@@ -352,6 +353,7 @@ const App = () => (
               {/* ── Admin ────────────────────────────────────────────── */}
               <Route path="/admin" element={<Navigate to="/admin/diagnosticos" replace />} />
               <Route path="/admin/diagnosticos" element={<ProtectedRoute><AdminDiagnosticosPage /></ProtectedRoute>} />
+              <Route path="/admin/funnel-analytics" element={<ProtectedRoute><AdminFunnelAnalyticsPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
               <Route path="*" element={<NotFound />} />
