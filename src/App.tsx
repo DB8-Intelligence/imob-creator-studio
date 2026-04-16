@@ -148,6 +148,7 @@ const WhatsAppSetupPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsApp
 const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppInboxPage"));
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
 const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFlowBuilderPage"));
+const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
 const SocialCallbackPage = lazy(() => import("./pages/dashboard/social/SocialCallbackPage"));
@@ -313,6 +314,8 @@ const App = () => (
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><WhatsAppFluxosPage /></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
+              {/* Job Status */}
+              <Route path="/dashboard/job/:jobId"          element={<ProtectedRoute><JobStatusPage /></ProtectedRoute>} />
               {/* Social */}
               <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><SocialConnectPage /></ProtectedRoute>} />
               <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><SocialCalendarioPage /></ProtectedRoute>} />
