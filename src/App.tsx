@@ -62,6 +62,7 @@ import ParaEquipesPage from "./pages/ParaEquipesPage";
 import CriarPostsImoveisPage from "./pages/lp/CriarPostsImoveisPage";
 import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
 import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
+import SecretariaVirtualLpPage from "./pages/lp/SecretariaVirtualLpPage";
 import CriativosLpPage from "./pages/lp/CriativosPage";
 import VideosLpPage from "./pages/lp/VideosPage";
 import SiteLpPage from "./pages/lp/SitePage";
@@ -357,6 +358,7 @@ const App = () => (
               <Route path="/lp/criar-posts-imoveis"   element={<CriarPostsImoveisPage />} />
               <Route path="/lp/video-imobiliario"      element={<VideoImobiliarioPage />} />
               <Route path="/lp/automacao-imobiliaria"  element={<AutomacaoImobiliariaPage />} />
+              <Route path="/lp/secretaria-virtual"     element={<SecretariaVirtualLpPage />} />
               {/* ── Admin ────────────────────────────────────────────── */}
               <Route path="/admin" element={<Navigate to="/admin/diagnosticos" replace />} />
               <Route path="/admin/diagnosticos" element={<ProtectedRoute><AdminDiagnosticosPage /></ProtectedRoute>} />

@@ -131,18 +131,21 @@ export default function PrecosPage() {
 
             <p className="text-center text-[#6B7280] text-sm mt-2">Plano Completo por menos de R$5 por dia</p>
 
-            {/* Price */}
+            {/* Price section with psychological anchoring */}
             <div className="text-center mt-6">
-              <span className="text-5xl font-extrabold text-[#0A1628]">R$147</span>
-              <span className="text-lg text-[#6B7280] ml-1">/mês</span>
+              <span className="text-[#0A1628] font-black text-2xl mr-1">12x</span>
+              <span className="text-5xl font-extrabold text-[#0A1628]">R$14,70</span>
             </div>
+            <p className="text-center text-[#6B7280] text-sm mt-2 font-medium">
+              (ou R$ 147,00 à vista)
+            </p>
 
             {/* CTA */}
             <a
               href={KIWIFY_PROFISSIONAL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 w-full flex items-center justify-center gap-2 bg-[#0A1628] hover:bg-[#162038] text-white font-semibold py-3.5 rounded-xl transition-colors text-base"
+              className="mt-6 w-full flex items-center justify-center gap-2 bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-[0_10px_20px_rgba(255,215,0,0.2)] font-black py-4 rounded-xl transition-all text-base hover:-translate-y-1"
             >
               Começar agora <ArrowRight size={18} />
             </a>
@@ -159,6 +162,23 @@ export default function PrecosPage() {
                   <span>{f}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Bonuses Wrapper */}
+            <div className="mt-8 p-5 bg-[#050B14] shadow-inner rounded-xl border border-gray-100">
+               <h4 className="font-extrabold text-[#FFD700] text-sm uppercase mb-3 flex items-center gap-2 text-center justify-center">
+                 🎁 Bônus Inclusos Hoje
+               </h4>
+               <ul className="space-y-3">
+                 <li className="flex items-start gap-2 text-sm text-gray-300">
+                    <Check size={16} className="text-[#FFD700] shrink-0 mt-0.5" />
+                    <span><strong className="text-white">Masterclass de Tráfego Imobiliário</strong> (De R$ 297 por zero)</span>
+                 </li>
+                 <li className="flex items-start gap-2 text-sm text-gray-300">
+                    <Check size={16} className="text-[#FFD700] shrink-0 mt-0.5" />
+                    <span><strong className="text-white">Pack de Artes Canva Ouro</strong> (De R$ 97 por zero)</span>
+                 </li>
+               </ul>
             </div>
           </motion.div>
         </Reveal>
