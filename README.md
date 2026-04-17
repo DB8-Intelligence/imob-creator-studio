@@ -77,7 +77,6 @@ Copie `.env.example` para `.env` e preencha as variaveis.
 
 28 funcoes deployadas incluindo:
 - `kiwify-webhook` — Pagamentos Kiwify (compra, renovacao, cancelamento, chargeback)
-- `hotmart-webhook` — Pagamentos Hotmart
 - `asaas-webhook` — Pagamentos Asaas
 - `generate-caption` / `generate-art` / `gerar-criativo` — Geracao de conteudo
 - `generate-video` / `generate-video-v2` / `compose-video` — Pipeline de video

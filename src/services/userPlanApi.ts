@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { UserPlan, UserPlanInfo, HotmartPlanInfo, PlanSlug } from "@/types/userPlan";
+import type { UserPlan, UserPlanInfo, ModulePlanInfo, PlanSlug } from "@/types/userPlan";
 
 function mapSlugToLegacy(slug: PlanSlug | null): UserPlan {
   if (slug === "max") return "vip";
@@ -32,15 +32,15 @@ export async function fetchUserPlan(): Promise<UserPlanInfo> {
   };
 }
 
-/** Fetch active Hotmart plan from the my_plan view */
-export async function fetchHotmartPlan(): Promise<HotmartPlanInfo | null> {
+/** Fetch active module plan from the my_plan view */
+export async function fetchModulePlan(): Promise<ModulePlanInfo | null> {
   const { data, error } = await supabase
     .from("my_plan")
     .select("*")
     .maybeSingle();
 
   if (error) throw new Error(error.message);
-  return data as HotmartPlanInfo | null;
+  return data as ModulePlanInfo | null;
 }
 
 export interface ConsumeCreditsResult {

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUserPlan, fetchHotmartPlan, consumeCredits } from "@/services/userPlanApi";
+import { fetchUserPlan, fetchModulePlan, consumeCredits } from "@/services/userPlanApi";
 import { toast } from "@/hooks/use-toast";
-import type { UserPlanInfo, HotmartPlanInfo } from "@/types/userPlan";
+import type { UserPlanInfo } from "@/types/userPlan";
 
 export const USER_PLAN_KEY = ["user-plan"];
 
@@ -14,13 +14,13 @@ export function useUserPlan() {
   });
 }
 
-const HOTMART_PLAN_KEY = ["hotmart-plan"];
+const MODULE_PLAN_KEY = ["module-plan"];
 
-/** Hook for Hotmart-based plan (user_plans table via my_plan view) */
-export function useHotmartPlan() {
+/** Hook for active module plan (user_subscriptions via my_plan view) */
+export function useModulePlan() {
   const query = useQuery({
-    queryKey: HOTMART_PLAN_KEY,
-    queryFn: fetchHotmartPlan,
+    queryKey: MODULE_PLAN_KEY,
+    queryFn: fetchModulePlan,
     staleTime: 30_000,
     retry: 1,
   });

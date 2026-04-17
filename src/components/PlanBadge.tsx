@@ -1,4 +1,4 @@
-import { useHotmartPlan } from "@/hooks/useUserPlan";
+import { useModulePlan } from "@/hooks/useUserPlan";
 import { Badge } from "@/components/ui/badge";
 import { Zap } from "lucide-react";
 
@@ -10,7 +10,7 @@ const PLAN_COLORS: Record<string, string> = {
 };
 
 export function PlanBadge() {
-  const { plan, isLoading, hasActivePlan, creditsLeft, isMax } = useHotmartPlan();
+  const { plan, isLoading, hasActivePlan, creditsLeft, isMax } = useModulePlan();
 
   if (isLoading) return <div className="h-6 w-24 bg-gray-200 animate-pulse rounded" />;
   if (!plan || !hasActivePlan) return (

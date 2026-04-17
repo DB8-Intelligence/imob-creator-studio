@@ -12,8 +12,8 @@ export interface UserPlanInfo {
   credits_total: number;
 }
 
-/** Shape returned by the my_plan view (Hotmart/Kiwify-based plans) */
-export interface HotmartPlanInfo {
+/** Shape returned by the my_plan view (módulos ativos do usuário) */
+export interface ModulePlanInfo {
   plan_slug: PlanSlug;
   plan_name: string;
   credits_total: number;

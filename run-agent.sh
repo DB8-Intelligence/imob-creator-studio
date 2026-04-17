@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Uso: ./run-agent.sh imob "Implemente o webhook Hotmart"
+# Uso: ./run-agent.sh imob "Audite o projeto"
 PROJECT="${1:-imob}"
 TASK="${2:-Audite o projeto}"
 

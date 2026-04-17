@@ -1,30 +1,11 @@
 # Integrações ImobCreator AI
 
-## Hotmart Webhook
+## Gateways de Pagamento Ativos
 
-**Endpoint (Edge Function Supabase):**
-https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/hotmart-webhook
+- **Kiwify** — `kiwify-webhook` (edge function)
+- **Asaas** — `asaas-webhook` (edge function) + `create-asaas-subscription`
 
-**Configurar no Hotmart:**
-Hotmart → Ferramentas → Webhooks → Nova notificação → URL acima
-
-**Secrets necessários (supabase secrets set):**
-- HOTMART_HOTTOK → gerado no painel Hotmart em Ferramentas > Webhooks
-- N8N_WEBHOOK_HOTMART → https://automacao.db8intelligence.com.br/webhook/hotmart
-
-**Eventos tratados:**
-- PURCHASE_APPROVED → ativa plano + envia WhatsApp boas-vindas
-- SUBSCRIPTION_CANCELLATION → cancela plano
-- PURCHASE_CANCELED → cancela plano
-- PURCHASE_REFUNDED → marca como reembolsado
-
-**Mapeamento de produtos (atualizar em hotmart-webhook/index.ts):**
-| Plano   | Preço     | Créditos | Product ID Hotmart |
-|---------|-----------|----------|--------------------|
-| Starter | R$97/mês  | 100      | PRODUCT_ID_STARTER |
-| Básico  | R$197/mês | 300      | PRODUCT_ID_BASICO  |
-| PRO     | R$397/mês | 600      | PRODUCT_ID_PRO     |
-| MAX     | R$697/mês | ∞        | PRODUCT_ID_MAX     |
+Ambos gravam em `user_subscriptions` usando as colunas legadas `hotmart_subscription_id`, `hotmart_product_id`, `hotmart_raw` (nomes preservados por compatibilidade de schema).
 
 ## WhatsApp (Evolution API)
 
@@ -54,12 +35,11 @@ curl -X POST \
 # Migration Supabase
 npm run db:migration
 
-# Deploy Edge Function
+# Deploy Edge Function Kiwify
 npm run functions:deploy
 
-# Adicionar secrets
-npx supabase secrets set HOTMART_HOTTOK=<valor>
-npx supabase secrets set N8N_WEBHOOK_HOTMART=<valor>
+# Deploy Edge Function Asaas
+npm run functions:deploy:asaas
 
 # Ver logs em tempo real
 npm run functions:logs
