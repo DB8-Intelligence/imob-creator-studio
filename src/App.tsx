@@ -7,6 +7,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WorkspaceProvider } from "@/contexts/WorkspaceContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ModuleProtectedRoute } from "@/components/auth/ModuleProtectedRoute";
 import { RouteTracker } from "@/components/app/RouteTracker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -211,12 +212,12 @@ const App = () => (
               <Route path="/plano" element={<ProtectedRoute><MeuPlanoPage /></ProtectedRoute>} />
               <Route path="/planos" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
               <Route path="/reverse-prompt-lab" element={<ProtectedRoute><ReversePromptLabPage /></ProtectedRoute>} />
-              <Route path="/upscale" element={<ProtectedRoute><UpscaleImagePage /></ProtectedRoute>} />
-              <Route path="/image-restoration" element={<ProtectedRoute><ImageRestorationPage /></ProtectedRoute>} />
-              <Route path="/renovate" element={<ProtectedRoute><RenovatePropertyPage /></ProtectedRoute>} />
-              <Route path="/sketch-render" element={<ProtectedRoute><SketchRenderPage /></ProtectedRoute>} />
-              <Route path="/empty-lot" element={<ProtectedRoute><EmptyLotPage /></ProtectedRoute>} />
-              <Route path="/land-marking" element={<ProtectedRoute><LandMarkingPage /></ProtectedRoute>} />
+              <Route path="/upscale" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><UpscaleImagePage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/image-restoration" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><ImageRestorationPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/renovate" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><RenovatePropertyPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/sketch-render" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><SketchRenderPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/empty-lot" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><EmptyLotPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/land-marking" element={<ProtectedRoute><ModuleProtectedRoute requires="criativos"><LandMarkingPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/ai-agents" element={<ProtectedRoute><AIAgentsPage /></ProtectedRoute>} />
               <Route path="/dashboard/analytics" element={<ProtectedRoute><AnalyticsDashboardPage /></ProtectedRoute>} />
               <Route path="/dashboard/attribution" element={<ProtectedRoute><AttributionPage /></ProtectedRoute>} />
@@ -227,10 +228,10 @@ const App = () => (
 
               {/* ── Módulo de Vídeo ─────────────────────────────────────────── */}
               <Route path="/video"            element={<VideoLandingPage />} />
-              <Route path="/video-creator"    element={<ProtectedRoute><VideoCreatorPage /></ProtectedRoute>} />
-              <Route path="/video-dashboard"  element={<ProtectedRoute><VideosDashboardPage /></ProtectedRoute>} />
-              <Route path="/video-plans"      element={<ProtectedRoute><VideosPricingPage /></ProtectedRoute>} />
-              <Route path="/video-styles"     element={<ProtectedRoute><VideosStyleCatalogPage /></ProtectedRoute>} />
+              <Route path="/video-creator"    element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><VideoCreatorPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/video-dashboard"  element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><VideosDashboardPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/video-plans"      element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><VideosPricingPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/video-styles"     element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><VideosStyleCatalogPage /></ModuleProtectedRoute></ProtectedRoute>} />
 
               {/* ── Dashboard MAX ──────────────────────────────────────────── */}
               {/* Leads */}
@@ -294,36 +295,36 @@ const App = () => (
               <Route path="/dashboard/criativos/novo"     element={<ProtectedRoute><NovoCriativoPage /></ProtectedRoute>} />
               <Route path="/dashboard/criativos/:id"      element={<ProtectedRoute><CriativoDetailPage /></ProtectedRoute>} />
               {/* Vídeos */}
-              <Route path="/dashboard/videos"             element={<ProtectedRoute><DashboardVideosPage /></ProtectedRoute>} />
-              <Route path="/dashboard/videos/novo"        element={<ProtectedRoute><NovoVideoPage /></ProtectedRoute>} />
-              <Route path="/dashboard/videos/:id"         element={<ProtectedRoute><VideoPlayerPage /></ProtectedRoute>} />
+              <Route path="/dashboard/videos"             element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><DashboardVideosPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/videos/novo"        element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><NovoVideoPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/videos/:id"         element={<ProtectedRoute><ModuleProtectedRoute requires="videos"><VideoPlayerPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* CRM */}
-              <Route path="/dashboard/crm"                element={<ProtectedRoute><DashboardCRMPage /></ProtectedRoute>} />
-              <Route path="/dashboard/crm/lead/:id"       element={<ProtectedRoute><LeadDetailPage /></ProtectedRoute>} />
-              <Route path="/dashboard/crm/clientes"       element={<ProtectedRoute><ClientesCRMPage /></ProtectedRoute>} />
-              <Route path="/dashboard/crm/agenda"         element={<ProtectedRoute><AgendaCRMPage /></ProtectedRoute>} />
-              <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ImportarLeadsCRMPage /></ProtectedRoute>} />
+              <Route path="/dashboard/crm"                element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><DashboardCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/crm/lead/:id"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><LeadDetailPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/crm/clientes"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><ClientesCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/crm/agenda"         element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><AgendaCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><ImportarLeadsCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* Site + Portais */}
-              <Route path="/dashboard/site"               element={<ProtectedRoute><DashboardSitePage /></ProtectedRoute>} />
+              <Route path="/dashboard/site"               element={<ProtectedRoute><ModuleProtectedRoute requires="site"><DashboardSitePage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* Site Imobiliário */}
-              <Route path="/site-imobiliario"             element={<ProtectedRoute><SiteImobiliarioPage /></ProtectedRoute>} />
-              <Route path="/site-leads"                   element={<ProtectedRoute><SiteLeadsPage /></ProtectedRoute>} />
+              <Route path="/site-imobiliario"             element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteImobiliarioPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/site-leads"                   element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteLeadsPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* WhatsApp */}
-              <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><WhatsAppSetupPage /></ProtectedRoute>} />
-              <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><WhatsAppInboxPage /></ProtectedRoute>} />
-              <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><WhatsAppFluxosPage /></ProtectedRoute>} />
-              <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
-              <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><WhatsAppFlowBuilderPage /></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppSetupPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppInboxPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* Job Status */}
               <Route path="/dashboard/job/:jobId"          element={<ProtectedRoute><JobStatusPage /></ProtectedRoute>} />
               {/* Social */}
-              <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><SocialConnectPage /></ProtectedRoute>} />
-              <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><SocialCalendarioPage /></ProtectedRoute>} />
+              <Route path="/dashboard/social/conectar"    element={<ProtectedRoute><ModuleProtectedRoute requires="social"><SocialConnectPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/social/calendario"  element={<ProtectedRoute><ModuleProtectedRoute requires="social"><SocialCalendarioPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/social/callback"    element={<ProtectedRoute><SocialCallbackPage /></ProtectedRoute>} />
 
               {/* Integrações */}
-              <Route path="/integracoes"              element={<ProtectedRoute><IntegracoesApisPage /></ProtectedRoute>} />
-              <Route path="/integracoes/webhooks"     element={<ProtectedRoute><IntegracoesWebhooksPage /></ProtectedRoute>} />
+              <Route path="/integracoes"              element={<ProtectedRoute><ModuleProtectedRoute requires="portais"><IntegracoesApisPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/integracoes/webhooks"     element={<ProtectedRoute><ModuleProtectedRoute requires="portais"><IntegracoesWebhooksPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* Biblioteca */}
               <Route path="/biblioteca"              element={<ProtectedRoute><BibliotecaFotosPage /></ProtectedRoute>} />
               <Route path="/biblioteca/videos"       element={<ProtectedRoute><BibliotecaVideosPage /></ProtectedRoute>} />

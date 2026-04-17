@@ -1,4 +1,5 @@
 import { useState, useRef, ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Check, Plus, Minus, ArrowRight, MessageCircle } from "lucide-react";
 import Header from "@/components/Header";
@@ -73,12 +74,12 @@ const features = [
 
 // ── Add-ons ──────────────────────────────────────────────────────────────────
 const addons = [
-  { icon: "🎬", name: "Vídeos com IA", price: "R$79/mês", desc: "Reels profissionais, Ken Burns, música", detail: "Crie vídeos automaticamente com IA", url: KIWIFY_VIDEOS_FFMPEG, bundle: false },
-  { icon: "✨", name: "Vídeos Premium", price: "R$19/vídeo", desc: "Cinematográficos profissionais", detail: "Qualidade cinematográfica sob demanda", url: KIWIFY_VIDEOS_PREMIUM, bundle: false },
-  { icon: "💬", name: "WhatsApp Pro", price: "R$49/mês", desc: "Inbox unificado, automações", detail: "Atenda todos os leads em um só lugar", url: KIWIFY_WHATSAPP_PRO, bundle: false },
-  { icon: "📣", name: "Social Autopilot", price: "R$29/mês", desc: "Publicação automática IG+FB", detail: "Poste automaticamente nas redes sociais", url: KIWIFY_SOCIAL_AUTOPILOT, bundle: false },
-  { icon: "🏠", name: "Portais XML", price: "R$39/mês", desc: "Sincronize ZAP, OLX, VivaReal", detail: "Seus imóveis nos maiores portais", url: KIWIFY_PORTAIS_XML, bundle: false },
-  { icon: "🎯", name: "Bundle Completo", price: "R$147/mês", desc: "Todos os módulos", detail: "Economize R$69", url: KIWIFY_BUNDLE, bundle: true },
+  { id: "videos",   icon: "🎬", name: "Vídeos com IA", price: "R$79/mês", desc: "Reels profissionais, Ken Burns, música", detail: "Crie vídeos automaticamente com IA", url: KIWIFY_VIDEOS_FFMPEG, bundle: false },
+  { id: "videos",   icon: "✨", name: "Vídeos Premium", price: "R$19/vídeo", desc: "Cinematográficos profissionais", detail: "Qualidade cinematográfica sob demanda", url: KIWIFY_VIDEOS_PREMIUM, bundle: false },
+  { id: "whatsapp", icon: "💬", name: "WhatsApp Pro", price: "R$49/mês", desc: "Inbox unificado, automações", detail: "Atenda todos os leads em um só lugar", url: KIWIFY_WHATSAPP_PRO, bundle: false },
+  { id: "social",   icon: "📣", name: "Social Autopilot", price: "R$29/mês", desc: "Publicação automática IG+FB", detail: "Poste automaticamente nas redes sociais", url: KIWIFY_SOCIAL_AUTOPILOT, bundle: false },
+  { id: "portais",  icon: "🏠", name: "Portais XML", price: "R$39/mês", desc: "Sincronize ZAP, OLX, VivaReal", detail: "Seus imóveis nos maiores portais", url: KIWIFY_PORTAIS_XML, bundle: false },
+  { id: "bundle",   icon: "🎯", name: "Bundle Completo", price: "R$147/mês", desc: "Todos os módulos", detail: "Economize R$69", url: KIWIFY_BUNDLE, bundle: true },
 ];
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
@@ -92,12 +93,23 @@ const faqItems = [
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function PrecosPage() {
+  const location = useLocation();
+  const missingModule = (location.state as { missingModule?: string } | null)?.missingModule;
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="pt-32 pb-12 px-4 text-center">
+        {missingModule && (
+          <div className="max-w-2xl mx-auto mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
+            <p className="text-sm text-yellow-800">
+              🔒 Você precisa do add-on <strong>{missingModule}</strong> para acessar essa funcionalidade.
+              Veja as opções abaixo.
+            </p>
+          </div>
+        )}
         <Reveal>
           <motion.h1 variants={fadeUp} className="text-3xl md:text-5xl font-extrabold text-[#0A1628] leading-tight max-w-3xl mx-auto">
             Tudo que você precisa para vender mais imóveis
@@ -168,6 +180,10 @@ export default function PrecosPage() {
                   variants={fadeUp}
                   className={`relative bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col ${
                     addon.bundle ? "border-2 border-amber-400" : "border border-[#E5E7EB]"
+                  } ${
+                    missingModule && addon.id === missingModule
+                      ? "ring-2 ring-[#FFD700] shadow-xl scale-[1.02] animate-pulse"
+                      : ""
                   }`}
                 >
                   {addon.bundle && (
