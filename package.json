@@ -14,7 +14,6 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "functions:deploy": "supabase functions deploy kiwify-webhook",
-    "functions:deploy:hotmart": "supabase functions deploy hotmart-webhook",
     "functions:deploy:wa": "supabase functions deploy whatsapp-instance",
     "functions:deploy:seo": "supabase functions deploy generate-seo",
     "functions:deploy:import": "supabase functions deploy import-data",
