@@ -145,21 +145,6 @@ function generateFallbackResult(form: FormData): DiagnosticoResult {
   };
 }
 
-// ── System prompt for Claude ─────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Voce e um especialista em marketing digital imobiliario brasileiro. Analise a presenca digital do corretor e responda APENAS em JSON valido (sem markdown, sem code fences) com esta estrutura exata:
-{
-  "score_geral": number (0-100),
-  "nivel": "Critico" | "Regular" | "Bom" | "Excelente",
-  "resumo": "string com 2-3 frases",
-  "pontos_atencao": [{"titulo":"string","descricao":"string","impacto":"Alto|Medio|Baixo"}],
-  "pontos_positivos": [{"titulo":"string","descricao":"string"}],
-  "oportunidades": [{"titulo":"string","descricao":"string","potencial":"Alto|Medio|Baixo"}],
-  "proximos_passos": [{"acao":"string","prazo":"string","dificuldade":"Facil|Medio|Dificil"}],
-  "insight_instagram": "string",
-  "insight_site": "string"
-}
-Gere pelo menos 3 itens em pontos_atencao, pontos_positivos e oportunidades. Gere pelo menos 4 proximos_passos. Seja especifico para o mercado imobiliario brasileiro.`;
-
 // ── Stepper ──────────────────────────────────────────────────────────────────
 function Stepper({ step }: { step: number }) {
   const labels = ["Redes sociais", "Site", "Contato"];
@@ -285,7 +270,7 @@ export default function DiagnosticoPage() {
       // non-blocking — continue even if insert fails
     }
 
-    // 2. Call Claude API
+    // 2. Call Claude API via Edge Function
     let diagResult: DiagnosticoResult;
     try {
       const userPrompt = `Analise a presenca digital deste corretor de imoveis:
@@ -301,33 +286,15 @@ export default function DiagnosticoPage() {
 
 Gere o diagnostico completo em JSON.`;
 
-      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY || "";
-
-      if (!apiKey) throw new Error("No API key");
-
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1500,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: "user", content: userPrompt }],
-        }),
+      const { data, error } = await supabase.functions.invoke("diagnostico-ai", {
+        body: { userPrompt },
       });
 
-      if (!res.ok) throw new Error(`API ${res.status}`);
+      if (error || !data?.ok || !data?.result) {
+        throw new Error(error?.message || "Edge function failed");
+      }
 
-      const json = await res.json();
-      const text = json.content?.[0]?.text ?? "";
-      // Strip possible markdown fences
-      const cleaned = text.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      diagResult = JSON.parse(cleaned);
+      diagResult = data.result as DiagnosticoResult;
     } catch {
       diagResult = generateFallbackResult(form);
     }
