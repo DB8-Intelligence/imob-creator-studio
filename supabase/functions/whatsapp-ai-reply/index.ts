@@ -293,6 +293,25 @@ serve(async (req: Request) => {
       : Promise.resolve(),
   ]);
 
+  // ── 5.5 Sync CRM: cria/atualiza lead no Kanban ──────────────
+  try {
+    const mergedQualification = mergeQualification(
+      conversation?.lead_qualification ?? {},
+      aiResponse.lead_qualification,
+    );
+    await supabase.rpc("upsert_lead_from_whatsapp", {
+      p_workspace_id:      workspace?.id,
+      p_phone:             phone.replace(/[^\d]/g, ""),
+      p_contact_name:      contact_name ?? null,
+      p_conversation_id:   conversation?.id,
+      p_qualification:     mergedQualification,
+      p_booking_confirmed: aiResponse.booking?.confirmed === true,
+    });
+  } catch (e) {
+    console.error("upsert_lead_from_whatsapp failed:", e);
+    // CRM sync falhar não bloqueia resposta da IA
+  }
+
   // ── 6. Booking: se a IA confirmou agendamento, cria evento ────
   if (aiResponse.booking?.confirmed && aiResponse.booking.start_at && aiResponse.booking.end_at) {
     try {

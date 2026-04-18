@@ -6,6 +6,7 @@ export type LeadStatus =
   | "novo"
   | "contato_feito"
   | "visita_agendada"
+  | "visita_realizada"
   | "proposta_enviada"
   | "fechado"
   | "perdido";
@@ -13,6 +14,16 @@ export type LeadStatus =
 export type LeadInteresse = "compra" | "aluguel" | "lancamento";
 export type LeadFonte = "instagram" | "whatsapp" | "site" | "indicacao" | "outro";
 export type LeadTemperatura = "quente" | "morno" | "frio";
+
+export interface LeadQualificationSnapshot {
+  intent?:        "compra" | "aluguel" | "investimento" | "desconhecido";
+  budget?:        string | null;
+  region?:        string | null;
+  property_type?: string | null;
+  urgency?:       "alta" | "media" | "baixa" | "desconhecida";
+  confidence?:    number;
+  notes?:         string | null;
+}
 
 export interface Lead {
   id: string;
@@ -31,6 +42,8 @@ export interface Lead {
   notas: string | null;
   corretor_responsavel: string | null;
   ultimo_contato: string | null;
+  whatsapp_conversation_id: string | null;
+  qualification_snapshot: LeadQualificationSnapshot | null;
   created_at: string;
   updated_at: string;
 }
@@ -77,11 +90,12 @@ export interface PipelineColumn {
 }
 
 export const PIPELINE_COLUMNS: PipelineColumn[] = [
-  { id: "novo",              label: "Novo Lead",         emoji: "🟡", color: "text-yellow-500",  bgColor: "bg-[#EEF2FF]" },
-  { id: "contato_feito",     label: "Contato Feito",     emoji: "🔵", color: "text-blue-500",    bgColor: "bg-[#FFF7E0]" },
+  { id: "novo",              label: "Em Atendimento",    emoji: "🟡", color: "text-yellow-500",  bgColor: "bg-[#EEF2FF]" },
+  { id: "contato_feito",     label: "Prospect",          emoji: "🔵", color: "text-blue-500",    bgColor: "bg-[#FFF7E0]" },
   { id: "visita_agendada",   label: "Visita Agendada",   emoji: "🟣", color: "text-purple-500",  bgColor: "bg-[#F0FDF4]" },
-  { id: "proposta_enviada",  label: "Proposta Enviada",  emoji: "🟠", color: "text-orange-500",  bgColor: "bg-[#F0F9FF]" },
-  { id: "fechado",           label: "Fechado",           emoji: "🟢", color: "text-emerald-500", bgColor: "bg-[#DCFCE7]" },
+  { id: "visita_realizada",  label: "Visita Realizada",  emoji: "🟢", color: "text-teal-500",    bgColor: "bg-[#CCFBF1]" },
+  { id: "proposta_enviada",  label: "Proposta",          emoji: "🟠", color: "text-orange-500",  bgColor: "bg-[#F0F9FF]" },
+  { id: "fechado",           label: "Venda Realizada",   emoji: "💰", color: "text-emerald-500", bgColor: "bg-[#DCFCE7]" },
   { id: "perdido",           label: "Perdido",           emoji: "🔴", color: "text-red-500",     bgColor: "bg-[#FEF2F2]" },
 ];
 

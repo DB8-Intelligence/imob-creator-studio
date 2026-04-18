@@ -430,8 +430,66 @@ export default function LeadDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Right: Timeline + IA card */}
+          <div className="lg:col-span-3 space-y-4">
+            {lead.qualification_snapshot && (
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-[#002B5B] text-base flex items-center gap-2">
+                    🤖 Qualificado pela Secretária Virtual
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                  <div className="grid grid-cols-2 gap-3">
+                    {lead.qualification_snapshot.intent && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Interesse</p>
+                        <p className="font-semibold text-[#002B5B] capitalize">{lead.qualification_snapshot.intent}</p>
+                      </div>
+                    )}
+                    {lead.qualification_snapshot.budget && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Orçamento</p>
+                        <p className="font-semibold text-[#002B5B]">{lead.qualification_snapshot.budget}</p>
+                      </div>
+                    )}
+                    {lead.qualification_snapshot.region && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Região</p>
+                        <p className="font-semibold text-[#002B5B]">{lead.qualification_snapshot.region}</p>
+                      </div>
+                    )}
+                    {lead.qualification_snapshot.property_type && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Tipo</p>
+                        <p className="font-semibold text-[#002B5B] capitalize">{lead.qualification_snapshot.property_type}</p>
+                      </div>
+                    )}
+                    {lead.qualification_snapshot.urgency && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Urgência</p>
+                        <p className="font-semibold text-[#002B5B] capitalize">{lead.qualification_snapshot.urgency}</p>
+                      </div>
+                    )}
+                    {typeof lead.qualification_snapshot.confidence === "number" && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-500">Confiança IA</p>
+                        <p className="font-semibold text-[#002B5B]">{Math.round(lead.qualification_snapshot.confidence * 100)}%</p>
+                      </div>
+                    )}
+                  </div>
+                  {lead.qualification_snapshot.notes && (
+                    <div className="mt-4 pt-3 border-t border-blue-100">
+                      <p className="text-[11px] uppercase tracking-wide text-gray-500">Observações da IA</p>
+                      <p className="text-gray-700 italic mt-1">"{lead.qualification_snapshot.notes}"</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
           {/* Right: Timeline */}
-          <Card className="lg:col-span-3 bg-white border border-gray-100 shadow-sm">
+          <Card className="bg-white border border-gray-100 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-[#002B5B] text-base">Timeline de Atividades</CardTitle>
             </CardHeader>
@@ -505,6 +563,7 @@ export default function LeadDetailPage() {
               )}
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </AppLayout>

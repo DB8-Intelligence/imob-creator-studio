@@ -32,6 +32,8 @@ function rowToLead(row: Record<string, unknown>): Lead {
     notas: row.notas as string | null,
     corretor_responsavel: row.corretor_responsavel as string | null,
     ultimo_contato: row.ultimo_contato as string | null,
+    whatsapp_conversation_id: row.whatsapp_conversation_id as string | null,
+    qualification_snapshot: (row.qualification_snapshot ?? null) as Lead["qualification_snapshot"],
     created_at: String(row.created_at),
     updated_at: String(row.updated_at ?? row.created_at),
   };
