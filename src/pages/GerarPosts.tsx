@@ -107,7 +107,7 @@ export default function GerarPosts() {
             <Button
               variant="outline"
               className="mt-4"
-              onClick={() => navigate("/site-imobiliario")}
+              onClick={() => navigate("/dashboard/site-imobiliario")}
             >
               Ir para Site Imobiliário
             </Button>

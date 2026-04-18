@@ -372,7 +372,7 @@ export default function BookApresentacaoPage() {
             <Button
               size="sm"
               variant="outline"
-              onClick={() => navigate("/site-imobiliario")}
+              onClick={() => navigate("/dashboard/site-imobiliario")}
             >
               <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
               Editar Site
@@ -578,7 +578,7 @@ export default function BookApresentacaoPage() {
                       variant="outline"
                       size="sm"
                       className="w-full mt-2"
-                      onClick={() => navigate("/site-imobiliario")}
+                      onClick={() => navigate("/dashboard/site-imobiliario")}
                     >
                       <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
                       Editar dados do site

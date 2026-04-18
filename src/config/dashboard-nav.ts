@@ -59,6 +59,7 @@ import {
   PieChart,
   Rss,
   Globe,
+  Mic,
   type LucideIcon,
 } from "lucide-react";
 
@@ -147,7 +148,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Site & Portais",
     emoji: "🌐",
     items: [
-      { icon: Globe, label: "Meu Site", path: "/site-imobiliario" },
+      { icon: Globe, label: "Meu Site", path: "/dashboard/site-imobiliario" },
     ],
   },
 
@@ -167,6 +168,8 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Automações",
     emoji: "🤖",
     items: [
+      { icon: Bot, label: "Secretária Virtual", path: "/dashboard/whatsapp/ai-config" },
+      { icon: Mic, label: "Voz Clonada", path: "/dashboard/whatsapp/voz", badge: "Plus" },
       { icon: Workflow, label: "Fluxos Ativos", path: "/automacoes" },
       { icon: GitBranch, label: "Construtor de Fluxo", path: "/automacoes/construtor" },
       { icon: Send, label: "Histórico de Disparos", path: "/automacoes/historico" },

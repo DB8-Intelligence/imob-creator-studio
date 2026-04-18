@@ -1,17 +1,17 @@
 import { useState, useRef, ReactNode } from "react";
-import { useLocation } from "react-router-dom";
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { Check, Plus, Minus, ArrowRight, MessageCircle } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, useInView, AnimatePresence, Variants } from "framer-motion";
+import { Plus, Minus, ArrowRight, MessageCircle, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CountUp } from "@/components/ui/CountUp";
 
 // ── Animations ───────────────────────────────────────────────────────────────
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
 };
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+const stagger: Variants = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
 function Reveal({ children, className }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -42,53 +42,117 @@ function Accordion({ q, a }: { q: string; a: string }) {
   );
 }
 
-// ── Env URLs ─────────────────────────────────────────────────────────────────
-const KIWIFY_PROFISSIONAL = import.meta.env.VITE_KIWIFY_PROFISSIONAL_URL || "#";
-const KIWIFY_VIDEOS_FFMPEG = import.meta.env.VITE_KIWIFY_ADDON_VIDEOS_FFMPEG_URL || "#";
-const KIWIFY_VIDEOS_PREMIUM = import.meta.env.VITE_KIWIFY_ADDON_VIDEOS_PREMIUM_URL || "#";
-const KIWIFY_WHATSAPP_PRO = import.meta.env.VITE_KIWIFY_ADDON_WHATSAPP_PRO_URL || "#";
-const KIWIFY_SOCIAL_AUTOPILOT = import.meta.env.VITE_KIWIFY_ADDON_SOCIAL_AUTOPILOT_URL || "#";
-const KIWIFY_PORTAIS_XML = import.meta.env.VITE_KIWIFY_ADDON_PORTAIS_XML_URL || "#";
-const KIWIFY_BUNDLE = import.meta.env.VITE_KIWIFY_ADDON_BUNDLE_URL || "#";
+// ── URLs ─────────────────────────────────────────────────────────────────────
 const WHATSAPP_LINK = "https://wa.me/5511999999999?text=Quero%20saber%20mais%20sobre%20o%20NexoImob";
 
-// ── Features ─────────────────────────────────────────────────────────────────
-const features = [
-  "2 sites imobiliários",
-  "CRM completo",
-  "Funil de vendas",
-  "Imóveis ilimitados",
-  "Agendador de posts",
-  "Roteiro de visitas",
-  "Integrações portais",
-  "Indicadores",
-  "200 posts IA",
-  "500.000 palavras IA",
-  "Redecorar ambientes IA",
-  "+59 funcionalidades",
-  "Suporte VIP WhatsApp",
-  "Customer Success",
-  "Treinamento online",
-  "Sem fidelidade",
-];
+// ── Produtos ─────────────────────────────────────────────────────────────────
+// Cada produto tem sua própria LP com planos e CTAs de compra.
+type Product = {
+  id: string;
+  icon: string;
+  name: string;
+  tagline: string;
+  startingAt: string;
+  priceDetail: string;
+  bullets: string[];
+  href: string;
+  accent: "gold" | "navy";
+};
 
-// ── Add-ons ──────────────────────────────────────────────────────────────────
-const addons = [
-  { id: "videos",   icon: "🎬", name: "Vídeos com IA", price: "R$79/mês", desc: "Reels profissionais, Ken Burns, música", detail: "Crie vídeos automaticamente com IA", url: KIWIFY_VIDEOS_FFMPEG, bundle: false },
-  { id: "videos",   icon: "✨", name: "Vídeos Premium", price: "R$19/vídeo", desc: "Cinematográficos profissionais", detail: "Qualidade cinematográfica sob demanda", url: KIWIFY_VIDEOS_PREMIUM, bundle: false },
-  { id: "whatsapp", icon: "💬", name: "WhatsApp Pro", price: "R$49/mês", desc: "Inbox unificado, automações", detail: "Atenda todos os leads em um só lugar", url: KIWIFY_WHATSAPP_PRO, bundle: false },
-  { id: "social",   icon: "📣", name: "Social Autopilot", price: "R$29/mês", desc: "Publicação automática IG+FB", detail: "Poste automaticamente nas redes sociais", url: KIWIFY_SOCIAL_AUTOPILOT, bundle: false },
-  { id: "portais",  icon: "🏠", name: "Portais XML", price: "R$39/mês", desc: "Sincronize ZAP, OLX, VivaReal", detail: "Seus imóveis nos maiores portais", url: KIWIFY_PORTAIS_XML, bundle: false },
-  { id: "bundle",   icon: "🎯", name: "Bundle Completo", price: "R$147/mês", desc: "Todos os módulos", detail: "Economize R$69", url: KIWIFY_BUNDLE, bundle: true },
+const products: Product[] = [
+  {
+    id: "site",
+    icon: "🏠",
+    name: "Site Imobiliário",
+    tagline: "Site + CRM + Portais XML",
+    startingAt: "R$ 147",
+    priceDetail: "/mês",
+    bullets: [
+      "1 Site Imobiliário",
+      "CRM Completo + Funil de vendas",
+      "Cadastro de imóveis ilimitados",
+      "Integração automática com portais (OLX, ZAP, VivaReal)",
+      "Customer Success dedicado",
+      "+59 funcionalidades",
+    ],
+    href: "/site-imobiliario",
+    accent: "gold",
+  },
+  {
+    id: "secretaria",
+    icon: "🤖",
+    name: "Secretária Virtual 24h",
+    tagline: "IA atende WhatsApp com sua voz",
+    startingAt: "R$ 51,40",
+    priceDetail: "/mês · 12x",
+    bullets: [
+      "Secretária virtual 24/7",
+      "IA responde por áudios e textos",
+      "Clonagem da sua voz (Plus)",
+      "Integração Google Agenda",
+      "CRM WhatsApp + disparos em massa (Plus)",
+    ],
+    href: "/secretaria-virtual",
+    accent: "navy",
+  },
+  {
+    id: "criativos",
+    icon: "🎨",
+    name: "Criativos com IA",
+    tagline: "Posts, stories e reels automáticos",
+    startingAt: "R$ 97",
+    priceDetail: "/mês",
+    bullets: [
+      "50 a 150 criativos por mês",
+      "Feed + Story + Reel",
+      "Download direto ou publicação IG+FB",
+      "Programa de afiliados incluso",
+    ],
+    href: "/criativos",
+    accent: "navy",
+  },
+  {
+    id: "videos",
+    icon: "🎬",
+    name: "Vídeos com IA",
+    tagline: "Reels cinematográficos das suas fotos",
+    startingAt: "R$ 97",
+    priceDetail: "/mês",
+    bullets: [
+      "5 a 20 vídeos por mês",
+      "Até 90s de duração",
+      "Até 6 moods de música",
+      "Publicação direta no Instagram Reels",
+    ],
+    href: "/videos",
+    accent: "navy",
+  },
+  {
+    id: "social",
+    icon: "📣",
+    name: "Social Autopilot",
+    tagline: "Publicação automática IG + FB",
+    startingAt: "R$ 29,90",
+    priceDetail: "/perfil",
+    bullets: [
+      "Agendamento por data e hora",
+      "CRM de leads das redes sociais",
+      "Integração com o dashboard",
+      "Conecta quantos perfis precisar",
+    ],
+    href: "/publicacao-social",
+    accent: "navy",
+  },
 ];
 
 // ── FAQ ──────────────────────────────────────────────────────────────────────
 const faqItems = [
-  { q: "Posso cancelar a qualquer momento?", a: "Sim! Não há fidelidade. Cancele quando quiser diretamente pelo painel ou enviando um e-mail para nosso suporte. Seu acesso permanece ativo até o fim do período pago." },
-  { q: "Os add-ons são obrigatórios?", a: "Não. Os add-ons são módulos extras opcionais que potencializam sua operação. O plano base já inclui tudo que você precisa para começar a vender mais." },
-  { q: "Quais formas de pagamento são aceitas?", a: "Aceitamos cartão de crédito (até 12x), PIX e boleto bancário. O pagamento é processado pela Kiwify, plataforma segura e confiável." },
-  { q: "O que acontece quando atinjo 200 posts IA?", a: "Ao atingir o limite mensal de 200 posts, você pode aguardar a renovação no próximo ciclo ou contratar créditos adicionais. O contador é resetado todo mês." },
-  { q: "Como funcionam os vídeos com IA?", a: "O módulo de vídeos gera Reels e vídeos profissionais automaticamente usando IA. Basta selecionar o imóvel, escolher o estilo e a IA cria o vídeo com transições, música e textos." },
+  { q: "Posso combinar mais de um produto?", a: "Sim! Todos os produtos vivem no mesmo dashboard em abas separadas. Se você assinar Criativos + Vídeos + Site, por exemplo, tudo aparece unificado no seu painel, e o CRM consolida os leads das diferentes origens (portais, redes sociais e WhatsApp)." },
+  { q: "Posso cancelar a qualquer momento?", a: "Sim. Não há fidelidade em nenhum produto. Cancele quando quiser pelo painel ou enviando e-mail ao suporte. Seu acesso permanece ativo até o fim do período pago." },
+  { q: "Como funciona o pagamento?", a: "Aceitamos cartão de crédito (parcelamento em 12x disponível nos planos anuais), PIX e boleto bancário. O pagamento é processado pela Kiwify, plataforma segura e confiável." },
+  { q: "O Site Imobiliário já vem com CRM?", a: "Sim. O plano do Site (R$147/mês) já inclui o CRM completo para gerenciar os leads que chegam pelos portais integrados (OLX, ZAP, VivaReal) e pelo próprio site." },
+  { q: "A Secretária AI substitui a pessoa que atende WhatsApp?", a: "A Secretária atende 24h por dia com a sua voz clonada, qualifica leads, agenda visitas no Google Calendar e envia mídias. No plano Plus, você ganha também o CRM do WhatsApp para acompanhar toda a operação de atendimento." },
+  { q: "Tenho garantia?", a: "Sim. 7 dias de garantia em todos os produtos. Se não for pra você, devolvemos 100% do valor." },
 ];
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -105,137 +169,94 @@ export default function PrecosPage() {
         {missingModule && (
           <div className="max-w-2xl mx-auto mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-center">
             <p className="text-sm text-yellow-800">
-              🔒 Você precisa do add-on <strong>{missingModule}</strong> para acessar essa funcionalidade.
+              🔒 Você precisa do produto <strong>{missingModule}</strong> para acessar essa funcionalidade.
               Veja as opções abaixo.
             </p>
           </div>
         )}
         <Reveal>
+          <motion.span variants={fadeUp} className="inline-block py-1.5 px-4 rounded-full bg-[#FFF7E0] text-[#B8860B] text-xs font-bold uppercase tracking-wider mb-4">
+            Planos e Preços
+          </motion.span>
           <motion.h1 variants={fadeUp} className="text-3xl md:text-5xl font-extrabold text-[#0A1628] leading-tight max-w-3xl mx-auto">
-            Tudo que você precisa para vender mais imóveis
+            Escolha o que combina com a sua operação
           </motion.h1>
-          <motion.p variants={fadeUp} className="mt-4 text-lg text-[#6B7280] max-w-xl mx-auto">
-            Um plano completo. Sem surpresas. Cancele quando quiser.
+          <motion.p variants={fadeUp} className="mt-4 text-lg text-[#6B7280] max-w-2xl mx-auto">
+            Cada produto é independente. Contrate só o que precisa, combine como quiser. Tudo integrado no mesmo dashboard. Sem fidelidade.
           </motion.p>
         </Reveal>
       </section>
 
-      {/* ── Plano Único ───────────────────────────────────────────────────── */}
+      {/* ── Grid de Produtos ──────────────────────────────────────────────── */}
       <section className="pb-20 px-4">
-        <Reveal className="flex justify-center">
-          <motion.div variants={fadeUp} className="relative w-full max-w-[480px] border-2 border-[#0A1628] rounded-2xl p-8 bg-white shadow-lg">
-            {/* Badge */}
-            <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#0A1628] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide">
-              🔥 APROVEITAR OFERTA
-            </span>
-
-            <p className="text-center text-[#6B7280] text-sm mt-2">Plano Completo por menos de R$5 por dia</p>
-
-            {/* Price section with psychological anchoring */}
-            <div className="text-center mt-6">
-              <span className="text-[#0A1628] font-black text-2xl mr-1">12x</span>
-              <span className="text-5xl font-extrabold text-[#0A1628]">R$14,70</span>
-            </div>
-            <p className="text-center text-[#6B7280] text-sm mt-2 font-medium">
-              (ou R$ 147,00 à vista)
-            </p>
-
-            {/* CTA */}
-            <a
-              href={KIWIFY_PROFISSIONAL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 w-full flex items-center justify-center gap-2 bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-[0_10px_20px_rgba(255,215,0,0.2)] font-black py-4 rounded-xl transition-all text-base hover:-translate-y-1"
-            >
-              Começar agora <ArrowRight size={18} />
-            </a>
-
-            <p className="text-center text-[#6B7280] text-xs mt-3">
-              Corretor independente ou Imobiliárias em crescimento.
-            </p>
-
-            {/* Features Grid */}
-            <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-2.5">
-              {features.map((f) => (
-                <div key={f} className="flex items-start gap-2 text-sm text-[#374151]">
-                  <Check size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-                  <span>{f}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Bonuses Wrapper */}
-            <div className="mt-8 p-5 bg-[#050B14] shadow-inner rounded-xl border border-gray-100">
-               <h4 className="font-extrabold text-[#FFD700] text-sm uppercase mb-3 flex items-center gap-2 text-center justify-center">
-                 🎁 Bônus Inclusos Hoje
-               </h4>
-               <ul className="space-y-3">
-                 <li className="flex items-start gap-2 text-sm text-gray-300">
-                    <Check size={16} className="text-[#FFD700] shrink-0 mt-0.5" />
-                    <span><strong className="text-white">Masterclass de Tráfego Imobiliário</strong> (De R$ 297 por zero)</span>
-                 </li>
-                 <li className="flex items-start gap-2 text-sm text-gray-300">
-                    <Check size={16} className="text-[#FFD700] shrink-0 mt-0.5" />
-                    <span><strong className="text-white">Pack de Artes Canva Ouro</strong> (De R$ 97 por zero)</span>
-                 </li>
-               </ul>
-            </div>
-          </motion.div>
-        </Reveal>
-      </section>
-
-      {/* ── Add-ons ───────────────────────────────────────────────────────── */}
-      <section id="addons" className="pb-20 px-4 bg-[#F9FAFB]">
-        <div className="max-w-6xl mx-auto pt-16">
-          <Reveal>
-            <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-bold text-[#0A1628] text-center mb-12">
-              Potencialize com módulos extras
-            </motion.h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {addons.map((addon) => (
-              <Reveal key={addon.name}>
+        <div className="max-w-6xl mx-auto">
+          <Reveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products.map((p) => {
+              const isHighlighted = p.accent === "gold";
+              const isMatch = missingModule && p.id === missingModule;
+              return (
                 <motion.div
+                  key={p.id}
                   variants={fadeUp}
-                  className={`relative bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col ${
-                    addon.bundle ? "border-2 border-amber-400" : "border border-[#E5E7EB]"
-                  } ${
-                    missingModule && addon.id === missingModule
-                      ? "ring-2 ring-[#FFD700] shadow-xl scale-[1.02] animate-pulse"
-                      : ""
-                  }`}
+                  className={`relative bg-white rounded-2xl p-7 shadow-sm hover:shadow-lg transition-all h-full flex flex-col ${
+                    isHighlighted ? "border-2 border-[#FFD700] lg:scale-[1.02]" : "border border-[#E5E7EB]"
+                  } ${isMatch ? "ring-2 ring-[#FFD700] shadow-xl animate-pulse" : ""}`}
                 >
-                  {addon.bundle && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-[#0A1628] text-xs font-bold px-3 py-1 rounded-full">
-                      Economize R$69
+                  {isHighlighted && (
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FFD700] text-[#0A1628] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                      ⭐ Mais popular
                     </span>
                   )}
 
-                  <div className="text-3xl mb-3">{addon.icon}</div>
-                  <h3 className="text-lg font-bold text-[#0A1628]">{addon.name}</h3>
-                  <p className="text-sm text-[#6B7280] mt-1">{addon.desc}</p>
-                  <p className="text-xl font-extrabold text-[#0A1628] mt-4">{addon.price}</p>
-                  <p className="text-xs text-[#9CA3AF] mt-1">{addon.detail}</p>
+                  <div className="text-4xl mb-3">{p.icon}</div>
+                  <h3 className="text-xl font-bold text-[#0A1628]">{p.name}</h3>
+                  <p className="text-sm text-[#6B7280] mt-1">{p.tagline}</p>
 
-                  <div className="mt-auto pt-5">
-                    <a
-                      href={addon.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-lg transition-colors text-sm ${
-                        addon.bundle
-                          ? "bg-amber-400 hover:bg-amber-500 text-[#0A1628]"
-                          : "bg-[#0A1628] hover:bg-[#162038] text-white"
-                      }`}
-                    >
-                      Adicionar <Plus size={16} />
-                    </a>
+                  <div className="mt-5 mb-4">
+                    <span className="text-xs text-[#9CA3AF] uppercase tracking-wider font-semibold">A partir de</span>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-3xl font-extrabold text-[#0A1628]">{p.startingAt}</span>
+                      <span className="text-sm text-[#6B7280]">{p.priceDetail}</span>
+                    </div>
                   </div>
+
+                  <ul className="flex flex-col gap-2.5 mb-6 flex-1">
+                    {p.bullets.map((b) => (
+                      <li key={b} className="flex items-start gap-2 text-sm text-[#374151]">
+                        <Check size={16} className="text-emerald-500 shrink-0 mt-0.5" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    to={p.href}
+                    className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all text-sm ${
+                      isHighlighted
+                        ? "bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-md hover:-translate-y-0.5"
+                        : "bg-[#0A1628] hover:bg-[#162038] text-white"
+                    }`}
+                  >
+                    Ver planos e contratar <ArrowRight size={16} />
+                  </Link>
                 </motion.div>
-              </Reveal>
-            ))}
-          </div>
+              );
+            })}
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── Integração / Dashboard único ──────────────────────────────────── */}
+      <section className="py-16 px-4 bg-[#F8FAFF]">
+        <div className="max-w-4xl mx-auto text-center">
+          <Reveal>
+            <motion.h2 variants={fadeUp} className="text-2xl md:text-3xl font-extrabold text-[#0A1628] mb-4">
+              Combine como quiser. Tudo no mesmo lugar.
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-[#6B7280] text-base max-w-2xl mx-auto">
+              Se você contratar Site + Secretária AI + Criativos, tudo aparece no mesmo dashboard em abas separadas. O CRM unifica leads de portais, redes sociais e WhatsApp em uma única visão — com o filtro de origem que você precisar.
+            </motion.p>
+          </Reveal>
         </div>
       </section>
 
@@ -244,15 +265,15 @@ export default function PrecosPage() {
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
           <div>
             <CountUp end={3500} prefix="+" className="text-4xl font-extrabold text-[#0A1628]" />
-            <p className="text-[#6B7280] text-sm mt-1">corretores</p>
+            <p className="text-[#6B7280] text-sm mt-1">corretores atendidos</p>
           </div>
           <div>
             <CountUp end={40} prefix="+" suffix="h" className="text-4xl font-extrabold text-[#0A1628]" />
-            <p className="text-[#6B7280] text-sm mt-1">economizadas/mês</p>
+            <p className="text-[#6B7280] text-sm mt-1">economizadas por mês</p>
           </div>
           <div>
             <CountUp end={25} prefix="+" suffix="%" className="text-4xl font-extrabold text-[#0A1628]" />
-            <p className="text-[#6B7280] text-sm mt-1">alcance digital</p>
+            <p className="text-[#6B7280] text-sm mt-1">de alcance digital</p>
           </div>
         </div>
       </section>
@@ -276,27 +297,20 @@ export default function PrecosPage() {
       {/* ── CTA Final ─────────────────────────────────────────────────────── */}
       <section className="py-20 px-4 bg-[#0A1628]">
         <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
-            Pronto para vender mais imóveis?
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Não tem certeza de qual combo é ideal?
           </h2>
+          <p className="text-white/70 text-base mb-6">
+            Fala com nosso time. A gente te ajuda a montar o pacote que faz sentido pra tua operação.
+          </p>
           <a
-            href={KIWIFY_PROFISSIONAL}
+            href={WHATSAPP_LINK}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-[#0A1628] font-bold py-3.5 px-8 rounded-xl transition-colors text-base"
+            className="inline-flex items-center gap-2 bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] font-bold py-3.5 px-8 rounded-xl transition-colors text-base"
           >
-            Começar agora por R$147/mês <ArrowRight size={18} />
+            <MessageCircle size={18} /> Falar com um consultor
           </a>
-          <div className="mt-6">
-            <a
-              href={WHATSAPP_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm transition-colors"
-            >
-              <MessageCircle size={16} /> Falar com nosso time no WhatsApp
-            </a>
-          </div>
         </div>
       </section>
 
@@ -304,7 +318,7 @@ export default function PrecosPage() {
       <section className="py-10 px-4 bg-white">
         <div className="text-center">
           <span className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 font-semibold text-sm px-5 py-2.5 rounded-full border border-emerald-200">
-            ✅ 30 dias de garantia
+            ✅ 7 dias de garantia em todos os produtos
           </span>
         </div>
       </section>

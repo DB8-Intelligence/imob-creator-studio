@@ -152,6 +152,7 @@ const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsApp
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
 const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFlowBuilderPage"));
 const WhatsAppAiConfigPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppAiConfigPage"));
+const VoiceCloneWizardPage = lazy(() => import("./pages/dashboard/whatsapp/VoiceCloneWizardPage"));
 const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
@@ -309,13 +310,14 @@ const App = () => (
               <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><ImportarLeadsCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* Site + Portais */}
               <Route path="/dashboard/site"               element={<ProtectedRoute><ModuleProtectedRoute requires="site"><DashboardSitePage /></ModuleProtectedRoute></ProtectedRoute>} />
-              {/* Site Imobiliário */}
-              <Route path="/site-imobiliario"             element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteImobiliarioPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              {/* Site Imobiliário (protegidas — dashboard) */}
+              <Route path="/dashboard/site-imobiliario"   element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteImobiliarioPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/site-leads"                   element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteLeadsPage /></ModuleProtectedRoute></ProtectedRoute>} />
               {/* WhatsApp */}
               <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppSetupPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppInboxPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/ai-config" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppAiConfigPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/voz"       element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><VoiceCloneWizardPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />

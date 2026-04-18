@@ -18,6 +18,8 @@ export const KIWIFY_PRODUCTS = {
   videosStarter: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_STARTER || "https://pay.kiwify.com.br/Cp7NNZm",
   videosBasico: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_BASICO || "https://pay.kiwify.com.br/iJ5cYCJ",
   videosPro: import.meta.env.VITE_KIWIFY_CREATOR_VIDEOS_PRO || "https://pay.kiwify.com.br/rJ4B7Op",
+  agentAiSmart: import.meta.env.VITE_KIWIFY_AGENT_AI_SMART_URL || "https://pay.kiwify.com.br/7vHddZc",
+  agentAiPlus: import.meta.env.VITE_KIWIFY_AGENT_AI_PLUS_URL || "https://pay.kiwify.com.br/UybveL3",
 } as const;
 
 // ─── Taxonomia por módulo (usado pelas LPs de Criativos e Vídeos) ────
@@ -31,6 +33,11 @@ export const KIWIFY_CHECKOUT_VIDEOS = {
   starter: KIWIFY_PRODUCTS.videosStarter,
   basico: KIWIFY_PRODUCTS.videosBasico,
   pro: KIWIFY_PRODUCTS.videosPro,
+} as const;
+
+export const KIWIFY_CHECKOUT_AGENT_AI = {
+  smart: KIWIFY_PRODUCTS.agentAiSmart,
+  plus: KIWIFY_PRODUCTS.agentAiPlus,
 } as const;
 
 // ─── Shims legados — mantém as páginas antigas funcionando ───────────

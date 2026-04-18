@@ -288,49 +288,74 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ── Planos (Pricing simplificado Estilo Kenlo) ───────────────── */}
+      {/* ── Produtos (preços reais, link pras LPs) ─────────────────────── */}
       <section ref={pricingRef} id="pricing" className="py-24 px-6 bg-[#002B5B] text-white">
-        <div className="container mx-auto max-w-5xl">
+        <div className="container mx-auto max-w-6xl">
           <Reveal className="text-center mb-16 flex flex-col items-center gap-3">
-             <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-2 border border-[#FFD700]/30">Investimento</span>
+            <span className="inline-block py-1 px-3 rounded-full bg-white/10 text-[#FFD700] text-xs font-bold uppercase tracking-wider mb-2 border border-[#FFD700]/30">Nossos produtos</span>
             <motion.h2 variants={fadeUp} className="text-[clamp(2rem,3.5vw,2.75rem)] font-extrabold leading-tight">
-              Escolha a inteligência ideal para <span className="text-[#FFD700]">o seu momento</span>
+              Contrate só o que precisa. <span className="text-[#FFD700]">Combine como quiser.</span>
             </motion.h2>
+            <motion.p variants={fadeUp} className="text-white/70 text-base max-w-2xl mt-2">
+              Cada produto é independente. Tudo integrado no mesmo dashboard. Sem fidelidade.
+            </motion.p>
           </Reveal>
 
-          <Reveal className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-             <motion.div variants={fadeUp} className="bg-white rounded-2xl p-1 lg:p-1.5 shadow-2xl">
-                 <div className="bg-[#EEF2FF] rounded-xl p-8 h-full flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-[#002B5B] font-bold text-2xl mb-2">Corretor Autônomo</h3>
-                      <p className="text-[#4B5563] text-sm mb-6">Automação de ponta para quem age sozinho e precisa que o dia renda 48 horas.</p>
-                      <div className="text-4xl font-extrabold text-[#002B5B] mb-8">R$ 97<span className="text-lg text-[#6B7280] font-normal">/mês</span></div>
-                      <ul className="space-y-4 mb-8">
-                        {["Criativos ilimitados por IA", "CRM Completo", "Site Pessoal Integrado", "Cards WhatsApp"].map(i => (
-                          <li key={i} className="flex items-center gap-3 text-[#374151] font-medium"><Check size={18} className="text-[#059669]" /> {i}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <Link to="/precos" className="w-full text-center block bg-[#002B5B] text-white font-bold py-4 rounded-xl hover:bg-[#1E4D8C] transition-colors">Testar Grátis por 7 dias</Link>
-                 </div>
-             </motion.div>
+          <Reveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+            {[
+              { id: "site",       icon: "🏠", name: "Site Imobiliário",        tagline: "Site + CRM + Portais",          from: "R$ 147", unit: "/mês",     href: "/site-imobiliario",   featured: true },
+              { id: "secretaria", icon: "🤖", name: "Secretária Virtual 24h",  tagline: "IA atende com sua voz",         from: "R$ 51,40", unit: "/mês · 12x", href: "/secretaria-virtual", featured: false },
+              { id: "criativos",  icon: "🎨", name: "Criativos com IA",         tagline: "Posts, stories e reels",        from: "R$ 97",   unit: "/mês",     href: "/criativos",          featured: false },
+              { id: "videos",     icon: "🎬", name: "Vídeos com IA",            tagline: "Reels das suas fotos",          from: "R$ 97",   unit: "/mês",     href: "/videos",             featured: false },
+              { id: "social",     icon: "📣", name: "Social Autopilot",         tagline: "Publica IG + FB no automático", from: "R$ 29,90", unit: "/perfil",  href: "/publicacao-social",  featured: false },
+            ].map((p) => (
+              <motion.div
+                key={p.id}
+                variants={fadeUp}
+                className={`relative rounded-2xl p-6 flex flex-col h-full transition-all ${
+                  p.featured
+                    ? "bg-white text-[#0A1628] shadow-2xl lg:-translate-y-2 ring-2 ring-[#FFD700]"
+                    : "bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20"
+                }`}
+              >
+                {p.featured && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FFD700] text-[#002B5B] text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                    ⭐ Mais popular
+                  </span>
+                )}
+                <div className="text-3xl mb-3">{p.icon}</div>
+                <h3 className={`text-lg font-bold ${p.featured ? "text-[#002B5B]" : "text-white"}`}>{p.name}</h3>
+                <p className={`text-sm mt-0.5 ${p.featured ? "text-[#6B7280]" : "text-white/60"}`}>{p.tagline}</p>
 
-             <motion.div variants={fadeUp} className="bg-gradient-to-b from-[#FFD700] to-[#E6C200] rounded-2xl p-1 lg:p-1.5 shadow-2xl relative transform lg:-translate-y-4">
-                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-[#002B5B] text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">Mais de 80% das imobiliárias escolhem</div>
-                 <div className="bg-white rounded-xl p-8 h-full flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-[#002B5B] font-bold text-2xl mb-2">Máquina Imobiliária</h3>
-                      <p className="text-[#4B5563] text-sm mb-6">Para equipes que precisam controlar Leads, Roleta e Portfólio sem perder velocidade.</p>
-                      <div className="text-4xl font-extrabold text-[#002B5B] mb-8">R$ 297<span className="text-lg text-[#6B7280] font-normal">/mês</span></div>
-                      <ul className="space-y-4 mb-8">
-                        {["Múltiplos usuários/corretores", "Vídeos Cinemáticos Ilimitados", "Integração via API e ZAP", "Atendimento de IA 24/7"].map(i => (
-                          <li key={i} className="flex items-center gap-3 text-[#374151] font-medium"><Check size={18} className="text-[#FFD700]" /> {i}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <Link to="/precos" className="w-full text-center block bg-[#FFD700] text-[#002B5B] font-bold py-4 rounded-xl hover:bg-[#E6C200] transition-colors shadow-lg">Falar com Consultor</Link>
-                 </div>
-             </motion.div>
+                <div className="mt-5 mb-5">
+                  <span className={`text-[10px] uppercase tracking-wider font-semibold ${p.featured ? "text-[#9CA3AF]" : "text-white/50"}`}>A partir de</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <span className={`text-2xl font-extrabold ${p.featured ? "text-[#002B5B]" : "text-white"}`}>{p.from}</span>
+                    <span className={`text-xs ${p.featured ? "text-[#6B7280]" : "text-white/60"}`}>{p.unit}</span>
+                  </div>
+                </div>
+
+                <Link
+                  to={p.href}
+                  onClick={() => funnel.clickCTA(`product_card_${p.id}`, { variant })}
+                  className={`w-full text-center text-sm font-bold py-2.5 rounded-lg mt-auto transition-all ${
+                    p.featured
+                      ? "bg-[#002B5B] hover:bg-[#001d3d] text-white"
+                      : "bg-[#FFD700] hover:bg-[#E6C200] text-[#002B5B]"
+                  }`}
+                >
+                  Ver planos →
+                </Link>
+              </motion.div>
+            ))}
+          </Reveal>
+
+          <Reveal className="text-center mt-12">
+            <motion.div variants={fadeUp}>
+              <Link to="/precos" className="inline-flex items-center gap-2 text-white/80 hover:text-[#FFD700] text-sm font-semibold transition-colors">
+                Ver comparativo completo <ArrowRight size={14} />
+              </Link>
+            </motion.div>
           </Reveal>
         </div>
       </section>

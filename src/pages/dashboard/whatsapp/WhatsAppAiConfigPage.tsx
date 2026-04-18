@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Bot, Loader2, Save, ArrowLeft, AlertCircle, CheckCircle2, Calendar, Clock, ExternalLink } from "lucide-react";
+import { Bot, Loader2, Save, ArrowLeft, AlertCircle, CheckCircle2, Calendar, Clock, ExternalLink, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -323,6 +323,31 @@ export default function WhatsAppAiConfigPage() {
               <p className="text-[11px] text-gray-500 mt-1">
                 Dicas que você daria para uma secretária real no primeiro dia. A IA segue essas regras em todas as conversas.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Voz clonada (Plus) — atalho */}
+        <Card className="border border-gray-200">
+          <CardContent className="pt-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#FEF3C7] flex items-center justify-center shrink-0">
+                  <Mic className="h-4 w-4 text-[#92400E]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#002B5B] flex items-center gap-2">
+                    Voz clonada
+                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#92400E]">Plus</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Clone sua voz e deixe a IA responder em áudio com o seu timbre real.
+                  </p>
+                </div>
+              </div>
+              <Link to="/dashboard/whatsapp/voz">
+                <Button variant="outline" size="sm">Configurar</Button>
+              </Link>
             </div>
           </CardContent>
         </Card>

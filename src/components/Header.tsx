@@ -45,13 +45,11 @@ function Dropdown({ label, items, cols = 1 }: { label: string; items: DDItem[]; 
 }
 
 const solutions: DDItem[] = [
-  { label: "Criativos", href: "/criativos", emoji: "🎨", desc: "Posts e artes com IA", badge: "Disponível" },
-  { label: "Vídeos", href: "/videos", emoji: "🎬", desc: "Fotos viram Reels", badge: "Disponível" },
-  { label: "Secretária Virtual 24h", href: "/secretaria-virtual", emoji: "🤖", desc: "IA atende e qualifica leads", badge: "Disponível" },
-  { label: "Site + Portais", href: "/site-imobiliario", emoji: "🏠", desc: "10 modelos + SEO automático", badge: "Disponível" },
-  { label: "CRM", href: "/crm-imobiliario", emoji: "🤝", desc: "Pipeline de leads completo", badge: "Disponível" },
-  { label: "WhatsApp", href: "/whatsapp-imobiliario", emoji: "📱", desc: "Inbox + automações n8n", badge: "Disponível" },
-  { label: "Social", href: "/publicacao-social", emoji: "📣", desc: "Agende IG + FB", badge: "Disponível" },
+  { label: "Site Imobiliário", href: "/site-imobiliario", emoji: "🏠", desc: "Site + CRM + Portais (R$147)", badge: "Disponível" },
+  { label: "Secretária Virtual 24h", href: "/secretaria-virtual", emoji: "🤖", desc: "IA atende WhatsApp com sua voz", badge: "Disponível" },
+  { label: "Criativos", href: "/criativos", emoji: "🎨", desc: "Posts, stories e reels com IA", badge: "Disponível" },
+  { label: "Vídeos", href: "/videos", emoji: "🎬", desc: "Reels das fotos dos imóveis", badge: "Disponível" },
+  { label: "Social Autopilot", href: "/publicacao-social", emoji: "📣", desc: "Agende IG + FB no automático", badge: "Disponível" },
 ];
 
 const recursos: DDItem[] = [

@@ -2,6 +2,7 @@ import { useState, useEffect, ReactNode, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Plus, Minus } from "lucide-react";
+import { KIWIFY_CHECKOUT_AGENT_AI as CHECKOUT, handleKiwifyCheckout } from "@/lib/kiwify-links";
 
 const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
@@ -33,31 +34,45 @@ function Accordion({ q, a }: { q: string; a: string }) {
 
 const plans = [
   {
+    id: "smart",
     name: "Smart",
     price: "R$ 51,40",
     period: "/mês · 12x",
+    url: CHECKOUT.smart,
     features: [
-      "Secretária IA rodando 24/7",
-      "Atendimento por áudio e texto",
-      "Pré-qualificação automática",
-      "Respostas baseadas no seu portfólio",
-      "Integração Google Agenda",
+      "Plano anual",
+      "Secretária virtual 24h",
+      "IA que entende e responde por áudios e textos",
+      "Clonagem de voz para envio de áudio",
+      "Integração com Google Agenda",
+      "Bônus: Curso de Tráfego Pago para Corretores",
+      "Bônus: Pack de artes editável no Canva",
+      "Suporte",
     ],
     cta: "Assinar Smart",
   },
   {
+    id: "plus",
     name: "Plus",
     price: "R$ 79,90",
     period: "/mês · 12x",
+    url: CHECKOUT.plus,
     highlighted: true,
     badge: "Mais popular",
     features: [
+      "Plano anual",
       "Tudo do plano Smart",
-      "Clonagem da sua voz (áudios)",
-      "Disparos em massa + agendados",
-      "Follow-up automático com IA",
-      "Bônus: Masterclass Tráfego Pago",
-      "Bônus: Pack Canva Imobiliário",
+      "CRM 100% imobiliário",
+      "Disparos em massa",
+      "Funil de vendas",
+      "Agendamento e programação de mensagens",
+      "Envio rápido de mensagens com 1 clique",
+      "Scripts de atendimento e reaquecimento",
+      "Assinatura exclusiva de atendente",
+      "Notas, tarefas e lembretes",
+      "Bônus: Curso de Tráfego Pago para Corretores",
+      "Bônus: Pack de artes editável no Canva",
+      "Suporte",
     ],
     cta: "Assinar Plus",
   },
@@ -232,9 +247,13 @@ export default function SecretariaVirtualPublicPage() {
                     <li key={f} className="flex items-start gap-2 text-sm text-[#374151]"><Check size={14} className="text-[#002B5B] shrink-0 mt-0.5" />{f}</li>
                   ))}
                 </ul>
-                <Link to="/lp/secretaria-virtual#oferta" className={`w-full py-3 rounded-[10px] font-bold text-sm transition-colors text-center ${p.highlighted ? "bg-[#002B5B] hover:bg-[#001d3d] text-white" : "bg-white hover:bg-[#F8FAFF] text-[#002B5B] border-[1.5px] border-[#CBD5E1]"}`}>
+                <button
+                  type="button"
+                  onClick={() => handleKiwifyCheckout(p.url, { plan: p.id, module: "secretaria" })}
+                  className={`w-full py-3 rounded-[10px] font-bold text-sm transition-colors text-center ${p.highlighted ? "bg-[#002B5B] hover:bg-[#001d3d] text-white" : "bg-white hover:bg-[#F8FAFF] text-[#002B5B] border-[1.5px] border-[#CBD5E1]"}`}
+                >
                   {p.cta}
-                </Link>
+                </button>
               </motion.div>
             ))}
           </Reveal>

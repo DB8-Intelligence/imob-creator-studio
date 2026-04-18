@@ -96,7 +96,7 @@ serve(async (req: Request) => {
   // ── 1. Settings ───────────────────────────────────────────
   const { data: instance } = await supabase
     .from("user_whatsapp_instances")
-    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours")
+    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode")
     .eq("user_id", user_id)
     .maybeSingle();
 
@@ -207,21 +207,52 @@ serve(async (req: Request) => {
     return await skip(inbox_id, aiResponse.handoff_reason ?? "handoff_to_human");
   }
 
-  // ── 4. Envia via Evolution ────────────────────────────────
-  const sendRes = await fetch(`${EVOLUTION_URL}/message/sendText/${instance_name}`, {
-    method:  "POST",
-    headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      number:      phone.replace(/[^\d]/g, ""),
-      text:        aiResponse.reply,
-      linkPreview: true,
-    }),
-  });
+  // ── 4. Decide modo (texto/voz) + envia ────────────────────
+  const voiceMode = ((instance as { voice_mode?: string }).voice_mode ?? "texto") as "texto" | "voz" | "auto";
+  const shouldSendVoice = await decideSendVoice(user_id, voiceMode, aiResponse.reply);
 
-  const sendData = await sendRes.json().catch(() => ({}));
-  if (!sendRes.ok) {
-    console.error("Evolution sendText error:", sendData);
-    return await skip(inbox_id, "evolution_send_failed");
+  let sendData: Record<string, unknown> = {};
+  if (shouldSendVoice) {
+    // Voz clonada via edge interna
+    const voiceRes = await fetch(`${SUPABASE_URL}/functions/v1/voice-send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${SERVICE_ROLE_KEY}` },
+      body: JSON.stringify({
+        user_id,
+        phone,
+        text: aiResponse.reply,
+        instance_name,
+      }),
+    });
+    const voiceData = await voiceRes.json().catch(() => ({}));
+    if (!voiceRes.ok || voiceData.ok === false) {
+      console.error("voice-send failed, fallback para texto:", voiceData);
+      // fallback: envia texto se voz falhar
+      const sendRes = await fetch(`${EVOLUTION_URL}/message/sendText/${instance_name}`, {
+        method:  "POST",
+        headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({ number: phone.replace(/[^\d]/g, ""), text: aiResponse.reply, linkPreview: true }),
+      });
+      sendData = await sendRes.json().catch(() => ({}));
+      if (!sendRes.ok) {
+        console.error("Evolution sendText fallback error:", sendData);
+        return await skip(inbox_id, "evolution_send_failed");
+      }
+    } else {
+      sendData = { _voice: true, ...voiceData };
+    }
+  } else {
+    // Texto normal
+    const sendRes = await fetch(`${EVOLUTION_URL}/message/sendText/${instance_name}`, {
+      method:  "POST",
+      headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ number: phone.replace(/[^\d]/g, ""), text: aiResponse.reply, linkPreview: true }),
+    });
+    sendData = await sendRes.json().catch(() => ({}));
+    if (!sendRes.ok) {
+      console.error("Evolution sendText error:", sendData);
+      return await skip(inbox_id, "evolution_send_failed");
+    }
   }
 
   // ── 5. Persiste ───────────────────────────────────────────
@@ -233,13 +264,19 @@ serve(async (req: Request) => {
     ? new Date(Date.now() + followupDelayHours * 3600_000).toISOString()
     : null;
 
+  // Se foi voz, voice-send já inseriu em whatsapp_sent_messages — não duplicar.
+  const sentAsVoice = (sendData as { _voice?: boolean })._voice === true;
+  const persistMessage = sentAsVoice
+    ? Promise.resolve()
+    : supabase.from("whatsapp_sent_messages").insert({
+        user_id,
+        to_phone: phone.replace(/[^\d]/g, ""),
+        body:     aiResponse.reply,
+        evolution_response: { ...sendData, _source: "ai_reply", _latency_ms: aiLatency },
+      });
+
   await Promise.all([
-    supabase.from("whatsapp_sent_messages").insert({
-      user_id,
-      to_phone: phone.replace(/[^\d]/g, ""),
-      body:     aiResponse.reply,
-      evolution_response: { ...sendData, _source: "ai_reply", _latency_ms: aiLatency },
-    }),
+    persistMessage,
     supabase
       .from("whatsapp_conversations")
       .update({
@@ -428,6 +465,41 @@ async function callClaude(args: {
     console.error("callClaude failed:", e);
     return null;
   }
+}
+
+/**
+ * Decide se a resposta deve ir como áudio (voz clonada) ou texto.
+ *
+ * voice_mode:
+ *   - 'texto'  → sempre texto
+ *   - 'voz'    → sempre voz (se tiver clone ativo)
+ *   - 'auto'   → heurística: voz se mensagem curta/conversacional, texto se estruturada
+ */
+async function decideSendVoice(
+  user_id: string,
+  mode:    "texto" | "voz" | "auto",
+  reply:   string,
+): Promise<boolean> {
+  if (mode === "texto") return false;
+
+  // Precisa de clone ativo
+  const { data: clone } = await supabase
+    .from("voice_clones")
+    .select("id")
+    .eq("user_id", user_id)
+    .eq("status", "ready")
+    .limit(1)
+    .maybeSingle();
+  if (!clone) return false;
+
+  if (mode === "voz") return true;
+
+  // mode === 'auto' — heurística: voz só se resposta é curta e sem estrutura
+  if (reply.length > 400) return false;
+  if (/^\s*[-•*\d]\./m.test(reply)) return false;          // lista numerada/bullet
+  if (reply.split("\n").filter(Boolean).length > 3) return false; // muitos parágrafos
+  if (/https?:\/\//.test(reply)) return false;             // URL na resposta
+  return true;
 }
 
 function mergeQualification(prev: LeadQualification, next: LeadQualification): LeadQualification {
