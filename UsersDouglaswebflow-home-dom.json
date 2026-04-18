@@ -1,0 +1,923 @@
+{
+  "pageId": "69dd511921f54ff580f7096a",
+  "branchId": null,
+  "nodes": [
+    {
+      "id": "69dd515bea45863acb22836e",
+      "type": "component-instance",
+      "componentId": "69dd5140ea45863acb228091",
+      "propertyOverrides": []
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d4d",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">A central do corretor moderno</div>",
+        "text": "A central do corretor moderno"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d4f",
+      "type": "text",
+      "text": {
+        "html": "<h1 class=\"heading_hero\">Marketing imobiliário com IA integrada</h1>",
+        "text": "Marketing imobiliário com IA integrada"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d52",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text subheading\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72d51\">Painel único: criativos, vídeos, WhatsApp, CRM e site. Tudo para acelerar suas vendas.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d54",
+      "type": "text",
+      "text": {
+        "html": "<a class=\"button on-inverse\" href=\"#\">Começar</a>",
+        "text": "Começar"
+      },
+      "attributes": {
+        "href": "#"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d59",
+      "type": "image",
+      "image": {
+        "alt": "image of brainstorming session",
+        "assetId": "69dd5270bbb5d0eefc698b27"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d5d",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_hero margin-bottom_none\">30%</div>",
+        "text": "30%"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d5f",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"paragraph_small text-color_muted\">Mais leads em menos tempo.</p>",
+        "text": "Mais leads em menos tempo."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d61",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"paragraph_large margin-bottom_none\">Automatize tarefas e foque em vender.</p>",
+        "text": "Automatize tarefas e foque em vender."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d81",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"eyebrow\">Para times imobiliários</p>",
+        "text": "Para times imobiliários"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d83",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Marketing imobiliário com IA, sem esforço</h2>",
+        "text": "Marketing imobiliário com IA, sem esforço"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d86",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">Novo recurso</div>",
+        "text": "Novo recurso"
+      },
+      "attributes": {
+        "data-sf": "eyebrow"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d88",
+      "type": "text",
+      "text": {
+        "html": "<p>Gerencie anúncios, leads e clientes em um só lugar.</p>",
+        "text": "Gerencie anúncios, leads e clientes em um só lugar."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d8d",
+      "type": "image",
+      "image": {
+        "alt": "[interface] image of user interface showing property listings",
+        "assetId": "69dd5270bbb5d0eefc698b66"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d94",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">Atual para o mercado</div>",
+        "text": "Atual para o mercado"
+      },
+      "attributes": {
+        "data-sf": "eyebrow"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d96",
+      "type": "text",
+      "text": {
+        "html": "<p>Automatize tarefas e centralize conversas.</p>",
+        "text": "Automatize tarefas e centralize conversas."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72d9b",
+      "type": "image",
+      "image": {
+        "alt": "{subject}",
+        "assetId": "69dd5270bbb5d0eefc698b3a"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72da2",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">Transparência total</div>",
+        "text": "Transparência total"
+      },
+      "attributes": {
+        "data-sf": "eyebrow"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72da4",
+      "type": "text",
+      "text": {
+        "html": "<p>Acompanhe funil e resultados em tempo real.</p>",
+        "text": "Acompanhe funil e resultados em tempo real."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72da9",
+      "type": "image",
+      "image": {
+        "alt": "[interface] screenshot of core features interface (for an ai marketing tech company)",
+        "assetId": "69dd5270bbb5d0eefc698af1"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72db0",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">Novo recurso</div>",
+        "text": "Novo recurso"
+      },
+      "attributes": {
+        "data-sf": "eyebrow"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72db2",
+      "type": "text",
+      "text": {
+        "html": "<p>Crie artes, vídeos e sites em minutos.</p>",
+        "text": "Crie artes, vídeos e sites em minutos."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72db7",
+      "type": "image",
+      "image": {
+        "alt": "[team] image of teamwork in the studio (for a graphic design studio)",
+        "assetId": "69dd5270bbb5d0eefc698b7a"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dc3",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Números que impulsionam resultados</h2>",
+        "text": "Números que impulsionam resultados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dc6",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_secondary\">2.400</div>",
+        "text": "2.400"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dc8",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"paragraph_large text-color_secondary margin-bottom_none\">Downloads realizados</p>",
+        "text": "Downloads realizados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dcc",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_secondary\">1,2M</div>",
+        "text": "1,2M"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dce",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"paragraph_large text-color_secondary margin-bottom_none\">Faturamento mensal</p>",
+        "text": "Faturamento mensal"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dd2",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_secondary\">88%</div>",
+        "text": "88%"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dd4",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"paragraph_large text-color_secondary margin-bottom_none\">Clientes satisfeitos</p>",
+        "text": "Clientes satisfeitos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ddb",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"eyebrow\">Depoimentos</p>",
+        "text": "Depoimentos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ddf",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Confiança de quem usa todo dia</h2>",
+        "text": "Confiança de quem usa todo dia"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72df0",
+      "type": "text",
+      "text": {
+        "html": "<blockquote class=\"margin-bottom_none\">Ganhei agilidade no atendimento e divulgação. O painel é prático, intuitivo e facilita minha rotina de corretor.</blockquote>",
+        "text": "Ganhei agilidade no atendimento e divulgação. O painel é prático, intuitivo e facilita minha rotina de corretor."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72df4",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"author_info\">Alex Prado, Corretor Autônomo</div>",
+        "text": "Alex Prado, Corretor Autônomo"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72df6",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">52K+</div>",
+        "text": "52K+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72df8",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Clientes Satisfeitos</div>",
+        "text": "Clientes Satisfeitos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dfb",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">2M+</div>",
+        "text": "2M+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72dfd",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Materiais Gerados</div>",
+        "text": "Materiais Gerados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e01",
+      "type": "text",
+      "text": {
+        "html": "<div>Detalhes</div>",
+        "text": "Detalhes"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e1a",
+      "type": "text",
+      "text": {
+        "html": "<blockquote class=\"margin-bottom_none\">Organização e colaboração melhoraram muito. Agora a equipe acompanha tudo em tempo real, sem perder informações.</blockquote>",
+        "text": "Organização e colaboração melhoraram muito. Agora a equipe acompanha tudo em tempo real, sem perder informações."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e1c",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"author_info\">Rafa Martins, Gestor Comercial</div>",
+        "text": "Rafa Martins, Gestor Comercial"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e1e",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">52K+</div>",
+        "text": "52K+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e20",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Clientes Satisfeitos</div>",
+        "text": "Clientes Satisfeitos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e23",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">2M+</div>",
+        "text": "2M+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e25",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Materiais Gerados</div>",
+        "text": "Materiais Gerados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e29",
+      "type": "text",
+      "text": {
+        "html": "<div>Detalhes</div>",
+        "text": "Detalhes"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e40",
+      "type": "text",
+      "text": {
+        "html": "<blockquote class=\"margin-bottom_none\">Produzo anúncios melhores em menos tempo. O sistema é direto, sem complicação, e agiliza o trabalho do time.</blockquote>",
+        "text": "Produzo anúncios melhores em menos tempo. O sistema é direto, sem complicação, e agiliza o trabalho do time."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e42",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"author_info\">Taylor Silva, Analista Digital</div>",
+        "text": "Taylor Silva, Analista Digital"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e44",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">52K+</div>",
+        "text": "52K+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e46",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Clientes Satisfeitos</div>",
+        "text": "Clientes Satisfeitos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e49",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">2M+</div>",
+        "text": "2M+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e4b",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Materiais Gerados</div>",
+        "text": "Materiais Gerados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e4f",
+      "type": "text",
+      "text": {
+        "html": "<div>Detalhes</div>",
+        "text": "Detalhes"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e5f",
+      "type": "text",
+      "text": {
+        "html": "<blockquote class=\"margin-bottom_none\">Os resultados das campanhas surpreenderam. O painel facilita entregar mais valor para nossos clientes.</blockquote>",
+        "text": "Os resultados das campanhas surpreenderam. O painel facilita entregar mais valor para nossos clientes."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e63",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"author_info\">Chris Nogueira, Especialista em Mídia</div>",
+        "text": "Chris Nogueira, Especialista em Mídia"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e65",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">52K+</div>",
+        "text": "52K+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e67",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Clientes Satisfeitos</div>",
+        "text": "Clientes Satisfeitos"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e6a",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"heading_primary margin-bottom_none\">2M+</div>",
+        "text": "2M+"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e6c",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"text-color_muted\">Materiais Gerados</div>",
+        "text": "Materiais Gerados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e70",
+      "type": "text",
+      "text": {
+        "html": "<div>Detalhes</div>",
+        "text": "Detalhes"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e82",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">No blog: dicas para você</div>",
+        "text": "No blog: dicas para você"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e84",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Conteúdo útil para corretores</h2>",
+        "text": "Conteúdo útil para corretores"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e86",
+      "type": "image",
+      "image": {
+        "alt": "image of tech solutions demonstration (for a hr tech)",
+        "assetId": "69dd5270bbb5d0eefc698b4d"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e89",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"tag\">Design</div>",
+        "text": "Design"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e8c",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"heading-responsive\">Artes que geram resultados</h3>",
+        "text": "Artes que geram resultados"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e8e",
+      "type": "text",
+      "text": {
+        "html": "<p>Técnicas visuais para anúncios melhores.</p>",
+        "text": "Técnicas visuais para anúncios melhores."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e90",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"button\">Ler</div>",
+        "text": "Ler"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e95",
+      "type": "image",
+      "image": {
+        "alt": "image of interactive property map (for a real estate tech)",
+        "assetId": "69dd5270bbb5d0eefc698b96"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e98",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"tag\">Tecnologia</div>",
+        "text": "Tecnologia"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e9b",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"heading-responsive\">Ferramentas que aceleram negócios</h3>",
+        "text": "Ferramentas que aceleram negócios"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72e9f",
+      "type": "image",
+      "image": {
+        "alt": "[interface] image of user interface showing property listings",
+        "assetId": "69dd5270bbb5d0eefc698b4a"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ea2",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"tag\">Marketing</div>",
+        "text": "Marketing"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ea5",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"heading-responsive\">Captação de clientes na prática</h3>",
+        "text": "Captação de clientes na prática"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72eaf",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Dúvidas? Veja as respostas</h2>",
+        "text": "Dúvidas? Veja as respostas"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72eb2",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text subheading\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72eb1\">Perguntas comuns sobre o painel e recursos</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72eb9",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">Como faço para começar?</h3>",
+        "text": "Como faço para começar?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ec0",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72ebf\">Crie sua conta, siga o guia inicial e ative seus módulos. Tudo simples e rápido.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ec5",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">Quais pagamentos são aceitos?</h3>",
+        "text": "Quais pagamentos são aceitos?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ed0",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72ecf\">Cartão de crédito, débito e Pix. Pagamento seguro e instantâneo.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ed3",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">Como entro em contato com o suporte?</h3>",
+        "text": "Como entro em contato com o suporte?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72eda",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72ed9\">Atendimento por e-mail, chat ou chamado no painel. Retorno em até 24h úteis.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72edd",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">Posso cancelar a qualquer momento?</h3>",
+        "text": "Posso cancelar a qualquer momento?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ee4",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72ee3\">Sim, cancele direto no painel. O acesso segue até o fim do período pago.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ee9",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">Existe política de reembolso?</h3>",
+        "text": "Existe política de reembolso?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ef0",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72eef\">Sim, garantia de 7 dias para novos clientes. Reembolso em até 7 dias úteis.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72ef5",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"paragraph_xlarge\">O que está incluso nos planos?</h3>",
+        "text": "O que está incluso nos planos?"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72eff",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_secondary\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72efe\">Todos os planos incluem criativos, vídeos, WhatsApp, CRM e site. Planos avançados liberam integrações extras.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f06",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"rich-text text-color_muted\"><p data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72f05\">Ainda tem dúvidas? Fale com nosso suporte.</p></div>",
+        "text": null
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f08",
+      "type": "text",
+      "text": {
+        "html": "<a class=\"button is-secondary\" href=\"#\">Atendimento</a>",
+        "text": "Atendimento"
+      },
+      "attributes": {
+        "href": "#"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f0e",
+      "type": "text",
+      "text": {
+        "html": "<div class=\"eyebrow\">Fale com o time</div>",
+        "text": "Fale com o time"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f10",
+      "type": "text",
+      "text": {
+        "html": "<h2 class=\"heading_primary\">Fale com especialistas agora</h2>",
+        "text": "Fale com especialistas agora"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f12",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"subheading\">Envie dúvidas ou propostas. Resposta rápida.</p>",
+        "text": "Envie dúvidas ou propostas. Resposta rápida."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f15",
+      "type": "text",
+      "text": {
+        "html": "<h3 class=\"heading_tertiary\">Contato direto</h3>",
+        "text": "Contato direto"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f17",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"text-width_small text-color_muted\">Segunda a sexta, 9h às 18h. Tire dúvidas ou peça demonstração.</p>",
+        "text": "Segunda a sexta, 9h às 18h. Tire dúvidas ou peça demonstração."
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f1a",
+      "type": "text",
+      "text": {
+        "html": "<div><strong data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72f19\">E-mail</strong></div>",
+        "text": "E-mail"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f1c",
+      "type": "text",
+      "text": {
+        "html": "<a class=\"text-link is-secondary\" href=\"#\">contato@nexoimob.com.br</a>",
+        "text": "contato@nexoimob.com.br"
+      },
+      "attributes": {
+        "href": "#"
+      }
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f21",
+      "type": "text",
+      "text": {
+        "html": "<div><strong data-w-id=\"0a4bbdbb-454f-8e0a-77c4-0a149cb72f20\">Telefone</strong></div>",
+        "text": "Telefone"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f23",
+      "type": "text",
+      "text": {
+        "html": "<div>(11) 4000-1234</div>",
+        "text": "(11) 4000-1234"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f29",
+      "type": "text",
+      "text": {
+        "html": "<h4 class=\"heading_tertiary\">Siga nas redes</h4>",
+        "text": "Siga nas redes"
+      },
+      "attributes": {}
+    },
+    {
+      "id": "0a4bbdbb-454f-8e0a-77c4-0a149cb72f2b",
+      "type": "text",
+      "text": {
+        "html": "<p class=\"text-width_small text-color_muted\">Novidades e dicas para corretores.</p>",
+        "text": "Novidades e dicas para corretores."
+      },
+      "attributes": {}
+    }
+  ],
+  "pagination": {
+    "limit": 100,
+    "offset": 0,
+    "total": 116
+  },
+  "lastUpdated": "2026-04-13T20:46:22.834Z"
+}

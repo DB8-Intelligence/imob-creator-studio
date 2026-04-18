@@ -63,6 +63,7 @@ import CriarPostsImoveisPage from "./pages/lp/CriarPostsImoveisPage";
 import VideoImobiliarioPage from "./pages/lp/VideoImobiliarioPage";
 import AutomacaoImobiliariaPage from "./pages/lp/AutomacaoImobiliariaPage";
 import SecretariaVirtualLpPage from "./pages/lp/SecretariaVirtualLpPage";
+import SecretariaVirtualPublicPage from "./pages/lp/SecretariaVirtualPublicPage";
 import CriativosLpPage from "./pages/lp/CriativosPage";
 import VideosLpPage from "./pages/lp/VideosPage";
 import SiteLpPage from "./pages/lp/SitePage";
@@ -150,6 +151,7 @@ const WhatsAppSetupPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsApp
 const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppInboxPage"));
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
 const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFlowBuilderPage"));
+const WhatsAppAiConfigPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppAiConfigPage"));
 const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
@@ -313,6 +315,7 @@ const App = () => (
               {/* WhatsApp */}
               <Route path="/dashboard/whatsapp"           element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppSetupPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppInboxPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/whatsapp/ai-config" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppAiConfigPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
@@ -344,6 +347,7 @@ const App = () => (
               <Route path="/videos"    element={<VideosLpPage />} />
               <Route path="/site-imobiliario"      element={<SiteLpPage />} />
               <Route path="/crm-imobiliario"       element={<CrmLpPage />} />
+              <Route path="/secretaria-virtual"    element={<SecretariaVirtualPublicPage />} />
               <Route path="/whatsapp-imobiliario"   element={<WhatsappLpPage />} />
               <Route path="/publicacao-social"      element={<SocialLpPage />} />
               <Route path="/precos"                 element={<PrecosPage />} />

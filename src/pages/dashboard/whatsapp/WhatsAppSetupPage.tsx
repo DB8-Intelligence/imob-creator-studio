@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug, Bot, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -284,6 +285,25 @@ export default function WhatsAppSetupPage() {
             </p>
           </CardContent>
         </Card>
+
+        {/* Secretária IA — link to config */}
+        <Link
+          to="/dashboard/whatsapp/ai-config"
+          className="block rounded-xl border border-gray-200 bg-white hover:border-[#002B5B] hover:shadow-[0_2px_12px_rgba(0,43,91,0.06)] transition-all px-5 py-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-[#DCFCE7] flex items-center justify-center shrink-0">
+              <Bot className="h-5 w-5 text-[#166534]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#002B5B]">Secretária Virtual IA</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Configure nome, tom de voz e instruções. Ative a IA que atende seus leads 24h.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-gray-400 shrink-0" />
+          </div>
+        </Link>
 
         {/* Stats section */}
         {connectionStatus === "connected" && (

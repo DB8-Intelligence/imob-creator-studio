@@ -56,7 +56,7 @@ serve(async (req: Request) => {
   }
 
   // Save to inbox
-  await supabase.from("whatsapp_inbox").insert({
+  const { data: inboxRow } = await supabase.from("whatsapp_inbox").insert({
     workspace_id: workspace.id,
     instance_name: instanceName,
     from_phone: fromPhone,
@@ -65,7 +65,7 @@ serve(async (req: Request) => {
     message_text: messageText,
     media_urls: mediaUrls,
     received_at: new Date().toISOString(),
-  });
+  }).select("id").maybeSingle();
 
   // Detect potential property listing
   const propertyKeywords =
@@ -73,7 +73,22 @@ serve(async (req: Request) => {
   const looksLikeProperty =
     mediaUrls.length > 0 || propertyKeywords.test(messageText);
 
-  if (!looksLikeProperty) return new Response("ok");
+  // If it's NOT a property listing (client inquiry), try AI secretary reply
+  if (!looksLikeProperty) {
+    try {
+      await triggerAiReply({
+        user_id:       instance.user_id,
+        phone:         fromPhone,
+        contact_name:  fromName,
+        message_text:  messageText,
+        instance_name: instanceName,
+        inbox_id:      inboxRow?.id,
+      });
+    } catch (e) {
+      console.error("triggerAiReply failed:", e);
+    }
+    return new Response("ok");
+  }
 
   // Extract property data with AI
   try {
@@ -148,6 +163,30 @@ Campos desconhecidos devem ser null. confidence é 0-1.`;
   const raw =
     result.content?.[0]?.type === "text" ? result.content[0].text : "{}";
   return JSON.parse(raw.replace(/```json|```/g, "").trim());
+}
+
+async function triggerAiReply(payload: {
+  user_id: string;
+  phone: string;
+  contact_name: string;
+  message_text: string;
+  instance_name: string;
+  inbox_id?: string;
+}): Promise<void> {
+  if (!payload.message_text?.trim()) return;
+
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (!serviceKey || !supabaseUrl) return;
+
+  await fetch(`${supabaseUrl}/functions/v1/whatsapp-ai-reply`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${serviceKey}`,
+    },
+    body: JSON.stringify(payload),
+  });
 }
 
 async function notifyCorretor(

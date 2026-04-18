@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
+import Header from "@/components/Header";
 
 interface LpLayoutProps {
   children: ReactNode;
@@ -30,25 +31,8 @@ export function LpLayout({ children, ctaLabel = "Começar gratuitamente" }: LpLa
 
   return (
     <div className="min-h-screen bg-ds">
-      {/* ── Minimal sticky bar ── */}
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-400 ${
-          scrolled
-            ? "bg-[rgba(5,8,11,0.92)] backdrop-blur-xl border-b border-[var(--ds-border)] shadow-lg shadow-black/30"
-            : "bg-transparent"
-        }`}
-      >
-        <div className="container mx-auto px-6 py-3.5 flex items-center justify-between">
-          <Link to="/" className="shrink-0">
-            <img src="/images/logo-header.png" alt="NexoImob AI" className="h-8 w-auto" />
-          </Link>
-
-          <Link to="/auth" className="btn-primary !py-2 !px-5 !text-sm">
-            {ctaLabel}
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </header>
+      {/* ── Standard Navigation Header ── */}
+      <Header />
 
       {/* ── Page content ── */}
       <main>{children}</main>
