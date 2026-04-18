@@ -53,6 +53,24 @@ serve(async (req: Request) => {
     const mediaUrl = String(message?.imageMessage?.url ?? "");
     if (mediaUrl) mediaUrls.push(mediaUrl);
     messageText = String(message?.imageMessage?.caption ?? "");
+  } else if (msgType === "audioMessage" || msgType === "pttMessage") {
+    // Áudio do lead: transcreve via Whisper para a IA poder responder
+    const audioUrl = String(
+      (message?.audioMessage as Record<string, unknown> | undefined)?.url
+      ?? (message?.pttMessage as Record<string, unknown> | undefined)?.url
+      ?? ""
+    );
+    if (audioUrl) mediaUrls.push(audioUrl);
+
+    const transcription = await transcribeAudio({
+      instance_name: instanceName,
+      message_id: String(key?.id ?? ""),
+      audio_url: audioUrl,
+    });
+
+    if (transcription) {
+      messageText = transcription;
+    }
   }
 
   // Save to inbox
@@ -67,11 +85,14 @@ serve(async (req: Request) => {
     received_at: new Date().toISOString(),
   }).select("id").maybeSingle();
 
-  // Detect potential property listing
+  // Detect potential property listing (apenas texto+imagem; áudio é sempre lead)
+  const isAudio = msgType === "audioMessage" || msgType === "pttMessage";
   const propertyKeywords =
     /quart|suite|vaga|m²|m2|imovel|imóvel|casa|apto|apartamento|terreno|preco|preço|venda|aluguel|r\$/i;
-  const looksLikeProperty =
-    mediaUrls.length > 0 || propertyKeywords.test(messageText);
+  const looksLikeProperty = !isAudio && (
+    (mediaUrls.length > 0 && msgType === "imageMessage") ||
+    propertyKeywords.test(messageText)
+  );
 
   // If it's NOT a property listing (client inquiry), try AI secretary reply
   if (!looksLikeProperty) {
@@ -126,6 +147,82 @@ serve(async (req: Request) => {
 
   return new Response("ok");
 });
+
+/**
+ * Transcreve áudio do lead via OpenAI Whisper.
+ *
+ * Fluxo:
+ *   1. Chama Evolution /chat/getBase64FromMediaMessage/<instance> com a message_id
+ *      (essa rota garante download com decrypt, independente do áudio ter URL direta)
+ *   2. Envia binário pra OpenAI /v1/audio/transcriptions (whisper-1)
+ *   3. Retorna texto transcrito em PT-BR
+ *
+ * Retorna string vazia se algo falhar — caller decide fallback.
+ */
+async function transcribeAudio(args: {
+  instance_name: string;
+  message_id:    string;
+  audio_url:     string;
+}): Promise<string> {
+  const openaiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!openaiKey) {
+    console.warn("transcribeAudio skipped: OPENAI_API_KEY ausente");
+    return "";
+  }
+
+  const evoUrl = Deno.env.get("EVOLUTION_API_URL");
+  const evoKey = Deno.env.get("EVOLUTION_API_KEY");
+  if (!evoUrl || !evoKey || !args.message_id) {
+    console.warn("transcribeAudio skipped: evolution config ou message_id ausente");
+    return "";
+  }
+
+  try {
+    // 1. Baixa áudio via Evolution (suporta getBase64FromMediaMessage na v2)
+    const mediaRes = await fetch(
+      `${evoUrl}/chat/getBase64FromMediaMessage/${args.instance_name}`,
+      {
+        method: "POST",
+        headers: { apikey: evoKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ message: { key: { id: args.message_id } }, convertToMp4: false }),
+      },
+    );
+    const mediaData = await mediaRes.json().catch(() => ({}));
+    if (!mediaRes.ok || !mediaData.base64) {
+      console.error("Evolution getBase64 failed:", mediaRes.status, mediaData);
+      return "";
+    }
+
+    const audioBytes = Uint8Array.from(atob(mediaData.base64), (c) => c.charCodeAt(0));
+    const mimeType   = (mediaData.mimetype as string | undefined) ?? "audio/ogg";
+    const ext        = mimeType.includes("opus") ? "opus"
+                    : mimeType.includes("mp3")  ? "mp3"
+                    : mimeType.includes("wav")  ? "wav"
+                    : "ogg";
+
+    // 2. Envia pra Whisper
+    const form = new FormData();
+    form.append("file", new Blob([audioBytes], { type: mimeType }), `lead-audio.${ext}`);
+    form.append("model", "whisper-1");
+    form.append("language", "pt");
+
+    const whisperRes = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+      method:  "POST",
+      headers: { Authorization: `Bearer ${openaiKey}` },
+      body:    form,
+    });
+    const whisperData = await whisperRes.json().catch(() => ({}));
+    if (!whisperRes.ok || typeof whisperData.text !== "string") {
+      console.error("Whisper failed:", whisperRes.status, whisperData);
+      return "";
+    }
+
+    return whisperData.text.trim();
+  } catch (e) {
+    console.error("transcribeAudio error:", e);
+    return "";
+  }
+}
 
 async function extractPropertyData(
   text: string,
