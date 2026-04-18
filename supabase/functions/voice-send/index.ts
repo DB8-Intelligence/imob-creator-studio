@@ -10,7 +10,7 @@
 //   3. Loga em voice_usage_log
 //
 // Auth: service_role only (chamada internal de edge-para-edge)
-// Env: ELEVENLABS_API_KEY, EVOLUTION_API_URL, EVOLUTION_API_KEY
+// Env: NEXOIMOB_ELEVENLABS_API_KEY, EVOLUTION_API_URL, EVOLUTION_API_KEY
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -18,7 +18,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL       = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY   = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+const NEXOIMOB_ELEVENLABS_API_KEY = Deno.env.get("NEXOIMOB_ELEVENLABS_API_KEY");
 const EVOLUTION_URL      = Deno.env.get("EVOLUTION_API_URL");
 const EVOLUTION_KEY      = Deno.env.get("EVOLUTION_API_KEY");
 
@@ -41,7 +41,7 @@ serve(async (req: Request) => {
   const isInternal    = expected && internal === expected;
   if (!isServiceRole && !isInternal) return json({ ok: false, error: "unauthorized" }, 401);
 
-  if (!ELEVENLABS_API_KEY) return json({ ok: false, error: "missing_elevenlabs_key" }, 500);
+  if (!NEXOIMOB_ELEVENLABS_API_KEY) return json({ ok: false, error: "missing_elevenlabs_key" }, 500);
   if (!EVOLUTION_URL || !EVOLUTION_KEY) return json({ ok: false, error: "missing_evolution_config" }, 500);
 
   let body: SendRequest;
@@ -78,7 +78,7 @@ serve(async (req: Request) => {
       {
         method: "POST",
         headers: {
-          "xi-api-key":   ELEVENLABS_API_KEY,
+          "xi-api-key":   NEXOIMOB_ELEVENLABS_API_KEY,
           "Content-Type": "application/json",
           "Accept":       "audio/mpeg",
         },

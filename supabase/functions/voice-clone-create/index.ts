@@ -11,7 +11,7 @@
 // mas a função valida de novo via my_modules view.
 //
 // Env:
-//   ELEVENLABS_API_KEY
+//   NEXOIMOB_ELEVENLABS_API_KEY
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -23,7 +23,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+const NEXOIMOB_ELEVENLABS_API_KEY = Deno.env.get("NEXOIMOB_ELEVENLABS_API_KEY");
 
 interface CreateRequest {
   sample_path:  string;           // voice-samples/<user_id>/<id>.m4a
@@ -36,8 +36,8 @@ serve(async (req: Request) => {
     return json({ ok: false, error: "method_not_allowed" }, 405);
   }
 
-  if (!ELEVENLABS_API_KEY) {
-    return json({ ok: false, error: "ELEVENLABS_API_KEY not configured" }, 500);
+  if (!NEXOIMOB_ELEVENLABS_API_KEY) {
+    return json({ ok: false, error: "NEXOIMOB_ELEVENLABS_API_KEY not configured" }, 500);
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -109,7 +109,7 @@ serve(async (req: Request) => {
   try {
     const elRes = await fetch("https://api.elevenlabs.io/v1/voices/add", {
       method: "POST",
-      headers: { "xi-api-key": ELEVENLABS_API_KEY },
+      headers: { "xi-api-key": NEXOIMOB_ELEVENLABS_API_KEY },
       body:    form,
     });
     const elData = await elRes.json();

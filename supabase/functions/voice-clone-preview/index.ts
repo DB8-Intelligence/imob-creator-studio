@@ -4,7 +4,7 @@
 // Gera TTS da voz clonada do user com um texto arbitrário (preview do wizard).
 // Retorna base64 MP3 para o browser tocar via data URL.
 //
-// Env: ELEVENLABS_API_KEY
+// Env: NEXOIMOB_ELEVENLABS_API_KEY
 // ============================================================
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -16,7 +16,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY");
+const NEXOIMOB_ELEVENLABS_API_KEY = Deno.env.get("NEXOIMOB_ELEVENLABS_API_KEY");
 const PREVIEW_MAX_CHARS = 300;
 
 interface PreviewRequest {
@@ -28,7 +28,7 @@ serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
 
-  if (!ELEVENLABS_API_KEY) return json({ ok: false, error: "ELEVENLABS_API_KEY not configured" }, 500);
+  if (!NEXOIMOB_ELEVENLABS_API_KEY) return json({ ok: false, error: "NEXOIMOB_ELEVENLABS_API_KEY not configured" }, 500);
 
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return json({ ok: false, error: "unauthorized" }, 401);
@@ -65,7 +65,7 @@ serve(async (req: Request) => {
     const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${clone.elevenlabs_voice_id}`, {
       method:  "POST",
       headers: {
-        "xi-api-key":   ELEVENLABS_API_KEY,
+        "xi-api-key":   NEXOIMOB_ELEVENLABS_API_KEY,
         "Content-Type": "application/json",
         "Accept":       "audio/mpeg",
       },
