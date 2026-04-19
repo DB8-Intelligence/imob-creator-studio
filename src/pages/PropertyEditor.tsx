@@ -13,7 +13,7 @@ import InboxLayout from "@/components/inbox/InboxLayout";
 import CreditsBanner from "@/components/inbox/CreditsBanner";
 import ArtGenerationPanel from "@/components/inbox/ArtGenerationPanel";
 import type { InboxProperty } from "@/components/inbox/PropertyCard";
-import { ArrowLeft, Save, Loader2, CheckCircle2, Building2 } from "lucide-react";
+import { ArrowLeft, Save, Loader2, CheckCircle2, Building2, Sparkles } from "lucide-react";
 import TemplateSelect from "@/components/brand/TemplateSelect";
 import { Label } from "@/components/ui/label";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -77,7 +77,8 @@ const PropertyEditor = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
-  
+  const [isEnriching, setIsEnriching] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
 
   // Editable fields
@@ -180,6 +181,57 @@ const PropertyEditor = () => {
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Completar com IA: chama enrich-property e aplica sugestões em campos VAZIOS
+  const handleEnrich = async () => {
+    if (!id) return;
+    if (!images.length) {
+      toast({ title: "Adicione ao menos 1 foto", description: "A IA precisa de fotos para inferir os dados.", variant: "destructive" });
+      return;
+    }
+    setIsEnriching(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("enrich-property", {
+        body: { property_id: id },
+      });
+      if (error) throw new Error(error.message);
+      if (!data?.ok || !data.suggestion) throw new Error(data?.error ?? "Falha na IA");
+
+      const s = data.suggestion as {
+        title?: string; description?: string; property_type?: string;
+        bedrooms?: number; suites?: number; parking?: number;
+        area_built?: number; amenities?: string[]; highlights?: string;
+        confidence: number;
+      };
+
+      // Aplica só em campos vazios (não sobrescreve o que o corretor digitou)
+      let filled = 0;
+      setFormData((prev) => {
+        const next = { ...prev };
+        if (!prev.title.trim() && s.title) { next.title = s.title; filled++; }
+        if (!prev.description.trim() && s.description) { next.description = s.description; filled++; }
+        if (prev.property_type === "apartamento" && s.property_type) { next.property_type = s.property_type; filled++; }
+        if (!prev.built_area_m2.trim() && s.area_built) { next.built_area_m2 = String(s.area_built); filled++; }
+        // Diferenciais: concatena amenities + highlights se campo vazio
+        if (!prev.highlights.trim()) {
+          const parts = [s.highlights, Array.isArray(s.amenities) && s.amenities.join(", ")].filter(Boolean);
+          if (parts.length) { next.highlights = parts.join(" · "); filled++; }
+        }
+        return next;
+      });
+
+      toast({
+        title: filled > 0 ? `IA preencheu ${filled} campo${filled > 1 ? "s" : ""}` : "Nenhum campo novo sugerido",
+        description: filled > 0
+          ? `Confiança: ${Math.round((s.confidence ?? 0) * 100)}%. Revise e salve.`
+          : "Seus campos já estavam preenchidos — nada foi alterado.",
+      });
+    } catch (e: any) {
+      toast({ title: "Erro ao completar com IA", description: e.message, variant: "destructive" });
+    } finally {
+      setIsEnriching(false);
+    }
   };
 
   // Single-step publish: POST /properties/{id}/publish
@@ -294,14 +346,27 @@ const PropertyEditor = () => {
         {/* Dados Inteligentes */}
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Building2 className="w-5 h-5 text-accent" />
-              <h2 className="text-lg font-semibold text-foreground">
-                Dados Inteligentes do Imóvel
-              </h2>
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-accent" />
+                <h2 className="text-lg font-semibold text-foreground">
+                  Dados Inteligentes do Imóvel
+                </h2>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEnrich}
+                disabled={isEnriching || !images.length}
+                className="gap-2 shrink-0 border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100"
+              >
+                {isEnriching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                {isEnriching ? "Analisando..." : "Completar com IA"}
+              </Button>
             </div>
             <p className="text-sm text-muted-foreground mb-5">
-              Esses dados alimentam a IA para gerar legendas e criativos otimizados
+              Esses dados alimentam a IA para gerar legendas e criativos otimizados.
+              Clique em <strong>Completar com IA</strong> para preencher automaticamente a partir das fotos.
             </p>
             <EditorForm
               data={formData}
