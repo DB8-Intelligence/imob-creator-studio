@@ -478,51 +478,78 @@ Responda em português do Brasil, 1 a 3 parágrafos curtos, linguagem de WhatsAp
 
 REGRAS:
 1. NUNCA se passe por humano se perguntarem diretamente. Se questionarem, diga que você é a assistente IA do corretor e que passa o contato adiante quando necessário.
-2. Foque em qualificar o lead: intenção (compra/aluguel/investimento), faixa de orçamento, região de interesse, tipo de imóvel (casa/apto/terreno/comercial), urgência (vai visitar essa semana? esse mês?).
+2. Qualifique o lead: intenção (compra/aluguel/investimento), orçamento, região de interesse, tipo de imóvel, urgência.
 3. Só sugira imóveis do portfólio abaixo. NUNCA invente imóveis, preços ou endereços.
-4. Se o cliente pedir algo fora do seu alcance (negociar desconto, fechar contrato, marcar visita com data específica no fim de semana fora do horário comercial), marque handoff_to_human=true e explique brevemente no handoff_reason.
-5. Se o cliente parecer frio ou desinteressado após 2 trocas sem qualificação, tente uma pergunta aberta para resgatar ("O que faria você agendar uma visita ainda esta semana?").
+4. Se o cliente pedir algo fora do alcance (negociar desconto, fechar contrato, agendar fora do horário comercial), use handoff_to_human=true com handoff_reason.
+5. Se o cliente parecer frio após 2 trocas, faça pergunta aberta para resgatar.
 
 PORTFÓLIO DISPONÍVEL:
 ${propertiesContext}
 
-QUALIFICAÇÃO JÁ CAPTURADA (pode estar vazia):
+QUALIFICAÇÃO JÁ CAPTURADA (preserve campos quando nova mensagem não contradizer):
 ${JSON.stringify(existingQualification)}
 
 ${customInstructions ? `INSTRUÇÕES DO CORRETOR:\n${customInstructions}\n` : ""}
 
 AGENDAMENTO DE VISITA:
-- Se o cliente confirmar DATA e HORA específicas para uma visita (ex: "pode ser amanhã 15h" ou "sexta 10h da manhã"), preencha "booking.confirmed=true" e os campos start_at/end_at em ISO 8601 com timezone -03:00.
-- Duração default: 1h. Nunca agende fora do horário comercial (seg-sex 8h-19h, sáb 9h-14h) sem confirmação explícita.
-- Se o cliente só DEMONSTRAR INTERESSE em visitar sem data concreta, NÃO preencha booking — pergunte a disponibilidade dele.
-- Resumo ("summary") deve ser "Visita — <nome do cliente> — <referência do imóvel>".
+- Se cliente confirmar DATA+HORA específicas, preencha booking.confirmed=true com start_at/end_at em ISO 8601 -03:00.
+- Duração default 1h. Horário comercial: seg-sex 8h-19h, sáb 9h-14h.
+- Se só demonstrar interesse sem data concreta, NÃO preencha booking — pergunte disponibilidade.
+- summary: "Visita — <nome> — <referência>".
 
-FORMATO DA SUA RESPOSTA — retorne APENAS um JSON válido, sem markdown:
-{
-  "reply": "texto que será enviado no WhatsApp",
-  "lead_qualification": {
-    "intent": "compra" | "aluguel" | "investimento" | "desconhecido",
-    "budget": "faixa ou valor exato, ou null",
-    "region": "região/bairro mencionado, ou null",
-    "property_type": "casa | apartamento | terreno | comercial | null",
-    "urgency": "alta" | "media" | "baixa" | "desconhecida",
-    "confidence": 0 a 1,
-    "notes": "observações relevantes para o corretor"
+IMPORTANTE: SEMPRE use a tool "respond_to_lead" para responder. NUNCA responda em texto livre.`;
+}
+
+// ─── Tool schema (Claude nativo tool_use) ────────────────────────────
+const RESPOND_TO_LEAD_TOOL = {
+  name: "respond_to_lead",
+  description: "Responde ao lead no WhatsApp e atualiza qualificação/booking. Use SEMPRE esta tool, nunca responda em texto livre.",
+  input_schema: {
+    type: "object",
+    properties: {
+      reply: {
+        type: "string",
+        description: "Texto que será enviado no WhatsApp ao lead (1-3 parágrafos curtos).",
+      },
+      lead_qualification: {
+        type: "object",
+        description: "Dados do lead capturados/atualizados nesta troca. Preserve campos já capturados quando não contradizerem.",
+        properties: {
+          intent:        { type: "string", enum: ["compra", "aluguel", "investimento", "desconhecido"] },
+          budget:        { type: ["string", "null"], description: "Faixa ou valor exato, ou null." },
+          region:        { type: ["string", "null"], description: "Região/bairro mencionado, ou null." },
+          property_type: { type: ["string", "null"], enum: ["casa", "apartamento", "terreno", "comercial", null] },
+          urgency:       { type: "string", enum: ["alta", "media", "baixa", "desconhecida"] },
+          confidence:    { type: "number", minimum: 0, maximum: 1 },
+          notes:         { type: ["string", "null"], description: "Observações relevantes pro corretor, ou null." },
+        },
+        required: ["intent", "urgency", "confidence"],
+      },
+      handoff_to_human: {
+        type: "boolean",
+        description: "true se a IA não consegue atender (desconto, contrato, fora-de-scope).",
+      },
+      handoff_reason: {
+        type: ["string", "null"],
+        description: "Motivo do handoff, só quando handoff_to_human=true.",
+      },
+      booking: {
+        type: "object",
+        description: "Preencher confirmed=true APENAS quando cliente confirmar data+hora específicas.",
+        properties: {
+          confirmed:   { type: "boolean" },
+          summary:     { type: ["string", "null"] },
+          description: { type: ["string", "null"] },
+          location:    { type: ["string", "null"] },
+          start_at:    { type: ["string", "null"], description: "ISO 8601 com timezone -03:00, ex 2026-04-20T15:00:00-03:00" },
+          end_at:      { type: ["string", "null"], description: "ISO 8601 com timezone -03:00" },
+        },
+        required: ["confirmed"],
+      },
+    },
+    required: ["reply", "lead_qualification", "handoff_to_human", "booking"],
   },
-  "handoff_to_human": false,
-  "handoff_reason": "preencha só se handoff_to_human=true",
-  "booking": {
-    "confirmed": false,
-    "summary": "Visita — ...",
-    "description": "contexto breve pro corretor",
-    "location": "endereço se souber",
-    "start_at": "2026-04-20T15:00:00-03:00",
-    "end_at":   "2026-04-20T16:00:00-03:00"
-  }
-}
-
-Preserve campos já capturados quando a nova mensagem não os contradizer.`;
-}
+};
 
 async function callClaude(args: {
   model: string;
@@ -538,10 +565,12 @@ async function callClaude(args: {
         "anthropic-version":"2023-06-01",
       },
       body: JSON.stringify({
-        model:      args.model,
-        max_tokens: 800,
-        system:     args.system,
-        messages:   [{ role: "user", content: args.user }],
+        model:       args.model,
+        max_tokens:  1024,
+        system:      args.system,
+        tools:       [RESPOND_TO_LEAD_TOOL],
+        tool_choice: { type: "tool", name: "respond_to_lead" },
+        messages:    [{ role: "user", content: args.user }],
       }),
     });
 
@@ -551,11 +580,29 @@ async function callClaude(args: {
       return null;
     }
 
-    const raw = result.content?.[0]?.type === "text" ? result.content[0].text : "";
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(cleaned) as AiJsonResponse;
-    if (typeof parsed.reply !== "string" || !parsed.reply.trim()) return null;
-    return parsed;
+    // Claude retorna tool_use block quando tool_choice força a tool
+    const toolBlock = (result.content as Array<{ type: string; name?: string; input?: Record<string, unknown> }> | undefined)
+      ?.find((b) => b.type === "tool_use" && b.name === "respond_to_lead");
+
+    if (!toolBlock?.input) {
+      // Fallback: tenta parse JSON do primeiro block de texto (defensive)
+      const raw = result.content?.[0]?.type === "text" ? result.content[0].text : "";
+      if (raw) {
+        try {
+          const cleaned = raw.replace(/```json|```/g, "").trim();
+          const parsed = JSON.parse(cleaned) as AiJsonResponse;
+          if (typeof parsed.reply === "string" && parsed.reply.trim()) return parsed;
+        } catch {
+          // parser fallback falhou — ignora
+        }
+      }
+      console.error("No tool_use block in Claude response:", result);
+      return null;
+    }
+
+    const input = toolBlock.input as AiJsonResponse;
+    if (typeof input.reply !== "string" || !input.reply.trim()) return null;
+    return input;
   } catch (e) {
     console.error("callClaude failed:", e);
     return null;
