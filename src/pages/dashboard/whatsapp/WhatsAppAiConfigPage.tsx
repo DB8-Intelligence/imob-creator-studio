@@ -33,6 +33,7 @@ interface AiSettings {
   followup_enabled: boolean;
   followup_delay_hours: number;
   followup_max_attempts: number;
+  friendly_name: string;
 }
 
 interface CalendarStatus {
@@ -51,6 +52,7 @@ const DEFAULTS: AiSettings = {
   followup_enabled: false,
   followup_delay_hours: 48,
   followup_max_attempts: 2,
+  friendly_name: "",
 };
 
 export default function WhatsAppAiConfigPage() {
@@ -86,7 +88,7 @@ export default function WhatsAppAiConfigPage() {
       const [settingsRes, calRes] = await Promise.all([
         supabase
           .from("user_whatsapp_instances")
-          .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, followup_max_attempts")
+          .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, followup_max_attempts, friendly_name")
           .eq("user_id", user.id)
           .maybeSingle(),
         supabase
@@ -110,6 +112,7 @@ export default function WhatsAppAiConfigPage() {
           followup_enabled:       Boolean(d.followup_enabled),
           followup_delay_hours:   (d.followup_delay_hours as number) ?? DEFAULTS.followup_delay_hours,
           followup_max_attempts:  (d.followup_max_attempts as number) ?? DEFAULTS.followup_max_attempts,
+          friendly_name:          (d.friendly_name as string) ?? "",
         });
       }
 
@@ -143,6 +146,7 @@ export default function WhatsAppAiConfigPage() {
         followup_enabled:       settings.followup_enabled,
         followup_delay_hours:   settings.followup_delay_hours,
         followup_max_attempts:  settings.followup_max_attempts,
+        friendly_name:          settings.friendly_name.trim() || null,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -253,6 +257,31 @@ export default function WhatsAppAiConfigPage() {
                 checked={settings.ai_enabled}
                 onCheckedChange={(v) => update("ai_enabled", v)}
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Friendly name do número */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-base text-[#002B5B]">Identificação do número</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="friendly_name" className="text-sm font-medium text-[#374151]">
+                Nome amigável
+              </Label>
+              <Input
+                id="friendly_name"
+                value={settings.friendly_name}
+                onChange={(e) => update("friendly_name", e.target.value)}
+                placeholder="ex: Principal, Locação, Corretor João"
+                maxLength={60}
+                className="mt-1.5"
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                Como este WhatsApp aparece pra você. Útil quando tiver mais de um número conectado.
+              </p>
             </div>
           </CardContent>
         </Card>

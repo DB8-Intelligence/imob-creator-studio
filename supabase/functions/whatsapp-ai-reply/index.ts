@@ -93,11 +93,12 @@ serve(async (req: Request) => {
     return json({ ok: false, error: "missing fields" }, 400);
   }
 
-  // ── 1. Settings ───────────────────────────────────────────
+  // ── 1. Settings (multi-instance: filtra pelo instance_name exato) ────
   const { data: instance } = await supabase
     .from("user_whatsapp_instances")
     .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode")
     .eq("user_id", user_id)
+    .eq("instance_name", instance_name)
     .maybeSingle();
 
   if (!instance || instance.status !== "connected") {
