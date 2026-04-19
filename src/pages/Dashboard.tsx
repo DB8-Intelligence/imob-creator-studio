@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
@@ -9,6 +9,8 @@ import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import SecretariaOnboardingWizard from "@/components/onboarding/SecretariaOnboardingWizard";
+import { useModules } from "@/hooks/useModuleAccess";
 import { MODULE_WIDGETS } from "@/components/dashboard/ModuleWidgets";
 import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,7 +57,28 @@ const Dashboard = () => {
     completeWizard,
     dismiss: dismissOnboarding,
   } = useOnboardingProgress();
+  const { hasModule } = useModules();
   const [wizardDismissed, setWizardDismissed] = useState(false);
+  const [secretariaWizardDone, setSecretariaWizardDone] = useState<boolean | null>(null);
+
+  // Checa se o corretor ja completou o wizard pos-compra Secretaria
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("onboarding_progress")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const d = data as Record<string, unknown> | null;
+      setSecretariaWizardDone(Boolean(d?.secretaria_wizard_completed_at));
+    })();
+  }, [user]);
+
+  const shouldShowSecretariaWizard =
+    hasModule("whatsapp") &&
+    secretariaWizardDone === false &&
+    !wizardDismissed;
 
   // Hook isolado para as operações recentes
   const { data: recentCreatives = [] } = useQuery({
@@ -89,12 +112,20 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Onboarding wizard overlay for first-time users */}
-      {showWizard && !wizardDismissed && (
-        <OnboardingWizard
-          onComplete={() => { setWizardDismissed(true); completeWizard(); }}
-          onSkip={() => { setWizardDismissed(true); dismissOnboarding(); }}
+      {/* Secretaria wizard tem prioridade quando o corretor tem m\u00f3dulo whatsapp */}
+      {shouldShowSecretariaWizard ? (
+        <SecretariaOnboardingWizard
+          onComplete={() => { setSecretariaWizardDone(true); setWizardDismissed(true); }}
+          onDismiss={()  => { setSecretariaWizardDone(true); setWizardDismissed(true); }}
         />
+      ) : (
+        /* Onboarding wizard legado para users sem m\u00f3dulo whatsapp (cria\u00e7\u00e3o de criativos) */
+        showWizard && !wizardDismissed && (
+          <OnboardingWizard
+            onComplete={() => { setWizardDismissed(true); completeWizard(); }}
+            onSkip={() => { setWizardDismissed(true); dismissOnboarding(); }}
+          />
+        )
       )}
 
       {/* Grid Container de Layout (2 Colunas) */}
