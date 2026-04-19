@@ -227,8 +227,8 @@ const PropertyEditor = () => {
           ? `Confiança: ${Math.round((s.confidence ?? 0) * 100)}%. Revise e salve.`
           : "Seus campos já estavam preenchidos — nada foi alterado.",
       });
-    } catch (e: any) {
-      toast({ title: "Erro ao completar com IA", description: e.message, variant: "destructive" });
+    } catch (e) {
+      toast({ title: "Erro ao completar com IA", description: (e as Error).message, variant: "destructive" });
     } finally {
       setIsEnriching(false);
     }
