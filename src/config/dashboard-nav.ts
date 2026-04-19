@@ -149,6 +149,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🌐",
     items: [
       { icon: Globe, label: "Meu Site", path: "/dashboard/site-imobiliario" },
+      { icon: Rss, label: "Portais XML", path: "/dashboard/portais" },
     ],
   },
 
