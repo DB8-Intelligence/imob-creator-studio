@@ -153,6 +153,7 @@ const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAp
 const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFlowBuilderPage"));
 const WhatsAppAiConfigPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppAiConfigPage"));
 const VoiceCloneWizardPage = lazy(() => import("./pages/dashboard/whatsapp/VoiceCloneWizardPage"));
+const SecretariaHubPage = lazy(() => import("./pages/dashboard/SecretariaHubPage"));
 const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
@@ -318,6 +319,7 @@ const App = () => (
               <Route path="/dashboard/whatsapp/inbox"     element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppInboxPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/ai-config" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppAiConfigPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/voz"       element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><VoiceCloneWizardPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/secretaria"         element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><SecretariaHubPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />

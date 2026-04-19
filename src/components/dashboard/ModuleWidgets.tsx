@@ -175,16 +175,16 @@ export function WhatsAppWidget({ subscription }: WidgetProps) {
   return (
     <WidgetShell
       icon={MessageCircle}
-      label="WhatsApp"
+      label="Secretária Virtual"
       accent="#25D366"
       creditsUsed={subscription.credits_used}
       creditsTotal={subscription.credits_total}
-      primaryPath="/dashboard/whatsapp"
-      primaryLabel="Inbox"
-      secondaryPath="/dashboard/whatsapp/fluxos"
-      secondaryLabel="Fluxos"
+      primaryPath="/dashboard/secretaria"
+      primaryLabel="Hub"
+      secondaryPath="/dashboard/whatsapp/inbox"
+      secondaryLabel="Conversas"
     >
-      <p className="text-xs text-muted-foreground">Atendimento e automações</p>
+      <p className="text-xs text-muted-foreground">IA que atende seus leads 24h</p>
     </WidgetShell>
   );
 }

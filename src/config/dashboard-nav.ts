@@ -168,7 +168,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Automações",
     emoji: "🤖",
     items: [
-      { icon: Bot, label: "Secretária Virtual", path: "/dashboard/whatsapp/ai-config" },
+      { icon: Bot, label: "Secretária Virtual", path: "/dashboard/secretaria" },
       { icon: Mic, label: "Voz Clonada", path: "/dashboard/whatsapp/voz", badge: "Plus" },
       { icon: Workflow, label: "Fluxos Ativos", path: "/automacoes" },
       { icon: GitBranch, label: "Construtor de Fluxo", path: "/automacoes/construtor" },
