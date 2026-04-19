@@ -57,12 +57,18 @@ interface BookingRequest {
   end_at?:      string; // ISO 8601
 }
 
+interface SendMediaRequest {
+  property_reference?: string | null;
+  max_photos?:         number;
+}
+
 interface AiJsonResponse {
   reply: string;
   lead_qualification: LeadQualification;
   handoff_to_human?: boolean;
   handoff_reason?: string;
   booking?: BookingRequest;
+  send_media?: SendMediaRequest;
 }
 
 serve(async (req: Request) => {
@@ -335,6 +341,23 @@ serve(async (req: Request) => {
     // CRM sync falhar não bloqueia resposta da IA
   }
 
+  // ── 5.6 Media: se IA decidiu mandar fotos de um imóvel ────
+  if (aiResponse.send_media?.property_reference && workspace?.id) {
+    try {
+      await sendPropertyPhotos({
+        workspaceId:    workspace.id,
+        user_id,
+        phone:          phone.replace(/[^\d]/g, ""),
+        reference:      aiResponse.send_media.property_reference,
+        max_photos:     Math.min(Math.max(aiResponse.send_media.max_photos ?? 3, 1), 5),
+        instance_name,
+      });
+    } catch (e) {
+      console.error("sendPropertyPhotos failed:", e);
+      // falha em envio de mídia nunca bloqueia resposta
+    }
+  }
+
   // ── 6. Booking: se a IA confirmou agendamento, cria evento ────
   if (aiResponse.booking?.confirmed && aiResponse.booking.start_at && aiResponse.booking.end_at) {
     try {
@@ -522,6 +545,12 @@ AGENDAMENTO DE VISITA:
 - Se só demonstrar interesse sem data concreta, NÃO preencha booking — pergunte disponibilidade.
 - summary: "Visita — <nome> — <referência>".
 
+ENVIO DE FOTOS DO IMÓVEL:
+- Se o cliente pedir fotos/imagens/vídeos de um imóvel específico do portfólio acima, preencha send_media.property_reference com a referência exata (ex: "MAR-001").
+- NUNCA preencha property_reference se você não tem certeza qual imóvel o cliente quer (pergunte antes).
+- Quando enviar fotos, mencione no reply que as fotos estão chegando (ex: "Te mandei as 3 fotos principais — olha se é o que você buscava!").
+- Default max_photos=3.
+
 IMPORTANTE: SEMPRE use a tool "respond_to_lead" para responder. NUNCA responda em texto livre.`;
 }
 
@@ -570,6 +599,14 @@ const RESPOND_TO_LEAD_TOOL = {
           end_at:      { type: ["string", "null"], description: "ISO 8601 com timezone -03:00" },
         },
         required: ["confirmed"],
+      },
+      send_media: {
+        type: "object",
+        description: "Use quando o lead pedir fotos/imagens de um imóvel específico do portfólio (ex: 'me manda as fotos', 'tem foto dessa casa?'). Deixe property_reference=null se o lead não pediu fotos.",
+        properties: {
+          property_reference: { type: ["string", "null"], description: "Referência exata do imóvel no portfólio (ex: 'AB123'). Só preencha quando tiver certeza de qual imóvel." },
+          max_photos:         { type: "integer", minimum: 1, maximum: 5, description: "Quantidade de fotos a enviar. Default 3." },
+        },
       },
     },
     required: ["reply", "lead_qualification", "handoff_to_human", "booking"],
@@ -701,6 +738,87 @@ async function decideSendVoice(
   if (reply.split("\n").filter(Boolean).length > 3) return false; // muitos parágrafos
   if (/https?:\/\//.test(reply)) return false;             // URL na resposta
   return true;
+}
+
+/**
+ * Envia até N fotos de um imóvel via Evolution API sendMedia.
+ * Busca o imóvel por `reference` no workspace, pega até `max_photos` URLs
+ * e envia cada uma com pequeno delay pra não disparar antispam do WhatsApp.
+ */
+async function sendPropertyPhotos(args: {
+  workspaceId:   string;
+  user_id:       string;
+  phone:         string;
+  reference:     string;
+  max_photos:    number;
+  instance_name: string;
+}): Promise<void> {
+  if (!EVOLUTION_URL || !EVOLUTION_KEY) return;
+
+  const { data: prop } = await supabase
+    .from("properties")
+    .select("id, reference, photos, images, title, neighborhood, city, price")
+    .eq("workspace_id", args.workspaceId)
+    .eq("reference", args.reference)
+    .maybeSingle();
+
+  if (!prop) {
+    console.warn(`sendPropertyPhotos: property ${args.reference} not found`);
+    return;
+  }
+
+  const urls: string[] = (() => {
+    if (Array.isArray(prop.photos) && prop.photos.length) return prop.photos as string[];
+    if (Array.isArray(prop.images))                       return prop.images as string[];
+    if (prop.images && typeof prop.images === "object") {
+      return Object.values(prop.images as Record<string, unknown>).filter((v) => typeof v === "string") as string[];
+    }
+    return [];
+  })().slice(0, args.max_photos);
+
+  if (urls.length === 0) {
+    console.warn(`sendPropertyPhotos: property ${args.reference} has no photos`);
+    return;
+  }
+
+  // Caption apenas na primeira foto pra não poluir
+  const caption = [
+    prop.title ?? `Imóvel ${prop.reference}`,
+    [prop.neighborhood, prop.city].filter(Boolean).join(" · "),
+    prop.price ? `R$ ${Number(prop.price).toLocaleString("pt-BR")}` : null,
+    `Ref: ${prop.reference}`,
+  ].filter(Boolean).join("\n");
+
+  for (let i = 0; i < urls.length; i++) {
+    try {
+      const res = await fetch(`${EVOLUTION_URL}/message/sendMedia/${args.instance_name}`, {
+        method:  "POST",
+        headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          number:    args.phone,
+          mediatype: "image",
+          media:     urls[i],
+          fileName:  `${prop.reference}-${i + 1}.jpg`,
+          caption:   i === 0 ? caption : undefined,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error(`sendMedia ${i} failed:`, res.status, data);
+        continue;
+      }
+      await supabase.from("whatsapp_sent_messages").insert({
+        user_id:            args.user_id,
+        to_phone:           args.phone,
+        body:               `[foto] ${prop.reference} (${i + 1}/${urls.length})`,
+        evolution_response: { ...data, _source: "ai_media", _property_ref: prop.reference, _index: i },
+      });
+    } catch (e) {
+      console.error(`sendMedia ${i} exception:`, e);
+    }
+    // Pequeno delay entre fotos pra não parecer spam
+    if (i < urls.length - 1) await new Promise((r) => setTimeout(r, 600));
+  }
 }
 
 function mergeQualification(prev: LeadQualification, next: LeadQualification): LeadQualification {

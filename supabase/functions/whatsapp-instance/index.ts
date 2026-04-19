@@ -241,10 +241,10 @@ serve(async (req: Request) => {
           .order("received_at", { ascending: true })
           .limit(100);
 
-        // Fetch outgoing messages from whatsapp_sent_messages
+        // Fetch outgoing messages from whatsapp_sent_messages (inclui evolution_response pra badge IA)
         const { data: outgoing } = await supabase
           .from("whatsapp_sent_messages")
-          .select("id, to_phone, body, created_at")
+          .select("id, to_phone, body, created_at, evolution_response")
           .eq("user_id", userId)
           .eq("to_phone", cleanPhone)
           .order("created_at", { ascending: true })
@@ -261,17 +261,29 @@ serve(async (req: Request) => {
             type:      m.message_type ?? "text",
             media:     m.media_urls ?? [],
             timestamp: m.received_at,
+            source:    "incoming" as const,
           })),
-          ...(outgoing ?? []).map((m: Record<string, unknown>) => ({
-            id:        m.id,
-            direction: "outgoing" as const,
-            phone:     m.to_phone,
-            name:      null,
-            text:      m.body ?? "",
-            type:      "text",
-            media:     [],
-            timestamp: m.created_at,
-          })),
+          ...(outgoing ?? []).map((m: Record<string, unknown>) => {
+            const evo = (m.evolution_response as Record<string, unknown> | null) ?? {};
+            const source = (evo._source as string | undefined) ?? null;
+            const isVoice = (evo._voice as boolean | undefined) === true;
+            const kind =
+              source === "ai_reply" || source === "voice_clone" ? "ai_reply" :
+              source === "ai_media"                              ? "ai_media" :
+              isVoice                                            ? "ai_reply" :
+              "manual";
+            return {
+              id:        m.id,
+              direction: "outgoing" as const,
+              phone:     m.to_phone,
+              name:      null,
+              text:      m.body ?? "",
+              type:      "text",
+              media:     [],
+              timestamp: m.created_at,
+              source:    kind,
+            };
+          }),
         ].sort((a, b) => new Date(a.timestamp as string).getTime() - new Date(b.timestamp as string).getTime());
 
         return new Response(JSON.stringify({ ok: true, messages: merged }), {

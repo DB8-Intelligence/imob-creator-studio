@@ -17,6 +17,7 @@ interface ChatMessage {
   type: string;
   media: string[];
   timestamp: string;
+  source?: "ai_reply" | "ai_media" | "manual" | "incoming";
 }
 
 interface ChatWindowProps {
@@ -213,32 +214,46 @@ export default function ChatWindow({ phone, contactName }: ChatWindowProps) {
             <p className="text-xs mt-1">Envie a primeira mensagem abaixo</p>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.direction === "outgoing" ? "justify-end" : "justify-start"}`}
-            >
+          messages.map((msg) => {
+            const isAi = msg.direction === "outgoing" && (msg.source === "ai_reply" || msg.source === "ai_media");
+            return (
               <div
-                className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${
-                  msg.direction === "outgoing"
-                    ? "bg-[#002B5B] text-white rounded-br-md"
-                    : "bg-white text-gray-800 border border-gray-200 rounded-bl-md"
-                }`}
+                key={msg.id}
+                className={`flex ${msg.direction === "outgoing" ? "justify-end" : "justify-start"}`}
               >
-                <p className="whitespace-pre-wrap break-words">{msg.text}</p>
-                <p
-                  className={`text-[10px] mt-1 ${
-                    msg.direction === "outgoing" ? "text-white/60" : "text-gray-400"
-                  }`}
-                >
-                  {new Date(msg.timestamp).toLocaleTimeString("pt-BR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+                <div className="max-w-[75%]">
+                  {isAi && (
+                    <div className="flex items-center gap-1 mb-1 justify-end text-[10px] font-semibold text-[#7C3AED]">
+                      <Bot className="h-3 w-3" />
+                      <span>IA respondeu</span>
+                      {msg.source === "ai_media" && <span className="opacity-60">· 📷</span>}
+                    </div>
+                  )}
+                  <div
+                    className={`rounded-2xl px-3.5 py-2 text-sm ${
+                      msg.direction === "outgoing"
+                        ? isAi
+                          ? "bg-gradient-to-br from-[#002B5B] to-[#4C1D95] text-white rounded-br-md"
+                          : "bg-[#002B5B] text-white rounded-br-md"
+                        : "bg-white text-gray-800 border border-gray-200 rounded-bl-md"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+                    <p
+                      className={`text-[10px] mt-1 ${
+                        msg.direction === "outgoing" ? "text-white/60" : "text-gray-400"
+                      }`}
+                    >
+                      {new Date(msg.timestamp).toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>
