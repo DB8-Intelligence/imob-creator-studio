@@ -196,8 +196,6 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "📚",
     items: [
       { icon: FileDown, label: "PDF de Apresentação", path: "/book" },
-      { icon: Briefcase, label: "Portfólio de Imóveis", path: "/book/portfolio" },
-      { icon: SettingsIcon, label: "Configurações do Book", path: "/book/config" },
     ],
   },
 
