@@ -308,6 +308,34 @@ async function processWebhook(
       throw asaasSubError;
     }
 
+    // Pré-cria user_whatsapp_instances para compra de Secretária Virtual
+    if (prod.module_id === "whatsapp" && workspaceId) {
+      try {
+        const { data: ws } = await supabase
+          .from("workspaces").select("owner_id").eq("id", workspaceId).maybeSingle();
+        const ownerId = (ws as { owner_id?: string } | null)?.owner_id;
+        if (ownerId) {
+          const userShortId = ownerId.replace(/-/g, "").substring(0, 12);
+          const instanceName = `whatsapp-user-${userShortId}`;
+          const { error: instErr } = await supabase.from("user_whatsapp_instances").upsert(
+            {
+              user_id: ownerId, instance_name: instanceName,
+              status: "disconnected", ai_enabled: false,
+              ai_agent_name: "Secretária Virtual",
+              ai_agent_tone: "profissional, claro e acolhedor",
+              ai_model: "claude-sonnet-4-6",
+              followup_enabled: false,
+            },
+            { onConflict: "user_id, instance_name", ignoreDuplicates: false },
+          );
+          if (instErr) console.error("⚠️ instance pre-create error:", instErr);
+          else console.log(`✅ Instance pré-criada (Asaas): ${instanceName}`);
+        }
+      } catch (e) {
+        console.error("⚠️ pre-create whatsapp instance exception:", e);
+      }
+    }
+
     console.log(`✅ ATIVO Asaas: ${prod.module_id} ${prod.plan_slug} — ${prod.credits} créditos para ${email}`);
   }
 

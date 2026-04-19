@@ -316,6 +316,47 @@ async function processWebhook(
       throw userSubError;
     }
 
+    // Se comprou Secretária Virtual (módulo whatsapp), pré-cria a instância
+    // com status=disconnected. Corretor já cai no dashboard com tudo pronto
+    // — só precisa escanear o QR code.
+    if (product.module_id === "whatsapp" && workspaceId) {
+      try {
+        const { data: ws } = await supabase
+          .from("workspaces")
+          .select("owner_id")
+          .eq("id", workspaceId)
+          .maybeSingle();
+        const ownerId = (ws as { owner_id?: string } | null)?.owner_id;
+        if (ownerId) {
+          const userShortId = ownerId.replace(/-/g, "").substring(0, 12);
+          const instanceName = `whatsapp-user-${userShortId}`;
+          const { error: instErr } = await supabase
+            .from("user_whatsapp_instances")
+            .upsert(
+              {
+                user_id:          ownerId,
+                instance_name:    instanceName,
+                status:           "disconnected",
+                ai_enabled:       false, // corretor ativa manualmente após configurar
+                ai_agent_name:    "Secretária Virtual",
+                ai_agent_tone:    "profissional, claro e acolhedor",
+                ai_model:         "claude-sonnet-4-6",
+                followup_enabled: false,
+              },
+              { onConflict: "user_id, instance_name", ignoreDuplicates: false },
+            );
+          if (instErr) {
+            console.error("⚠️ user_whatsapp_instances pre-create error:", instErr);
+          } else {
+            console.log(`✅ Instance pré-criada: ${instanceName} para ${email}`);
+          }
+        }
+      } catch (e) {
+        console.error("⚠️ pre-create whatsapp instance exception:", e);
+        // Nunca bloqueia a ativação da subscription
+      }
+    }
+
     console.log(
       `✅ ATIVO: ${product.module_id} ${product.plan_slug} — ${product.credits_total} créditos para ${email}`
     );
