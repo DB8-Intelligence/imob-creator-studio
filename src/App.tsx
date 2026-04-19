@@ -154,6 +154,7 @@ const WhatsAppFlowBuilderPage = lazy(() => import("./pages/dashboard/whatsapp/Wh
 const WhatsAppAiConfigPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppAiConfigPage"));
 const VoiceCloneWizardPage = lazy(() => import("./pages/dashboard/whatsapp/VoiceCloneWizardPage"));
 const SecretariaHubPage = lazy(() => import("./pages/dashboard/SecretariaHubPage"));
+const SecretariaAgendaPage = lazy(() => import("./pages/dashboard/SecretariaAgendaPage"));
 const PortaisPage = lazy(() => import("./pages/dashboard/PortaisPage"));
 const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
@@ -321,6 +322,7 @@ const App = () => (
               <Route path="/dashboard/whatsapp/ai-config" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppAiConfigPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/voz"       element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><VoiceCloneWizardPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/secretaria"         element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><SecretariaHubPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/secretaria/agenda"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><SecretariaAgendaPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/portais"            element={<ProtectedRoute><ModuleProtectedRoute requires="site"><PortaisPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />

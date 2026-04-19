@@ -312,7 +312,7 @@ export default function SecretariaHubPage() {
               icon={Calendar}
               title="Agendamentos"
               description="Visitas criadas pela IA"
-              href="/calendario"
+              href="/dashboard/secretaria/agenda"
               color="teal"
             />
           </div>

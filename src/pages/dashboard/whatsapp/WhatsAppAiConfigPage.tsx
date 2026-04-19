@@ -34,6 +34,12 @@ interface AiSettings {
   followup_delay_hours: number;
   followup_max_attempts: number;
   friendly_name: string;
+  ai_work_hours_start: string; // HH:MM
+  ai_work_hours_end:   string;
+  ai_work_days:        number[];
+  ai_delay_min_seconds: number;
+  ai_delay_max_seconds: number;
+  ai_after_hours_message: string;
 }
 
 interface CalendarStatus {
@@ -53,7 +59,23 @@ const DEFAULTS: AiSettings = {
   followup_delay_hours: 48,
   followup_max_attempts: 2,
   friendly_name: "",
+  ai_work_hours_start: "08:00",
+  ai_work_hours_end:   "19:00",
+  ai_work_days:        [1, 2, 3, 4, 5, 6],
+  ai_delay_min_seconds: 2,
+  ai_delay_max_seconds: 8,
+  ai_after_hours_message: "",
 };
+
+const WEEKDAYS = [
+  { iso: 1, short: "Seg" },
+  { iso: 2, short: "Ter" },
+  { iso: 3, short: "Qua" },
+  { iso: 4, short: "Qui" },
+  { iso: 5, short: "Sex" },
+  { iso: 6, short: "Sáb" },
+  { iso: 7, short: "Dom" },
+];
 
 export default function WhatsAppAiConfigPage() {
   const { user } = useAuth();
@@ -88,7 +110,7 @@ export default function WhatsAppAiConfigPage() {
       const [settingsRes, calRes] = await Promise.all([
         supabase
           .from("user_whatsapp_instances")
-          .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, followup_max_attempts, friendly_name")
+          .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, followup_max_attempts, friendly_name, ai_work_hours_start, ai_work_hours_end, ai_work_days, ai_delay_min_seconds, ai_delay_max_seconds, ai_after_hours_message")
           .eq("user_id", user.id)
           .maybeSingle(),
         supabase
@@ -113,6 +135,12 @@ export default function WhatsAppAiConfigPage() {
           followup_delay_hours:   (d.followup_delay_hours as number) ?? DEFAULTS.followup_delay_hours,
           followup_max_attempts:  (d.followup_max_attempts as number) ?? DEFAULTS.followup_max_attempts,
           friendly_name:          (d.friendly_name as string) ?? "",
+          ai_work_hours_start:    ((d.ai_work_hours_start as string) ?? "08:00:00").slice(0, 5),
+          ai_work_hours_end:      ((d.ai_work_hours_end   as string) ?? "19:00:00").slice(0, 5),
+          ai_work_days:           (d.ai_work_days as number[]) ?? DEFAULTS.ai_work_days,
+          ai_delay_min_seconds:   (d.ai_delay_min_seconds as number) ?? DEFAULTS.ai_delay_min_seconds,
+          ai_delay_max_seconds:   (d.ai_delay_max_seconds as number) ?? DEFAULTS.ai_delay_max_seconds,
+          ai_after_hours_message: (d.ai_after_hours_message as string) ?? "",
         });
       }
 
@@ -147,6 +175,12 @@ export default function WhatsAppAiConfigPage() {
         followup_delay_hours:   settings.followup_delay_hours,
         followup_max_attempts:  settings.followup_max_attempts,
         friendly_name:          settings.friendly_name.trim() || null,
+        ai_work_hours_start:    settings.ai_work_hours_start,
+        ai_work_hours_end:      settings.ai_work_hours_end,
+        ai_work_days:           settings.ai_work_days,
+        ai_delay_min_seconds:   settings.ai_delay_min_seconds,
+        ai_delay_max_seconds:   settings.ai_delay_max_seconds,
+        ai_after_hours_message: settings.ai_after_hours_message.trim() || null,
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -493,6 +527,117 @@ export default function WhatsAppAiConfigPage() {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Horário de atendimento + delay humanizado */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-base text-[#002B5B] flex items-center gap-2">
+              <Clock className="h-4 w-4" /> Horário de atendimento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <p className="text-xs text-gray-500">
+              IA responde apenas dentro do horário configurado. Fora dele, você pode enviar uma mensagem automática ou deixar silêncio.
+            </p>
+
+            {/* Horário start/end */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="work_start" className="text-sm font-medium text-[#374151]">Início</Label>
+                <Input
+                  id="work_start"
+                  type="time"
+                  value={settings.ai_work_hours_start}
+                  onChange={(e) => update("ai_work_hours_start", e.target.value)}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="work_end" className="text-sm font-medium text-[#374151]">Fim</Label>
+                <Input
+                  id="work_end"
+                  type="time"
+                  value={settings.ai_work_hours_end}
+                  onChange={(e) => update("ai_work_hours_end", e.target.value)}
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+
+            {/* Dias da semana */}
+            <div>
+              <Label className="text-sm font-medium text-[#374151]">Dias de atendimento</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {WEEKDAYS.map((d) => {
+                  const active = settings.ai_work_days.includes(d.iso);
+                  return (
+                    <button
+                      key={d.iso}
+                      type="button"
+                      onClick={() => {
+                        const next = active
+                          ? settings.ai_work_days.filter((x) => x !== d.iso)
+                          : [...settings.ai_work_days, d.iso].sort((a, b) => a - b);
+                        update("ai_work_days", next);
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                        active
+                          ? "bg-[#002B5B] border-[#002B5B] text-white"
+                          : "bg-white border-gray-200 text-gray-600 hover:border-[#002B5B]"
+                      }`}
+                    >
+                      {d.short}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Delay humanizado */}
+            <div>
+              <Label className="text-sm font-medium text-[#374151]">Delay humanizado (simula digitação)</Label>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-[11px] text-gray-500 mb-1">Mínimo (segundos)</p>
+                  <Input
+                    type="number" min={0} max={60}
+                    value={settings.ai_delay_min_seconds}
+                    onChange={(e) => update("ai_delay_min_seconds", Math.max(0, Number(e.target.value) || 0))}
+                  />
+                </div>
+                <div>
+                  <p className="text-[11px] text-gray-500 mb-1">Máximo (segundos)</p>
+                  <Input
+                    type="number" min={0} max={60}
+                    value={settings.ai_delay_max_seconds}
+                    onChange={(e) => update("ai_delay_max_seconds", Math.max(settings.ai_delay_min_seconds, Number(e.target.value) || 0))}
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                IA aguarda um tempo aleatório entre mínimo e máximo antes de enviar. 2–8s é natural.
+              </p>
+            </div>
+
+            {/* After-hours message */}
+            <div>
+              <Label htmlFor="after_hours" className="text-sm font-medium text-[#374151]">
+                Mensagem fora do horário (opcional)
+              </Label>
+              <Textarea
+                id="after_hours"
+                value={settings.ai_after_hours_message}
+                onChange={(e) => update("ai_after_hours_message", e.target.value)}
+                placeholder="ex: Olá! Estou fora do horário de atendimento. Responderei sua mensagem assim que possível, geralmente até 9h do próximo dia útil."
+                rows={3}
+                className="mt-1.5"
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                Deixe em branco para não responder fora do horário. A mensagem só é enviada uma vez por conversa.
+              </p>
+            </div>
           </CardContent>
         </Card>
 

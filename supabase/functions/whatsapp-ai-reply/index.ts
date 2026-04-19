@@ -96,7 +96,7 @@ serve(async (req: Request) => {
   // ── 1. Settings (multi-instance: filtra pelo instance_name exato) ────
   const { data: instance } = await supabase
     .from("user_whatsapp_instances")
-    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode")
+    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode, ai_work_hours_start, ai_work_hours_end, ai_work_days, ai_delay_min_seconds, ai_delay_max_seconds, ai_after_hours_message")
     .eq("user_id", user_id)
     .eq("instance_name", instance_name)
     .maybeSingle();
@@ -131,6 +131,25 @@ serve(async (req: Request) => {
   }
   if (!EVOLUTION_URL || !EVOLUTION_KEY) {
     return await skip(inbox_id, "missing_evolution_config");
+  }
+
+  // ── 1.5 Horário comercial ─────────────────────────────────
+  const workHoursCheck = isWithinWorkHours(instance);
+  if (!workHoursCheck.within) {
+    const afterHoursMsg = (instance as { ai_after_hours_message?: string | null }).ai_after_hours_message;
+    if (afterHoursMsg?.trim() && EVOLUTION_URL && EVOLUTION_KEY) {
+      // Envia mensagem de fora-do-horário uma vez e skip
+      await fetch(`${EVOLUTION_URL}/message/sendText/${instance_name}`, {
+        method: "POST",
+        headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          number: phone.replace(/[^\d]/g, ""),
+          text: afterHoursMsg.trim(),
+          linkPreview: false,
+        }),
+      }).catch((e) => console.error("after-hours send failed:", e));
+    }
+    return await skip(inbox_id, `outside_work_hours_${workHoursCheck.reason}`);
   }
 
   // ── 2. Histórico + contexto de imóveis ────────────────────
@@ -206,6 +225,12 @@ serve(async (req: Request) => {
   }
 
   // ── 4. Decide modo (texto/voz) + envia ────────────────────
+  // Delay humanizado: aguarda random [min, max] antes de enviar (simula digitação)
+  const delayMin = (instance as { ai_delay_min_seconds?: number }).ai_delay_min_seconds ?? 2;
+  const delayMax = (instance as { ai_delay_max_seconds?: number }).ai_delay_max_seconds ?? 8;
+  const delayMs = (delayMin + Math.random() * Math.max(0, delayMax - delayMin)) * 1000;
+  if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+
   const voiceMode = ((instance as { voice_mode?: string }).voice_mode ?? "texto") as "texto" | "voz" | "auto";
   const shouldSendVoice = await decideSendVoice(user_id, voiceMode, aiResponse.reply);
 
@@ -607,6 +632,40 @@ async function callClaude(args: {
     console.error("callClaude failed:", e);
     return null;
   }
+}
+
+/**
+ * Verifica se agora (America/Sao_Paulo) está dentro do horário de
+ * atendimento configurado na instance. Se qualquer campo estiver null,
+ * assume horário padrão (seg-sab 8h-19h).
+ */
+function isWithinWorkHours(instance: Record<string, unknown>): { within: boolean; reason: string } {
+  const startStr = (instance.ai_work_hours_start as string | null) ?? "08:00:00";
+  const endStr   = (instance.ai_work_hours_end   as string | null) ?? "19:00:00";
+  const daysRaw  = (instance.ai_work_days as number[] | null) ?? [1, 2, 3, 4, 5, 6];
+
+  // Data atual em America/Sao_Paulo (UTC-3)
+  const now     = new Date();
+  const brOffset = -3 * 60; // UTC-3 fixed (sem DST no Brasil desde 2019)
+  const localMs = now.getTime() + (brOffset - now.getTimezoneOffset()) * 60_000;
+  const local   = new Date(localMs);
+
+  // ISO weekday: 1=seg...7=dom. Date.getDay() é 0=dom...6=sab.
+  const isoDay = local.getDay() === 0 ? 7 : local.getDay();
+  if (!daysRaw.includes(isoDay)) {
+    return { within: false, reason: "off_day" };
+  }
+
+  const [sH, sM] = startStr.split(":").map(Number);
+  const [eH, eM] = endStr.split(":").map(Number);
+  const nowMin  = local.getHours() * 60 + local.getMinutes();
+  const startMin = sH * 60 + sM;
+  const endMin   = eH * 60 + eM;
+
+  if (nowMin < startMin || nowMin >= endMin) {
+    return { within: false, reason: "off_hours" };
+  }
+  return { within: true, reason: "ok" };
 }
 
 /**
