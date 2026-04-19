@@ -40,6 +40,9 @@ interface AiSettings {
   ai_delay_min_seconds: number;
   ai_delay_max_seconds: number;
   ai_after_hours_message: string;
+  ai_allowed_ddds: number[];
+  ai_blocked_phones: string;
+  ai_daily_limit: number;
 }
 
 interface CalendarStatus {
@@ -65,6 +68,9 @@ const DEFAULTS: AiSettings = {
   ai_delay_min_seconds: 2,
   ai_delay_max_seconds: 8,
   ai_after_hours_message: "",
+  ai_allowed_ddds: [],
+  ai_blocked_phones: "",
+  ai_daily_limit: 0,
 };
 
 const WEEKDAYS = [
@@ -110,7 +116,7 @@ export default function WhatsAppAiConfigPage() {
       const [settingsRes, calRes] = await Promise.all([
         supabase
           .from("user_whatsapp_instances")
-          .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, followup_max_attempts, friendly_name, ai_work_hours_start, ai_work_hours_end, ai_work_days, ai_delay_min_seconds, ai_delay_max_seconds, ai_after_hours_message")
+          .select("*")
           .eq("user_id", user.id)
           .maybeSingle(),
         supabase
@@ -141,6 +147,9 @@ export default function WhatsAppAiConfigPage() {
           ai_delay_min_seconds:   (d.ai_delay_min_seconds as number) ?? DEFAULTS.ai_delay_min_seconds,
           ai_delay_max_seconds:   (d.ai_delay_max_seconds as number) ?? DEFAULTS.ai_delay_max_seconds,
           ai_after_hours_message: (d.ai_after_hours_message as string) ?? "",
+          ai_allowed_ddds:    (d.ai_allowed_ddds as number[]) ?? [],
+          ai_blocked_phones:  ((d.ai_blocked_phones as string[]) ?? []).join("\n"),
+          ai_daily_limit:     (d.ai_daily_limit as number) ?? 0,
         });
       }
 
@@ -181,6 +190,10 @@ export default function WhatsAppAiConfigPage() {
         ai_delay_min_seconds:   settings.ai_delay_min_seconds,
         ai_delay_max_seconds:   settings.ai_delay_max_seconds,
         ai_after_hours_message: settings.ai_after_hours_message.trim() || null,
+        ai_allowed_ddds:        settings.ai_allowed_ddds.length ? settings.ai_allowed_ddds : null,
+        ai_blocked_phones:      settings.ai_blocked_phones
+          .split("\n").map((l) => l.replace(/[^\d]/g, "")).filter((l) => l.length >= 10),
+        ai_daily_limit:         Math.max(0, Math.floor(settings.ai_daily_limit)),
       })
       .eq("user_id", user.id);
     setSaving(false);
@@ -636,6 +649,94 @@ export default function WhatsAppAiConfigPage() {
               />
               <p className="text-[11px] text-gray-500 mt-1">
                 Deixe em branco para não responder fora do horário. A mensagem só é enviada uma vez por conversa.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Filtros de atendimento: DDD + blacklist + limite diário */}
+        <Card className="border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-base text-[#002B5B] flex items-center gap-2">
+              🛡️ Filtros de atendimento
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <p className="text-xs text-gray-500">
+              Controle quem a IA atende. Protege contra leads fora da sua região, números spam e uso excessivo de créditos.
+            </p>
+
+            {/* DDDs permitidos */}
+            <div>
+              <Label className="text-sm font-medium text-[#374151]">DDDs permitidos</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                {settings.ai_allowed_ddds.map((ddd) => (
+                  <span key={ddd} className="inline-flex items-center gap-1 bg-[#002B5B] text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+                    {ddd}
+                    <button
+                      type="button"
+                      onClick={() => update("ai_allowed_ddds", settings.ai_allowed_ddds.filter((d) => d !== ddd))}
+                      className="hover:bg-white/20 rounded-full h-4 w-4 flex items-center justify-center"
+                    >×</button>
+                  </span>
+                ))}
+                <Input
+                  type="number"
+                  min={11}
+                  max={99}
+                  placeholder="+ DDD"
+                  className="w-24 h-8 text-xs"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      const val = parseInt((e.target as HTMLInputElement).value, 10);
+                      if (val >= 11 && val <= 99 && !settings.ai_allowed_ddds.includes(val)) {
+                        update("ai_allowed_ddds", [...settings.ai_allowed_ddds, val].sort((a, b) => a - b));
+                        (e.target as HTMLInputElement).value = "";
+                      }
+                    }
+                  }}
+                />
+              </div>
+              <p className="text-[11px] text-gray-500 mt-1">
+                Se vazio, IA atende qualquer DDD. Digite o DDD e pressione Enter. Ex: 71, 11, 21.
+              </p>
+            </div>
+
+            {/* Blacklist de números */}
+            <div>
+              <Label htmlFor="blocked_phones" className="text-sm font-medium text-[#374151]">
+                Números bloqueados
+              </Label>
+              <Textarea
+                id="blocked_phones"
+                value={settings.ai_blocked_phones}
+                onChange={(e) => update("ai_blocked_phones", e.target.value)}
+                placeholder="5571999999999&#10;5511988888888"
+                rows={3}
+                className="mt-1.5 text-sm font-mono"
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                Um por linha, com código do país (55). IA nunca responde estes números.
+              </p>
+            </div>
+
+            {/* Limite diário */}
+            <div>
+              <Label htmlFor="daily_limit" className="text-sm font-medium text-[#374151]">
+                Limite de respostas IA por dia
+              </Label>
+              <Input
+                id="daily_limit"
+                type="number"
+                min={0}
+                value={settings.ai_daily_limit}
+                onChange={(e) => update("ai_daily_limit", Math.max(0, parseInt(e.target.value, 10) || 0))}
+                className="mt-1.5 max-w-[160px]"
+                placeholder="0 = ilimitado"
+              />
+              <p className="text-[11px] text-gray-500 mt-1">
+                0 (default) = sem limite. Útil se você quer controlar consumo de créditos IA. Ao atingir, IA não responde mais até o dia seguinte.
               </p>
             </div>
           </CardContent>

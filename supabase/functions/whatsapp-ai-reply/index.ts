@@ -102,13 +102,40 @@ serve(async (req: Request) => {
   // ── 1. Settings (multi-instance: filtra pelo instance_name exato) ────
   const { data: instance } = await supabase
     .from("user_whatsapp_instances")
-    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode, ai_work_hours_start, ai_work_hours_end, ai_work_days, ai_delay_min_seconds, ai_delay_max_seconds, ai_after_hours_message")
+    .select("ai_enabled, ai_agent_name, ai_agent_tone, ai_custom_instructions, ai_model, status, followup_enabled, followup_delay_hours, voice_mode, ai_work_hours_start, ai_work_hours_end, ai_work_days, ai_delay_min_seconds, ai_delay_max_seconds, ai_after_hours_message, ai_allowed_ddds, ai_blocked_phones, ai_daily_limit")
     .eq("user_id", user_id)
     .eq("instance_name", instance_name)
     .maybeSingle();
 
   if (!instance || instance.status !== "connected") {
     return await skip(inbox_id, "instance_not_connected");
+  }
+
+  // ── 1.2 Filtros: blacklist + DDD + limite diário ──────────
+  const cleanPhone = phone.replace(/[^\d]/g, "");
+  const blocked = (instance as { ai_blocked_phones?: string[] }).ai_blocked_phones ?? [];
+  if (blocked.some((b) => b.replace(/[^\d]/g, "") === cleanPhone)) {
+    return await skip(inbox_id, "phone_blocked");
+  }
+  const allowedDdds = (instance as { ai_allowed_ddds?: number[] | null }).ai_allowed_ddds;
+  if (Array.isArray(allowedDdds) && allowedDdds.length > 0) {
+    const normalized = cleanPhone.startsWith("55") ? cleanPhone.slice(2) : cleanPhone;
+    const ddd = parseInt(normalized.slice(0, 2), 10);
+    if (!allowedDdds.includes(ddd)) {
+      return await skip(inbox_id, "ddd_blocked");
+    }
+  }
+  const dailyLimit = (instance as { ai_daily_limit?: number }).ai_daily_limit ?? 0;
+  if (dailyLimit > 0) {
+    const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
+    const { count: aiRepliesToday } = await supabase
+      .from("whatsapp_sent_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", user_id)
+      .gte("created_at", dayStart.toISOString());
+    if ((aiRepliesToday ?? 0) >= dailyLimit) {
+      return await skip(inbox_id, "daily_limit_reached");
+    }
   }
 
   // Busca ou cria conversa
