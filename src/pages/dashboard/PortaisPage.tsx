@@ -223,15 +223,20 @@ export default function PortaisPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <Link to={`/dashboard/portais/${portal.slug}`} className="flex-1">
+                        <Button size="sm" className="gap-1.5 w-full bg-[#002B5B] hover:bg-[#001d3d] text-white">
+                          Gerenciar imóveis
+                        </Button>
+                      </Link>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => copy(portal.slug)}
                         disabled={!workspaceSlug}
-                        className="gap-1.5 flex-1"
+                        className="gap-1.5"
                       >
                         <Copy className="h-3.5 w-3.5" />
-                        Copiar URL XML
+                        URL
                       </Button>
                       <Button
                         size="sm"
@@ -239,9 +244,9 @@ export default function PortaisPage() {
                         asChild
                         disabled={!workspaceSlug}
                       >
-                        <a href={url} target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="gap-1.5" title="Abrir feed XML">
                           <ExternalLink className="h-3.5 w-3.5" />
-                          Testar
+                          <span className="sr-only">Testar</span>
                         </a>
                       </Button>
                     </div>

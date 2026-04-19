@@ -25,16 +25,55 @@ serve(async (req: Request) => {
     .eq("workspace_id", workspace.id)
     .maybeSingle();
 
-  const { data: properties } = await supabase
-    .from("properties")
-    .select("*")
-    .eq("workspace_id", workspace.id)
-    .eq("portals_feed", true)
-    .eq("status", "active")
-    .order("created_at", { ascending: false });
+  // Estratégia: property_portals (explicit per-portal config) tem prioridade.
+  // Se não houver config explícita pra este portal, cai pro legacy portals_feed=true.
+  const portalSlug = url.searchParams.get("portal");
+
+  const { data: explicitRows } = portalSlug
+    ? await supabase
+        .from("property_portals")
+        .select("property_id, is_featured")
+        .eq("portal_slug", portalSlug)
+        .in("status", ["pending", "sent"])
+    : { data: [] };
+
+  const explicitIds = new Set((explicitRows ?? []).map((r) => (r as { property_id: string }).property_id));
+  const featuredMap = new Map<string, boolean>();
+  for (const r of (explicitRows ?? []) as Array<{ property_id: string; is_featured: boolean }>) {
+    featuredMap.set(r.property_id, r.is_featured);
+  }
+
+  let properties: Record<string, unknown>[] = [];
+  if (explicitIds.size > 0) {
+    // Usa config explícita pra este portal
+    const { data } = await supabase
+      .from("properties")
+      .select("*")
+      .eq("workspace_id", workspace.id)
+      .eq("status", "active")
+      .in("id", Array.from(explicitIds))
+      .order("created_at", { ascending: false });
+    properties = (data as Record<string, unknown>[]) ?? [];
+  } else {
+    // Fallback legacy: portals_feed=true global
+    const { data } = await supabase
+      .from("properties")
+      .select("*")
+      .eq("workspace_id", workspace.id)
+      .eq("portals_feed", true)
+      .eq("status", "active")
+      .order("created_at", { ascending: false });
+    properties = (data as Record<string, unknown>[]) ?? [];
+  }
+
+  // Anota is_featured em cada property (default false)
+  properties = properties.map((p) => ({
+    ...p,
+    __is_featured: featuredMap.get(p.id as string) ?? false,
+  }));
 
   const xml = generateXML(
-    (properties as Record<string, unknown>[]) ?? [],
+    properties,
     siteConfig as Record<string, string> | null,
     workspace.name
   );
@@ -67,9 +106,11 @@ function generateXML(
         )
         .join("");
 
+      const featured = p.__is_featured === true;
       return `
     <Listing>
       <ListingID>${p.reference}</ListingID>
+      ${featured ? "<PublicationType>SUPER_PREMIUM</PublicationType>" : ""}
       <Title><![CDATA[${p.type ?? "Imóvel"} - ${addr.bairro ?? ""} - ${addr.cidade ?? ""}]]></Title>
       <TransactionType>${p.pretension === "venda" ? "For Sale" : "For Rent"}</TransactionType>
       <PropertyType>${p.type ?? "Residential"}</PropertyType>

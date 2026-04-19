@@ -156,6 +156,7 @@ const VoiceCloneWizardPage = lazy(() => import("./pages/dashboard/whatsapp/Voice
 const SecretariaHubPage = lazy(() => import("./pages/dashboard/SecretariaHubPage"));
 const SecretariaAgendaPage = lazy(() => import("./pages/dashboard/SecretariaAgendaPage"));
 const PortaisPage = lazy(() => import("./pages/dashboard/PortaisPage"));
+const PortalDetailPage = lazy(() => import("./pages/dashboard/PortalDetailPage"));
 const JobStatusPage = lazy(() => import("./pages/dashboard/JobStatusPage"));
 const SocialConnectPage = lazy(() => import("./pages/dashboard/social/SocialConnectPage"));
 const SocialCalendarioPage = lazy(() => import("./pages/dashboard/social/CalendarioPublicacoesPage"));
@@ -324,6 +325,7 @@ const App = () => (
               <Route path="/dashboard/secretaria"         element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><SecretariaHubPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/secretaria/agenda"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><SecretariaAgendaPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/portais"            element={<ProtectedRoute><ModuleProtectedRoute requires="site"><PortaisPage /></ModuleProtectedRoute></ProtectedRoute>} />
+              <Route path="/dashboard/portais/:slug"      element={<ProtectedRoute><ModuleProtectedRoute requires="site"><PortalDetailPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos"    element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFluxosPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/novo" element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/whatsapp/fluxos/:id"  element={<ProtectedRoute><ModuleProtectedRoute requires="whatsapp"><WhatsAppFlowBuilderPage /></ModuleProtectedRoute></ProtectedRoute>} />
