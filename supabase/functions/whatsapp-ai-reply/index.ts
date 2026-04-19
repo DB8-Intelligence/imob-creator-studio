@@ -139,7 +139,7 @@ serve(async (req: Request) => {
     .eq("owner_id", user_id)
     .maybeSingle();
 
-  const [incomingRes, outgoingRes, propertiesRes] = await Promise.all([
+  const [incomingRes, outgoingRes] = await Promise.all([
     supabase
       .from("whatsapp_inbox")
       .select("message_text, received_at")
@@ -154,19 +154,16 @@ serve(async (req: Request) => {
       .eq("to_phone", phone)
       .order("created_at", { ascending: false })
       .limit(HISTORY_LIMIT),
-    workspace
-      ? supabase
-          .from("properties")
-          .select("reference, type, bedrooms, suites, parking, area_built, price, address, description, status")
-          .eq("workspace_id", workspace.id)
-          .neq("status", "archived")
-          .order("created_at", { ascending: false })
-          .limit(PROPERTIES_CTX)
-      : Promise.resolve({ data: [] }),
   ]);
 
   const historyLines = mergeHistory(incomingRes.data ?? [], outgoingRes.data ?? []);
-  const propertiesContext = formatProperties(propertiesRes.data ?? []);
+
+  // ── 2.5 RAG: busca top-5 imóveis mais relevantes via embeddings ────
+  // Fallback para top-15 mais recentes se RAG não retornar nada (ex: imóveis
+  // ainda sem embedding durante backfill) ou OPENAI_API_KEY ausente.
+  const propertiesContext = workspace
+    ? await fetchPropertiesContext(workspace.id, message_text, incomingRes.data ?? [])
+    : "Nenhum imóvel cadastrado no portfólio ainda.";
 
   // ── 3. Chama Claude ───────────────────────────────────────
   const systemPrompt = buildSystemPrompt({
@@ -370,18 +367,96 @@ function mergeHistory(
   return all.map((m) => `${m.who}: ${m.text}`).join("\n");
 }
 
-function formatProperties(rows: Array<Record<string, unknown>>): string {
+/**
+ * RAG: embeda a mensagem atual + 2 últimas do lead, chama match_properties,
+ * formata o top-K. Fallback para top-15 recentes se embedding falhar ou
+ * se nenhum imóvel tiver embedding ainda.
+ */
+async function fetchPropertiesContext(
+  workspaceId: string,
+  currentMessage: string,
+  recentInbox: Array<{ message_text: string | null; received_at: string }>,
+): Promise<string> {
+  // Tenta RAG
+  const ragLines = await ragMatchProperties(workspaceId, currentMessage, recentInbox);
+  if (ragLines) return ragLines;
+
+  // Fallback: top-15 recentes (comportamento legado)
+  const { data } = await supabase
+    .from("properties")
+    .select("reference, property_type, bedrooms, suites, parking, area_built, price, pretension, city, neighborhood, description, status")
+    .eq("workspace_id", workspaceId)
+    .neq("status", "archived")
+    .order("created_at", { ascending: false })
+    .limit(PROPERTIES_CTX);
+
+  return formatPropertiesRows(data ?? []);
+}
+
+async function ragMatchProperties(
+  workspaceId:   string,
+  currentMessage: string,
+  recentInbox:   Array<{ message_text: string | null; received_at: string }>,
+): Promise<string | null> {
+  const openaiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!openaiKey) return null;
+
+  // Monta a query: mensagem atual + últimas 2 do lead (contexto de intenção)
+  const recentText = recentInbox
+    .slice(0, 2)
+    .map((m) => m.message_text ?? "")
+    .filter((t) => t.trim())
+    .join(" ");
+  const queryText = [currentMessage, recentText].filter(Boolean).join(" ").slice(0, 1000);
+  if (!queryText.trim()) return null;
+
+  try {
+    const embRes = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiKey}` },
+      body: JSON.stringify({ model: "text-embedding-3-small", input: queryText, dimensions: 1536 }),
+    });
+    const embData = await embRes.json();
+    if (!embRes.ok || !embData.data?.[0]?.embedding) {
+      console.error("embedding failed:", embData);
+      return null;
+    }
+    const vec = `[${(embData.data[0].embedding as number[]).join(",")}]`;
+
+    const { data: matches, error } = await supabase.rpc("match_properties", {
+      p_workspace_id:    workspaceId,
+      p_query_embedding: vec,
+      p_match_count:     5,
+      p_match_threshold: 0.25,
+    });
+    if (error) {
+      console.error("match_properties rpc error:", error);
+      return null;
+    }
+    if (!matches || matches.length === 0) return null;
+
+    return "IMÓVEIS MAIS RELEVANTES (busca semântica):\n" +
+      formatPropertiesRows(matches);
+  } catch (e) {
+    console.error("ragMatchProperties error:", e);
+    return null;
+  }
+}
+
+function formatPropertiesRows(rows: Array<Record<string, unknown>>): string {
   if (!rows.length) return "Nenhum imóvel cadastrado no portfólio ainda.";
   return rows
     .map((p) => {
-      const bairro = (p.address as { bairro?: string } | null)?.bairro ?? "";
-      const cidade = (p.address as { cidade?: string } | null)?.cidade ?? "";
-      const local = [bairro, cidade].filter(Boolean).join(", ");
+      const local = [p.neighborhood, p.city].filter(Boolean).join(", ");
       const preco = p.price ? `R$ ${Number(p.price).toLocaleString("pt-BR")}` : "preço a consultar";
       const dorms = p.bedrooms ? `${p.bedrooms} dorms` : "";
+      const suites = p.suites ? `${p.suites} suítes` : "";
+      const vagas = p.parking ? `${p.parking} vagas` : "";
       const area  = p.area_built ? `${p.area_built}m²` : "";
-      const specs = [dorms, area].filter(Boolean).join(" · ");
-      return `- [${p.reference}] ${p.type ?? "Imóvel"} ${specs} · ${local} · ${preco}`;
+      const specs = [dorms, suites, vagas, area].filter(Boolean).join(" · ");
+      const tipo = p.property_type ?? "Imóvel";
+      const pret = p.pretension ? ` (${p.pretension})` : "";
+      return `- [${p.reference}] ${tipo}${pret} ${specs} · ${local} · ${preco}`;
     })
     .join("\n");
 }
