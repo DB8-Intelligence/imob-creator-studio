@@ -8,11 +8,9 @@ import RecentOperationsSection from "@/components/dashboard/RecentOperationsSect
 import OnboardingChecklist from "@/components/dashboard/OnboardingChecklist";
 import { WelcomeBanner } from "@/components/dashboard/WelcomeBanner";
 import UpgradePlannerCard from "@/components/billing/UpgradePlannerCard";
-import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import SecretariaOnboardingWizard from "@/components/onboarding/SecretariaOnboardingWizard";
 import { useModules } from "@/hooks/useModuleAccess";
 import { MODULE_WIDGETS } from "@/components/dashboard/ModuleWidgets";
-import { useOnboardingProgress } from "@/hooks/useOnboardingProgress";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
@@ -52,11 +50,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { data: planInfo } = useUserPlan();
-  const {
-    showWizard,
-    completeWizard,
-    dismiss: dismissOnboarding,
-  } = useOnboardingProgress();
   const { hasModule } = useModules();
   const [wizardDismissed, setWizardDismissed] = useState(false);
   const [secretariaWizardDone, setSecretariaWizardDone] = useState<boolean | null>(null);
@@ -112,20 +105,12 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Secretaria wizard tem prioridade quando o corretor tem m\u00f3dulo whatsapp */}
-      {shouldShowSecretariaWizard ? (
+      {/* Wizard posta-compra Secretaria (unico wizard modal ativo) */}
+      {shouldShowSecretariaWizard && (
         <SecretariaOnboardingWizard
           onComplete={() => { setSecretariaWizardDone(true); setWizardDismissed(true); }}
           onDismiss={()  => { setSecretariaWizardDone(true); setWizardDismissed(true); }}
         />
-      ) : (
-        /* Onboarding wizard legado para users sem m\u00f3dulo whatsapp (cria\u00e7\u00e3o de criativos) */
-        showWizard && !wizardDismissed && (
-          <OnboardingWizard
-            onComplete={() => { setWizardDismissed(true); completeWizard(); }}
-            onSkip={() => { setWizardDismissed(true); dismissOnboarding(); }}
-          />
-        )
       )}
 
       {/* Grid Container de Layout (2 Colunas) */}
