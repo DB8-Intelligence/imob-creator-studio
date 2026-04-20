@@ -37,6 +37,7 @@ import {
   Plus,
   Rss,
   Settings,
+  FileDown,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -377,19 +378,55 @@ const DashboardSitePage = () => {
 
             {/* ============ TAB: Imóveis ============ */}
             <TabsContent value="imoveis" className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <h2 className="text-base font-semibold text-[#002B5B]">
                   Imóveis do Workspace
                 </h2>
-                <Button
-                  size="sm"
-                  className="gap-1.5 bg-[#002B5B] hover:bg-[#001f42]"
-                  onClick={() => navigate("/imoveis/upload")}
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Novo Imóvel
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={() => navigate("/importar")}
+                  >
+                    <FileDown className="h-3.5 w-3.5" />
+                    Importar XML/Planilha
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="gap-1.5 bg-[#002B5B] hover:bg-[#001f42]"
+                    onClick={() => navigate("/imoveis/upload")}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Novo Imóvel
+                  </Button>
+                </div>
               </div>
+
+              {/* Info card: destaca a opção de importar se o workspace ainda tá vazio */}
+              {!loadingProps && properties.length === 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardContent className="p-4 flex items-start gap-3">
+                    <div className="rounded-full bg-blue-100 p-2 shrink-0">
+                      <FileDown className="h-4 w-4 text-blue-700" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-[#002B5B]">Migrando de outra plataforma?</p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        Importe imóveis via XML (Tecimob, Jetimob, Univen, VRSync) ou planilha CSV em um clique.
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate("/importar")}
+                      className="shrink-0"
+                    >
+                      Importar agora
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
               {loadingProps ? (
                 <div className="py-10 text-center text-sm text-gray-400">
