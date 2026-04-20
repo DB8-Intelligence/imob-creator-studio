@@ -20,20 +20,19 @@ import {
   Sun,
   ChevronDown,
   ChevronRight,
+  Coins,
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
-import { Coins } from "lucide-react";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
-import { DASHBOARD_NAV, type NavSection } from "@/config/dashboard-nav";
+import { DASHBOARD_NAV } from "@/config/dashboard-nav";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AppLayoutProps {
   children: ReactNode;
 }
-
-// Navigation is now defined in src/config/dashboard-nav.ts (DASHBOARD_NAV)
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
@@ -52,21 +51,13 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   const handleLogout = async () => {
     await signOut();
-    toast({
-      title: "Até logo!",
-      description: "Você saiu da sua conta.",
-    });
+    toast({ title: "Até logo!", description: "Você saiu da sua conta." });
     navigate("/auth");
   };
 
   const getInitials = (name: string | null) => {
     if (!name) return "U";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
   // Admin check
@@ -82,11 +73,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
   const isUnlimited = plan?.plan_slug === "max" || plan?.user_plan === "pro" || plan?.user_plan === "vip";
   const creditPct = creditsTotal > 0 ? Math.min((creditsRemaining / creditsTotal) * 100, 100) : 0;
 
-  // Credit bar ref — sets --credit-pct CSS var imperatively to avoid inline style lint warning
+  // Credit bar ref — sets width via CSS var pra evitar inline-style lint
   const creditBarRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    creditBarRef.current?.style.setProperty("--credit-pct", `${isUnlimited ? 100 : creditPct}%`);
-  }, [isUnlimited, creditPct]);
+    creditBarRef.current?.style.setProperty("width", `${creditPct}%`);
+  }, [creditPct]);
 
   // Low-credit toast — fires once per session when credits drop to ≤ 5
   const lowCreditToastShown = useRef(false);
@@ -95,7 +86,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       lowCreditToastShown.current = true;
       toast({
         title: "Créditos quase acabando",
-        description: `Você tem apenas ${creditsRemaining} crédito${creditsRemaining !== 1 ? "s" : ""} restante${creditsRemaining !== 1 ? "s" : ""}. Adquira mais para continuar criando.`,
+        description: `Você tem apenas ${creditsRemaining} crédito${creditsRemaining !== 1 ? "s" : ""} restante${creditsRemaining !== 1 ? "s" : ""}.`,
         variant: "destructive",
       });
     }
@@ -103,15 +94,14 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       lowCreditToastShown.current = true;
       toast({
         title: "Sem créditos disponíveis",
-        description: "Adquira um pacote de créditos para continuar gerando criativos.",
+        description: "Adquira um pacote de créditos para continuar.",
         variant: "destructive",
       });
     }
   }, [creditsRemaining, isUnlimited, plan, toast]);
 
-  // Collapsible sections state — tracks which sections are expanded
+  // Collapsible sections state
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
-    // Auto-expand the section that contains the current path
     const initial: Record<string, boolean> = {};
     for (const section of DASHBOARD_NAV) {
       const hasActivePath = section.items.some(
@@ -119,7 +109,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
       );
       initial[section.id] = hasActivePath;
     }
-    // Always expand Home
     initial.home = true;
     return initial;
   });
@@ -128,32 +117,104 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     setExpandedSections((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-card border-b border-border z-50 flex items-center justify-between px-4">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+  const firstName = profile?.full_name?.split(" ")[0] ?? "Usuário";
+  const planLabel = plan?.plan_name || (plan?.plan_slug ? `Plano ${plan.plan_slug.toUpperCase()}` : "Plano CRÉDITOS");
+
+  /* ──────────────────────────────────────────────────────────────
+     TOPBAR (desktop + mobile)
+     Mobile: menu hamburguer, créditos, bell, avatar
+     Desktop: esquerda = workspace switcher; direita = créditos + bell + user
+     ────────────────────────────────────────────────────────────── */
+  const Topbar = (
+    <header className="fixed top-0 right-0 left-0 lg:left-64 h-14 bg-card border-b border-border z-40 flex items-center justify-between px-4 lg:px-6">
+      {/* Left: mobile hamburger OR welcome desktop */}
+      <div className="flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden"
+          onClick={() => setSidebarOpen(true)}
+        >
           <Menu className="w-5 h-5" />
         </Button>
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="NexoImob AI" className="h-8 w-auto" />
+        <div className="hidden lg:block">
+          <p className="text-sm font-semibold text-foreground leading-tight">Olá, {firstName}</p>
+          <p className="text-[11px] text-muted-foreground leading-tight">{planLabel}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
+      </div>
+
+      {/* Right: créditos + bell + avatar */}
+      <div className="flex items-center gap-2 lg:gap-3">
+        <button
+          type="button"
+          onClick={() => navigate("/configuracoes/plano")}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+          title={isUnlimited ? "Operação expandida (créditos ilimitados)" : `${creditsRemaining} de ${creditsTotal} créditos`}
+        >
+          <Coins className="w-4 h-4 text-accent" />
+          <span className="text-sm font-bold text-foreground">
+            {isUnlimited ? "∞" : creditsRemaining}
+          </span>
+          <span className="text-[11px] text-muted-foreground hidden sm:inline">
+            {isUnlimited ? "ilimitado" : "créditos"}
+          </span>
+        </button>
+
+        {!isUnlimited && (
+          <Button
+            size="sm"
+            variant="outline"
             onClick={() => navigate("/configuracoes/plano")}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-accent/10 border border-accent/20 hover:bg-accent/20 transition-colors"
+            className="hidden sm:inline-flex gap-1.5 h-8"
           >
-            <Coins className="w-3.5 h-3.5 text-accent" />
-            <span className="text-xs font-bold text-foreground">{isUnlimited ? "∞" : creditsRemaining}</span>
-            <span className="text-[10px] text-muted-foreground hidden sm:inline">créditos</span>
-          </button>
-          <NotificationBell />
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
-          </Avatar>
-        </div>
-      </header>
+            <Plus className="w-3.5 h-3.5" />
+            Comprar
+          </Button>
+        )}
+
+        <NotificationBell />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button type="button" className="flex items-center gap-2 rounded-lg hover:bg-muted transition-colors p-1">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={profile?.avatar_url || undefined} />
+                <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <p className="text-sm font-medium">{profile?.full_name ?? "Usuário"}</p>
+              <p className="text-xs text-muted-foreground font-normal">{planLabel}</p>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={toggleDarkMode}>
+              {darkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
+              {darkMode ? "Modo Claro" : "Modo Escuro"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/configuracoes")}>
+              <Settings className="w-4 h-4 mr-2" />
+              Configurações
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/configuracoes/plano")}>
+              <Coins className="w-4 h-4 mr-2" />
+              Plano & Créditos
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+
+  return (
+    <div className="min-h-screen bg-muted/30">
+      {Topbar}
 
       {sidebarOpen && (
         <div
@@ -170,19 +231,20 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         `}
       >
         <div className="flex flex-col h-full">
+          {/* Logo + Workspace */}
           <div className="min-h-16 flex items-start justify-between px-4 py-3 border-b border-border">
             <div>
               <Link to="/dashboard" className="flex items-center gap-2">
                 <img src="/logo.png" alt="NexoImob AI" className="h-10 w-auto" />
               </Link>
               <div className="mt-2 pl-12">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Workspace ativo</p>
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Workspace</p>
                 <p className="text-sm font-medium text-foreground line-clamp-1">
-                  {workspaceName || "Workspace não carregado"}
+                  {workspaceName || "—"}
                 </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {workspaceRole ? `Role: ${workspaceRole}` : "Sem role definida"}
-                </p>
+                {workspaceRole && (
+                  <p className="text-[11px] text-muted-foreground">{workspaceRole}</p>
+                )}
               </div>
             </div>
             <Button
@@ -195,9 +257,9 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </Button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto py-2 px-3 space-y-0.5">
+          {/* Nav — agora ocupa o espaço todo (antes estava dividindo com Créditos e User) */}
+          <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5">
             {DASHBOARD_NAV.filter((section) => {
-              // Hide admin section for non-admins
               if (section.id === "admin" && !isAdmin) return false;
               return true;
             }).map((section) => {
@@ -206,7 +268,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 (item) => location.pathname === item.path || location.pathname.startsWith(item.path + "/")
               );
 
-              // Home section: render items directly without collapsible header
+              // Home section: render items directly
               if (section.id === "home") {
                 return section.items.map((item) => {
                   const isActive = location.pathname === item.path;
@@ -229,9 +291,36 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                 });
               }
 
+              // Sections com apenas 1 item: render direto sem collapsible header
+              if (section.items.length === 1) {
+                const item = section.items[0];
+                const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`
+                      flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors
+                      ${isActive
+                        ? "bg-accent text-accent-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"}
+                    `}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="flex-1 text-sm">{item.label}</span>
+                    {item.badge && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground leading-none">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              }
+
+              // Sections com múltiplos itens: collapsible
               return (
                 <div key={section.id}>
-                  {/* Section header (collapsible) */}
                   <button
                     type="button"
                     onClick={() => toggleSection(section.id)}
@@ -253,7 +342,6 @@ const AppLayout = ({ children }: AppLayoutProps) => {
                     )}
                   </button>
 
-                  {/* Section items */}
                   {isExpanded && (
                     <div className="ml-2 space-y-0.5">
                       {section.items.map((item) => {
@@ -287,77 +375,28 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             })}
           </nav>
 
-          <div className="p-4">
-            <div className="bg-gradient-to-br from-accent/20 to-accent/5 rounded-xl p-4 border border-accent/20">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Coins className="w-4 h-4 text-accent" />
-                  <span className="text-sm font-medium text-foreground">Créditos</span>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {isUnlimited ? "ilimitado" : `${creditsRemaining}/${creditsTotal}`}
-                </span>
+          {/* Progress bar de créditos (opcional, pequeno, só se limitado) */}
+          {!isUnlimited && creditsTotal > 0 && (
+            <div className="px-4 py-3 border-t border-border">
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+                <span>Créditos</span>
+                <span className="font-medium text-foreground">{creditsRemaining}/{creditsTotal}</span>
               </div>
-              <p className="text-2xl font-bold text-foreground mb-0.5">
-                {isUnlimited ? "∞" : creditsRemaining}
-              </p>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isUnlimited ? "operação expandida" : "créditos disponíveis"}
-              </p>
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-3">
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
                   ref={creditBarRef}
-                  className={[
-                    "credit-bar-fill h-full rounded-full transition-all duration-500",
-                    creditPct > 50 ? "bg-accent" : creditPct > 20 ? "bg-amber-500" : "bg-red-500",
-                  ].join(" ")}
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    creditPct > 50 ? "bg-accent" : creditPct > 20 ? "bg-amber-500" : "bg-red-500"
+                  }`}
                 />
               </div>
-              <Button variant="outline" size="sm" className="w-full" onClick={() => navigate("/configuracoes/plano")}>
-                Comprar créditos
-              </Button>
             </div>
-          </div>
-
-          <div className="p-4 border-t border-border">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button type="button" className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
-                  <Avatar className="w-9 h-9">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback>{getInitials(profile?.full_name)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-medium text-foreground">{profile?.full_name || "Usuário"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {plan?.plan_name || (plan?.plan_slug ? `Plano ${plan.plan_slug.toUpperCase()}` : "Plano CRÉDITOS")}
-                    </p>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={toggleDarkMode}>
-                  {darkMode ? <Sun className="w-4 h-4 mr-2" /> : <Moon className="w-4 h-4 mr-2" />}
-                  {darkMode ? "Modo Claro" : "Modo Escuro"}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/configuracoes")}>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Configurações
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sair
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          )}
         </div>
       </aside>
 
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
+      {/* Main com padding-top pra acomodar topbar de 14h (56px) */}
+      <main className="lg:ml-64 min-h-screen pt-14">
         <div className="p-4 lg:p-8">{children}</div>
       </main>
     </div>
