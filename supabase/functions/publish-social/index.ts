@@ -28,7 +28,7 @@ serve(async (req: Request) => {
   const body   = await req.json().catch(() => ({}));
 
   const { data: workspace } = await supabase
-    .from("workspaces").select("id").eq("owner_id", user.id).maybeSingle();
+    .from("workspaces").select("id").eq("owner_user_id", user.id).maybeSingle();
   if (!workspace) return json({ ok: false, error: "Workspace not found" }, 404);
 
   switch (action) {

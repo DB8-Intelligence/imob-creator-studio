@@ -189,7 +189,7 @@ serve(async (req: Request) => {
   const { data: workspace } = await supabase
     .from("workspaces")
     .select("id")
-    .eq("owner_id", user_id)
+    .eq("owner_user_id", user_id)
     .maybeSingle();
 
   const [incomingRes, outgoingRes] = await Promise.all([

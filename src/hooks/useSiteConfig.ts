@@ -46,7 +46,7 @@ export function useSiteConfig() {
     const { data: ws } = await supabase
       .from('workspaces')
       .select('id')
-      .eq('owner_id', user.id)
+      .eq('owner_user_id', user.id)
       .maybeSingle();
 
     if (!ws) { setLoading(false); return; }
@@ -69,7 +69,7 @@ export function useSiteConfig() {
 
     const { data: { user } } = await supabase.auth.getUser();
     const { data: ws } = await supabase
-      .from('workspaces').select('id').eq('owner_id', user!.id).maybeSingle();
+      .from('workspaces').select('id').eq('owner_user_id', user!.id).maybeSingle();
 
     const { error } = await supabase.from('site_config').upsert({
       ...merged,

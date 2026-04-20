@@ -23,7 +23,7 @@ serve(async (req: Request) => {
   if (!user) return new Response("Unauthorized", { status: 401 });
 
   const { data: workspace } = await supabaseAdmin
-    .from("workspaces").select("id").eq("owner_id", user.id).maybeSingle();
+    .from("workspaces").select("id").eq("owner_user_id", user.id).maybeSingle();
   if (!workspace) return json({ error: "Workspace not found" }, 404);
 
   const url = new URL(req.url);

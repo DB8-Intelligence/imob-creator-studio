@@ -312,8 +312,8 @@ async function processWebhook(
     if (prod.module_id === "whatsapp" && workspaceId) {
       try {
         const { data: ws } = await supabase
-          .from("workspaces").select("owner_id").eq("id", workspaceId).maybeSingle();
-        const ownerId = (ws as { owner_id?: string } | null)?.owner_id;
+          .from("workspaces").select("owner_user_id").eq("id", workspaceId).maybeSingle();
+        const ownerId = (ws as { owner_user_id?: string } | null)?.owner_user_id;
         if (ownerId) {
           const userShortId = ownerId.replace(/-/g, "").substring(0, 12);
           const instanceName = `whatsapp-user-${userShortId}`;

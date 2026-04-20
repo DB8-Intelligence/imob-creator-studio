@@ -223,7 +223,7 @@ serve(async (req: Request) => {
         const { data: ws } = await supabase
           .from("workspaces")
           .select("id")
-          .eq("owner_id", userId)
+          .eq("owner_user_id", userId)
           .maybeSingle();
 
         if (!ws) {
@@ -296,7 +296,7 @@ serve(async (req: Request) => {
         const { data: ws } = await supabase
           .from("workspaces")
           .select("id")
-          .eq("owner_id", userId)
+          .eq("owner_user_id", userId)
           .maybeSingle();
 
         if (!ws) {

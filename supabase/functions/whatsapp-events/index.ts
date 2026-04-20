@@ -36,7 +36,7 @@ serve(async (req: Request) => {
   const { data: workspace } = await supabase
     .from("workspaces")
     .select("id")
-    .eq("owner_id", instance.user_id)
+    .eq("owner_user_id", instance.user_id)
     .maybeSingle();
 
   if (!workspace) return new Response("ok");
