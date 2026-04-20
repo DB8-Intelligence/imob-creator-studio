@@ -57,11 +57,13 @@ export default function WhatsAppSetupPage() {
   const [profileName, setProfileName] = useState("");
   const [stats, setStats] = useState({ messagesCount: 0, propertiesCount: 0, creativesCount: 0 });
 
-  /* ---- Load instance data on mount ---- */
+  /* ---- Load instance data on mount — consulta DB + Evolution ao vivo ---- */
   useEffect(() => {
     async function loadInstance() {
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) return;
+
+      // 1. Lê o snapshot do DB
       const { data } = await supabase
         .from("user_whatsapp_instances" as any)
         .select("*")
@@ -72,11 +74,26 @@ export default function WhatsAppSetupPage() {
         setPhoneNumber((data as any).phone_number || "");
         setProfileName((data as any).profile_name || "");
       }
+
+      // 2. Também consulta Evolution pra sincronizar status real (pode ter conectado
+      //    em outra aba, ou conexão feita no celular mas UI ficou desatualizada)
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?action=status`,
+          { headers: { Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } },
+        );
+        const statusData = await res.json();
+        if (statusData?.state === "open" || statusData?.state === "connected") {
+          setConnectionStatus("connected");
+        }
+      } catch { /* silencioso — DB já é o fallback */ }
     }
     loadInstance();
   }, []);
 
-  /* ---- Poll for connection status while connecting ---- */
+  /* ---- Poll for connection status while connecting (2s, mais rápido) ---- */
   useEffect(() => {
     if (connectionStatus !== "connecting") return;
     const interval = setInterval(async () => {
@@ -96,7 +113,7 @@ export default function WhatsAppSetupPage() {
       } catch (e) {
         console.error("status poll error:", e);
       }
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [connectionStatus]);
 
@@ -306,7 +323,7 @@ export default function WhatsAppSetupPage() {
 
             {/* Note */}
             <p className="text-xs text-gray-400 text-center">
-              Integracao via Evolution API. Sua sessao ficara ativa 24h.
+              Mantenha o WhatsApp logado no seu celular. A sessão fica ativa enquanto o dispositivo estiver vinculado.
             </p>
           </CardContent>
         </Card>

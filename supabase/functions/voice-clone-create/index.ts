@@ -53,16 +53,27 @@ serve(async (req: Request) => {
   const { data: { user }, error: authError } = await userClient.auth.getUser();
   if (authError || !user) return json({ ok: false, error: "unauthorized" }, 401);
 
-  // Gate de plano: Plus (plan_slug='pro' em módulo whatsapp)
-  const { data: mod } = await userClient
-    .from("my_modules")
-    .select("plan_slug, status")
-    .eq("module_id", "whatsapp")
+  // Bypass super_admin (fundador / conta interna)
+  const { data: adminRow } = await userClient
+    .from("admin_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "super_admin")
     .maybeSingle();
+  const isSuperAdmin = !!adminRow;
 
-  const hasPlus = mod?.status === "active" && ["pro", "max"].includes(mod?.plan_slug ?? "");
-  if (!hasPlus) {
-    return json({ ok: false, error: "plan_required", message: "Voz clonada requer Secretária Virtual Plus" }, 403);
+  if (!isSuperAdmin) {
+    // Gate de plano: Plus (plan_slug='pro' em módulo whatsapp)
+    const { data: mod } = await userClient
+      .from("my_modules")
+      .select("plan_slug, status")
+      .eq("module_id", "whatsapp")
+      .maybeSingle();
+
+    const hasPlus = mod?.status === "active" && ["pro", "max"].includes(mod?.plan_slug ?? "");
+    if (!hasPlus) {
+      return json({ ok: false, error: "plan_required", message: "Voz clonada requer Secretária Virtual Plus" }, 403);
+    }
   }
 
   let body: CreateRequest;

@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useModules } from "@/hooks/useModuleAccess";
+import { useIsSuperAdmin } from "@/hooks/useIsSuperAdmin";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,9 +60,12 @@ export default function VoiceCloneWizardPage() {
   const [previewAudio, setPreviewAudio] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  const { data: isSuperAdmin } = useIsSuperAdmin();
+
   const hasPlus =
-    modules.hasModule("whatsapp") &&
-    ["pro", "max"].includes(modules.getModule("whatsapp")?.plan_slug ?? "");
+    isSuperAdmin ||
+    (modules.hasModule("whatsapp") &&
+      ["pro", "max"].includes(modules.getModule("whatsapp")?.plan_slug ?? ""));
 
   useEffect(() => {
     if (!user) return;
