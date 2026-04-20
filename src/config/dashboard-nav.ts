@@ -233,16 +233,6 @@ export const DASHBOARD_NAV: NavSection[] = [
     ],
   },
 
-  // ── Integrações ──
-  {
-    id: "integracoes",
-    label: "Integrações",
-    emoji: "🔌",
-    items: [
-      { icon: Plug, label: "APIs & Webhooks", path: "/integracoes" },
-    ],
-  },
-
   // ── Biblioteca de Arquivos ──
   {
     id: "biblioteca",

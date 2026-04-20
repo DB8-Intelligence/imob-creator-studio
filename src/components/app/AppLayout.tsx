@@ -22,6 +22,7 @@ import {
   ChevronRight,
   Coins,
   Plus,
+  Plug,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPlan } from "@/hooks/useUserPlan";
@@ -195,11 +196,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/configuracoes")}>
               <Settings className="w-4 h-4 mr-2" />
-              Configurações
+              Perfil & Marca
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate("/configuracoes/plano")}>
               <Coins className="w-4 h-4 mr-2" />
               Plano & Créditos
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate("/integracoes")}>
+              <Plug className="w-4 h-4 mr-2" />
+              Integrações & APIs
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive">

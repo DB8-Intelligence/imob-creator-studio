@@ -32,30 +32,24 @@ interface Integration {
   conta?: string; conectadoEm?: string;
 }
 
+// Nota: n8n, OpenAI, ElevenLabs, Canva, HubSpot, Pipedrive são integrações
+// back-end da plataforma — não devem aparecer pro corretor configurar.
+// Só mostramos integrações que o corretor USA diretamente.
 const MOCK_INTEGRATIONS: Integration[] = [
   // Redes Sociais
   { id: "i1", slug: "instagram", nome: "Instagram", descricao: "Agendar posts e reels diretamente", categoria: "Redes Sociais", logo: "📸", status: "conectado", conta: "@corretor.pro", conectadoEm: "2026-03-15" },
   { id: "i2", slug: "facebook", nome: "Facebook Pages", descricao: "Publicação cruzada automática", categoria: "Redes Sociais", logo: "📘", status: "disponivel" },
-  { id: "i3", slug: "evolution", nome: "WhatsApp (Evolution API)", descricao: "Automações de WhatsApp", categoria: "Redes Sociais", logo: "💬", status: "conectado", conta: "(11) 99999-0000", conectadoEm: "2026-03-10" },
-  // Portais
+  { id: "i3", slug: "evolution", nome: "WhatsApp", descricao: "Secretária Virtual 24h", categoria: "Redes Sociais", logo: "💬", status: "conectado", conta: "(11) 99999-0000", conectadoEm: "2026-03-10" },
+  // Portais imobiliários
   { id: "i4", slug: "zapimoveis", nome: "Zap Imóveis", descricao: "Importar/exportar listagens", categoria: "Portais", logo: "🏠", status: "disponivel" },
   { id: "i5", slug: "vivareal", nome: "Viva Real", descricao: "Sincronizar portfólio", categoria: "Portais", logo: "🔵", status: "disponivel" },
-  { id: "i6", slug: "olx", nome: "OLX Imóveis", descricao: "Publicação automática", categoria: "Portais", logo: "🟠", status: "max_only" },
-  // Comunicação
-  { id: "i7", slug: "gmail", nome: "Gmail", descricao: "Emails com templates", categoria: "Comunicação", logo: "📧", status: "disponivel" },
-  { id: "i8", slug: "resend", nome: "Resend", descricao: "Email marketing para leads", categoria: "Comunicação", logo: "📬", status: "max_only" },
-  // CRM
-  { id: "i9", slug: "pipedrive", nome: "Pipedrive", descricao: "Sincronizar leads bidirecional", categoria: "CRM", logo: "🔄", status: "max_only" },
-  { id: "i10", slug: "hubspot", nome: "HubSpot", descricao: "Integração CRM completa", categoria: "CRM", logo: "🟧", status: "max_only" },
-  // IA
-  { id: "i11", slug: "n8n", nome: "n8n", descricao: "Workflows de automação", categoria: "IA e Automação", logo: "⚡", status: "conectado", conta: "6 workflows ativos", conectadoEm: "2026-01-01" },
-  { id: "i12", slug: "openai", nome: "OpenAI", descricao: "Modelo alternativo de IA", categoria: "IA e Automação", logo: "🤖", status: "disponivel" },
-  { id: "i13", slug: "elevenlabs", nome: "ElevenLabs", descricao: "Voice para vídeos", categoria: "IA e Automação", logo: "🎙️", status: "max_only" },
-  // Design
-  { id: "i14", slug: "canva", nome: "Canva", descricao: "Enviar criativos para edição", categoria: "Design", logo: "🎨", status: "disponivel" },
+  { id: "i6", slug: "olx", nome: "OLX Imóveis", descricao: "Publicação automática", categoria: "Portais", logo: "🟠", status: "disponivel" },
+  // Agenda
+  { id: "i7", slug: "google-calendar", nome: "Google Agenda", descricao: "IA agenda visitas no seu calendário", categoria: "Agenda", logo: "📅", status: "disponivel" },
+  // Email
+  { id: "i8", slug: "gmail", nome: "Gmail", descricao: "Emails com templates", categoria: "Comunicação", logo: "📧", status: "disponivel" },
   // Analytics
-  { id: "i15", slug: "ga4", nome: "Google Analytics", descricao: "Trackear visitas ao book", categoria: "Analytics", logo: "📊", status: "disponivel" },
-  { id: "i16", slug: "metapixel", nome: "Meta Pixel", descricao: "Remarketing para leads", categoria: "Analytics", logo: "📈", status: "max_only" },
+  { id: "i15", slug: "ga4", nome: "Google Analytics", descricao: "Trackear visitas ao site", categoria: "Analytics", logo: "📊", status: "disponivel" },
 ];
 
 const STATUS_CFG = {
