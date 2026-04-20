@@ -93,26 +93,24 @@ export const DASHBOARD_NAV: NavSection[] = [
   },
 
   // ── Leads ──
+  // Pipeline, cadastro e histórico ficam como tabs/botões dentro da página principal
   {
     id: "leads",
     label: "Leads",
     emoji: "👥",
     items: [
-      { icon: Users, label: "Pipeline Kanban", path: "/leads" },
-      { icon: UserPlus, label: "Cadastro de Lead", path: "/leads/novo" },
-      { icon: History, label: "Histórico do Lead", path: "/leads/historico" },
+      { icon: Users, label: "Leads", path: "/leads" },
     ],
   },
 
   // ── Atendimentos ──
+  // Calendário, novo agendamento e histórico são abas dentro da página
   {
     id: "atendimentos",
     label: "Atendimentos",
     emoji: "📅",
     items: [
-      { icon: CalendarDays, label: "Calendário de Visitas", path: "/atendimentos" },
-      { icon: CalendarPlus, label: "Novo Agendamento", path: "/atendimentos/novo" },
-      { icon: CalendarClock, label: "Histórico", path: "/atendimentos/historico" },
+      { icon: CalendarDays, label: "Atendimentos", path: "/atendimentos" },
     ],
   },
 
@@ -122,10 +120,8 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Imóveis",
     emoji: "🏠",
     items: [
-      { icon: List, label: "Listagem / Inbox", path: "/imoveis" },
-      { icon: PenSquare, label: "Editor de Imóvel", path: "/imoveis/editor" },
-      { icon: Upload, label: "Upload de Imóvel", path: "/imoveis/upload" },
-      { icon: FileDown, label: "Importar Dados", path: "/importar" },
+      { icon: List, label: "Imóveis", path: "/imoveis" },
+      { icon: FileDown, label: "Importar XML/Planilha", path: "/importar" },
     ],
   },
 
@@ -137,7 +133,6 @@ export const DASHBOARD_NAV: NavSection[] = [
     items: [
       { icon: Zap, label: "Gerar Posts", path: "/gerar-posts", badge: "AI" },
       { icon: FolderOpen, label: "Galeria", path: "/dashboard/criativos" },
-      { icon: PlusCircle, label: "Novo Criativo", path: "/dashboard/criativos/novo" },
       { icon: Video, label: "Vídeos", path: "/dashboard/videos", badge: "IA" },
     ],
   },
@@ -171,9 +166,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     items: [
       { icon: Bot, label: "Secretária Virtual", path: "/dashboard/secretaria" },
       { icon: Mic, label: "Voz Clonada", path: "/dashboard/whatsapp/voz", badge: "Plus" },
-      { icon: Workflow, label: "Fluxos Ativos", path: "/automacoes" },
-      { icon: GitBranch, label: "Construtor de Fluxo", path: "/automacoes/construtor" },
-      { icon: Send, label: "Histórico de Disparos", path: "/automacoes/historico" },
+      { icon: Workflow, label: "Fluxos de Disparos", path: "/automacoes" },
     ],
   },
 
@@ -183,9 +176,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Calendário",
     emoji: "📆",
     items: [
-      { icon: CalendarRange, label: "Mensal / Semanal", path: "/calendario" },
-      { icon: Rss, label: "Feed de Conteúdo", path: "/calendario/feed" },
-      { icon: Calendar, label: "Publicações", path: "/calendario/publicacoes" },
+      { icon: CalendarRange, label: "Calendário", path: "/calendario" },
     ],
   },
 
@@ -205,9 +196,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Agentes de IA",
     emoji: "🧠",
     items: [
-      { icon: Bot, label: "Agentes Ativos", path: "/agentes" },
-      { icon: PlusCircle, label: "Criar Agente", path: "/agentes/criar" },
-      { icon: ScrollText, label: "Logs de Execução", path: "/agentes/logs" },
+      { icon: Bot, label: "Agentes", path: "/agentes" },
     ],
   },
 
@@ -229,8 +218,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Usuários",
     emoji: "👤",
     items: [
-      { icon: UserCog, label: "Lista de Usuários", path: "/usuarios" },
-      { icon: Shield, label: "Permissões", path: "/usuarios/permissoes" },
+      { icon: UserCog, label: "Usuários & Permissões", path: "/usuarios" },
     ],
   },
 
@@ -241,9 +229,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "⚙️",
     items: [
       { icon: UserCircle, label: "Perfil & Marca", path: "/configuracoes" },
-      { icon: SlidersHorizontal, label: "Prompts Customizados", path: "/configuracoes/prompts" },
       { icon: CreditCard, label: "Plano & Faturamento", path: "/configuracoes/plano" },
-      { icon: Zap, label: "Módulos & Assinatura", path: "/configuracoes/modulos" },
     ],
   },
 
@@ -253,8 +239,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Integrações",
     emoji: "🔌",
     items: [
-      { icon: Plug, label: "APIs Conectadas", path: "/integracoes" },
-      { icon: Webhook, label: "Webhooks", path: "/integracoes/webhooks" },
+      { icon: Plug, label: "APIs & Webhooks", path: "/integracoes" },
     ],
   },
 
@@ -264,9 +249,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Biblioteca",
     emoji: "📁",
     items: [
-      { icon: Image, label: "Fotos", path: "/biblioteca" },
-      { icon: Film, label: "Vídeos", path: "/biblioteca/videos" },
-      { icon: FileArchive, label: "Documentos", path: "/biblioteca/documentos" },
+      { icon: FolderOpen, label: "Biblioteca", path: "/biblioteca" },
     ],
   },
 
@@ -276,10 +259,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Relatórios",
     emoji: "📈",
     items: [
-      { icon: TrendingUp, label: "Performance de Conteúdo", path: "/relatorios" },
-      { icon: BarChart3, label: "Analytics de Conteúdo", path: "/relatorios/analytics" },
-      { icon: Target, label: "Conversão de Leads", path: "/relatorios/conversao" },
-      { icon: PieChart, label: "ROI Geral", path: "/relatorios/roi" },
+      { icon: TrendingUp, label: "Relatórios", path: "/relatorios" },
     ],
   },
   // ── Admin (visível apenas para super_admin) ──
@@ -289,7 +269,6 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🛡️",
     items: [
       { icon: Shield, label: "Painel Admin", path: "/admin/diagnosticos" },
-      { icon: BarChart3, label: "Diagnósticos", path: "/admin/diagnosticos" },
     ],
   },
 ];
