@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug, Bot, ArrowRight } from "lucide-react";
+import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug, Bot, ArrowRight, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
+import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -195,10 +196,16 @@ export default function WhatsAppSetupPage() {
   const status = STATUS_CONFIG[connectionStatus];
 
   return (
-    <div className="min-h-screen bg-white font-['Plus_Jakarta_Sans']">
+    <AppLayout>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
         <div>
+          <Link
+            to="/dashboard/secretaria"
+            className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#002B5B] mb-2"
+          >
+            <ArrowLeft className="h-3 w-3" /> Voltar ao Hub da Secretária
+          </Link>
           <h1 className="text-2xl font-bold text-[#002B5B]">Conectar WhatsApp</h1>
           <p className="text-sm text-gray-500 mt-1">
             Vincule sua conta do WhatsApp para receber e enviar mensagens automaticamente.
@@ -365,6 +372,6 @@ export default function WhatsAppSetupPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
