@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import {
   MessageSquare,
   Image,
@@ -7,10 +8,12 @@ import {
   Inbox,
   Loader2,
   Search,
+  ArrowLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import AppLayout from "@/components/app/AppLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -139,10 +142,16 @@ export default function WhatsAppInboxPage() {
 
   /* ---- Render ---- */
   return (
-    <div className="min-h-screen bg-white font-['Plus_Jakarta_Sans']">
+    <AppLayout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-6">
+          <Link
+            to="/dashboard/secretaria"
+            className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#002B5B] mb-2"
+          >
+            <ArrowLeft className="h-3 w-3" /> Voltar ao Hub da Secretária
+          </Link>
           <h1 className="text-2xl font-bold text-[#002B5B]">
             Conversas WhatsApp
           </h1>
@@ -240,6 +249,6 @@ export default function WhatsAppInboxPage() {
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 }

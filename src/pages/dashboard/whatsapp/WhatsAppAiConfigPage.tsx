@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Bot, Loader2, Save, ArrowLeft, AlertCircle, CheckCircle2, Calendar, Clock, ExternalLink, Mic } from "lucide-react";
+import AppLayout from "@/components/app/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -230,22 +231,24 @@ export default function WhatsAppAiConfigPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#002B5B]" />
-      </div>
+      <AppLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <Loader2 className="h-6 w-6 animate-spin text-[#002B5B]" />
+        </div>
+      </AppLayout>
     );
   }
 
   const disconnected = settings.status !== "connected";
 
   return (
-    <div className="min-h-screen bg-white font-['Plus_Jakarta_Sans']">
+    <AppLayout>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between gap-4">
           <div>
-            <Link to="/dashboard/whatsapp" className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#002B5B] mb-2">
-              <ArrowLeft className="h-3 w-3" /> Voltar
+            <Link to="/dashboard/secretaria" className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[#002B5B] mb-2">
+              <ArrowLeft className="h-3 w-3" /> Voltar ao Hub da Secretária
             </Link>
             <h1 className="text-2xl font-bold text-[#002B5B] flex items-center gap-2">
               <Bot className="h-6 w-6 text-[#002B5B]" />
@@ -789,6 +792,6 @@ export default function WhatsAppAiConfigPage() {
           </div>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }

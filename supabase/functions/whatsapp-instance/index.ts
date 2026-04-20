@@ -44,33 +44,61 @@ serve(async (req: Request) => {
 
       // ── CONNECT: create instance and return QR code ────────────────────
       case "connect": {
-        const res = await fetch(`${EVOLUTION_URL}/instance/create`, {
-          method:  "POST",
-          headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            instanceName,
-            qrcode:      true,
-            integration: "WHATSAPP-BAILEYS",
-            webhook: {
-              enabled: true,
-              url:     `${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-events`,
-              events:  ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
-            },
-          }),
-        });
+        // 1. Checa se a instância já existe no Evolution
+        let instanceExists = false;
+        try {
+          const checkRes = await fetch(
+            `${EVOLUTION_URL}/instance/fetchInstances?instanceName=${instanceName}`,
+            { headers: { apikey: EVOLUTION_KEY } },
+          );
+          const checkData = await checkRes.json();
+          instanceExists = Array.isArray(checkData) ? checkData.length > 0 : !!checkData?.instance;
+        } catch (_) { /* considera que não existe */ }
 
-        const data = await res.json();
+        let data: Record<string, unknown> = {};
+
+        if (instanceExists) {
+          // Instância existe — usa /instance/connect/{name} que é idempotente e retorna QR rápido
+          const connRes = await fetch(
+            `${EVOLUTION_URL}/instance/connect/${instanceName}`,
+            { headers: { apikey: EVOLUTION_KEY } },
+          );
+          data = await connRes.json();
+        } else {
+          // Primeira conexão — cria instância
+          const createRes = await fetch(`${EVOLUTION_URL}/instance/create`, {
+            method:  "POST",
+            headers: { apikey: EVOLUTION_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              instanceName,
+              qrcode:      true,
+              integration: "WHATSAPP-BAILEYS",
+              webhook: {
+                enabled: true,
+                url:     `${Deno.env.get("SUPABASE_URL")}/functions/v1/whatsapp-events`,
+                events:  ["MESSAGES_UPSERT", "CONNECTION_UPDATE", "QRCODE_UPDATED"],
+              },
+            }),
+          });
+          data = await createRes.json();
+        }
+
+        // Normaliza qrcode: Evolution retorna em data.qrcode.base64 ou data.base64 (endpoint /connect)
+        const qrcodeBase64 =
+          (data as { qrcode?: { base64?: string } })?.qrcode?.base64 ??
+          (data as { base64?: string })?.base64 ??
+          null;
 
         await supabase.from("user_whatsapp_instances").upsert({
           user_id:       userId,
           instance_name: instanceName,
-          instance_id:   data.instance?.instanceId ?? null,
+          instance_id:   (data as { instance?: { instanceId?: string } })?.instance?.instanceId ?? null,
           status:        "connecting",
-        }, { onConflict: "user_id" });
+        }, { onConflict: "user_id, instance_name" });
 
         return new Response(JSON.stringify({
           ok:       true,
-          qrcode:   data.qrcode?.base64 ?? null,
+          qrcode:   qrcodeBase64,
           instance: instanceName,
         }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
