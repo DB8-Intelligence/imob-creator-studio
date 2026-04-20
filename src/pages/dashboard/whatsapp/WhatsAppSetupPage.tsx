@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug, Bot, ArrowRight, ArrowLeft } from "lucide-react";
+import { Wifi, WifiOff, Loader2, QrCode, Smartphone, Unplug, Bot, ArrowRight, ArrowLeft, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -15,6 +15,9 @@ import { Badge } from "@/components/ui/badge";
 /* ------------------------------------------------------------------ */
 
 type ConnectionStatus = "disconnected" | "connecting" | "connected";
+
+/** Segundos até o QR expirar. Evolution/WhatsApp invalida ~40–60s, usamos 30 pra ter margem. */
+const QR_EXPIRY_SECONDS = 30;
 
 /* ------------------------------------------------------------------ */
 /*  Status config                                                      */
@@ -54,6 +57,7 @@ export default function WhatsAppSetupPage() {
     useState<ConnectionStatus>("disconnected");
   const [showQr, setShowQr] = useState(false);
   const [qrCode, setQrCode] = useState<string>("");
+  const [qrAge, setQrAge] = useState(0); // segundos desde o último QR carregado
   const [phoneNumber, setPhoneNumber] = useState("");
   const [profileName, setProfileName] = useState("");
   const [stats, setStats] = useState({ messagesCount: 0, propertiesCount: 0, creativesCount: 0 });
@@ -154,37 +158,76 @@ export default function WhatsAppSetupPage() {
   }, [connectionStatus, workspaceId]);
 
   /* ---- Handlers ---- */
+  /**
+   * Pede um novo QR ao backend. Reusado tanto pelo clique inicial quanto
+   * pelo auto-refresh de 30s. Isolado em useCallback pra poder ser chamado
+   * do useEffect do timer de expiracao.
+   */
+  const fetchQrCode = useCallback(async (): Promise<void> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error("Sessão expirada, faça login novamente");
+    const res = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?action=connect`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    const data = await res.json();
+    if (!res.ok || !data?.ok) {
+      throw new Error(data?.error ?? `HTTP ${res.status}`);
+    }
+    if (data.qrcode) {
+      // whatsapp-instance retorna qrcode como string base64 direta
+      setQrCode(typeof data.qrcode === "string" ? data.qrcode : data.qrcode?.base64 ?? "");
+      setQrAge(0); // reseta o contador
+    }
+  }, []);
+
   const handleGenerateQr = async () => {
     setConnectionStatus("connecting");
     setShowQr(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Sessão expirada, faça login novamente");
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?action=connect`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        throw new Error(data?.error ?? `HTTP ${res.status}`);
-      }
-      if (data.qrcode) {
-        // whatsapp-instance retorna qrcode como string base64 direta
-        setQrCode(typeof data.qrcode === "string" ? data.qrcode : data.qrcode?.base64 ?? "");
-      }
+      await fetchQrCode();
     } catch (err) {
       toast({ title: "Erro ao gerar QR Code", description: (err as Error).message, variant: "destructive" });
       setConnectionStatus("disconnected");
       setShowQr(false);
     }
   };
+
+  /** Refresh manual (botão "Gerar código novo") sem resetar connectionStatus. */
+  const handleRefreshQr = async () => {
+    try {
+      await fetchQrCode();
+    } catch (err) {
+      toast({ title: "Erro ao atualizar QR Code", description: (err as Error).message, variant: "destructive" });
+    }
+  };
+
+  /* ---- Auto-refresh: conta idade do QR + regenera em QR_EXPIRY_SECONDS ---- */
+  useEffect(() => {
+    if (connectionStatus !== "connecting" || !qrCode) return;
+    const tick = setInterval(() => {
+      setQrAge((a) => {
+        const next = a + 1;
+        if (next >= QR_EXPIRY_SECONDS) {
+          // Regenera em background (fire-and-forget)
+          fetchQrCode().catch(() => {
+            // Se falhar, apenas loga; não destrói o estado de conexão
+            console.warn("auto-refresh QR falhou, mantendo o código atual");
+          });
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [connectionStatus, qrCode, fetchQrCode]);
 
   const handleDisconnect = () => {
     setConnectionStatus("disconnected");
@@ -234,11 +277,31 @@ export default function WhatsAppSetupPage() {
             {connectionStatus !== "connected" && (
               <div className="flex flex-col items-center gap-4">
                 {qrCode ? (
-                  <img
-                    src={qrCode.startsWith("data:") ? qrCode : `data:image/png;base64,${qrCode}`}
-                    alt="QR Code"
-                    className="w-56 h-56 mx-auto rounded-xl border"
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <img
+                      src={qrCode.startsWith("data:") ? qrCode : `data:image/png;base64,${qrCode}`}
+                      alt="QR Code"
+                      className="w-56 h-56 mx-auto rounded-xl border"
+                    />
+                    {connectionStatus === "connecting" && (
+                      <div className="flex flex-col items-center gap-1">
+                        <p className="text-xs text-gray-500">
+                          Atualiza automaticamente em{" "}
+                          <span className="font-semibold text-[#002B5B]">
+                            {Math.max(0, QR_EXPIRY_SECONDS - qrAge)}s
+                          </span>
+                        </p>
+                        <button
+                          type="button"
+                          onClick={handleRefreshQr}
+                          className="inline-flex items-center gap-1 text-xs text-[#002B5B] hover:underline"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          Gerar novo código agora
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="w-[200px] h-[200px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-50">
                     {showQr && connectionStatus === "connecting" ? (
