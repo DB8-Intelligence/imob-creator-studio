@@ -5,6 +5,7 @@ import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
+import ThemeLaptopCard from "@/components/site/ThemeLaptopCard";
 import type { CorretorSite, TemaCorr } from "@/types/site";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -268,36 +269,32 @@ const DashboardSitePage = () => {
 
             {/* ============ TAB: Aparência ============ */}
             <TabsContent value="aparencia" className="space-y-6">
-              {/* Theme selector */}
+              {/* Theme selector — mini-previews estilo laptop */}
               <div>
-                <Label className="mb-2 block text-sm font-semibold text-[#002B5B]">
-                  Tema do Site
-                </Label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="mb-3 flex items-center justify-between">
+                  <Label className="text-sm font-semibold text-[#002B5B]">
+                    Tema do Site
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={() => setView("modelos")}
+                    className="text-xs font-medium text-[#002B5B] hover:underline"
+                  >
+                    Ver todos os modelos →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
                   {THEMES.map((t) => (
-                    <button
+                    <ThemeLaptopCard
                       key={t.key}
-                      type="button"
-                      onClick={() => setSelectedTheme(t.key)}
-                      className={`group relative rounded-xl border-2 p-3 text-left transition ${
-                        selectedTheme === t.key
-                          ? "border-[#002B5B] shadow-md"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div
-                        className={`mb-2 h-10 w-full rounded-lg ${t.palette}`}
-                      />
-                      <p className="text-sm font-semibold text-gray-800">
-                        {t.label}
-                      </p>
-                      <p className="text-xs text-gray-500">{t.description}</p>
-                      {selectedTheme === t.key && (
-                        <Badge className="absolute -right-2 -top-2 bg-[#002B5B] text-[10px] text-white">
-                          Ativo
-                        </Badge>
-                      )}
-                    </button>
+                      themeKey={t.key}
+                      label={t.label}
+                      description={t.description}
+                      gradient={t.palette}
+                      accentColor={corPrimaria}
+                      isActive={selectedTheme === t.key}
+                      onSelect={() => setSelectedTheme(t.key)}
+                    />
                   ))}
                 </div>
               </div>
@@ -351,6 +348,8 @@ const DashboardSitePage = () => {
                     <input
                       id="cor_primaria"
                       type="color"
+                      title="Cor primária"
+                      aria-label="Cor primária"
                       value={corPrimaria}
                       onChange={(e) => setCorPrimaria(e.target.value)}
                       className="h-9 w-12 cursor-pointer rounded border border-gray-300"
@@ -364,6 +363,8 @@ const DashboardSitePage = () => {
                     <input
                       id="cor_secundaria"
                       type="color"
+                      title="Cor secundária"
+                      aria-label="Cor secundária"
                       value={corSecundaria}
                       onChange={(e) => setCorSecundaria(e.target.value)}
                       className="h-9 w-12 cursor-pointer rounded border border-gray-300"

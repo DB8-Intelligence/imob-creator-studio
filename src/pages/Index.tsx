@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { ArrowRight, Check, Plus, Minus, Zap, Target, Link2, Award, ChevronRight } from "lucide-react";
 import { captureAttribution, captureLastTouch } from "@/services/analytics/utmCapture";
@@ -83,6 +84,16 @@ const PillMenu = () => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+
+  // Se o user já está logado (ex: voltou do callback Google), manda pro dashboard
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
+
   const [activeTab, setActiveTab] = useState("criativos");
   const variant = useABVariant();
   const isB = variant === "b";

@@ -389,7 +389,15 @@ export function SiteOnboardingWizard() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        // Permite fechar só via X (DialogClose), não por click fora / ESC.
+        // click-fora e ESC já são bloqueados pelos preventDefault abaixo;
+        // quando chega aqui com nextOpen=false, foi pelo botão X.
+        if (!nextOpen) setOpen(false);
+      }}
+    >
       <DialogContent
         className="max-w-[640px]"
         onPointerDownOutside={(e) => e.preventDefault()}
@@ -439,16 +447,27 @@ export function SiteOnboardingWizard() {
         {/* Navigation (not shown on final step — it has its own buttons) */}
         {step < 3 && (
           <div className="flex items-center justify-between pt-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setStep((s) => Math.max(s - 1, 0))}
-              disabled={step === 0}
-              className="gap-1"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Voltar
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStep((s) => Math.max(s - 1, 0))}
+                disabled={step === 0}
+                className="gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setOpen(false)}
+                className="text-muted-foreground"
+                title="Pular e configurar depois usando as abas"
+              >
+                Pular por agora
+              </Button>
+            </div>
             <Button
               size="sm"
               onClick={saveStepAndAdvance}

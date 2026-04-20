@@ -1,8 +1,14 @@
 /**
  * SiteImobiliario.tsx — Editor principal do Site Imobiliário do corretor.
  * Layout 2 painéis: config (40%) + preview (60%).
+ *
+ * Página consolidada: unifica o editor (este arquivo) com funcionalidades
+ * que antes viviam em DashboardSitePage.tsx — seletor visual de tema
+ * (ThemeLaptopCard), modal "Ver todos os modelos" (SiteModelsDashboard),
+ * tab Imóveis com importação XML e tab Portais com feed XML.
  */
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +17,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   User,
   Paintbrush,
@@ -26,12 +41,20 @@ import {
   Info,
   ExternalLink,
   ShieldCheck,
+  Home as HomeIcon,
+  Share2,
+  FileDown,
+  Plus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useSite, useUpdateSite, usePublishSite } from "@/hooks/useCorretorSite";
+import { supabase } from "@/integrations/supabase/client";
 import { TEMAS, type CorretorSite, type TemaCorr } from "@/types/site";
 import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 import { SiteOnboardingWizard } from "@/components/site/SiteOnboardingWizard";
+import ThemeLaptopCard from "@/components/site/ThemeLaptopCard";
+import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -62,12 +85,50 @@ const THEME_GRADIENTS: Record<TemaCorr, string> = {
   rethouse: "from-[#1a2b6b] to-[#3454d1]",
 };
 
+/** Gradient como classe Tailwind completa (pro ThemeLaptopCard) */
+const THEME_BG_GRADIENTS: Record<TemaCorr, string> = {
+  brisa: "bg-gradient-to-r from-sky-400 to-cyan-300",
+  urbano: "bg-gradient-to-r from-gray-800 to-orange-500",
+  litoral: "bg-gradient-to-r from-[#002B5B] to-[#D4AF37]",
+  "dark-premium": "bg-gradient-to-r from-[#1E3A8A] to-[#D4AF37]",
+  nestland: "bg-gradient-to-r from-[#0f0f0f] to-[#b99755]",
+  nexthm: "bg-gradient-to-r from-[#122122] to-[#2c686b]",
+  ortiz: "bg-gradient-to-r from-[#05344a] to-[#25a5de]",
+  quarter: "bg-gradient-to-r from-[#071c1f] to-[#FF5A3C]",
+  rethouse: "bg-gradient-to-r from-[#1a2b6b] to-[#3454d1]",
+};
+
+interface PropertyRow {
+  id: string;
+  title: string;
+  price: number | null;
+  property_type: string | null;
+  status: string | null;
+}
+
+interface PortalCard {
+  key: string;
+  name: string;
+  emoji: string;
+  enabled: boolean;
+  color: string;
+}
+
+const INITIAL_PORTALS: PortalCard[] = [
+  { key: "zap", name: "ZAP Imóveis", emoji: "🏠", enabled: false, color: "#FF5F00" },
+  { key: "olx", name: "OLX", emoji: "📦", enabled: false, color: "#4E2D96" },
+  { key: "vivareal", name: "VivaReal", emoji: "🌐", enabled: false, color: "#0059B3" },
+  { key: "imovelweb", name: "ImovelWeb", emoji: "🏢", enabled: false, color: "#E63946" },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function SiteImobiliario() {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { workspaceId } = useWorkspaceContext();
   const { data: site, isLoading } = useSite();
   const { mutate: updateSite, isPending: isSaving } = useUpdateSite();
   const { mutate: publishSite, isPending: isPublishing } = usePublishSite();
@@ -76,6 +137,38 @@ export default function SiteImobiliario() {
   const [draft, setDraft] = useState<Partial<CorretorSite>>({});
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firstLoad = useRef(true);
+
+  // View: "editor" (default) ou "modelos" (grid fullscreen de todos os temas)
+  const [view, setView] = useState<"editor" | "modelos">("editor");
+
+  // Imóveis do workspace (tab Imóveis)
+  const [properties, setProperties] = useState<PropertyRow[]>([]);
+  const [loadingProps, setLoadingProps] = useState(false);
+
+  // Portais (tab Portais) — state local, toggle visual
+  const [portals, setPortals] = useState<PortalCard[]>(INITIAL_PORTALS);
+
+  // Fetch imóveis do workspace
+  useEffect(() => {
+    if (!workspaceId) return;
+    setLoadingProps(true);
+    supabase
+      .from("properties")
+      .select("id, title, price, property_type, status")
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (error) console.warn("Erro ao buscar imóveis:", error.message);
+        setProperties((data as PropertyRow[]) ?? []);
+        setLoadingProps(false);
+      });
+  }, [workspaceId]);
+
+  const togglePortal = (key: string) => {
+    setPortals((prev) =>
+      prev.map((p) => (p.key === key ? { ...p, enabled: !p.enabled } : p)),
+    );
+  };
 
   // Seed draft from query
   useEffect(() => {
@@ -133,6 +226,23 @@ export default function SiteImobiliario() {
         <div className="flex items-center justify-center py-32">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
+      </AppLayout>
+    );
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*  View "modelos" — grid fullscreen dark dos 9 temas                */
+  /* ---------------------------------------------------------------- */
+  if (view === "modelos") {
+    return (
+      <AppLayout>
+        <SiteModelsDashboard
+          selectedTheme={(draft.tema as TemaCorr) ?? "brisa"}
+          onSelectTheme={(themeId) => {
+            patchDraft("tema", themeId);
+            setView("editor");
+          }}
+        />
       </AppLayout>
     );
   }
@@ -218,6 +328,14 @@ export default function SiteImobiliario() {
               <TabsTrigger value="hero" className="gap-1.5 text-xs">
                 <ImageIcon className="h-3.5 w-3.5" />
                 Hero
+              </TabsTrigger>
+              <TabsTrigger value="imoveis" className="gap-1.5 text-xs">
+                <HomeIcon className="h-3.5 w-3.5" />
+                Imóveis
+              </TabsTrigger>
+              <TabsTrigger value="portais" className="gap-1.5 text-xs">
+                <Share2 className="h-3.5 w-3.5" />
+                Portais
               </TabsTrigger>
               <TabsTrigger value="dominio" className="gap-1.5 text-xs">
                 <Globe className="h-3.5 w-3.5" />
@@ -405,40 +523,29 @@ export default function SiteImobiliario() {
             {/* ============ TAB: Aparência ============ */}
             <TabsContent value="aparencia" className="space-y-6">
               <div>
-                <Label className="mb-3 block text-sm font-semibold">
-                  Tema do Site
-                </Label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {TEMAS.map((t) => {
-                    const selected = draft.tema === t.id;
-                    return (
-                      <button
-                        key={t.id}
-                        type="button"
-                        onClick={() => patchDraft("tema", t.id)}
-                        className={`group relative rounded-xl border-2 p-3 text-left transition ${
-                          selected
-                            ? "border-[#D4AF37] shadow-lg ring-2 ring-[#D4AF37]/30"
-                            : "border-border hover:border-muted-foreground/40"
-                        }`}
-                      >
-                        <div
-                          className={`mb-2 h-12 w-full rounded-lg bg-gradient-to-r ${
-                            THEME_GRADIENTS[t.id]
-                          }`}
-                        />
-                        <p className="text-sm font-semibold text-foreground">
-                          {t.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t.preview}
-                        </p>
-                        {selected && (
-                          <CheckCircle2 className="absolute -right-2 -top-2 h-5 w-5 text-[#D4AF37]" />
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="mb-3 flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Tema do Site</Label>
+                  <button
+                    type="button"
+                    onClick={() => setView("modelos")}
+                    className="text-xs font-medium text-[#002B5B] hover:underline"
+                  >
+                    Ver todos os modelos →
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
+                  {TEMAS.map((t) => (
+                    <ThemeLaptopCard
+                      key={t.id}
+                      themeKey={t.id}
+                      label={t.label}
+                      description={t.preview}
+                      gradient={THEME_BG_GRADIENTS[t.id]}
+                      accentColor={draft.cor_primaria ?? "#0284C7"}
+                      isActive={draft.tema === t.id}
+                      onSelect={() => patchDraft("tema", t.id)}
+                    />
+                  ))}
                 </div>
               </div>
 
@@ -526,6 +633,208 @@ export default function SiteImobiliario() {
                   }
                   placeholder="Especialista em imóveis na sua região"
                 />
+              </div>
+            </TabsContent>
+
+            {/* ============ TAB: Imóveis ============ */}
+            <TabsContent value="imoveis" className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">
+                    Imóveis do Workspace
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    Os imóveis cadastrados aparecem automaticamente no seu site.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5"
+                    onClick={() => navigate("/importar")}
+                  >
+                    <FileDown className="h-3.5 w-3.5" />
+                    Importar XML/Planilha
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="gap-1.5 bg-[#002B5B] hover:bg-[#001f42]"
+                    onClick={() => navigate("/imoveis/upload")}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Novo Imóvel
+                  </Button>
+                </div>
+              </div>
+
+              {/* Call-to-action para migração se workspace vazio */}
+              {!loadingProps && properties.length === 0 && (
+                <Card className="border-blue-200 bg-blue-50/50">
+                  <CardContent className="p-4 flex items-start gap-3">
+                    <div className="rounded-full bg-blue-100 p-2 shrink-0">
+                      <FileDown className="h-4 w-4 text-blue-700" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">
+                        Migrando de outra plataforma?
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Importe imóveis via XML (Tecimob, Jetimob, Univen, VRSync) ou planilha CSV em um clique.
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => navigate("/importar")}
+                      className="shrink-0"
+                    >
+                      Importar agora
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {loadingProps ? (
+                <div className="py-10 text-center text-sm text-muted-foreground">
+                  Carregando imóveis...
+                </div>
+              ) : properties.length === 0 ? (
+                <Card>
+                  <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                    Nenhum imóvel cadastrado neste workspace.
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="rounded-lg border border-border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead className="text-right">Preço</TableHead>
+                        <TableHead className="text-center">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {properties.map((p) => (
+                        <TableRow key={p.id}>
+                          <TableCell className="font-medium">
+                            {p.title}
+                          </TableCell>
+                          <TableCell>{p.property_type ?? "-"}</TableCell>
+                          <TableCell className="text-right">
+                            {p.price
+                              ? `R$ ${p.price.toLocaleString("pt-BR")}`
+                              : "-"}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant={
+                                p.status === "published" ||
+                                p.status === "available"
+                                  ? "default"
+                                  : "secondary"
+                              }
+                              className="text-[10px]"
+                            >
+                              {p.status === "published" ||
+                              p.status === "available"
+                                ? "Publicado"
+                                : "Rascunho"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+
+            {/* ============ TAB: Portais ============ */}
+            <TabsContent value="portais" className="space-y-4">
+              <div>
+                <h2 className="text-base font-semibold text-foreground">
+                  Portais Imobiliários
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Sincronize seus imóveis com os principais portais do mercado.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {portals.map((portal) => (
+                  <Card
+                    key={portal.key}
+                    className={`relative transition overflow-hidden pl-1 ${
+                      portal.enabled
+                        ? "border-[#002B5B] shadow-sm"
+                        : "border-border"
+                    }`}
+                  >
+                    {/* Accent stripe (esquerda) com a cor do portal */}
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-y-0 left-0 w-1"
+                      data-portal-color={portal.color}
+                      ref={(el) => {
+                        if (el) el.style.backgroundColor = portal.color;
+                      }}
+                    />
+                    <CardContent className="flex items-center justify-between p-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{portal.emoji}</span>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {portal.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {portal.enabled ? "Conectado" : "Desativado"}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={portal.enabled}
+                        onCheckedChange={() => togglePortal(portal.key)}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Feed XML URL */}
+              <div className="mt-4 p-4 bg-muted/50 rounded-xl border border-border">
+                <h4 className="font-semibold text-foreground mb-1">
+                  Feed XML para Portais
+                </h4>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Use este link para cadastrar seus imóveis em qualquer portal.
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    aria-label="Feed XML URL"
+                    value={`https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/generate-xml-feed?workspace=${draft.slug || "seu-workspace"}`}
+                    className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-xs font-mono text-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `https://spjnymdizezgmzwoskoj.supabase.co/functions/v1/generate-xml-feed?workspace=${draft.slug || "seu-workspace"}`,
+                      );
+                      toast({ title: "Link copiado!" });
+                    }}
+                    className="px-3 py-2 bg-[#002B5B] text-white text-xs font-semibold rounded-lg"
+                  >
+                    Copiar
+                  </button>
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  Configure a URL do feed no painel de cada portal para sincronizar seus imóveis automaticamente.
+                </p>
               </div>
             </TabsContent>
 

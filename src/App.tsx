@@ -146,7 +146,9 @@ const LeadDetailPage = lazy(() => import("./pages/dashboard/crm/LeadDetailPage")
 const ClientesCRMPage = lazy(() => import("./pages/dashboard/crm/ClientesPage"));
 const AgendaCRMPage = lazy(() => import("./pages/dashboard/crm/AgendaPage"));
 const ImportarLeadsCRMPage = lazy(() => import("./pages/dashboard/crm/ImportarLeadsPage"));
-const DashboardSitePage = lazy(() => import("./pages/dashboard/site/DashboardSitePage"));
+// DashboardSitePage — legacy, consolidado em SiteImobiliario.tsx.
+// Mantido no filesystem como backup; a rota /dashboard/site agora redireciona.
+// const DashboardSitePage = lazy(() => import("./pages/dashboard/site/DashboardSitePage"));
 const WhatsAppSetupPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppSetupPage"));
 const WhatsAppInboxPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppInboxPage"));
 const WhatsAppFluxosPage = lazy(() => import("./pages/dashboard/whatsapp/WhatsAppFluxosPage"));
@@ -312,8 +314,8 @@ const App = () => (
               <Route path="/dashboard/crm/clientes"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><ClientesCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/crm/agenda"         element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><AgendaCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/dashboard/crm/importar"       element={<ProtectedRoute><ModuleProtectedRoute requires="crm"><ImportarLeadsCRMPage /></ModuleProtectedRoute></ProtectedRoute>} />
-              {/* Site + Portais */}
-              <Route path="/dashboard/site"               element={<ProtectedRoute><ModuleProtectedRoute requires="site"><DashboardSitePage /></ModuleProtectedRoute></ProtectedRoute>} />
+              {/* Site + Portais — rota legacy; consolidada em /dashboard/site-imobiliario */}
+              <Route path="/dashboard/site"               element={<Navigate to="/dashboard/site-imobiliario" replace />} />
               {/* Site Imobiliário (protegidas — dashboard) */}
               <Route path="/dashboard/site-imobiliario"   element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteImobiliarioPage /></ModuleProtectedRoute></ProtectedRoute>} />
               <Route path="/site-leads"                   element={<ProtectedRoute><ModuleProtectedRoute requires="site"><SiteLeadsPage /></ModuleProtectedRoute></ProtectedRoute>} />

@@ -7,13 +7,28 @@ import SecretariaOnboardingWizard from "@/components/onboarding/SecretariaOnboar
 import { useModules } from "@/hooks/useModuleAccess";
 import { MODULE_WIDGETS } from "@/components/dashboard/ModuleWidgets";
 import { useAuth } from "@/contexts/AuthContext";
+import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useUserSubscriptions } from "@/hooks/useUserSubscriptions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import KpiRow, { type KpiItem } from "@/components/dashboard/KpiRow";
+import PendingAlertsCard, {
+  type PendingAlert,
+} from "@/components/dashboard/PendingAlertsCard";
+import {
+  AtendimentosPendentesCard,
+  CompromissosCard,
+  BigCounterCard,
+  PretensaoBarChart,
+  type AtendimentoItem,
+  type CompromissoItem,
+  type PretensaoItem,
+} from "@/components/dashboard/UnivenStyleWidgets";
 import {
   ArrowRight, Bot, MessageCircle, Calendar, Users, Globe, Rss,
-  Mic, Sparkles,
+  Mic, Sparkles, Home as HomeIcon, UserPlus, TrendingUp, BarChart3,
+  Eye, PhoneOff, Phone, Briefcase, FileEdit,
 } from "lucide-react";
 
 const QUICK_ACTIONS = [
@@ -25,12 +40,49 @@ const QUICK_ACTIONS = [
   { title: "Portais XML",       description: "ZAP, OLX, VivaReal",                   path: "/dashboard/portais",             icon: Rss,          requires: "site" },
 ];
 
+// Supabase helper — retorna count ou 0 se a query falhar
+const safeCount = async (
+  query: PromiseLike<{ count: number | null; error: unknown }>,
+): Promise<number> => {
+  try {
+    const { count, error } = await query;
+    if (error) return 0;
+    return count ?? 0;
+  } catch {
+    return 0;
+  }
+};
+
+interface DashboardCounts {
+  leadsMonth: number;
+  propertiesActive: number;
+  crmInPipeline: number;
+  leadsUnread: number;
+  leadsUnanswered: number;
+  atendimentosPending: number;
+  propertiesDraft: number;
+  loading: boolean;
+}
+
+const initialCounts: DashboardCounts = {
+  leadsMonth: 0,
+  propertiesActive: 0,
+  crmInPipeline: 0,
+  leadsUnread: 0,
+  leadsUnanswered: 0,
+  atendimentosPending: 0,
+  propertiesDraft: 0,
+  loading: true,
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { workspaceId } = useWorkspaceContext();
   const { hasModule, loading: modulesLoading } = useModules();
   const [wizardDismissed, setWizardDismissed] = useState(false);
   const [secretariaWizardDone, setSecretariaWizardDone] = useState<boolean | null>(null);
+  const [counts, setCounts] = useState<DashboardCounts>(initialCounts);
 
   // Checa se o corretor ja completou o wizard pos-compra Secretaria
   useEffect(() => {
@@ -45,6 +97,216 @@ const Dashboard = () => {
       setSecretariaWizardDone(Boolean(d?.secretaria_wizard_completed_at));
     })();
   }, [user]);
+
+  // Fetch de contagens (KPIs + alertas de pendências) — queries seguras,
+  // caso tabela/coluna não exista, retorna 0 sem quebrar a tela.
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const monthStart = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1,
+      ).toISOString();
+
+      const scoped = <T,>(query: T) =>
+        workspaceId
+          ? // @ts-expect-error — o builder do supabase aceita .eq em qualquer query
+            query.eq("workspace_id", workspaceId)
+          : query;
+
+      type Counter = PromiseLike<{ count: number | null; error: unknown }>;
+
+      const [
+        leadsMonth,
+        propertiesActive,
+        crmInPipeline,
+        leadsUnread,
+        leadsUnanswered,
+        atendimentosPending,
+        propertiesDraft,
+      ] = await Promise.all([
+        safeCount(
+          scoped(
+            supabase
+              .from("leads")
+              .select("id", { count: "exact", head: true })
+              .gte("created_at", monthStart),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("properties")
+              .select("id", { count: "exact", head: true })
+              .in("status", ["published", "available", "ativo"]),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("crm_leads")
+              .select("id", { count: "exact", head: true })
+              .not("stage", "in", '("ganho","perdido","fechado")'),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("leads")
+              .select("id", { count: "exact", head: true })
+              .is("read_at", null),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("leads")
+              .select("id", { count: "exact", head: true })
+              .is("attended_at", null),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("atendimentos")
+              .select("id", { count: "exact", head: true })
+              .eq("status", "pendente"),
+          ) as Counter,
+        ),
+        safeCount(
+          scoped(
+            supabase
+              .from("properties")
+              .select("id", { count: "exact", head: true })
+              .in("status", ["draft", "rascunho"]),
+          ) as Counter,
+        ),
+      ]);
+
+      setCounts({
+        leadsMonth,
+        propertiesActive,
+        crmInPipeline,
+        leadsUnread,
+        leadsUnanswered,
+        atendimentosPending,
+        propertiesDraft,
+        loading: false,
+      });
+    })();
+  }, [user, workspaceId]);
+
+  // ── KPI row items ──
+  const kpiItems: KpiItem[] = [
+    {
+      id: "leads-month",
+      label: "Leads do mês",
+      value: counts.leadsMonth,
+      icon: UserPlus,
+      accent: "#002B5B",
+      href: "/leads",
+    },
+    {
+      id: "properties-active",
+      label: "Imóveis ativos",
+      value: counts.propertiesActive,
+      icon: HomeIcon,
+      accent: "#0891B2",
+      href: "/imoveis",
+    },
+    {
+      id: "crm-pipeline",
+      label: "Pipeline CRM",
+      value: counts.crmInPipeline,
+      icon: TrendingUp,
+      accent: "#10B981",
+      href: "/dashboard/crm",
+    },
+    {
+      id: "conversion",
+      label: "Taxa conversão",
+      value: "0",
+      suffix: "%",
+      icon: BarChart3,
+      accent: "#F59E0B",
+      href: "/relatorios",
+    },
+  ];
+
+  // ── Alertas de pendências ──
+  const pendingAlerts: PendingAlert[] = [
+    {
+      id: "leads-unread",
+      label: "Leads não lidos",
+      icon: Eye,
+      count: counts.leadsUnread,
+      href: "/leads?filter=unread",
+      severity: "critical",
+    },
+    {
+      id: "leads-unanswered",
+      label: "Leads não atendidos",
+      icon: PhoneOff,
+      count: counts.leadsUnanswered,
+      href: "/leads?filter=unanswered",
+      severity: "critical",
+    },
+    {
+      id: "atendimentos-pending",
+      label: "Atendimentos pendentes",
+      icon: Phone,
+      count: counts.atendimentosPending,
+      href: "/atendimentos",
+      severity: "critical",
+    },
+    {
+      id: "crm-pending",
+      label: "Negócios no pipeline",
+      icon: Briefcase,
+      count: counts.crmInPipeline,
+      href: "/dashboard/crm",
+      severity: "warning",
+    },
+    {
+      id: "properties-draft",
+      label: "Imóveis em rascunho",
+      icon: FileEdit,
+      count: counts.propertiesDraft,
+      href: "/imoveis?status=draft",
+      severity: "warning",
+    },
+  ];
+
+  // ─── MOCK DATA (Fase A) — Dados simulados para validar o layout ─────
+  // TODO Fase B: substituir por queries Supabase (appointments, clients, properties)
+  const mockAtendimentos: AtendimentoItem[] = [];
+
+  const mockCompromissos: CompromissoItem[] = [
+    {
+      id: "1",
+      title: "Visita — Apto Alphaville 2",
+      startAt: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+      location: "Salvador/BA",
+      type: "visita",
+      href: "/calendario",
+    },
+    {
+      id: "2",
+      title: "Ligação — Retorno Fernanda",
+      startAt: new Date(Date.now() + 26 * 60 * 60 * 1000).toISOString(),
+      type: "ligacao",
+      href: "/calendario",
+    },
+  ];
+
+  const mockPretensao: PretensaoItem[] = [
+    { label: "Venda", value: 92, color: "#ef4444" },
+    { label: "Locação", value: 10, color: "#ef4444" },
+    { label: "Temporada", value: 0, color: "#ef4444" },
+    { label: "Permuta", value: 1, color: "#ef4444" },
+  ];
+  // ────────────────────────────────────────────────────────────────────
 
   const shouldShowSecretariaWizard =
     hasModule("whatsapp") &&
@@ -68,6 +330,57 @@ const Dashboard = () => {
           onDismiss={()  => { setSecretariaWizardDone(true); setWizardDismissed(true); }}
         />
       )}
+
+      {/* KPIs rápidos — 4 cards em linha full-width */}
+      <div className="mb-6">
+        <KpiRow items={kpiItems} loading={counts.loading} />
+      </div>
+
+      {/* Grid Univen — 4 widgets em 2x2 (atendimentos, compromissos, contadores, pretensão) */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <AtendimentosPendentesCard
+          items={mockAtendimentos}
+          loading={counts.loading}
+        />
+        <CompromissosCard
+          items={mockCompromissos}
+          loading={counts.loading}
+        />
+        <BigCounterCard
+          title="Meus imóveis"
+          icon={HomeIcon}
+          mainValue={counts.propertiesActive}
+          mainLabel="Ativos"
+          stats={[
+            { label: "Captados no mês", value: 0, tone: "positive" },
+            { label: "Rascunhos", value: counts.propertiesDraft, tone: "negative" },
+          ]}
+          accent="#0891B2"
+          href="/imoveis"
+          loading={counts.loading}
+        />
+        <BigCounterCard
+          title="Meus clientes"
+          icon={Users}
+          mainValue={0}
+          mainLabel="Ativos"
+          stats={[
+            { label: "Captados no mês", value: 0, tone: "positive" },
+            { label: "Desatualizados", value: 0, tone: "negative" },
+          ]}
+          accent="#002B5B"
+          href="/dashboard/crm"
+          loading={counts.loading}
+        />
+      </div>
+
+      {/* Pretensão — chart full-width pra dar destaque */}
+      <div className="mb-6">
+        <PretensaoBarChart
+          items={mockPretensao}
+          loading={counts.loading}
+        />
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Coluna esquerda (70%) */}
@@ -182,6 +495,12 @@ const Dashboard = () => {
 
         {/* Coluna direita (30%) */}
         <div className="w-full lg:w-[30%] space-y-4">
+          {/* Alertas de pendências — estilo Univen */}
+          <PendingAlertsCard
+            alerts={pendingAlerts}
+            loading={counts.loading}
+          />
+
           {/* Status rápido */}
           <Card>
             <CardContent className="p-5">
