@@ -80,11 +80,21 @@ export default function WhatsAppSetupPage() {
   useEffect(() => {
     if (connectionStatus !== "connecting") return;
     const interval = setInterval(async () => {
-      const { data } = await supabase.functions.invoke("whatsapp-status");
-      if (data?.status === "connected") {
-        setConnectionStatus("connected");
-        clearInterval(interval);
-        toast({ title: "WhatsApp conectado!" });
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?action=status`,
+          { headers: { Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } },
+        );
+        const data = await res.json();
+        if (data?.state === "open" || data?.state === "connected") {
+          setConnectionStatus("connected");
+          clearInterval(interval);
+          toast({ title: "WhatsApp conectado!" });
+        }
+      } catch (e) {
+        console.error("status poll error:", e);
       }
     }, 5000);
     return () => clearInterval(interval);
@@ -129,17 +139,32 @@ export default function WhatsAppSetupPage() {
   const handleGenerateQr = async () => {
     setConnectionStatus("connecting");
     setShowQr(true);
-    const { data, error } = await supabase.functions.invoke("whatsapp-connect");
-    if (error) {
-      toast({ title: "Erro ao gerar QR Code", description: error.message, variant: "destructive" });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Sessão expirada, faça login novamente");
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/whatsapp-instance?action=connect`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      const data = await res.json();
+      if (!res.ok || !data?.ok) {
+        throw new Error(data?.error ?? `HTTP ${res.status}`);
+      }
+      if (data.qrcode) {
+        // whatsapp-instance retorna qrcode como string base64 direta
+        setQrCode(typeof data.qrcode === "string" ? data.qrcode : data.qrcode?.base64 ?? "");
+      }
+    } catch (err) {
+      toast({ title: "Erro ao gerar QR Code", description: (err as Error).message, variant: "destructive" });
       setConnectionStatus("disconnected");
       setShowQr(false);
-      return;
-    }
-    if (data?.qrcode?.base64) {
-      setQrCode(data.qrcode.base64);
-    } else if (data?.qrcode) {
-      setQrCode(typeof data.qrcode === "string" ? data.qrcode : "");
     }
   };
 
