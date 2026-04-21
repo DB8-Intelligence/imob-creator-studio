@@ -14,11 +14,13 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Bug, Loader2, ShieldOff, ChevronDown, ChevronRight, Globe,
-  Monitor, Calendar, User, RefreshCw, Save,
+  Monitor, Calendar, User, RefreshCw, Save, Image as ImageIcon,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useIsSuperAdmin } from "@/hooks/useIsSuperAdmin";
 import { supabase } from "@/integrations/supabase/client";
+import { getBugScreenshotUrl } from "@/lib/bugReporter";
 import {
   SEVERITY_LABELS, STATUS_LABELS,
   type BugContext, type BugReport, type BugSeverity, type BugStatus,
@@ -360,6 +362,40 @@ function BugCard({
             </div>
           )}
 
+          {/* Crash info (se veio de ErrorBoundary) */}
+          {ctx.error_stack && (
+            <div className="mb-4">
+              <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-red-600">
+                <AlertTriangle className="h-3 w-3" />
+                Crash automático
+              </p>
+              <pre className="max-h-48 overflow-auto rounded-md bg-red-50 p-3 font-mono text-[11px] text-red-900">
+                {ctx.error_stack}
+              </pre>
+              {ctx.component_stack && (
+                <details className="mt-2">
+                  <summary className="cursor-pointer text-[11px] text-muted-foreground">
+                    Component stack
+                  </summary>
+                  <pre className="mt-1 max-h-32 overflow-auto rounded-md bg-muted/30 p-2 font-mono text-[10px]">
+                    {ctx.component_stack}
+                  </pre>
+                </details>
+              )}
+            </div>
+          )}
+
+          {/* Screenshot */}
+          {ctx.screenshot_path && (
+            <div className="mb-4">
+              <p className="mb-1 flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <ImageIcon className="h-3 w-3" />
+                Screenshot do viewport
+              </p>
+              <ScreenshotPreview path={ctx.screenshot_path} />
+            </div>
+          )}
+
           {/* Contexto */}
           <div className="mb-4 grid grid-cols-1 gap-3 text-xs md:grid-cols-2">
             <div className="rounded-md bg-white p-3">
@@ -472,5 +508,58 @@ function BugCard({
         </CardContent>
       )}
     </Card>
+  );
+}
+
+/** Carrega + exibe screenshot lazy. Clica pra abrir fullscreen em nova aba. */
+function ScreenshotPreview({ path }: { path: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const signed = await getBugScreenshotUrl(path);
+      if (!signed) {
+        setFailed(true);
+        setLoading(false);
+        return;
+      }
+      setUrl(signed);
+      setLoading(false);
+    })();
+  }, [path]);
+
+  if (loading) {
+    return (
+      <div className="flex h-32 items-center justify-center rounded-md bg-muted/30">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (failed || !url) {
+    return (
+      <div className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/20 p-4 text-center text-[11px] text-muted-foreground">
+        Não foi possível carregar o screenshot.
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="block overflow-hidden rounded-md border border-border transition hover:ring-2 hover:ring-accent/40"
+      title="Abrir em tamanho real"
+    >
+      <img
+        src={url}
+        alt="Screenshot do bug"
+        className="w-full object-cover"
+        loading="lazy"
+      />
+    </a>
   );
 }

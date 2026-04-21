@@ -21,6 +21,12 @@ export interface BugContext {
   viewport: { width: number; height: number };
   api_log: ApiLogEntry[];
   timestamp: string;
+  /** Path do screenshot no bucket bug-screenshots (se disponível). */
+  screenshot_path?: string | null;
+  /** Se veio de crash do ErrorBoundary, stack do Error. */
+  error_stack?: string;
+  /** Stack de componentes React (em crash). */
+  component_stack?: string;
   /** Extra opcional — dados do workspace ativo, módulo em uso, etc. */
   extra?: Record<string, unknown>;
 }

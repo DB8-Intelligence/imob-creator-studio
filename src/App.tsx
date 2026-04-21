@@ -174,6 +174,7 @@ const MinhasLandingPagesPage = lazy(() => import("./pages/dashboard/landing-page
 const LPAnalyticsPage = lazy(() => import("./pages/dashboard/landing-pages/LPAnalyticsPage"));
 const AdminBugsPage = lazy(() => import("./pages/admin/AdminBugsPage"));
 import BugReporterWidget from "./components/app/BugReporterWidget";
+import GlobalErrorBoundary from "./components/app/GlobalErrorBoundary";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -187,8 +188,9 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+  <GlobalErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
       <WorkspaceProvider>
         <TooltipProvider>
           <Toaster />
@@ -401,6 +403,7 @@ const App = () => (
       </WorkspaceProvider>
     </AuthProvider>
   </QueryClientProvider>
+  </GlobalErrorBoundary>
 );
 
 export default App;
