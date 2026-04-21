@@ -1,5 +1,6 @@
 import { MapPin, BedDouble, Bath, Maximize, Car } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 const demoItems = [
@@ -122,7 +123,7 @@ export default function HorizonteImoveis({ site, imoveis }: TemaProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {items.slice(0, 6).map((p) => (
+          {items.slice(0, getImoveisCount(site)).map((p) => (
             <article
               key={p.id}
               className="group overflow-hidden rounded-md border border-gray-200 bg-white transition hover:shadow-lg"

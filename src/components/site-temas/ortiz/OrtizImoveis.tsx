@@ -1,5 +1,6 @@
 import { MapPin, Bed, Bath, Car, Maximize } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 export default function OrtizImoveis({ site, imoveis }: TemaProps) {
@@ -76,7 +77,7 @@ export default function OrtizImoveis({ site, imoveis }: TemaProps) {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.slice(0, 6).map((p) => (
+          {items.slice(0, getImoveisCount(site)).map((p) => (
             <div
               key={p.id}
               className="group overflow-hidden rounded-lg bg-white shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"

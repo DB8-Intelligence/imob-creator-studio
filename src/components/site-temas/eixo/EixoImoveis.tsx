@@ -1,5 +1,6 @@
 import { MapPin, BedDouble, Bath, Maximize, Car } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 const demoItems = [
@@ -121,7 +122,7 @@ export default function EixoImoveis({ site, imoveis }: TemaProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-          {items.slice(0, 8).map((p) => {
+          {items.slice(0, getImoveisCount(site)).map((p) => {
             const fin = p.finalidade as keyof typeof PRICE_COLORS;
             const priceColor = PRICE_COLORS[fin] || PRICE_COLORS.venda;
             const badgeLabel = BADGE_LABELS[fin] || "Venda";

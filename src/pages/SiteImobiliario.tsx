@@ -46,6 +46,7 @@ import {
   FileDown,
   Plus,
   Layers,
+  Sliders,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -58,6 +59,7 @@ import { SiteOnboardingWizard } from "@/components/site/SiteOnboardingWizard";
 import ThemeLaptopCard, { THEME_VARIANT_MAP } from "@/components/site/ThemeLaptopCard";
 import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
 import SiteSectionsEditor from "@/components/site/SiteSectionsEditor";
+import SiteContentConfigurator from "@/components/site/SiteContentConfigurator";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -171,6 +173,7 @@ export default function SiteImobiliario() {
   // Portais (tab Portais) — state local, toggle visual
   const [portals, setPortals] = useState<PortalCard[]>(INITIAL_PORTALS);
   const [sectionsEditorOpen, setSectionsEditorOpen] = useState(false);
+  const [contentEditorOpen, setContentEditorOpen] = useState(false);
   const { data: isAdmin = false } = useIsSuperAdmin();
 
   // Fetch imóveis do workspace
@@ -312,6 +315,18 @@ export default function SiteImobiliario() {
               >
                 {site?.publicado ? "Publicado" : "Rascunho"}
               </Badge>
+              {/* Corretor: personalizar conteúdo (quantidade de imóveis, etc) */}
+              {site && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setContentEditorOpen(true)}
+                  className="gap-1.5"
+                >
+                  <Sliders className="h-3.5 w-3.5" />
+                  Personalizar
+                </Button>
+              )}
               {/* Apenas super_admin tem acesso à edição de layout das seções */}
               {site && isAdmin && (
                 <Button
@@ -1098,7 +1113,18 @@ export default function SiteImobiliario() {
           onOpenChange={setSectionsEditorOpen}
           site={site}
           onSaved={(newConfig) => {
-            // Atualiza o draft local pra refletir no preview imediatamente
+            setDraft((prev) => ({ ...prev, sections_config: newConfig }));
+          }}
+        />
+      )}
+
+      {/* Modal: personalizar conteúdo (corretor-acessível) */}
+      {site && (
+        <SiteContentConfigurator
+          open={contentEditorOpen}
+          onOpenChange={setContentEditorOpen}
+          site={site}
+          onSaved={(newConfig) => {
             setDraft((prev) => ({ ...prev, sections_config: newConfig }));
           }}
         />

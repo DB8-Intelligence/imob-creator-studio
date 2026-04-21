@@ -25,6 +25,7 @@ import {
   Wheat,
 } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 const demoItems = [
@@ -131,7 +132,7 @@ export default function PrismaImoveis({ site, imoveis }: TemaProps) {
           </div>
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {items.slice(0, 8).map((p) => (
+            {items.slice(0, getImoveisCount(site)).map((p) => (
               <article
                 key={p.id}
                 className="group overflow-hidden rounded-lg bg-white transition hover:-translate-y-1 hover:shadow-xl"

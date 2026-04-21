@@ -1,5 +1,6 @@
 import { MapPin, BedDouble, Bath, Maximize, Car } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 export default function BrisaImoveis({ site, imoveis }: TemaProps) {
@@ -73,7 +74,7 @@ export default function BrisaImoveis({ site, imoveis }: TemaProps) {
         </p>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.slice(0, 6).map((p) => (
+          {items.slice(0, getImoveisCount(site)).map((p) => (
             <div
               key={p.id}
               className="group overflow-hidden rounded-2xl bg-white shadow-md transition hover:shadow-xl"

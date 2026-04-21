@@ -1,5 +1,6 @@
 import { MapPin, BedDouble, Bath, Maximize, Car } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 export default function UrbanoImoveis({ site, imoveis }: TemaProps) {
@@ -68,7 +69,7 @@ export default function UrbanoImoveis({ site, imoveis }: TemaProps) {
         </p>
 
         <div className="space-y-4">
-          {items.slice(0, 8).map((p) => (
+          {items.slice(0, getImoveisCount(site)).map((p) => (
             <div
               key={p.id}
               className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition hover:shadow-md sm:flex-row"

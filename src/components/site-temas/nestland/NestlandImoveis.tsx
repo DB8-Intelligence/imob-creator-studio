@@ -1,10 +1,11 @@
 import { Bed, Bath, Car, Maximize } from "lucide-react";
 import type { TemaProps } from "../tipos";
 import { formatPrice } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 
 export default function NestlandImoveis({ site, imoveis }: TemaProps) {
   const primary = site.cor_primaria || "#b99755";
-  const items = imoveis.filter((i) => i.destaque).slice(0, 6);
+  const items = imoveis.filter((i) => i.destaque).slice(0, getImoveisCount(site));
   if (!items.length) return null;
 
   return (

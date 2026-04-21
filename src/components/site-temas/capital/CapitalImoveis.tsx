@@ -1,5 +1,6 @@
 import { MapPin, BedDouble, Bath, Maximize, Car } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 const demoItems = [
@@ -117,7 +118,7 @@ export default function CapitalImoveis({ site, imoveis }: TemaProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {items.slice(0, 9).map((p) => (
+          {items.slice(0, getImoveisCount(site)).map((p) => (
             <article
               key={p.id}
               className="group overflow-hidden rounded-lg bg-white shadow-md transition hover:shadow-xl"

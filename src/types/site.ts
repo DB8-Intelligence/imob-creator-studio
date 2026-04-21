@@ -6,11 +6,31 @@ export type SiteSectionKey = 'hero' | 'imoveis' | 'about' | 'depoimentos' | 'con
 export interface SiteSectionsConfig {
   order: SiteSectionKey[]
   enabled: Record<SiteSectionKey, boolean>
+  /** Conteúdo customizável pelo corretor dentro de cada seção. */
+  content?: {
+    /** Quantidade de imóveis visíveis na seção Imóveis (3-12). Default: 6. */
+    imoveis_count?: number
+  }
 }
+
+export const IMOVEIS_COUNT_MIN = 3
+export const IMOVEIS_COUNT_MAX = 12
+export const IMOVEIS_COUNT_DEFAULT = 6
 
 export const DEFAULT_SITE_SECTIONS: SiteSectionsConfig = {
   order: ['hero', 'imoveis', 'about', 'depoimentos', 'contato', 'footer'],
   enabled: { hero: true, imoveis: true, about: true, depoimentos: true, contato: true, footer: true },
+  content: { imoveis_count: IMOVEIS_COUNT_DEFAULT },
+}
+
+/** Helper: retorna quantos imóveis a seção deve mostrar (fallback 6). */
+export function getImoveisCount(site: { sections_config?: SiteSectionsConfig | null | unknown }): number {
+  const cfg = site.sections_config as SiteSectionsConfig | null | undefined
+  const raw = cfg?.content?.imoveis_count
+  if (typeof raw !== 'number') return IMOVEIS_COUNT_DEFAULT
+  if (raw < IMOVEIS_COUNT_MIN) return IMOVEIS_COUNT_MIN
+  if (raw > IMOVEIS_COUNT_MAX) return IMOVEIS_COUNT_MAX
+  return raw
 }
 
 export const SITE_SECTION_META: Record<SiteSectionKey, { label: string; description: string; emoji: string }> = {
@@ -28,6 +48,7 @@ export function normalizeSiteSectionsConfig(raw: unknown): SiteSectionsConfig {
   return {
     order: Array.isArray(obj.order) && obj.order.length > 0 ? obj.order : DEFAULT_SITE_SECTIONS.order,
     enabled: { ...DEFAULT_SITE_SECTIONS.enabled, ...(obj.enabled || {}) },
+    content: { ...DEFAULT_SITE_SECTIONS.content, ...(obj.content || {}) },
   }
 }
 

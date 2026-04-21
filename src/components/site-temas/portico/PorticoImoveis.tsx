@@ -21,6 +21,7 @@ import {
   Tent,
 } from "lucide-react";
 import type { TemaProps } from "../tipos";
+import { getImoveisCount } from "@/types/site";
 import { formatPrice } from "../tipos";
 
 const demoItems = [
@@ -97,7 +98,7 @@ export default function PorticoImoveis({ site, imoveis }: TemaProps) {
 
           {/* Grade densa 4 colunas */}
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-            {items.slice(0, 8).map((p) => {
+            {items.slice(0, getImoveisCount(site)).map((p) => {
               const fin = p.finalidade as keyof typeof BADGE_COLOR;
               return (
                 <article
