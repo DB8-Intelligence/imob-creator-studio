@@ -3,6 +3,8 @@ export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'nestla
 // ─── Layout de seções do site público ──────────────────────────────
 export type SiteSectionKey = 'hero' | 'imoveis' | 'about' | 'depoimentos' | 'contato' | 'footer'
 
+export type ImoveisSort = 'recent' | 'destaque' | 'price_asc' | 'price_desc'
+
 export interface SiteSectionsConfig {
   order: SiteSectionKey[]
   enabled: Record<SiteSectionKey, boolean>
@@ -10,6 +12,8 @@ export interface SiteSectionsConfig {
   content?: {
     /** Quantidade de imóveis visíveis na seção Imóveis (3-12). Default: 6. */
     imoveis_count?: number
+    /** Ordem de exibição dos imóveis. Default: 'recent'. */
+    imoveis_sort?: ImoveisSort
   }
 }
 
@@ -31,6 +35,55 @@ export function getImoveisCount(site: { sections_config?: SiteSectionsConfig | n
   if (raw < IMOVEIS_COUNT_MIN) return IMOVEIS_COUNT_MIN
   if (raw > IMOVEIS_COUNT_MAX) return IMOVEIS_COUNT_MAX
   return raw
+}
+
+/** Helper: retorna a ordem dos imóveis escolhida (fallback 'recent'). */
+export function getImoveisSort(site: { sections_config?: SiteSectionsConfig | null | unknown }): ImoveisSort {
+  const cfg = site.sections_config as SiteSectionsConfig | null | undefined
+  const raw = cfg?.content?.imoveis_sort
+  if (raw === 'recent' || raw === 'destaque' || raw === 'price_asc' || raw === 'price_desc') {
+    return raw
+  }
+  return 'recent'
+}
+
+export const IMOVEIS_SORT_LABELS: Record<ImoveisSort, { label: string; description: string }> = {
+  recent:     { label: 'Mais recentes',     description: 'Ordena pelos últimos imóveis cadastrados' },
+  destaque:   { label: 'Destaque primeiro', description: 'Mostra primeiro os marcados como destaque' },
+  price_asc:  { label: 'Preço: menor → maior', description: 'Mais baratos primeiro' },
+  price_desc: { label: 'Preço: maior → menor', description: 'Mais caros primeiro (vitrine premium)' },
+}
+
+/**
+ * Aplica a ordenação escolhida em um array de imóveis. Preserva imutabilidade.
+ */
+export function sortImoveisByConfig(
+  imoveis: Array<{ preco?: number | null; destaque?: boolean; created_at?: string }>,
+  sort: ImoveisSort
+): Array<{ preco?: number | null; destaque?: boolean; created_at?: string }> {
+  const arr = [...imoveis]
+  switch (sort) {
+    case 'destaque':
+      return arr.sort((a, b) => {
+        if ((a.destaque ? 1 : 0) !== (b.destaque ? 1 : 0)) {
+          return (b.destaque ? 1 : 0) - (a.destaque ? 1 : 0)
+        }
+        const at = a.created_at ? Date.parse(a.created_at) : 0
+        const bt = b.created_at ? Date.parse(b.created_at) : 0
+        return bt - at
+      })
+    case 'price_asc':
+      return arr.sort((a, b) => (a.preco ?? Infinity) - (b.preco ?? Infinity))
+    case 'price_desc':
+      return arr.sort((a, b) => (b.preco ?? 0) - (a.preco ?? 0))
+    case 'recent':
+    default:
+      return arr.sort((a, b) => {
+        const at = a.created_at ? Date.parse(a.created_at) : 0
+        const bt = b.created_at ? Date.parse(b.created_at) : 0
+        return bt - at
+      })
+  }
 }
 
 export const SITE_SECTION_META: Record<SiteSectionKey, { label: string; description: string; emoji: string }> = {

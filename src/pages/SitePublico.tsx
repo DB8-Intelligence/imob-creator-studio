@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
+import { getImoveisSort, sortImoveisByConfig } from "@/types/site";
 import type {
   CorretorSite,
   SiteImovel,
@@ -180,10 +181,16 @@ export default function SitePublico() {
   /*  Render                                                           */
   /* ---------------------------------------------------------------- */
 
+  // Aplica ordenação escolhida pelo corretor antes de passar pro tema
+  const sortedImoveis = sortImoveisByConfig(
+    imoveis,
+    getImoveisSort(site)
+  ) as SiteImovel[];
+
   return (
     <div className="relative min-h-screen">
       {/* Theme render — depoimentos rendered internally by V2 layouts */}
-      <ThemeRenderer site={site} imoveis={imoveis} depoimentos={depoimentos} />
+      <ThemeRenderer site={site} imoveis={sortedImoveis} depoimentos={depoimentos} />
 
       {/* ── Contact Form Section ────────────────────────────────── */}
       <section className="bg-white px-6 py-12" id="contato">
