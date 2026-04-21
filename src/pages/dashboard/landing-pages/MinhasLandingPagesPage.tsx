@@ -8,6 +8,7 @@
  * Ações: copiar link, abrir pública, baixar PDF, desativar (HTML), deletar.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
@@ -450,7 +451,12 @@ function LPCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <CardTitle className="line-clamp-1 text-base">{title}</CardTitle>
+            <Link
+              to={`/dashboard/minhas-lps/${lp.id}`}
+              className="line-clamp-1 text-base font-semibold leading-tight transition hover:text-accent"
+            >
+              {title}
+            </Link>
             <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
               <Home className="h-3 w-3" />
               {location}
