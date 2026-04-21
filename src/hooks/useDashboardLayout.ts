@@ -1,34 +1,33 @@
 /**
  * useDashboardLayout — fetch/save do layout personalizado do dashboard.
- * Retorna layout efetivo (custom ou default), estado de loading e saveLayout().
+ * Suporta layouts por breakpoint (lg/md/sm).
  */
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  DEFAULT_DASHBOARD_LAYOUT,
-  type WidgetLayout,
+  DEFAULT_DASHBOARD_LAYOUTS,
+  normalizeDashboardLayouts,
+  type DashboardLayouts,
 } from "@/types/dashboard-layout";
 
 interface UseDashboardLayoutResult {
-  layout: WidgetLayout[];
+  layouts: DashboardLayouts;
   loading: boolean;
   saving: boolean;
-  /** Persiste um novo layout no Supabase. */
-  saveLayout: (next: WidgetLayout[]) => Promise<{ success: boolean; error?: string }>;
-  /** Reseta pro default (deleta a linha). */
-  resetLayout: () => Promise<{ success: boolean; error?: string }>;
+  saveLayouts: (next: DashboardLayouts) => Promise<{ success: boolean; error?: string }>;
+  resetLayouts: () => Promise<{ success: boolean; error?: string }>;
 }
 
 export function useDashboardLayout(): UseDashboardLayoutResult {
   const { user } = useAuth();
-  const [layout, setLayout] = useState<WidgetLayout[]>(DEFAULT_DASHBOARD_LAYOUT);
+  const [layouts, setLayouts] = useState<DashboardLayouts>(DEFAULT_DASHBOARD_LAYOUTS);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!user?.id) {
-      setLayout(DEFAULT_DASHBOARD_LAYOUT);
+      setLayouts(DEFAULT_DASHBOARD_LAYOUTS);
       setLoading(false);
       return;
     }
@@ -43,18 +42,16 @@ export function useDashboardLayout(): UseDashboardLayoutResult {
 
       if (error) {
         console.warn("dashboard_layout_fetch_failed", error);
-        setLayout(DEFAULT_DASHBOARD_LAYOUT);
-      } else if (data?.layout && Array.isArray(data.layout) && data.layout.length > 0) {
-        setLayout(data.layout as WidgetLayout[]);
+        setLayouts(DEFAULT_DASHBOARD_LAYOUTS);
       } else {
-        setLayout(DEFAULT_DASHBOARD_LAYOUT);
+        setLayouts(normalizeDashboardLayouts(data?.layout));
       }
       setLoading(false);
     })();
   }, [user?.id]);
 
-  const saveLayout = useCallback(
-    async (next: WidgetLayout[]) => {
+  const saveLayouts = useCallback(
+    async (next: DashboardLayouts) => {
       if (!user?.id) return { success: false, error: "Sessão inválida" };
       setSaving(true);
       const { error } = await supabase
@@ -65,16 +62,14 @@ export function useDashboardLayout(): UseDashboardLayoutResult {
         );
       setSaving(false);
 
-      if (error) {
-        return { success: false, error: error.message };
-      }
-      setLayout(next);
+      if (error) return { success: false, error: error.message };
+      setLayouts(next);
       return { success: true };
     },
     [user?.id]
   );
 
-  const resetLayout = useCallback(async () => {
+  const resetLayouts = useCallback(async () => {
     if (!user?.id) return { success: false, error: "Sessão inválida" };
     setSaving(true);
     const { error } = await supabase
@@ -84,9 +79,9 @@ export function useDashboardLayout(): UseDashboardLayoutResult {
     setSaving(false);
 
     if (error) return { success: false, error: error.message };
-    setLayout(DEFAULT_DASHBOARD_LAYOUT);
+    setLayouts(DEFAULT_DASHBOARD_LAYOUTS);
     return { success: true };
   }, [user?.id]);
 
-  return { layout, loading, saving, saveLayout, resetLayout };
+  return { layouts, loading, saving, saveLayouts, resetLayouts };
 }
