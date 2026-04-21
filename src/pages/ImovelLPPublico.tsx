@@ -99,18 +99,11 @@ export default function ImovelLPPublico() {
       // Título do documento
       document.title = `${lpRow.headline || imovelRow.titulo || "Imóvel"} | ${siteRow?.nome_completo || "NexoImob"}`;
 
-      // 4. incrementar views (best-effort, sem bloquear render)
+      // 4. incrementar views (best-effort, não bloqueia render)
       supabase
         .rpc("increment_lp_views", { lp_id: lpRow.id })
         .then(({ error }) => {
-          if (error) {
-            // fallback: update direto (se a RPC não existir)
-            supabase
-              .from("landing_pages")
-              .update({ views_count: (lpRow.views_count || 0) + 1 })
-              .eq("id", lpRow.id)
-              .then(() => {});
-          }
+          if (error) console.warn("lp_view_track_failed", error);
         });
 
       setLoading(false);
