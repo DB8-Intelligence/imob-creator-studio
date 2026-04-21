@@ -8,6 +8,16 @@ import NexthmLayout from "./nexthm/NexthmLayout";
 import OrtizLayout from "./ortiz/OrtizLayout";
 import QuarterLayout from "./quarter/QuarterLayout";
 import RethouseLayout from "./rethouse/RethouseLayout";
+import CapitalLayout from "./capital/CapitalLayout";
+import HorizonteLayout from "./horizonte/HorizonteLayout";
+import PrismaLayout from "./prisma/PrismaLayout";
+import EixoLayout from "./eixo/EixoLayout";
+import VitrineLayout from "./vitrine/VitrineLayout";
+import OnixLayout from "./onix/OnixLayout";
+import FarolLayout from "./farol/FarolLayout";
+import AuroraLayout from "./aurora/AuroraLayout";
+import SerenoLayout from "./sereno/SerenoLayout";
+import PorticoLayout from "./portico/PorticoLayout";
 
 const THEMES: Record<string, React.FC<TemaProps>> = {
   brisa: BrisaLayout,
@@ -19,6 +29,16 @@ const THEMES: Record<string, React.FC<TemaProps>> = {
   ortiz: OrtizLayout,
   quarter: QuarterLayout,
   rethouse: RethouseLayout,
+  capital: CapitalLayout,
+  horizonte: HorizonteLayout,
+  prisma: PrismaLayout,
+  eixo: EixoLayout,
+  vitrine: VitrineLayout,
+  onix: OnixLayout,
+  farol: FarolLayout,
+  aurora: AuroraLayout,
+  sereno: SerenoLayout,
+  portico: PorticoLayout,
 };
 
 export default function ThemeRenderer(props: TemaProps) {

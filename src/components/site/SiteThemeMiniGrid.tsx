@@ -18,9 +18,19 @@ const THEME_GRADIENTS: Record<TemaCorr, string> = {
   ortiz: "from-[#05344a] to-[#25a5de]",
   quarter: "from-[#071c1f] to-[#FF5A3C]",
   rethouse: "from-[#1a2b6b] to-[#3454d1]",
+  capital: "from-[#002E5E] to-[#CC0000]",
+  horizonte: "from-[#1E3A5F] to-[#F39200]",
+  prisma: "from-[#0F172A] to-[#3B82F6]",
+  eixo: "from-[#1E40AF] to-[#10B981]",
+  vitrine: "from-[#0066CC] to-[#059669]",
+  onix: "from-[#1A1A1A] to-[#B8860B]",
+  farol: "from-[#0099CC] to-[#0D9488]",
+  aurora: "from-[#1A3A52] to-[#F59E0B]",
+  sereno: "from-[#065F46] to-[#D4A574]",
+  portico: "from-[#1D4ED8] to-[#64748B]",
 };
 
-const NEW_THEMES = new Set<TemaCorr>(["nestland", "nexthm", "ortiz", "quarter", "rethouse"]);
+const NEW_THEMES = new Set<TemaCorr>(["nestland", "nexthm", "ortiz", "quarter", "rethouse", "capital", "horizonte", "prisma", "eixo", "vitrine", "onix", "farol", "aurora", "sereno", "portico"]);
 
 export default function SiteThemeMiniGrid() {
   const [previewTheme, setPreviewTheme] = useState<typeof TEMAS[0] | null>(null);

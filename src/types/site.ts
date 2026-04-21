@@ -1,4 +1,4 @@
-export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'nestland' | 'nexthm' | 'ortiz' | 'quarter' | 'rethouse'
+export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'nestland' | 'nexthm' | 'ortiz' | 'quarter' | 'rethouse' | 'capital' | 'horizonte' | 'prisma' | 'eixo' | 'vitrine' | 'onix' | 'farol' | 'aurora' | 'sereno' | 'portico'
 export type TipoImovel = 'apartamento' | 'casa' | 'terreno' | 'comercial' | 'rural' | 'cobertura' | 'studio'
 export type FinalidadeImovel = 'venda' | 'aluguel' | 'temporada'
 export type StatusImovel = 'disponivel' | 'reservado' | 'vendido' | 'alugado'
@@ -13,6 +13,16 @@ export const TEMAS: { id: TemaCorr; label: string; cor: string; preview: string 
   { id: 'ortiz', label: 'Ortiz', cor: '#25a5de', preview: 'Azul classico, slider hero' },
   { id: 'quarter', label: 'Quarter', cor: '#FF5A3C', preview: 'Moderno, dark, vermelho' },
   { id: 'rethouse', label: 'Rethouse', cor: '#3454d1', preview: 'Limpo, azul royal, clean' },
+  { id: 'capital', label: 'Capital', cor: '#CC0000', preview: 'Tradicional, vermelho, portal completo' },
+  { id: 'horizonte', label: 'Horizonte', cor: '#F39200', preview: 'Corporativo moderno, azul marinho + laranja' },
+  { id: 'prisma', label: 'Prisma', cor: '#3B82F6', preview: 'Minimalista, navy + branco, grid de categorias' },
+  { id: 'eixo', label: 'Eixo', cor: '#10B981', preview: 'Regional navy + verde, precos tricolor por finalidade' },
+  { id: 'vitrine', label: 'Vitrine', cor: '#0066CC', preview: 'Catalogo amplo, azul + verde + chatbot, 16 categorias' },
+  { id: 'onix', label: 'Onix', cor: '#1A1A1A', preview: 'Boutique luxo monocromatico, preto + dourado discreto' },
+  { id: 'farol', label: 'Farol', cor: '#0099CC', preview: 'Regional corporativo, ciano + teal, chips de categoria' },
+  { id: 'aurora', label: 'Aurora', cor: '#1A3A52', preview: 'Luminoso, navy + ambar, preco em overlay na foto' },
+  { id: 'sereno', label: 'Sereno', cor: '#065F46', preview: 'Wellness, verde emerald + areia, refugio/natureza' },
+  { id: 'portico', label: 'Portico', cor: '#1D4ED8', preview: 'Portal marketplace, azul royal, hero ultra minimalista' },
 ]
 
 export interface CorretorSite {
