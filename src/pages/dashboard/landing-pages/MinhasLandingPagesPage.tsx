@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   FileText, Globe, FileDown, Copy, ExternalLink, Eye, Users,
-  Loader2, Trash2, Power, RefreshCw, Calendar, Home, CopyPlus,
+  Loader2, Trash2, Power, RefreshCw, Calendar, Home, CopyPlus, Pencil,
 } from "lucide-react";
+import LPWizard from "@/components/landing-pages/LPWizard";
+import type { SiteImovel } from "@/types/site";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +43,8 @@ export default function MinhasLandingPagesPage() {
   const [lps, setLps] = useState<LPWithImovel[]>([]);
   const [loading, setLoading] = useState(true);
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
+  const [editingLp, setEditingLp] = useState<LandingPage | null>(null);
+  const [editingImovel, setEditingImovel] = useState<SiteImovel | null>(null);
 
   const fetchLps = useCallback(async () => {
     if (!user?.id) return;
@@ -96,6 +100,27 @@ export default function MinhasLandingPagesPage() {
     }
     toast({ title: "LP removida" });
     fetchLps();
+  }
+
+  async function abrirEditor(lp: LPWithImovel) {
+    // Busca o imovel completo pra passar ao wizard (precisa de fotos, specs, etc)
+    const { data: imovelData, error: imovelErr } = await supabase
+      .from("site_imoveis")
+      .select("*")
+      .eq("id", lp.imovel_id)
+      .maybeSingle();
+
+    if (imovelErr || !imovelData) {
+      toast({
+        title: "Imóvel não encontrado",
+        description: "Esta LP aponta para um imóvel que foi removido.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setEditingImovel(imovelData as unknown as SiteImovel);
+    setEditingLp(lp);
   }
 
   async function duplicar(lp: LPWithImovel) {
@@ -264,6 +289,7 @@ export default function MinhasLandingPagesPage() {
                     onToggle={() => toggleAtivo(lp)}
                     onDelete={() => deletar(lp)}
                     onDuplicate={() => duplicar(lp)}
+                    onEdit={() => abrirEditor(lp)}
                   />
                 ))}
               </div>
@@ -285,6 +311,7 @@ export default function MinhasLandingPagesPage() {
                     onDelete={() => deletar(lp)}
                     onRegenerate={() => regenerarPdf(lp)}
                     onDuplicate={() => duplicar(lp)}
+                    onEdit={() => abrirEditor(lp)}
                     regenerating={regeneratingId === lp.id}
                   />
                 ))}
@@ -303,6 +330,7 @@ export default function MinhasLandingPagesPage() {
                     onToggle={() => toggleAtivo(lp)}
                     onDelete={() => deletar(lp)}
                     onDuplicate={() => duplicar(lp)}
+                    onEdit={() => abrirEditor(lp)}
                   />
                 ))}
               </div>
@@ -310,6 +338,23 @@ export default function MinhasLandingPagesPage() {
           )}
         </Tabs>
       </div>
+
+      {/* Modal: editar LP existente (reusa o wizard em edit mode) */}
+      {editingLp && editingImovel && user && (
+        <LPWizard
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingLp(null);
+              setEditingImovel(null);
+            }
+          }}
+          userId={user.id}
+          imovel={editingImovel}
+          initialLp={editingLp}
+          onSaved={() => fetchLps()}
+        />
+      )}
     </AppLayout>
   );
 }
@@ -355,7 +400,7 @@ function QuotaCard({
 }
 
 function LPCard({
-  lp, onCopy, onToggle, onDelete, onRegenerate, onDuplicate, regenerating,
+  lp, onCopy, onToggle, onDelete, onRegenerate, onDuplicate, onEdit, regenerating,
 }: {
   lp: LPWithImovel;
   onCopy: () => void;
@@ -363,6 +408,7 @@ function LPCard({
   onDelete: () => void;
   onRegenerate?: () => void;
   onDuplicate?: () => void;
+  onEdit?: () => void;
   regenerating?: boolean;
 }) {
   const template = LP_TEMPLATES.find((t) => t.id === (lp.template as LPTemplate));
@@ -475,6 +521,18 @@ function LPCard({
                 </Button>
               )}
             </>
+          )}
+
+          {onEdit && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onEdit}
+              title="Editar esta LP"
+              aria-label="Editar LP"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
           )}
 
           {onDuplicate && (

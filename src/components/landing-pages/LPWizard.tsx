@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   LP_TEMPLATES,
   generateLPSlug,
+  type LandingPage,
   type LPTemplate,
   type LPTipo,
 } from "@/types/landing-page";
@@ -47,6 +48,14 @@ interface LPWizardProps {
   onOpenChange: (open: boolean) => void;
   imovel: SiteImovel;
   userId: string;
+  /**
+   * Se presente, o wizard entra em MODO EDIÇÃO — pré-preenche tudo da LP
+   * existente e, no submit, UPDATE em vez de INSERT. O tipo (html/pdf)
+   * fica LOCKED (não pode trocar entre html e pdf ao editar).
+   */
+  initialLp?: LandingPage;
+  /** Callback chamado após salvar com sucesso (listagem pode refresh). */
+  onSaved?: () => void;
 }
 
 type Step = "template" | "fotos" | "texto" | "publicar" | "sucesso";
@@ -56,18 +65,29 @@ export default function LPWizard({
   onOpenChange,
   imovel,
   userId,
+  initialLp,
+  onSaved,
 }: LPWizardProps) {
   const { toast } = useToast();
+  const isEditMode = !!initialLp;
 
   const [step, setStep] = useState<Step>("template");
-  const [template, setTemplate] = useState<LPTemplate>("ambar");
-  const [fotosSelecionadas, setFotosSelecionadas] = useState<string[]>(
-    (imovel.fotos || []).slice(0, MAX_FOTOS)
+  const [template, setTemplate] = useState<LPTemplate>(
+    (initialLp?.template as LPTemplate) || "ambar",
   );
-  const [headline, setHeadline] = useState(imovel.titulo || "");
-  const [subheadline, setSubheadline] = useState("");
-  const [descricaoCustom, setDescricaoCustom] = useState("");
-  const [tipo, setTipo] = useState<LPTipo>("html");
+  const [fotosSelecionadas, setFotosSelecionadas] = useState<string[]>(
+    initialLp?.fotos_selecionadas && initialLp.fotos_selecionadas.length > 0
+      ? initialLp.fotos_selecionadas
+      : (imovel.fotos || []).slice(0, MAX_FOTOS),
+  );
+  const [headline, setHeadline] = useState(initialLp?.headline || imovel.titulo || "");
+  const [subheadline, setSubheadline] = useState(initialLp?.subheadline || "");
+  const [descricaoCustom, setDescricaoCustom] = useState(
+    initialLp?.descricao_custom || "",
+  );
+  const [tipo, setTipo] = useState<LPTipo>(
+    (initialLp?.tipo as LPTipo) || "html",
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
@@ -95,36 +115,52 @@ export default function LPWizard({
   async function handlePublish() {
     setSubmitting(true);
 
-    const slug = generateLPSlug(headline || imovel.titulo || "imovel");
-    const expiresAt =
-      tipo === "pdf"
-        ? new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
-        : null;
+    // Edit mode: mantem slug + expires_at originais; só atualiza campos.
+    // Create mode: gera slug novo + expires_at pra PDFs.
+    const slug = isEditMode
+      ? initialLp!.slug
+      : generateLPSlug(headline || imovel.titulo || "imovel");
 
-    const { data: inserted, error } = await supabase
-      .from("landing_pages")
-      .insert({
-        user_id: userId,
-        imovel_id: imovel.id,
-        template,
-        slug,
-        tipo,
-        headline: headline || null,
-        subheadline: subheadline || null,
-        descricao_custom: descricaoCustom || null,
-        fotos_selecionadas: fotosSelecionadas,
-        amenities_custom: [],
-        ativo: true,
-        expires_at: expiresAt,
-      })
-      .select("id, slug")
-      .single();
+    const { data: inserted, error } = isEditMode
+      ? await supabase
+          .from("landing_pages")
+          .update({
+            template,
+            headline: headline || null,
+            subheadline: subheadline || null,
+            descricao_custom: descricaoCustom || null,
+            fotos_selecionadas: fotosSelecionadas,
+          })
+          .eq("id", initialLp!.id)
+          .select("id, slug")
+          .single()
+      : await supabase
+          .from("landing_pages")
+          .insert({
+            user_id: userId,
+            imovel_id: imovel.id,
+            template,
+            slug,
+            tipo,
+            headline: headline || null,
+            subheadline: subheadline || null,
+            descricao_custom: descricaoCustom || null,
+            fotos_selecionadas: fotosSelecionadas,
+            amenities_custom: [],
+            ativo: true,
+            expires_at:
+              tipo === "pdf"
+                ? new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
+                : null,
+          })
+          .select("id, slug")
+          .single();
 
     setSubmitting(false);
 
     if (error || !inserted) {
       toast({
-        title: "Não foi possível criar a LP",
+        title: isEditMode ? "Não foi possível salvar" : "Não foi possível criar a LP",
         description: error?.message || "Erro desconhecido",
         variant: "destructive",
       });
@@ -133,6 +169,7 @@ export default function LPWizard({
 
     setCreatedSlug(slug);
     setStep("sucesso");
+    onSaved?.();
 
     // Se for PDF, dispara a edge function pra gerar
     if (tipo === "pdf") {
@@ -190,15 +227,25 @@ export default function LPWizard({
         <DialogHeader>
           <DialogTitle>
             {step === "sucesso"
-              ? "Landing Page criada!"
-              : "Gerar Landing Page"}
+              ? isEditMode
+                ? "Alterações salvas!"
+                : "Landing Page criada!"
+              : isEditMode
+                ? "Editar Landing Page"
+                : "Gerar Landing Page"}
           </DialogTitle>
           <DialogDescription>
             {step === "template" && "Escolha o modelo que mais combina com o imóvel"}
             {step === "fotos" && `Selecione até ${MAX_FOTOS} fotos do imóvel`}
             {step === "texto" && "Personalize o texto (opcional)"}
-            {step === "publicar" && "Como você quer publicar a LP?"}
-            {step === "sucesso" && "Sua LP está no ar e pronta pra compartilhar."}
+            {step === "publicar" &&
+              (isEditMode
+                ? "Confirme o tipo de publicação. Você não pode mudar entre HTML e PDF ao editar."
+                : "Como você quer publicar a LP?")}
+            {step === "sucesso" &&
+              (isEditMode
+                ? "Suas alterações foram salvas na LP existente."
+                : "Sua LP está no ar e pronta pra compartilhar.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -231,7 +278,7 @@ export default function LPWizard({
           )}
 
           {step === "publicar" && (
-            <PublicarStep selected={tipo} onSelect={setTipo} />
+            <PublicarStep selected={tipo} onSelect={setTipo} locked={isEditMode} />
           )}
 
           {step === "sucesso" && createdSlug && (
@@ -281,7 +328,7 @@ export default function LPWizard({
                   {submitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Publicando...
+                      {isEditMode ? "Salvando..." : "Publicando..."}
                     </>
                   ) : (
                     <>
@@ -290,7 +337,11 @@ export default function LPWizard({
                       ) : (
                         <FileDown className="mr-2 h-4 w-4" />
                       )}
-                      {tipo === "html" ? "Publicar LP" : "Gerar PDF"}
+                      {isEditMode
+                        ? "Salvar alterações"
+                        : tipo === "html"
+                          ? "Publicar LP"
+                          : "Gerar PDF"}
                     </>
                   )}
                 </Button>
@@ -534,20 +585,24 @@ function TextoStep({
 function PublicarStep({
   selected,
   onSelect,
+  locked,
 }: {
   selected: LPTipo;
   onSelect: (t: LPTipo) => void;
+  /** Em edit mode, o tipo é locked (não pode mudar entre html e pdf). */
+  locked?: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       <button
         type="button"
-        onClick={() => onSelect("html")}
+        onClick={() => !locked && onSelect("html")}
+        disabled={locked && selected !== "html"}
         className={`rounded-lg border-2 p-6 text-left transition-all ${
           selected === "html"
             ? "border-accent bg-accent/5"
             : "border-muted hover:border-muted-foreground/30"
-        }`}
+        } ${locked && selected !== "html" ? "cursor-not-allowed opacity-40" : ""}`}
       >
         <Globe className="mb-3 h-8 w-8 text-accent" />
         <p className="mb-1 font-bold">Publicar LP online (HTML)</p>
@@ -562,12 +617,13 @@ function PublicarStep({
 
       <button
         type="button"
-        onClick={() => onSelect("pdf")}
+        onClick={() => !locked && onSelect("pdf")}
+        disabled={locked && selected !== "pdf"}
         className={`rounded-lg border-2 p-6 text-left transition-all ${
           selected === "pdf"
             ? "border-accent bg-accent/5"
             : "border-muted hover:border-muted-foreground/30"
-        }`}
+        } ${locked && selected !== "pdf" ? "cursor-not-allowed opacity-40" : ""}`}
       >
         <FileDown className="mb-3 h-8 w-8 text-accent" />
         <p className="mb-1 font-bold">Gerar PDF</p>
