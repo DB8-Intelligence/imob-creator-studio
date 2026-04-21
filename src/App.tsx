@@ -169,6 +169,8 @@ const SiteImobiliarioPage = lazy(() => import("./pages/SiteImobiliario"));
 const SiteLeadsPage = lazy(() => import("./pages/SiteLeads"));
 import SitePreview from "./pages/SitePreview";
 import SitePublico from "./pages/SitePublico";
+const ImovelLPPublico = lazy(() => import("./pages/ImovelLPPublico"));
+const MinhasLandingPagesPage = lazy(() => import("./pages/dashboard/landing-pages/MinhasLandingPagesPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -197,6 +199,8 @@ const App = () => (
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/site-preview" element={<SitePreview />} />
               <Route path="/c/:slug" element={<SitePublico />} />
+              <Route path="/imovel/:slug" element={<ImovelLPPublico />} />
+              <Route path="/dashboard/minhas-lps" element={<ProtectedRoute><MinhasLandingPagesPage /></ProtectedRoute>} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />

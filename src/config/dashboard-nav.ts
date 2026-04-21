@@ -121,6 +121,7 @@ export const DASHBOARD_NAV: NavSection[] = [
     emoji: "🏠",
     items: [
       { icon: List, label: "Imóveis", path: "/imoveis" },
+      { icon: FileText, label: "Landing Pages", path: "/dashboard/minhas-lps" },
       { icon: FileDown, label: "Importar XML/Planilha", path: "/importar" },
     ],
   },

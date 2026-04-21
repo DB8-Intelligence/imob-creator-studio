@@ -21,19 +21,25 @@ import {
 } from "@/components/ui/select";
 import {
   ArrowLeft, Save, PenSquare, Users, CalendarDays,
-  TrendingUp, ImageIcon, Upload, Loader2,
+  TrendingUp, ImageIcon, Upload, Loader2, FileText,
 } from "lucide-react";
 import { usePropertyMAX } from "@/hooks/usePropertyMAX";
 import { PropertyLeadsTab } from "@/components/imoveis/PropertyLeadsTab";
 import { PropertyVisitsTab } from "@/components/imoveis/PropertyVisitsTab";
 import { PropertyPerformanceTab } from "@/components/imoveis/PropertyPerformanceTab";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import LPWizard from "@/components/landing-pages/LPWizard";
+import type { SiteImovel } from "@/types/site";
 
 export default function ImoveisEditorPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const isNew = !id;
+
+  const [lpWizardOpen, setLpWizardOpen] = useState(false);
 
   // MAX data for existing properties
   const { data: maxData } = usePropertyMAX(id ?? null);
@@ -86,10 +92,21 @@ export default function ImoveisEditorPage() {
               )}
             </div>
           </div>
-          <Button onClick={handleSave} className="bg-accent text-accent-foreground hover:bg-accent/90">
-            <Save className="w-4 h-4 mr-2" />
-            Salvar
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isNew && id && (
+              <Button
+                variant="outline"
+                onClick={() => setLpWizardOpen(true)}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Gerar Landing Page
+              </Button>
+            )}
+            <Button onClick={handleSave} className="bg-accent text-accent-foreground hover:bg-accent/90">
+              <Save className="w-4 h-4 mr-2" />
+              Salvar
+            </Button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -234,6 +251,49 @@ export default function ImoveisEditorPage() {
           )}
         </Tabs>
       </div>
+
+      {/* Wizard de Landing Page */}
+      {!isNew && id && user && (
+        <LPWizard
+          open={lpWizardOpen}
+          onOpenChange={setLpWizardOpen}
+          userId={user.id}
+          imovel={{
+            id,
+            user_id: user.id,
+            site_id: "",
+            titulo,
+            descricao,
+            tipo: propertyType as SiteImovel["tipo"],
+            finalidade: "venda",
+            status: "disponivel",
+            endereco: "",
+            bairro: neighborhood,
+            cidade: city,
+            estado: "",
+            cep: "",
+            preco: Number(price) || 0,
+            preco_condominio: 0,
+            area_total: Number(area) || 0,
+            area_construida: 0,
+            quartos: Number(bedrooms) || 0,
+            suites: 0,
+            banheiros: Number(bathrooms) || 0,
+            vagas: 0,
+            fotos: [],
+            foto_capa: "",
+            features: [],
+            publicar_zap: false,
+            publicar_olx: false,
+            publicar_vivareal: false,
+            codigo_externo: "",
+            destaque: false,
+            ordem_exibicao: 0,
+            created_at: "",
+            updated_at: "",
+          } as SiteImovel}
+        />
+      )}
     </AppLayout>
   );
 }

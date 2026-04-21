@@ -43,7 +43,13 @@ export const TOPBAR_TABS: TopbarTab[] = [
     id: "negocios",
     label: "Central de Negócios",
     path: "/financeiro",
-    activePrefixes: ["/financeiro", "/relatorios", "/imoveis", "/importar"],
+    activePrefixes: [
+      "/financeiro",
+      "/relatorios",
+      "/imoveis",
+      "/importar",
+      "/dashboard/minhas-lps",
+    ],
   },
   {
     id: "portais",
