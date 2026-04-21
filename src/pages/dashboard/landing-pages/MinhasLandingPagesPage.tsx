@@ -22,12 +22,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   FileText, Globe, FileDown, Copy, ExternalLink, Eye, Users,
-  Loader2, Trash2, Power, RefreshCw, Calendar, Home,
+  Loader2, Trash2, Power, RefreshCw, Calendar, Home, CopyPlus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { LP_TEMPLATES, type LandingPage, type LPTemplate } from "@/types/landing-page";
+import { LP_TEMPLATES, generateLPSlug, type LandingPage, type LPTemplate } from "@/types/landing-page";
 
 const QUOTA_LIMIT = 5;
 
@@ -95,6 +95,58 @@ export default function MinhasLandingPagesPage() {
       return;
     }
     toast({ title: "LP removida" });
+    fetchLps();
+  }
+
+  async function duplicar(lp: LPWithImovel) {
+    if (!user?.id) return;
+
+    // Gera slug novo (mesmo helper do wizard)
+    const baseTitulo = lp.headline || lp.imovel?.titulo || "imovel";
+    const newSlug = generateLPSlug(baseTitulo);
+
+    // Mesmo tipo/template/template. PDF ganha novos 5 dias.
+    const expiresAt =
+      lp.tipo === "pdf"
+        ? new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+    const { data: inserted, error } = await supabase
+      .from("landing_pages")
+      .insert({
+        user_id: user.id,
+        imovel_id: lp.imovel_id,
+        template: lp.template,
+        slug: newSlug,
+        tipo: lp.tipo,
+        headline: lp.headline ? `${lp.headline} (cópia)` : null,
+        subheadline: lp.subheadline,
+        descricao_custom: lp.descricao_custom,
+        fotos_selecionadas: lp.fotos_selecionadas,
+        amenities_custom: lp.amenities_custom,
+        ativo: true,
+        expires_at: expiresAt,
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      toast({
+        title: "Não foi possível duplicar",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Se for PDF, dispara geração (não bloqueia)
+    if (lp.tipo === "pdf" && inserted?.id) {
+      supabase.functions
+        .invoke("generate-lp-pdf", { body: { lp_id: inserted.id } })
+        .catch((e) => console.warn("lp_duplicate_pdf_gen_failed", e));
+    }
+
+    toast({ title: "LP duplicada" });
     fetchLps();
   }
 
@@ -211,6 +263,7 @@ export default function MinhasLandingPagesPage() {
                     onCopy={() => copyLink(lp.slug)}
                     onToggle={() => toggleAtivo(lp)}
                     onDelete={() => deletar(lp)}
+                    onDuplicate={() => duplicar(lp)}
                   />
                 ))}
               </div>
@@ -231,6 +284,7 @@ export default function MinhasLandingPagesPage() {
                     onCopy={() => copyLink(lp.slug)}
                     onDelete={() => deletar(lp)}
                     onRegenerate={() => regenerarPdf(lp)}
+                    onDuplicate={() => duplicar(lp)}
                     regenerating={regeneratingId === lp.id}
                   />
                 ))}
@@ -248,6 +302,7 @@ export default function MinhasLandingPagesPage() {
                     onCopy={() => copyLink(lp.slug)}
                     onToggle={() => toggleAtivo(lp)}
                     onDelete={() => deletar(lp)}
+                    onDuplicate={() => duplicar(lp)}
                   />
                 ))}
               </div>
@@ -300,13 +355,14 @@ function QuotaCard({
 }
 
 function LPCard({
-  lp, onCopy, onToggle, onDelete, onRegenerate, regenerating,
+  lp, onCopy, onToggle, onDelete, onRegenerate, onDuplicate, regenerating,
 }: {
   lp: LPWithImovel;
   onCopy: () => void;
   onToggle?: () => void;
   onDelete: () => void;
   onRegenerate?: () => void;
+  onDuplicate?: () => void;
   regenerating?: boolean;
 }) {
   const template = LP_TEMPLATES.find((t) => t.id === (lp.template as LPTemplate));
@@ -419,6 +475,18 @@ function LPCard({
                 </Button>
               )}
             </>
+          )}
+
+          {onDuplicate && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onDuplicate}
+              title="Duplicar esta LP"
+              aria-label="Duplicar LP"
+            >
+              <CopyPlus className="h-3.5 w-3.5" />
+            </Button>
           )}
 
           {onToggle && lp.tipo === "html" && (
