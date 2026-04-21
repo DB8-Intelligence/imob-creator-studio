@@ -50,6 +50,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
 import { useSite, useUpdateSite, usePublishSite } from "@/hooks/useCorretorSite";
+import { useIsSuperAdmin } from "@/hooks/useIsSuperAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { TEMAS, type CorretorSite, type TemaCorr } from "@/types/site";
 import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
@@ -170,6 +171,7 @@ export default function SiteImobiliario() {
   // Portais (tab Portais) — state local, toggle visual
   const [portals, setPortals] = useState<PortalCard[]>(INITIAL_PORTALS);
   const [sectionsEditorOpen, setSectionsEditorOpen] = useState(false);
+  const { data: isAdmin = false } = useIsSuperAdmin();
 
   // Fetch imóveis do workspace
   useEffect(() => {
@@ -310,7 +312,8 @@ export default function SiteImobiliario() {
               >
                 {site?.publicado ? "Publicado" : "Rascunho"}
               </Badge>
-              {site && (
+              {/* Apenas super_admin tem acesso à edição de layout das seções */}
+              {site && isAdmin && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -1088,8 +1091,8 @@ export default function SiteImobiliario() {
         </div>
       </div>
 
-      {/* Modal: editar layout das seções do site */}
-      {site && (
+      {/* Modal: editar layout das seções do site (só admin) */}
+      {site && isAdmin && (
         <SiteSectionsEditor
           open={sectionsEditorOpen}
           onOpenChange={setSectionsEditorOpen}

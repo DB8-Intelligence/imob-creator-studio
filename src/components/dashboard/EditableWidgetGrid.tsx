@@ -27,6 +27,7 @@ import {
   type WidgetId,
 } from "@/types/dashboard-layout";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
+import { useIsSuperAdmin } from "@/hooks/useIsSuperAdmin";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -39,6 +40,7 @@ interface EditableWidgetGridProps {
 
 export default function EditableWidgetGrid({ widgets }: EditableWidgetGridProps) {
   const { layouts, loading, saving, saveLayouts, resetLayouts } = useDashboardLayout();
+  const { data: isAdmin = false } = useIsSuperAdmin();
   const { toast } = useToast();
 
   const [editMode, setEditMode] = useState(false);
@@ -108,74 +110,76 @@ export default function EditableWidgetGrid({ widgets }: EditableWidgetGridProps)
 
   return (
     <div className="space-y-3">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex-1">
-          {editMode && (
-            <p className="text-xs text-muted-foreground">
-              Arraste os widgets pra reposicionar, use os cantos pra redimensionar.
-              O layout é salvo separado por tamanho de tela.
-            </p>
-          )}
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {editMode && (
-            <WidgetLibraryPopover
-              hiddenIds={hiddenIds}
-              visibleIds={Array.from(visibleIds)}
-              onToggle={toggleWidget}
-            />
-          )}
+      {/* Toolbar — apenas super_admin vê os controles de edição */}
+      {isAdmin && (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex-1">
+            {editMode && (
+              <p className="text-xs text-muted-foreground">
+                Arraste os widgets pra reposicionar, use os cantos pra redimensionar.
+                O layout é salvo separado por tamanho de tela.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {editMode && (
+              <WidgetLibraryPopover
+                hiddenIds={hiddenIds}
+                visibleIds={Array.from(visibleIds)}
+                onToggle={toggleWidget}
+              />
+            )}
 
-          {!editMode ? (
-            <Button variant="outline" size="sm" onClick={startEdit} className="gap-1.5">
-              <Edit3 className="h-3.5 w-3.5" />
-              Editar layout
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={doReset}
-                disabled={saving}
-                className="gap-1.5 text-muted-foreground"
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                Padrão
+            {!editMode ? (
+              <Button variant="outline" size="sm" onClick={startEdit} className="gap-1.5">
+                <Edit3 className="h-3.5 w-3.5" />
+                Editar layout
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={cancelEdit}
-                disabled={saving}
-                className="gap-1.5"
-              >
-                <X className="h-3.5 w-3.5" />
-                Cancelar
-              </Button>
-              <Button
-                size="sm"
-                onClick={commitEdit}
-                disabled={saving}
-                className="gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                {saving ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Check className="h-3.5 w-3.5" />
-                )}
-                Salvar
-              </Button>
-            </>
-          )}
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={doReset}
+                  disabled={saving}
+                  className="gap-1.5 text-muted-foreground"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Padrão
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={cancelEdit}
+                  disabled={saving}
+                  className="gap-1.5"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Cancelar
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={commitEdit}
+                  disabled={saving}
+                  className="gap-1.5 bg-accent text-accent-foreground hover:bg-accent/90"
+                >
+                  {saving ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Check className="h-3.5 w-3.5" />
+                  )}
+                  Salvar
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Grid */}
+      {/* Grid — edit só funciona pra admin (defensive além do gate de UI) */}
       <div
         className={
-          editMode
+          editMode && isAdmin
             ? "rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 p-2"
             : ""
         }
@@ -186,12 +190,12 @@ export default function EditableWidgetGrid({ widgets }: EditableWidgetGridProps)
           breakpoints={BREAKPOINTS}
           cols={COLS_BY_BREAKPOINT}
           rowHeight={DASHBOARD_ROW_HEIGHT}
-          isDraggable={editMode}
-          isResizable={editMode}
+          isDraggable={editMode && isAdmin}
+          isResizable={editMode && isAdmin}
           compactType="vertical"
           margin={[12, 12]}
           onLayoutChange={(_current: Layout[], all: Layouts) => {
-            if (!editMode) return;
+            if (!editMode || !isAdmin) return;
             setDraft({
               lg: (all.lg || []) as typeof draft.lg,
               md: (all.md || []) as typeof draft.md,
@@ -201,7 +205,7 @@ export default function EditableWidgetGrid({ widgets }: EditableWidgetGridProps)
         >
           {renderableIds.map((id) => (
             <div key={id} className="relative overflow-hidden">
-              {editMode && (
+              {editMode && isAdmin && (
                 <div className="pointer-events-none absolute left-2 top-2 z-10 flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-accent shadow-sm backdrop-blur">
                   <LayoutGrid className="h-3 w-3" />
                   {WIDGET_META[id].label}
@@ -213,7 +217,7 @@ export default function EditableWidgetGrid({ widgets }: EditableWidgetGridProps)
         </ResponsiveGridLayout>
       </div>
 
-      {renderableIds.length === 0 && editMode && (
+      {renderableIds.length === 0 && editMode && isAdmin && (
         <div className="rounded-xl border border-dashed border-muted-foreground/30 bg-muted/20 p-8 text-center">
           <p className="text-sm text-muted-foreground">
             Nenhum widget no dashboard. Use "Widgets" pra adicionar.
