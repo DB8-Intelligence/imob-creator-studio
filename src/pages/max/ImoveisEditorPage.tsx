@@ -6,7 +6,7 @@
  *
  * Aceita /imoveis/editor/:id ou /imoveis/editor (sem ID = nova ficha).
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import AppLayout from "@/components/app/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,7 @@ import { PropertyVisitsTab } from "@/components/imoveis/PropertyVisitsTab";
 import { PropertyPerformanceTab } from "@/components/imoveis/PropertyPerformanceTab";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import LPWizard from "@/components/landing-pages/LPWizard";
 import type { SiteImovel } from "@/types/site";
 
@@ -44,23 +45,147 @@ export default function ImoveisEditorPage() {
   // MAX data for existing properties
   const { data: maxData } = usePropertyMAX(id ?? null);
 
-  // Form state (simplified — in real app, would fetch from properties table)
-  const [titulo, setTitulo] = useState(id ? "Apt Vila Mariana 3Q" : "");
+  // Imóvel real carregado do Supabase (usado pelo LPWizard)
+  const [imovel, setImovel] = useState<SiteImovel | null>(null);
+  const [loading, setLoading] = useState(!!id);
+  const [saving, setSaving] = useState(false);
+
+  // Form state — inicializado vazio; populado pelo useEffect de fetch
+  const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
   const [propertyType, setPropertyType] = useState("apartamento");
   const [standard, setStandard] = useState("medio");
-  const [city, setCity] = useState(id ? "São Paulo" : "");
-  const [neighborhood, setNeighborhood] = useState(id ? "Vila Mariana" : "");
-  const [price, setPrice] = useState(id ? "850000" : "");
-  const [area, setArea] = useState(id ? "120" : "");
-  const [bedrooms, setBedrooms] = useState(id ? "3" : "");
-  const [bathrooms, setBathrooms] = useState(id ? "2" : "");
+  const [city, setCity] = useState("");
+  const [neighborhood, setNeighborhood] = useState("");
+  const [price, setPrice] = useState("");
+  const [area, setArea] = useState("");
+  const [bedrooms, setBedrooms] = useState("");
+  const [bathrooms, setBathrooms] = useState("");
   const [highlights, setHighlights] = useState("");
 
-  const handleSave = () => {
-    toast({ title: isNew ? "Imóvel criado" : "Imóvel salvo" });
-    if (isNew) navigate("/imoveis");
-  };
+  // Fetch do imóvel quando id presente
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("site_imoveis")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+
+      if (error || !data) {
+        toast({
+          title: "Imóvel não encontrado",
+          description: error?.message || "Este imóvel não existe ou foi removido.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const row = data as unknown as SiteImovel;
+      setImovel(row);
+      setTitulo(row.titulo || "");
+      setDescricao(row.descricao || "");
+      setPropertyType(row.tipo || "apartamento");
+      setCity(row.cidade || "");
+      setNeighborhood(row.bairro || "");
+      setPrice(row.preco ? String(row.preco) : "");
+      setArea(row.area_total ? String(row.area_total) : "");
+      setBedrooms(row.quartos ? String(row.quartos) : "");
+      setBathrooms(row.banheiros ? String(row.banheiros) : "");
+      setHighlights((row.features || []).join(", "));
+      setLoading(false);
+    })();
+  }, [id, toast]);
+
+  async function handleSave() {
+    if (!user?.id) {
+      toast({ title: "Sessão expirada", variant: "destructive" });
+      return;
+    }
+    if (!titulo.trim()) {
+      toast({ title: "Título obrigatório", variant: "destructive" });
+      return;
+    }
+
+    setSaving(true);
+
+    const payload = {
+      titulo,
+      descricao: descricao || null,
+      tipo: propertyType,
+      cidade: city || null,
+      bairro: neighborhood || null,
+      preco: price ? Number(price) : null,
+      area_total: area ? Number(area) : null,
+      quartos: bedrooms ? Number(bedrooms) : 0,
+      banheiros: bathrooms ? Number(bathrooms) : 0,
+      features: highlights
+        ? highlights.split(",").map((s) => s.trim()).filter(Boolean)
+        : [],
+    };
+
+    if (isNew) {
+      // Preciso do site_id do corretor — busca corretor_sites
+      const { data: site } = await supabase
+        .from("corretor_sites")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!site?.id) {
+        toast({
+          title: "Crie seu site primeiro",
+          description: "Acesse 'Meu Site' e configure antes de cadastrar imóveis.",
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+
+      const { data: created, error } = await supabase
+        .from("site_imoveis")
+        .insert({
+          ...payload,
+          user_id: user.id,
+          site_id: site.id,
+        })
+        .select("id")
+        .single();
+
+      setSaving(false);
+
+      if (error || !created) {
+        toast({ title: "Erro ao criar", description: error?.message, variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Imóvel criado" });
+      navigate(`/imoveis/editor/${created.id}`, { replace: true });
+    } else {
+      const { error } = await supabase
+        .from("site_imoveis")
+        .update(payload)
+        .eq("id", id);
+
+      setSaving(false);
+
+      if (error) {
+        toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Imóvel salvo" });
+      // Atualiza o imovel local pra refletir no LPWizard
+      setImovel((prev) => (prev ? { ...prev, ...payload } as SiteImovel : prev));
+    }
+  }
 
   return (
     <AppLayout>
@@ -93,7 +218,7 @@ export default function ImoveisEditorPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isNew && id && (
+            {!isNew && imovel && (
               <Button
                 variant="outline"
                 onClick={() => setLpWizardOpen(true)}
@@ -102,9 +227,17 @@ export default function ImoveisEditorPage() {
                 Gerar Landing Page
               </Button>
             )}
-            <Button onClick={handleSave} className="bg-accent text-accent-foreground hover:bg-accent/90">
-              <Save className="w-4 h-4 mr-2" />
-              Salvar
+            <Button
+              onClick={handleSave}
+              disabled={saving || loading}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              {saving ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4 mr-2" />
+              )}
+              {saving ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         </div>
@@ -252,46 +385,13 @@ export default function ImoveisEditorPage() {
         </Tabs>
       </div>
 
-      {/* Wizard de Landing Page */}
-      {!isNew && id && user && (
+      {/* Wizard de Landing Page — usa o imóvel REAL carregado do Supabase */}
+      {!isNew && imovel && user && (
         <LPWizard
           open={lpWizardOpen}
           onOpenChange={setLpWizardOpen}
           userId={user.id}
-          imovel={{
-            id,
-            user_id: user.id,
-            site_id: "",
-            titulo,
-            descricao,
-            tipo: propertyType as SiteImovel["tipo"],
-            finalidade: "venda",
-            status: "disponivel",
-            endereco: "",
-            bairro: neighborhood,
-            cidade: city,
-            estado: "",
-            cep: "",
-            preco: Number(price) || 0,
-            preco_condominio: 0,
-            area_total: Number(area) || 0,
-            area_construida: 0,
-            quartos: Number(bedrooms) || 0,
-            suites: 0,
-            banheiros: Number(bathrooms) || 0,
-            vagas: 0,
-            fotos: [],
-            foto_capa: "",
-            features: [],
-            publicar_zap: false,
-            publicar_olx: false,
-            publicar_vivareal: false,
-            codigo_externo: "",
-            destaque: false,
-            ordem_exibicao: 0,
-            created_at: "",
-            updated_at: "",
-          } as SiteImovel}
+          imovel={imovel}
         />
       )}
     </AppLayout>
