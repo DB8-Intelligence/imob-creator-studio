@@ -173,6 +173,7 @@ const ImovelLPPublico = lazy(() => import("./pages/ImovelLPPublico"));
 const MinhasLandingPagesPage = lazy(() => import("./pages/dashboard/landing-pages/MinhasLandingPagesPage"));
 const LPAnalyticsPage = lazy(() => import("./pages/dashboard/landing-pages/LPAnalyticsPage"));
 const AdminBugsPage = lazy(() => import("./pages/admin/AdminBugsPage"));
+const AdminDashboardPage = lazy(() => import("./pages/admin/AdminDashboardPage"));
 import BugReporterWidget from "./components/app/BugReporterWidget";
 import GlobalErrorBoundary from "./components/app/GlobalErrorBoundary";
 
@@ -207,6 +208,7 @@ const App = () => (
               <Route path="/imovel/:slug" element={<ImovelLPPublico />} />
               <Route path="/dashboard/minhas-lps" element={<ProtectedRoute><MinhasLandingPagesPage /></ProtectedRoute>} />
               <Route path="/dashboard/minhas-lps/:id" element={<ProtectedRoute><LPAnalyticsPage /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><AdminDashboardPage /></ProtectedRoute>} />
               <Route path="/admin/bugs" element={<ProtectedRoute><AdminBugsPage /></ProtectedRoute>} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

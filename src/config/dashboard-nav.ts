@@ -259,7 +259,9 @@ export const DASHBOARD_NAV: NavSection[] = [
     label: "Admin",
     emoji: "🛡️",
     items: [
-      { icon: Shield, label: "Painel Admin", path: "/admin/diagnosticos" },
+      { icon: BarChart3, label: "Admin Dashboard", path: "/admin" },
+      { icon: FileText, label: "Bug Reports", path: "/admin/bugs" },
+      { icon: Shield, label: "Diagnósticos", path: "/admin/diagnosticos" },
     ],
   },
 ];
