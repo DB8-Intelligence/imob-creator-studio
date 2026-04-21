@@ -22,9 +22,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   FileText, Globe, FileDown, Copy, ExternalLink, Eye, Users,
-  Loader2, Trash2, Power, RefreshCw, Calendar, Home, CopyPlus, Pencil,
+  Loader2, Trash2, Power, RefreshCw, Calendar, Home, CopyPlus, Pencil, QrCode,
 } from "lucide-react";
 import LPWizard from "@/components/landing-pages/LPWizard";
+import LPQrCodeModal from "@/components/landing-pages/LPQrCodeModal";
 import type { SiteImovel } from "@/types/site";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -45,6 +46,7 @@ export default function MinhasLandingPagesPage() {
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
   const [editingLp, setEditingLp] = useState<LandingPage | null>(null);
   const [editingImovel, setEditingImovel] = useState<SiteImovel | null>(null);
+  const [qrCodeLp, setQrCodeLp] = useState<LPWithImovel | null>(null);
 
   const fetchLps = useCallback(async () => {
     if (!user?.id) return;
@@ -290,6 +292,7 @@ export default function MinhasLandingPagesPage() {
                     onDelete={() => deletar(lp)}
                     onDuplicate={() => duplicar(lp)}
                     onEdit={() => abrirEditor(lp)}
+                    onShowQr={() => setQrCodeLp(lp)}
                   />
                 ))}
               </div>
@@ -312,6 +315,7 @@ export default function MinhasLandingPagesPage() {
                     onRegenerate={() => regenerarPdf(lp)}
                     onDuplicate={() => duplicar(lp)}
                     onEdit={() => abrirEditor(lp)}
+                    onShowQr={() => setQrCodeLp(lp)}
                     regenerating={regeneratingId === lp.id}
                   />
                 ))}
@@ -331,6 +335,7 @@ export default function MinhasLandingPagesPage() {
                     onDelete={() => deletar(lp)}
                     onDuplicate={() => duplicar(lp)}
                     onEdit={() => abrirEditor(lp)}
+                    onShowQr={() => setQrCodeLp(lp)}
                   />
                 ))}
               </div>
@@ -353,6 +358,16 @@ export default function MinhasLandingPagesPage() {
           imovel={editingImovel}
           initialLp={editingLp}
           onSaved={() => fetchLps()}
+        />
+      )}
+
+      {/* Modal: QR Code */}
+      {qrCodeLp && (
+        <LPQrCodeModal
+          open={true}
+          onOpenChange={(open) => !open && setQrCodeLp(null)}
+          slug={qrCodeLp.slug}
+          title={qrCodeLp.headline || qrCodeLp.imovel?.titulo || "Landing Page"}
         />
       )}
     </AppLayout>
@@ -400,7 +415,7 @@ function QuotaCard({
 }
 
 function LPCard({
-  lp, onCopy, onToggle, onDelete, onRegenerate, onDuplicate, onEdit, regenerating,
+  lp, onCopy, onToggle, onDelete, onRegenerate, onDuplicate, onEdit, onShowQr, regenerating,
 }: {
   lp: LPWithImovel;
   onCopy: () => void;
@@ -409,6 +424,7 @@ function LPCard({
   onRegenerate?: () => void;
   onDuplicate?: () => void;
   onEdit?: () => void;
+  onShowQr?: () => void;
   regenerating?: boolean;
 }) {
   const template = LP_TEMPLATES.find((t) => t.id === (lp.template as LPTemplate));
@@ -532,6 +548,18 @@ function LPCard({
               aria-label="Editar LP"
             >
               <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          )}
+
+          {onShowQr && lp.tipo === "html" && lp.ativo && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={onShowQr}
+              title="QR Code da LP"
+              aria-label="Ver QR Code"
+            >
+              <QrCode className="h-3.5 w-3.5" />
             </Button>
           )}
 
