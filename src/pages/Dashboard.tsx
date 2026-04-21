@@ -25,6 +25,7 @@ import {
   type CompromissoItem,
   type PretensaoItem,
 } from "@/components/dashboard/UnivenStyleWidgets";
+import EditableWidgetGrid from "@/components/dashboard/EditableWidgetGrid";
 import {
   ArrowRight, Bot, MessageCircle, Calendar, Users, Globe, Rss,
   Mic, Sparkles, Home as HomeIcon, UserPlus, TrendingUp, BarChart3,
@@ -331,54 +332,57 @@ const Dashboard = () => {
         />
       )}
 
-      {/* KPIs rápidos — 4 cards em linha full-width */}
+      {/* Grid personalizável — KPIs + Atendimentos + Compromissos + Contadores + Pretensão */}
       <div className="mb-6">
-        <KpiRow items={kpiItems} loading={counts.loading} />
-      </div>
-
-      {/* Grid Univen — 4 widgets em 2x2 (atendimentos, compromissos, contadores, pretensão) */}
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <AtendimentosPendentesCard
-          items={mockAtendimentos}
-          loading={counts.loading}
-        />
-        <CompromissosCard
-          items={mockCompromissos}
-          loading={counts.loading}
-        />
-        <BigCounterCard
-          title="Meus imóveis"
-          icon={HomeIcon}
-          mainValue={counts.propertiesActive}
-          mainLabel="Ativos"
-          stats={[
-            { label: "Captados no mês", value: 0, tone: "positive" },
-            { label: "Rascunhos", value: counts.propertiesDraft, tone: "negative" },
-          ]}
-          accent="#0891B2"
-          href="/imoveis"
-          loading={counts.loading}
-        />
-        <BigCounterCard
-          title="Meus clientes"
-          icon={Users}
-          mainValue={0}
-          mainLabel="Ativos"
-          stats={[
-            { label: "Captados no mês", value: 0, tone: "positive" },
-            { label: "Desatualizados", value: 0, tone: "negative" },
-          ]}
-          accent="#002B5B"
-          href="/dashboard/crm"
-          loading={counts.loading}
-        />
-      </div>
-
-      {/* Pretensão — chart full-width pra dar destaque */}
-      <div className="mb-6">
-        <PretensaoBarChart
-          items={mockPretensao}
-          loading={counts.loading}
+        <EditableWidgetGrid
+          widgets={{
+            kpis: <KpiRow items={kpiItems} loading={counts.loading} />,
+            "atendimentos-pendentes": (
+              <AtendimentosPendentesCard
+                items={mockAtendimentos}
+                loading={counts.loading}
+              />
+            ),
+            compromissos: (
+              <CompromissosCard
+                items={mockCompromissos}
+                loading={counts.loading}
+              />
+            ),
+            "meus-imoveis": (
+              <BigCounterCard
+                title="Meus imóveis"
+                icon={HomeIcon}
+                mainValue={counts.propertiesActive}
+                mainLabel="Ativos"
+                stats={[
+                  { label: "Captados no mês", value: 0, tone: "positive" },
+                  { label: "Rascunhos", value: counts.propertiesDraft, tone: "negative" },
+                ]}
+                accent="#0891B2"
+                href="/imoveis"
+                loading={counts.loading}
+              />
+            ),
+            "meus-clientes": (
+              <BigCounterCard
+                title="Meus clientes"
+                icon={Users}
+                mainValue={0}
+                mainLabel="Ativos"
+                stats={[
+                  { label: "Captados no mês", value: 0, tone: "positive" },
+                  { label: "Desatualizados", value: 0, tone: "negative" },
+                ]}
+                accent="#002B5B"
+                href="/dashboard/crm"
+                loading={counts.loading}
+              />
+            ),
+            pretensao: (
+              <PretensaoBarChart items={mockPretensao} loading={counts.loading} />
+            ),
+          }}
         />
       </div>
 
