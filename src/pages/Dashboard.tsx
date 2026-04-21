@@ -26,6 +26,7 @@ import {
   type PretensaoItem,
 } from "@/components/dashboard/UnivenStyleWidgets";
 import EditableWidgetGrid from "@/components/dashboard/EditableWidgetGrid";
+import { useDashboardWidgets } from "@/hooks/useDashboardWidgets";
 import {
   ArrowRight, Bot, MessageCircle, Calendar, Users, Globe, Rss,
   Mic, Sparkles, Home as HomeIcon, UserPlus, TrendingUp, BarChart3,
@@ -279,35 +280,8 @@ const Dashboard = () => {
     },
   ];
 
-  // ─── MOCK DATA (Fase A) — Dados simulados para validar o layout ─────
-  // TODO Fase B: substituir por queries Supabase (appointments, clients, properties)
-  const mockAtendimentos: AtendimentoItem[] = [];
-
-  const mockCompromissos: CompromissoItem[] = [
-    {
-      id: "1",
-      title: "Visita — Apto Alphaville 2",
-      startAt: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-      location: "Salvador/BA",
-      type: "visita",
-      href: "/calendario",
-    },
-    {
-      id: "2",
-      title: "Ligação — Retorno Fernanda",
-      startAt: new Date(Date.now() + 26 * 60 * 60 * 1000).toISOString(),
-      type: "ligacao",
-      href: "/calendario",
-    },
-  ];
-
-  const mockPretensao: PretensaoItem[] = [
-    { label: "Venda", value: 92, color: "#ef4444" },
-    { label: "Locação", value: 10, color: "#ef4444" },
-    { label: "Temporada", value: 0, color: "#ef4444" },
-    { label: "Permuta", value: 1, color: "#ef4444" },
-  ];
-  // ────────────────────────────────────────────────────────────────────
+  // Dados reais dos widgets Univen (Supabase via useDashboardWidgets)
+  const widgetsData = useDashboardWidgets();
 
   const shouldShowSecretariaWizard =
     hasModule("whatsapp") &&
@@ -339,14 +313,14 @@ const Dashboard = () => {
             kpis: <KpiRow items={kpiItems} loading={counts.loading} />,
             "atendimentos-pendentes": (
               <AtendimentosPendentesCard
-                items={mockAtendimentos}
-                loading={counts.loading}
+                items={widgetsData.atendimentos}
+                loading={widgetsData.loading}
               />
             ),
             compromissos: (
               <CompromissosCard
-                items={mockCompromissos}
-                loading={counts.loading}
+                items={widgetsData.compromissos}
+                loading={widgetsData.loading}
               />
             ),
             "meus-imoveis": (
@@ -380,7 +354,10 @@ const Dashboard = () => {
               />
             ),
             pretensao: (
-              <PretensaoBarChart items={mockPretensao} loading={counts.loading} />
+              <PretensaoBarChart
+                items={widgetsData.pretensao}
+                loading={widgetsData.loading}
+              />
             ),
           }}
         />
