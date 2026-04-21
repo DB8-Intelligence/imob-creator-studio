@@ -45,6 +45,7 @@ import {
   Share2,
   FileDown,
   Plus,
+  Layers,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useWorkspaceContext } from "@/contexts/WorkspaceContext";
@@ -55,6 +56,7 @@ import ThemeRenderer from "@/components/site-temas/ThemeRenderer";
 import { SiteOnboardingWizard } from "@/components/site/SiteOnboardingWizard";
 import ThemeLaptopCard, { THEME_VARIANT_MAP } from "@/components/site/ThemeLaptopCard";
 import SiteModelsDashboard from "@/components/site/SiteModelsDashboard";
+import SiteSectionsEditor from "@/components/site/SiteSectionsEditor";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -167,6 +169,7 @@ export default function SiteImobiliario() {
 
   // Portais (tab Portais) — state local, toggle visual
   const [portals, setPortals] = useState<PortalCard[]>(INITIAL_PORTALS);
+  const [sectionsEditorOpen, setSectionsEditorOpen] = useState(false);
 
   // Fetch imóveis do workspace
   useEffect(() => {
@@ -300,13 +303,24 @@ export default function SiteImobiliario() {
                 Configure seu site profissional
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <Badge
                 variant={site?.publicado ? "default" : "secondary"}
                 className="text-xs"
               >
                 {site?.publicado ? "Publicado" : "Rascunho"}
               </Badge>
+              {site && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSectionsEditorOpen(true)}
+                  className="gap-1.5"
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  Editar layout
+                </Button>
+              )}
               <Button
                 size="sm"
                 onClick={handlePublish}
@@ -1073,6 +1087,19 @@ export default function SiteImobiliario() {
           </p>
         </div>
       </div>
+
+      {/* Modal: editar layout das seções do site */}
+      {site && (
+        <SiteSectionsEditor
+          open={sectionsEditorOpen}
+          onOpenChange={setSectionsEditorOpen}
+          site={site}
+          onSaved={(newConfig) => {
+            // Atualiza o draft local pra refletir no preview imediatamente
+            setDraft((prev) => ({ ...prev, sections_config: newConfig }));
+          }}
+        />
+      )}
     </AppLayout>
   );
 }

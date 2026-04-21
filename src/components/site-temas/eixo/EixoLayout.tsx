@@ -1,4 +1,5 @@
 import type { TemaProps } from "../tipos";
+import SectionsWrapper from "../SectionsWrapper";
 import EixoHero from "./EixoHero";
 import EixoImoveis from "./EixoImoveis";
 import EixoAbout from "./EixoAbout";
@@ -9,12 +10,16 @@ import EixoFooter from "./EixoFooter";
 export default function EixoLayout(props: TemaProps) {
   return (
     <div className="min-h-full w-full bg-white font-['Inter',sans-serif] text-gray-800">
-      <EixoHero {...props} />
-      <EixoImoveis {...props} />
-      <EixoAbout {...props} />
-      <EixoDepoimentos {...props} />
-      <EixoContato {...props} />
-      <EixoFooter {...props} />
+      <SectionsWrapper site={props.site}>
+        {{
+          hero: <EixoHero {...props} />,
+          imoveis: <EixoImoveis {...props} />,
+          about: <EixoAbout {...props} />,
+          depoimentos: <EixoDepoimentos {...props} />,
+          contato: <EixoContato {...props} />,
+          footer: <EixoFooter {...props} />,
+        }}
+      </SectionsWrapper>
     </div>
   );
 }

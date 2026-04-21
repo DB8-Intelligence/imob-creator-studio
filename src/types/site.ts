@@ -1,4 +1,36 @@
 export type TemaCorr = 'brisa' | 'urbano' | 'litoral' | 'dark-premium' | 'nestland' | 'nexthm' | 'ortiz' | 'quarter' | 'rethouse' | 'capital' | 'horizonte' | 'prisma' | 'eixo' | 'vitrine' | 'onix' | 'farol' | 'aurora' | 'sereno' | 'portico'
+
+// ─── Layout de seções do site público ──────────────────────────────
+export type SiteSectionKey = 'hero' | 'imoveis' | 'about' | 'depoimentos' | 'contato' | 'footer'
+
+export interface SiteSectionsConfig {
+  order: SiteSectionKey[]
+  enabled: Record<SiteSectionKey, boolean>
+}
+
+export const DEFAULT_SITE_SECTIONS: SiteSectionsConfig = {
+  order: ['hero', 'imoveis', 'about', 'depoimentos', 'contato', 'footer'],
+  enabled: { hero: true, imoveis: true, about: true, depoimentos: true, contato: true, footer: true },
+}
+
+export const SITE_SECTION_META: Record<SiteSectionKey, { label: string; description: string; emoji: string }> = {
+  hero:         { label: 'Hero / Busca',       description: 'Topo do site com banner e busca',          emoji: '🏠' },
+  imoveis:      { label: 'Imóveis',            description: 'Lista dos seus imóveis destaque',           emoji: '🏢' },
+  about:        { label: 'Quem sou / Sobre',   description: 'Sua bio + serviços que você oferece',       emoji: '👤' },
+  depoimentos:  { label: 'Depoimentos',        description: 'Avaliações de clientes',                    emoji: '⭐' },
+  contato:      { label: 'Contato',            description: 'Formulário + WhatsApp + telefone',          emoji: '📞' },
+  footer:       { label: 'Rodapé',             description: 'Créditos, redes sociais, CRECI',            emoji: '🦶' },
+}
+
+export function normalizeSiteSectionsConfig(raw: unknown): SiteSectionsConfig {
+  if (!raw || typeof raw !== 'object') return DEFAULT_SITE_SECTIONS
+  const obj = raw as Partial<SiteSectionsConfig>
+  return {
+    order: Array.isArray(obj.order) && obj.order.length > 0 ? obj.order : DEFAULT_SITE_SECTIONS.order,
+    enabled: { ...DEFAULT_SITE_SECTIONS.enabled, ...(obj.enabled || {}) },
+  }
+}
+
 export type TipoImovel = 'apartamento' | 'casa' | 'terreno' | 'comercial' | 'rural' | 'cobertura' | 'studio'
 export type FinalidadeImovel = 'venda' | 'aluguel' | 'temporada'
 export type StatusImovel = 'disponivel' | 'reservado' | 'vendido' | 'alugado'
@@ -37,6 +69,7 @@ export interface CorretorSite {
   banner_hero_titulo: string; banner_hero_subtitulo: string;
   meta_titulo: string; meta_descricao: string; google_analytics_id: string;
   publicado: boolean; created_at: string; updated_at: string;
+  sections_config?: SiteSectionsConfig | null;
 }
 
 export interface SiteImovel {

@@ -1,4 +1,5 @@
 import type { TemaProps } from "../tipos";
+import SectionsWrapper from "../SectionsWrapper";
 import HorizonteHero from "./HorizonteHero";
 import HorizonteImoveis from "./HorizonteImoveis";
 import HorizonteAbout from "./HorizonteAbout";
@@ -9,12 +10,16 @@ import HorizonteFooter from "./HorizonteFooter";
 export default function HorizonteLayout(props: TemaProps) {
   return (
     <div className="min-h-full w-full bg-white font-['Inter',sans-serif] text-gray-800">
-      <HorizonteHero {...props} />
-      <HorizonteImoveis {...props} />
-      <HorizonteAbout {...props} />
-      <HorizonteDepoimentos {...props} />
-      <HorizonteContato {...props} />
-      <HorizonteFooter {...props} />
+      <SectionsWrapper site={props.site}>
+        {{
+          hero: <HorizonteHero {...props} />,
+          imoveis: <HorizonteImoveis {...props} />,
+          about: <HorizonteAbout {...props} />,
+          depoimentos: <HorizonteDepoimentos {...props} />,
+          contato: <HorizonteContato {...props} />,
+          footer: <HorizonteFooter {...props} />,
+        }}
+      </SectionsWrapper>
     </div>
   );
 }
