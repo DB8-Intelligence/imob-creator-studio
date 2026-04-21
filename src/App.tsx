@@ -172,6 +172,8 @@ import SitePublico from "./pages/SitePublico";
 const ImovelLPPublico = lazy(() => import("./pages/ImovelLPPublico"));
 const MinhasLandingPagesPage = lazy(() => import("./pages/dashboard/landing-pages/MinhasLandingPagesPage"));
 const LPAnalyticsPage = lazy(() => import("./pages/dashboard/landing-pages/LPAnalyticsPage"));
+const AdminBugsPage = lazy(() => import("./pages/admin/AdminBugsPage"));
+import BugReporterWidget from "./components/app/BugReporterWidget";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -203,6 +205,7 @@ const App = () => (
               <Route path="/imovel/:slug" element={<ImovelLPPublico />} />
               <Route path="/dashboard/minhas-lps" element={<ProtectedRoute><MinhasLandingPagesPage /></ProtectedRoute>} />
               <Route path="/dashboard/minhas-lps/:id" element={<ProtectedRoute><LPAnalyticsPage /></ProtectedRoute>} />
+              <Route path="/admin/bugs" element={<ProtectedRoute><AdminBugsPage /></ProtectedRoute>} />
 
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/studio"   element={<ProtectedRoute><StudioPage /></ProtectedRoute>} />
@@ -390,6 +393,9 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>
+
+            {/* Widget global de bug report — renderiza pra qualquer user autenticado */}
+            <BugReporterWidget />
           </BrowserRouter>
         </TooltipProvider>
       </WorkspaceProvider>
