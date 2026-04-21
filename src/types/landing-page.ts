@@ -105,6 +105,20 @@ export const LP_TEMPLATES: {
   },
 ];
 
+/** Dados enviados pelo form da LP pro backend. */
+export interface LPLeadData {
+  nome: string;
+  email?: string;
+  telefone: string;
+  mensagem?: string;
+}
+
+/** Resultado da submissão (o template reage com UI apropriada). */
+export interface LPLeadResult {
+  success: boolean;
+  error?: string;
+}
+
 /**
  * Props passadas para cada template de LP.
  * A LP pode sobrescrever campos do imóvel via `lp.headline`, `lp.descricao_custom`, etc.
@@ -124,6 +138,12 @@ export interface LPTemplateProps {
   };
   /** Se true, renderiza modo preview (sem rastrear view, sem form submit real) */
   isPreview?: boolean;
+  /**
+   * Callback chamado quando o visitante submete o form da LP.
+   * Responsável por inserir em site_leads + incrementar leads_count.
+   * Se undefined, o template entra em modo preview (apenas UI de sucesso).
+   */
+  onSubmitLead?: (data: LPLeadData) => Promise<LPLeadResult>;
 }
 
 // ---------- Helpers ----------

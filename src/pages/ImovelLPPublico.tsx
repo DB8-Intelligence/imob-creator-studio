@@ -14,7 +14,7 @@ import { useParams } from "react-router-dom";
 import { Loader2, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import LPRenderer from "@/components/landing-pages/LPRenderer";
-import type { LandingPage } from "@/types/landing-page";
+import type { LandingPage, LPLeadData, LPLeadResult } from "@/types/landing-page";
 import type { SiteImovel, CorretorSite } from "@/types/site";
 
 interface Corretor {
@@ -137,5 +137,70 @@ export default function ImovelLPPublico() {
     );
   }
 
-  return <LPRenderer imovel={imovel} lp={lp} corretor={corretor} />;
+  /**
+   * Callback do form da LP — insere em site_leads e incrementa leads_count.
+   * Chamado por cada template quando o visitante submete o formulário.
+   */
+  const handleSubmitLead = async (data: LPLeadData): Promise<LPLeadResult> => {
+    try {
+      // 1. Busca site_id do corretor (único por user, requerido pela tabela)
+      const { data: siteRow, error: siteErr } = await supabase
+        .from("corretor_sites")
+        .select("id")
+        .eq("user_id", lp.user_id)
+        .maybeSingle();
+
+      if (siteErr || !siteRow?.id) {
+        return { success: false, error: "Site do corretor não configurado." };
+      }
+
+      // 2. Insert em site_leads
+      const { error: leadErr } = await supabase.from("site_leads").insert({
+        site_id: siteRow.id,
+        corretor_user_id: lp.user_id,
+        imovel_id: imovel.id,
+        nome: data.nome,
+        email: data.email || null,
+        telefone: data.telefone,
+        mensagem: data.mensagem || null,
+        interesse:
+          imovel.finalidade === "aluguel"
+            ? "aluguel"
+            : imovel.finalidade === "temporada"
+              ? "outro"
+              : "compra",
+        origem: `landing-page:${lp.template}`,
+        utm_source: "lp",
+        utm_medium: lp.template,
+        utm_campaign: lp.slug,
+      });
+
+      if (leadErr) {
+        return { success: false, error: leadErr.message };
+      }
+
+      // 3. Incrementa leads_count (best-effort)
+      supabase
+        .rpc("increment_lp_leads", { lp_id: lp.id })
+        .then(({ error }) => {
+          if (error) console.warn("lp_lead_count_failed", error);
+        });
+
+      return { success: true };
+    } catch (e) {
+      return {
+        success: false,
+        error: e instanceof Error ? e.message : "Falha ao enviar",
+      };
+    }
+  };
+
+  return (
+    <LPRenderer
+      imovel={imovel}
+      lp={lp}
+      corretor={corretor}
+      onSubmitLead={handleSubmitLead}
+    />
+  );
 }

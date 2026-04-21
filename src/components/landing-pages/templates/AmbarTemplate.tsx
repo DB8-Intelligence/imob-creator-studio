@@ -29,7 +29,7 @@ const PRIMARY = "#B19A6B"; // dourado tan
 const SECONDARY = "#3D2B47"; // roxo escuro
 const DARK_BG = "#2A2630";
 
-export default function AmbarTemplate({ imovel, lp, corretor, isPreview }: LPTemplateProps) {
+export default function AmbarTemplate({ imovel, lp, corretor, isPreview, onSubmitLead }: LPTemplateProps) {
   const fotos = getLPFotos(imovel, lp);
   const headline = getLPHeadline(imovel, lp);
   const descricao = getLPDescricao(imovel, lp);
@@ -45,15 +45,31 @@ export default function AmbarTemplate({ imovel, lp, corretor, isPreview }: LPTem
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isPreview) return;
+    if (isPreview) {
+      setSubmitted(true);
+      return;
+    }
     setSubmitting(true);
-    // TODO: integrar com site_leads / criar lead no backend
-    await new Promise((r) => setTimeout(r, 600));
-    setSubmitting(false);
-    setSubmitted(true);
+    setSubmitError(null);
+
+    if (onSubmitLead) {
+      const result = await onSubmitLead({
+        nome: formData.nome,
+        email: formData.email || undefined,
+        telefone: formData.celular || formData.telefone,
+        mensagem: formData.mensagem || undefined,
+      });
+      setSubmitting(false);
+      if (result.success) setSubmitted(true);
+      else setSubmitError(result.error || "Falha ao enviar. Tente novamente.");
+    } else {
+      setSubmitting(false);
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -477,6 +493,12 @@ export default function AmbarTemplate({ imovel, lp, corretor, isPreview }: LPTem
                   <Send className="h-4 w-4" />
                   {submitting ? "Enviando..." : "Enviar"}
                 </button>
+
+                {submitError && (
+                  <p className="rounded-sm bg-red-50 px-3 py-2 text-xs text-red-700">
+                    {submitError}
+                  </p>
+                )}
               </form>
             )}
           </div>

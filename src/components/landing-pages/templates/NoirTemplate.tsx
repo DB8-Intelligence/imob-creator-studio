@@ -26,7 +26,7 @@ function pickIcon(label: string) {
   return key ? AMENITY_ICONS[key] : Home;
 }
 
-export default function NoirTemplate({ imovel, lp, corretor, isPreview }: LPTemplateProps) {
+export default function NoirTemplate({ imovel, lp, corretor, isPreview, onSubmitLead }: LPTemplateProps) {
   const fotos = getLPFotos(imovel, lp);
   const headline = getLPHeadline(imovel, lp);
   const descricao = getLPDescricao(imovel, lp);
@@ -34,11 +34,25 @@ export default function NoirTemplate({ imovel, lp, corretor, isPreview }: LPTemp
 
   const [form, setForm] = useState({ nome: "", email: "", telefone: "" });
   const [sent, setSent] = useState(false);
+  const [sendErr, setSendErr] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isPreview) return;
-    setSent(true);
+    if (isPreview || !onSubmitLead) {
+      setSent(true);
+      return;
+    }
+    setSending(true);
+    setSendErr(null);
+    const r = await onSubmitLead({
+      nome: form.nome,
+      email: form.email || undefined,
+      telefone: form.telefone,
+    });
+    setSending(false);
+    if (r.success) setSent(true);
+    else setSendErr(r.error || "Falha ao enviar.");
   };
 
   return (
@@ -265,11 +279,18 @@ export default function NoirTemplate({ imovel, lp, corretor, isPreview }: LPTemp
                 />
                 <button
                   type="submit"
-                  className="mt-5 flex w-full items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-[0.5em] transition hover:opacity-80"
+                  disabled={sending}
+                  className="mt-5 flex w-full items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-[0.5em] transition hover:opacity-80 disabled:opacity-50"
                   style={{ backgroundColor: ACCENT, color: PRIMARY }}
                 >
-                  <Send className="h-3.5 w-3.5" /> Enviar
+                  <Send className="h-3.5 w-3.5" /> {sending ? "Enviando..." : "Enviar"}
                 </button>
+
+                {sendErr && (
+                  <p className="mt-3 px-3 py-2 text-center text-[11px]" style={{ color: ACCENT }}>
+                    {sendErr}
+                  </p>
+                )}
               </form>
             )}
 

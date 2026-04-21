@@ -26,7 +26,7 @@ function pickAmenityIcon(label: string) {
   return key ? AMENITY_ICONS[key] : Home;
 }
 
-export default function LinhoTemplate({ imovel, lp, corretor, isPreview }: LPTemplateProps) {
+export default function LinhoTemplate({ imovel, lp, corretor, isPreview, onSubmitLead }: LPTemplateProps) {
   const fotos = getLPFotos(imovel, lp);
   const headline = getLPHeadline(imovel, lp);
   const descricao = getLPDescricao(imovel, lp);
@@ -34,11 +34,25 @@ export default function LinhoTemplate({ imovel, lp, corretor, isPreview }: LPTem
 
   const [form, setForm] = useState({ nome: "", email: "", telefone: "" });
   const [sent, setSent] = useState(false);
+  const [sendErr, setSendErr] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isPreview) return;
-    setSent(true);
+    if (isPreview || !onSubmitLead) {
+      setSent(true);
+      return;
+    }
+    setSending(true);
+    setSendErr(null);
+    const r = await onSubmitLead({
+      nome: form.nome,
+      email: form.email || undefined,
+      telefone: form.telefone,
+    });
+    setSending(false);
+    if (r.success) setSent(true);
+    else setSendErr(r.error || "Falha ao enviar.");
   };
 
   return (
@@ -223,11 +237,18 @@ export default function LinhoTemplate({ imovel, lp, corretor, isPreview }: LPTem
                 />
                 <button
                   type="submit"
-                  className="mt-5 flex w-full items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:brightness-110"
+                  disabled={sending}
+                  className="mt-5 flex w-full items-center justify-center gap-2 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white transition hover:brightness-110 disabled:opacity-60"
                   style={{ backgroundColor: PRIMARY }}
                 >
-                  <Send className="h-4 w-4" /> Enviar
+                  <Send className="h-4 w-4" /> {sending ? "Enviando..." : "Enviar"}
                 </button>
+
+                {sendErr && (
+                  <p className="mt-2 rounded bg-red-50 px-3 py-2 text-xs text-red-700">
+                    {sendErr}
+                  </p>
+                )}
               </form>
             )}
 
