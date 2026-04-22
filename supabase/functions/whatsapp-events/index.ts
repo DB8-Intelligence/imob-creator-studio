@@ -216,11 +216,13 @@ async function dispatchCriativosPro(ownerUserId: string, propertyId: string): Pr
 
   // Fire-and-forget — não bloqueia o webhook do Evolution (tem que responder
   // rápido). Pipeline-criativo notifica o corretor no fim.
+  // Authorization: Bearer <service-role> é o padrão do repo pra chamadas
+  // server-to-server passarem no verify_jwt da função destino.
   fetch(`${supabaseUrl}/functions/v1/pipeline-criativo`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
     },
     body: JSON.stringify({ property_id: propertyId, creative_job_id: job.id }),
   }).catch((e) => console.error("pipeline-criativo dispatch failed:", e));
@@ -480,7 +482,10 @@ async function tryHandleCriativoApproval(args: {
     if (supabaseUrl && serviceKey) {
       fetch(`${supabaseUrl}/functions/v1/criativos-publish`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", apikey: serviceKey },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${serviceKey}`,
+        },
         body: JSON.stringify({ creative_job_id: job.id }),
       }).catch((e) => console.error("criativos-publish dispatch failed:", e));
     }

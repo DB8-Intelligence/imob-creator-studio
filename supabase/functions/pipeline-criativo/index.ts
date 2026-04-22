@@ -274,7 +274,7 @@ async function generateArt(args: {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      apikey: SERVICE_KEY,
+      Authorization: `Bearer ${SERVICE_KEY}`,
     },
     body: JSON.stringify({
       propertyId: args.propertyId,

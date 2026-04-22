@@ -38,3 +38,8 @@ verify_jwt = false
 
 [functions.kiwify-webhook]
 verify_jwt = false
+
+# Criativos Pro — sweep chamado por pg_cron (sem Authorization header),
+# protegido por INTERNAL_WEBHOOK_SECRET validado no código.
+[functions.criativos-sweep-deadline]
+verify_jwt = false
