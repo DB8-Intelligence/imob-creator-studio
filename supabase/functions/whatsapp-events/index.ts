@@ -132,7 +132,7 @@ serve(async (req: Request) => {
     // foto, property entra como 'draft' e dispara pipeline-criativo (gera
     // arte + copy, envia preview pro Zap pra aprovar). Texto puro cai no
     // fluxo tradicional — sem foto não dá pra compor criativo.
-    const isPro = mediaUrls.length > 0 && (await hasCriativosPro(instance.user_id));
+    const isPro = mediaUrls.length > 0 && (await hasCriativosPro(workspace.id));
 
     const { data: property } = await supabase
       .from("properties")
@@ -172,15 +172,15 @@ serve(async (req: Request) => {
 });
 
 /**
- * Retorna true se o dono do workspace tem o módulo `criativos_pro` ativo.
- * Usado pra decidir entre fluxo tradicional (aprovação manual no dashboard)
- * e o pipeline automático (Gemini + WhatsApp 👍/👎).
+ * Retorna true se o workspace tem o módulo `criativos_pro` ativo.
+ * user_subscriptions tem workspace_id (não user_id); view my_modules faz
+ * o join com workspaces pra filtrar por auth.uid().
  */
-async function hasCriativosPro(userId: string): Promise<boolean> {
+async function hasCriativosPro(workspaceId: string): Promise<boolean> {
   const { data } = await supabase
     .from("user_subscriptions")
     .select("id")
-    .eq("user_id", userId)
+    .eq("workspace_id", workspaceId)
     .eq("module_id", "criativos_pro")
     .eq("status", "active")
     .maybeSingle();
