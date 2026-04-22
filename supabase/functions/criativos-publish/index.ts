@@ -60,6 +60,31 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "no image" }), { status: 400 });
     }
 
+    // Lock atômico: status=approved → status=publishing. Se outro processo
+    // (ex: dashboard aprovou e Zap aprovou quase junto) já pegou, o UPDATE
+    // retorna 0 linhas e abortamos — evita publicar duplicado no Instagram.
+    const { data: locked, error: lockErr } = await supabase
+      .from("creatives_gallery")
+      .update({ status: "publishing" })
+      .eq("id", creative_job_id)
+      .eq("status", "approved")
+      .select("id")
+      .maybeSingle();
+
+    if (lockErr) {
+      return new Response(JSON.stringify({ error: `lock falhou: ${lockErr.message}` }), {
+        status: 500,
+      });
+    }
+
+    if (!locked) {
+      // Já tem outro processo publicando ou já publicou
+      return new Response(
+        JSON.stringify({ error: "job já está sendo publicado ou foi publicado", idempotent: true }),
+        { status: 200 }
+      );
+    }
+
     // Workspace a partir da property
     const { data: property } = await supabase
       .from("properties")

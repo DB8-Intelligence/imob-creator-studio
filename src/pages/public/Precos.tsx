@@ -112,6 +112,23 @@ const products: Product[] = [
     accent: "navy",
   },
   {
+    id: "criativos_pro",
+    icon: "⚡",
+    name: "Criativos Pro",
+    tagline: "Foto no Zap → post no Instagram em 1 minuto",
+    startingAt: "Sob consulta",
+    priceDetail: "",
+    bullets: [
+      "Corretor manda foto+legenda no próprio WhatsApp",
+      "IA gera copy, CTA, hashtags e arte em ~30s",
+      "Aprovação no Zap (👍/👎) ou no dashboard",
+      "Publicação automática no Instagram ao aprovar",
+      "Upgrade sobre qualquer plano",
+    ],
+    href: WHATSAPP_LINK,
+    accent: "navy",
+  },
+  {
     id: "videos",
     icon: "🎬",
     name: "Vídeos com IA",
@@ -229,16 +246,31 @@ export default function PrecosPage() {
                     ))}
                   </ul>
 
-                  <Link
-                    to={p.href}
-                    className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all text-sm ${
-                      isHighlighted
-                        ? "bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-md hover:-translate-y-0.5"
-                        : "bg-[#0A1628] hover:bg-[#162038] text-white"
-                    }`}
-                  >
-                    Ver planos e contratar <ArrowRight size={16} />
-                  </Link>
+                  {p.href.startsWith("http") ? (
+                    <a
+                      href={p.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all text-sm ${
+                        isHighlighted
+                          ? "bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-md hover:-translate-y-0.5"
+                          : "bg-[#0A1628] hover:bg-[#162038] text-white"
+                      }`}
+                    >
+                      Falar com consultor <MessageCircle size={16} />
+                    </a>
+                  ) : (
+                    <Link
+                      to={p.href}
+                      className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-xl transition-all text-sm ${
+                        isHighlighted
+                          ? "bg-[#FFD700] hover:bg-[#F2C900] text-[#0A1628] shadow-md hover:-translate-y-0.5"
+                          : "bg-[#0A1628] hover:bg-[#162038] text-white"
+                      }`}
+                    >
+                      Ver planos e contratar <ArrowRight size={16} />
+                    </Link>
+                  )}
                 </motion.div>
               );
             })}

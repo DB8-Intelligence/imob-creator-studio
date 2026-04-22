@@ -36,6 +36,7 @@ type CreativeStatus =
   | "pending_approval"
   | "ready"
   | "approved"
+  | "publishing"
   | "rejected"
   | "scheduled"
   | "published"
@@ -74,6 +75,7 @@ const STATUS_STYLES: Record<CreativeStatus, { label: string; bg: string; text: s
   pending_approval: { label: "Aguarda aprovação", bg: "bg-amber-100", text: "text-amber-700" },
   ready:            { label: "Pronto",           bg: "bg-blue-100",   text: "text-blue-700"  },
   approved:         { label: "Aprovado",         bg: "bg-green-100",  text: "text-green-700" },
+  publishing:       { label: "Publicando…",      bg: "bg-indigo-100", text: "text-indigo-700" },
   rejected:         { label: "Rejeitado",        bg: "bg-rose-100",   text: "text-rose-700"  },
   scheduled:        { label: "Agendado",         bg: "bg-yellow-100", text: "text-yellow-700" },
   published:        { label: "Publicado",        bg: "bg-purple-100", text: "text-purple-700" },
