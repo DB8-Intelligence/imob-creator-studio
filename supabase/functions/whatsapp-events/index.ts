@@ -17,9 +17,7 @@ serve(async (req: Request) => {
   const key = data?.key as Record<string, unknown>;
   const instanceName = data?.instance as string;
 
-  // Ignore own messages
-  if (key?.fromMe) return new Response("ok");
-
+  const fromMe = !!key?.fromMe;
   const fromPhone = String(key?.remoteJid ?? "").replace("@s.whatsapp.net", "");
   const fromName = String(data?.pushName ?? fromPhone);
   const msgType = message?.messageType as string;
@@ -71,6 +69,21 @@ serve(async (req: Request) => {
     if (transcription) {
       messageText = transcription;
     }
+  }
+
+  // Criativos Pro — aprovação bidirecional: o corretor responde 👍/👎 ao
+  // preview enviado pelo pipeline-criativo. É uma mensagem `fromMe=true` porque
+  // vem do próprio número conectado à instance. Sem esse fork, o `fromMe` era
+  // sempre ignorado. Só processamos se houver pretensão de aprovação; outras
+  // self-messages seguem ignoradas.
+  if (fromMe) {
+    await tryHandleCriativoApproval({
+      owner_user_id:     instance.user_id,
+      instance_name:     instanceName,
+      message_text:      messageText,
+      quoted_message_id: extractQuotedMessageId(message),
+    });
+    return new Response("ok");
   }
 
   // Save to inbox
@@ -379,4 +392,141 @@ async function notifyCorretor(
       text: `🏠 Novo imóvel recebido de *${fromName}*!\n\nReferência: *${reference}*\n\nAcesse o dashboard para revisar e aprovar em 30 segundos:\nhttps://imobcreatorai.com.br/dashboard/imoveis`,
     }),
   });
+}
+
+/* ── Criativos Pro: aprovação WhatsApp bidirecional ───────────────────── */
+
+/**
+ * Extrai stanzaId da mensagem citada (quoted message). Evolution v2 pode pôr
+ * o contextInfo em dois caminhos diferentes; cobrimos ambos.
+ */
+function extractQuotedMessageId(message: Record<string, unknown>): string | null {
+  const extended = message?.extendedTextMessage as Record<string, unknown> | undefined;
+  const extendedCtx = extended?.contextInfo as Record<string, unknown> | undefined;
+  if (typeof extendedCtx?.stanzaId === "string") return extendedCtx.stanzaId;
+
+  const ctx = message?.messageContextInfo as Record<string, unknown> | undefined;
+  if (typeof ctx?.stanzaId === "string") return ctx.stanzaId;
+
+  return null;
+}
+
+/**
+ * Classifica texto do corretor como aprovação / rejeição / ambíguo.
+ * Match liberal — aceita 👍, ✅, SIM, OK, APROVA(R/DO) etc. Qualquer mensagem
+ * que não bate em nenhum padrão é ignorada (deixa job pendente pro sweep).
+ */
+function classifyApprovalResponse(text: string): { approve: boolean; reject: boolean } {
+  const t = text.trim().toLowerCase();
+  if (!t) return { approve: false, reject: false };
+
+  const approve = /^(👍|✅|sim|ok|aprovo|aprovar|aprovad[oa]|pode|publica[r]?)/.test(t);
+  const reject  = /^(👎|❌|n[aã]o|rejeito|rejeitar|cancela[r]?|descart[aeo])/.test(t);
+  return { approve, reject };
+}
+
+/**
+ * Handler de aprovação: só age se houver job pendente que case com a
+ * resposta. Prefere casar via quoted message (mais robusto); fallback no
+ * último job `pending_approval` do corretor (janela curta, dentro do
+ * approval_deadline).
+ */
+async function tryHandleCriativoApproval(args: {
+  owner_user_id:     string;
+  instance_name:     string;
+  message_text:      string;
+  quoted_message_id: string | null;
+}): Promise<void> {
+  const { approve, reject } = classifyApprovalResponse(args.message_text);
+  if (!approve && !reject) return; // self-talk comum, ignora
+
+  // Prefere casar via quoted
+  let job: { id: string; property_id: string | null } | null = null;
+  if (args.quoted_message_id) {
+    const { data } = await supabase
+      .from("creatives_gallery")
+      .select("id, property_id")
+      .eq("whatsapp_message_id", args.quoted_message_id)
+      .eq("status", "pending_approval")
+      .maybeSingle();
+    job = data as typeof job;
+  }
+
+  if (!job) {
+    // Fallback: último pending_approval do corretor ainda dentro do deadline.
+    const { data } = await supabase
+      .from("creatives_gallery")
+      .select("id, property_id")
+      .eq("user_id", args.owner_user_id)
+      .eq("status", "pending_approval")
+      .gte("approval_deadline", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    job = data as typeof job;
+  }
+
+  if (!job) return; // sem job pendente — ignora, corretor tá falando sozinho
+
+  if (approve) {
+    await supabase
+      .from("creatives_gallery")
+      .update({ status: "approved" })
+      .eq("id", job.id);
+
+    // Dispatch fire-and-forget pra criativos-publish
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (supabaseUrl && serviceKey) {
+      fetch(`${supabaseUrl}/functions/v1/criativos-publish`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: serviceKey },
+        body: JSON.stringify({ creative_job_id: job.id }),
+      }).catch((e) => console.error("criativos-publish dispatch failed:", e));
+    }
+
+    await sendOwnerText(
+      args.instance_name,
+      `✅ Aprovado! Publicando no Instagram...\n\nVocê recebe o link do post em instantes.`
+    );
+    return;
+  }
+
+  // reject
+  await supabase
+    .from("creatives_gallery")
+    .update({ status: "rejected" })
+    .eq("id", job.id);
+
+  await sendOwnerText(
+    args.instance_name,
+    `❌ Rejeitado. Me mande outra foto (ou o mesmo imóvel com caption diferente) que eu gero um novo criativo.`
+  );
+}
+
+/**
+ * Envia texto pro próprio ownerJid da instance (o corretor). Resolução de
+ * ownerJid idêntica à usada em notifyCorretor.
+ */
+async function sendOwnerText(instanceName: string, text: string): Promise<void> {
+  const url = Deno.env.get("EVOLUTION_API_URL");
+  const apikey = Deno.env.get("EVOLUTION_API_KEY");
+  if (!url || !apikey) return;
+
+  const infoRes = await fetch(
+    `${url}/instance/fetchInstances?instanceName=${instanceName}`,
+    { headers: { apikey } }
+  );
+  const info = await infoRes.json().catch(() => null);
+  const ownerJid = Array.isArray(info)
+    ? info[0]?.instance?.ownerJid
+    : info?.instance?.ownerJid;
+
+  if (!ownerJid) return;
+
+  await fetch(`${url}/message/sendText/${instanceName}`, {
+    method: "POST",
+    headers: { apikey, "Content-Type": "application/json" },
+    body: JSON.stringify({ number: ownerJid, text }),
+  }).catch((e) => console.error("sendOwnerText failed:", e));
 }

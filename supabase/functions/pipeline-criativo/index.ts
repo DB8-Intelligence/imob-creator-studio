@@ -131,9 +131,23 @@ serve(async (req) => {
       throw updateErr;
     }
 
-    // ── 5. Notifica corretor (Sprint 2: link dashboard; Sprint 3: 👍/👎) ──
+    // ── 5. Envia preview pro corretor no WhatsApp ────────────────────────
+    // sendMedia com a imagem + caption + instrução 👍/👎. Capturamos o
+    // message_id Evolution pra casar com a resposta depois (quoted message).
     if (property.captured_by) {
-      await notifyCorretor(property.captured_by, creative_job_id, property.reference);
+      const waMessageId = await sendPreviewToCorretor({
+        ownerUserId: property.captured_by,
+        reference:   property.reference,
+        artUrl,
+        copy,
+      });
+
+      if (waMessageId) {
+        await supabase
+          .from("creatives_gallery")
+          .update({ whatsapp_message_id: waMessageId })
+          .eq("id", creative_job_id);
+      }
     }
 
     return new Response(
@@ -283,28 +297,26 @@ async function generateArt(args: {
 }
 
 /**
- * Manda notificação pro corretor via Evolution (instance dele próprio,
- * não há número centralizado).
- *
- * Sprint 2: link dashboard pra aprovar visualmente.
- * Sprint 3 vai trocar isso por envio de imagem + botões 👍/👎 no próprio Zap.
+ * Envia preview do criativo via Evolution sendMedia (imagem + caption com
+ * instruções 👍/👎). Retorna o `key.id` da mensagem enviada pra casar
+ * com a resposta do corretor em whatsapp-events.
  */
-async function notifyCorretor(
-  ownerUserId: string,
-  creative_job_id: string,
-  reference: string | null
-): Promise<void> {
-  if (!EVO_URL || !EVO_KEY) return;
+async function sendPreviewToCorretor(args: {
+  ownerUserId: string;
+  reference:   string | null;
+  artUrl:      string;
+  copy:        CopyResult;
+}): Promise<string | null> {
+  if (!EVO_URL || !EVO_KEY) return null;
 
   const { data: instance } = await supabase
     .from("user_whatsapp_instances")
     .select("instance_name")
-    .eq("user_id", ownerUserId)
+    .eq("user_id", args.ownerUserId)
     .maybeSingle();
 
-  if (!instance?.instance_name) return;
+  if (!instance?.instance_name) return null;
 
-  // Pega o próprio número do corretor via fetchInstances.ownerJid
   const infoRes = await fetch(
     `${EVO_URL}/instance/fetchInstances?instanceName=${instance.instance_name}`,
     { headers: { apikey: EVO_KEY } }
@@ -314,16 +326,41 @@ async function notifyCorretor(
     ? info[0]?.instance?.ownerJid
     : info?.instance?.ownerJid;
 
-  if (!ownerJid) return;
+  if (!ownerJid) return null;
 
-  const url = `${DASHBOARD_URL}/dashboard/criativos/${creative_job_id}`;
+  const caption =
+    `${args.copy.legenda}\n\n` +
+    `${args.copy.hashtags.join(" ")}\n\n` +
+    `━━━━━━━━━━━━━━━\n` +
+    `📸 Criativo pronto pra publicar${args.reference ? ` (${args.reference})` : ""}.\n\n` +
+    `Responda ESTA mensagem com:\n` +
+    `👍 ou SIM → publico no Instagram\n` +
+    `👎 ou NÃO → rejeito e gero outro\n\n` +
+    `⏱ Você tem 2 minutos.`;
 
-  await fetch(`${EVO_URL}/message/sendText/${instance.instance_name}`, {
-    method: "POST",
-    headers: { apikey: EVO_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      number: ownerJid,
-      text: `✨ Seu criativo está pronto!\n\n${reference ? `📋 ${reference}\n` : ""}Revise e publique no Instagram:\n${url}\n\n⏱ Você tem 2 minutos pra aprovar, senão posso gerar outro.`,
-    }),
-  });
+  try {
+    const res = await fetch(`${EVO_URL}/message/sendMedia/${instance.instance_name}`, {
+      method: "POST",
+      headers: { apikey: EVO_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        number:    ownerJid,
+        mediatype: "image",
+        media:     args.artUrl,
+        caption,
+        fileName:  "criativo.png",
+      }),
+    });
+
+    if (!res.ok) {
+      console.error("sendMedia falhou:", res.status, await res.text());
+      return null;
+    }
+
+    const data = await res.json().catch(() => null);
+    // Evolution v2 retorna { key: { id, remoteJid, fromMe }, ... }
+    return data?.key?.id ?? null;
+  } catch (e) {
+    console.error("sendPreviewToCorretor error:", e);
+    return null;
+  }
 }
