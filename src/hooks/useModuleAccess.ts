@@ -46,6 +46,10 @@ export function useModules() {
     scheduleCreative:   () => hasModule("criativos") && planLevel("criativos") >= 2,
     publishSocial:      () => hasModule("social"),
 
+    // Criativos Pro — pipeline automática (foto WhatsApp → Vision → copy → arte
+    // → aprovação WhatsApp → publica Instagram). Upgrade pago, SKU Kiwify próprio.
+    criativosPro:       () => hasModule("criativos_pro"),
+
     // Site
     publishToSite:      () => hasModule("site"),
     exportXML:          () => hasModule("site"),
