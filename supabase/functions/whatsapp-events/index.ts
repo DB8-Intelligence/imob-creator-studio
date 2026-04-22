@@ -115,11 +115,17 @@ serve(async (req: Request) => {
   try {
     const aiData = await extractPropertyData(messageText, mediaUrls);
 
+    // Criativos Pro: se o corretor tem o módulo ativo E a mensagem trouxe
+    // foto, property entra como 'draft' e dispara pipeline-criativo (gera
+    // arte + copy, envia preview pro Zap pra aprovar). Texto puro cai no
+    // fluxo tradicional — sem foto não dá pra compor criativo.
+    const isPro = mediaUrls.length > 0 && (await hasCriativosPro(instance.user_id));
+
     const { data: property } = await supabase
       .from("properties")
       .insert({
         workspace_id: workspace.id,
-        status: "pending_approval",
+        status: isPro ? "draft" : "pending_approval",
         source: "whatsapp",
         source_contact: fromName,
         source_phone: fromPhone,
@@ -139,7 +145,11 @@ serve(async (req: Request) => {
       .maybeSingle();
 
     if (property) {
-      await notifyCorretor(instanceName, fromName, property.reference);
+      if (isPro) {
+        await dispatchCriativosPro(instance.user_id, property.id);
+      } else {
+        await notifyCorretor(instanceName, fromName, property.reference);
+      }
     }
   } catch (e) {
     console.error("Erro IA:", e);
@@ -147,6 +157,61 @@ serve(async (req: Request) => {
 
   return new Response("ok");
 });
+
+/**
+ * Retorna true se o dono do workspace tem o módulo `criativos_pro` ativo.
+ * Usado pra decidir entre fluxo tradicional (aprovação manual no dashboard)
+ * e o pipeline automático (Gemini + WhatsApp 👍/👎).
+ */
+async function hasCriativosPro(userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from("user_subscriptions")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("module_id", "criativos_pro")
+    .eq("status", "active")
+    .maybeSingle();
+  return !!data;
+}
+
+/**
+ * Cria o job em creatives_gallery (status='analyzing') e dispara
+ * pipeline-criativo fire-and-forget. A edge function atualiza o job pra
+ * 'pending_approval' quando termina.
+ */
+async function dispatchCriativosPro(ownerUserId: string, propertyId: string): Promise<void> {
+  const { data: job } = await supabase
+    .from("creatives_gallery")
+    .insert({
+      user_id:       ownerUserId,
+      template_name: "whatsapp_intake",
+      template_slug: "whatsapp_intake",
+      status:        "analyzing",
+      property_id:   propertyId,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (!job) {
+    console.error("dispatchCriativosPro: falha ao criar creative job");
+    return;
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) return;
+
+  // Fire-and-forget — não bloqueia o webhook do Evolution (tem que responder
+  // rápido). Pipeline-criativo notifica o corretor no fim.
+  fetch(`${supabaseUrl}/functions/v1/pipeline-criativo`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: serviceKey,
+    },
+    body: JSON.stringify({ property_id: propertyId, creative_job_id: job.id }),
+  }).catch((e) => console.error("pipeline-criativo dispatch failed:", e));
+}
 
 /**
  * Transcreve áudio do lead via OpenAI Whisper.
