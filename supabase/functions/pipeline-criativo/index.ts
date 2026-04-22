@@ -37,15 +37,16 @@ interface PropertyRow {
   id: string;
   workspace_id: string;
   reference: string | null;
-  type: string | null;
+  property_type: string | null;
   pretension: string | null;
   price: number | null;
   bedrooms: number | null;
   suites: number | null;
   parking: number | null;
   area_built: number | null;
-  address: Record<string, unknown> | null;
-  photos: string[] | null;
+  neighborhood: string | null;
+  city: string | null;
+  images: string[] | Array<{ url: string }> | null;
   description: string | null;
   captured_by: string | null;
 }
@@ -83,7 +84,7 @@ serve(async (req) => {
     const { data: property, error: propErr } = await supabase
       .from("properties")
       .select(
-        "id, workspace_id, reference, type, pretension, price, bedrooms, suites, parking, area_built, address, photos, description, captured_by"
+        "id, workspace_id, reference, property_type, pretension, price, bedrooms, suites, parking, area_built, neighborhood, city, images, description, captured_by"
       )
       .eq("id", property_id)
       .maybeSingle<PropertyRow>();
@@ -93,7 +94,12 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "property not found" }), { status: 404 });
     }
 
-    const photoUrl = property.photos?.[0];
+    // images é jsonb — pode vir como ["url"] ou [{url: "..."}]. Suporta os dois.
+    const firstImage = Array.isArray(property.images) ? property.images[0] : null;
+    const photoUrl = typeof firstImage === "string"
+      ? firstImage
+      : (firstImage as { url?: string } | null)?.url ?? null;
+
     if (!photoUrl) {
       await failJob(creative_job_id, "property sem foto");
       return new Response(JSON.stringify({ error: "property has no photo" }), { status: 400 });
@@ -174,9 +180,8 @@ async function failJob(creative_job_id: string, reason: string): Promise<void> {
 }
 
 function deriveTitle(p: PropertyRow): string {
-  const addr = (p.address ?? {}) as Record<string, string>;
-  const tipo = p.type ?? "Imóvel";
-  const bairro = addr.bairro ?? addr.cidade ?? "";
+  const tipo = p.property_type ?? "Imóvel";
+  const bairro = p.neighborhood ?? p.city ?? "";
   return bairro ? `${tipo} em ${bairro}` : tipo;
 }
 
@@ -191,14 +196,13 @@ function fmtBRL(v: number | null): string {
  * da copy. Prioridade: sempre entregar o criativo, mesmo que com copy simples.
  */
 async function generateCopy(p: PropertyRow): Promise<CopyResult> {
-  const addr = (p.address ?? {}) as Record<string, string>;
-  const bairro = addr.bairro ?? "";
-  const cidade = addr.cidade ?? "";
+  const bairro = p.neighborhood ?? "";
+  const cidade = p.city ?? "";
   const preco = fmtBRL(p.price);
   const finalidade = p.pretension === "aluguel" ? "Para Alugar" : "À Venda";
 
   const fallback: CopyResult = {
-    legenda: `✨ ${p.type ?? "Imóvel"} ${finalidade} em ${bairro}${cidade ? `, ${cidade}` : ""}\n\n${preco}${p.bedrooms ? ` · ${p.bedrooms} quartos` : ""}${p.area_built ? ` · ${p.area_built}m²` : ""}\n\nFale comigo no WhatsApp! 📲`,
+    legenda: `✨ ${p.property_type ?? "Imóvel"} ${finalidade} em ${bairro}${cidade ? `, ${cidade}` : ""}\n\n${preco}${p.bedrooms ? ` · ${p.bedrooms} quartos` : ""}${p.area_built ? ` · ${p.area_built}m²` : ""}\n\nFale comigo no WhatsApp! 📲`,
     hashtags: ["#imovel", "#imoveis", bairro ? `#${bairro.replace(/\s+/g, "")}` : "#imobiliaria"].filter(Boolean),
     cta: "Fale comigo no WhatsApp!",
   };
@@ -225,7 +229,7 @@ Responda SEMPRE em JSON puro (sem markdown, sem crases):
           {
             role: "user",
             content: `Crie legenda de Instagram para:
-Tipo: ${p.type ?? "imóvel"}
+Tipo: ${p.property_type ?? "imóvel"}
 Finalidade: ${finalidade}
 Preço: ${preco}
 Quartos: ${p.bedrooms ?? "—"}  Suítes: ${p.suites ?? "—"}  Vagas: ${p.parking ?? "—"}
