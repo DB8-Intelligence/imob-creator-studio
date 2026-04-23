@@ -33,7 +33,15 @@ export default function SocialCallbackPage() {
           body: { action: "connect-account", platform: state, code, redirect_uri: redirectUri },
         });
 
-        if (fnError) throw fnError;
+        if (fnError) {
+          let bodyText = "";
+          try {
+            const res = (fnError as any).context as Response | undefined;
+            if (res && typeof res.text === "function") bodyText = await res.text();
+          } catch {}
+          console.error("[social-callback] fnError:", fnError, "body:", bodyText);
+          throw new Error(bodyText || fnError.message || "Edge function error");
+        }
         if (data && data.ok === false) {
           const detail = data.detail ? ` (${JSON.stringify(data.detail)})` : "";
           throw new Error(`${data.error}${detail}`);

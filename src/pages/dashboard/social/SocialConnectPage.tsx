@@ -82,10 +82,11 @@ export default function SocialConnectPage() {
     const metaAppId = import.meta.env.VITE_META_APP_ID || "YOUR_META_APP_ID";
     const redirectUri = `${window.location.origin}/dashboard/social/callback`;
     const scope = [
-      "instagram_business_basic",
-      "instagram_business_content_publish",
+      "instagram_basic",
+      "instagram_content_publish",
       "pages_show_list",
       "pages_read_engagement",
+      "pages_manage_posts",
     ].join(",");
     window.location.href = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=instagram&response_type=code`;
   };
