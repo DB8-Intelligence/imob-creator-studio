@@ -86,7 +86,6 @@ export default function SocialConnectPage() {
       "instagram_business_content_publish",
       "pages_show_list",
       "pages_read_engagement",
-      "business_management",
     ].join(",");
     window.location.href = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=instagram&response_type=code`;
   };
@@ -107,7 +106,6 @@ export default function SocialConnectPage() {
       "pages_manage_posts",
       "pages_read_engagement",
       "pages_show_list",
-      "business_management",
     ].join(",");
     window.location.href = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=facebook&response_type=code`;
   };

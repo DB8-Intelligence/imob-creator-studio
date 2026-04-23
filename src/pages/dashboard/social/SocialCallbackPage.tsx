@@ -29,13 +29,18 @@ export default function SocialCallbackPage() {
 
       try {
         const redirectUri = `${window.location.origin}/dashboard/social/callback`;
-        const { error: fnError } = await supabase.functions.invoke("publish-social", {
+        const { data, error: fnError } = await supabase.functions.invoke("publish-social", {
           body: { action: "connect-account", platform: state, code, redirect_uri: redirectUri },
         });
 
         if (fnError) throw fnError;
+        if (data && data.ok === false) {
+          const detail = data.detail ? ` (${JSON.stringify(data.detail)})` : "";
+          throw new Error(`${data.error}${detail}`);
+        }
         toast({ title: `${state === "instagram" ? "Instagram" : "Facebook"} conectado com sucesso!` });
       } catch (err: any) {
+        console.error("[social-callback] connect error:", err);
         toast({ title: "Erro ao conectar", description: err.message || "Tente novamente", variant: "destructive" });
       }
 

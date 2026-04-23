@@ -19,14 +19,28 @@ serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
+  const authHeader = req.headers.get("Authorization");
+  console.log("[publish-social] auth header present:", !!authHeader);
+
   const supabaseUser = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: req.headers.get("Authorization")! } } }
+    { global: { headers: { Authorization: authHeader ?? "" } } }
   );
 
-  const { data: { user } } = await supabaseUser.auth.getUser();
-  if (!user) return json({ ok: false, error: "Unauthorized" }, 401);
+  const { data: { user }, error: userErr } = await supabaseUser.auth.getUser();
+  if (userErr) console.log("[publish-social] getUser error:", userErr.message);
+  if (!user) {
+    return json({
+      ok: false,
+      error: "Unauthorized",
+      detail: {
+        has_auth_header: !!authHeader,
+        auth_error: userErr?.message ?? null,
+      },
+    }, 401);
+  }
+  console.log("[publish-social] user:", user.id);
 
   const body = await req.json().catch(() => ({}));
   // action pode vir via body (supabase.functions.invoke) OU querystring (compat)
