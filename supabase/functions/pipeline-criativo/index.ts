@@ -274,11 +274,12 @@ async function generateArt(args: {
   title: string;
   description: string;
 }): Promise<string> {
-  const res = await fetch(`${SUPABASE_URL}/functions/v1/generate-art`, {
+  const internalSecret = Deno.env.get("INTERNAL_WEBHOOK_SECRET") ?? "";
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/pipeline-generate-art`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${SERVICE_KEY}`,
+      "x-internal-secret": internalSecret,
     },
     body: JSON.stringify({
       propertyId: args.propertyId,
