@@ -43,3 +43,11 @@ verify_jwt = false
 # protegido por INTERNAL_WEBHOOK_SECRET validado no código.
 [functions.criativos-sweep-deadline]
 verify_jwt = false
+
+# Meta/Facebook callbacks — chamados pela Meta sem Authorization header,
+# validados por signed_request HMAC-SHA256 assinado com META_APP_SECRET.
+[functions.instagram-deauth]
+verify_jwt = false
+
+[functions.instagram-data-deletion]
+verify_jwt = false

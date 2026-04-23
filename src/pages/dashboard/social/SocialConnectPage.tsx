@@ -81,14 +81,20 @@ export default function SocialConnectPage() {
   const handleConnectInstagram = () => {
     const metaAppId = import.meta.env.VITE_META_APP_ID || "YOUR_META_APP_ID";
     const redirectUri = `${window.location.origin}/dashboard/social/callback`;
-    const scope = "instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement";
-    window.location.href = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=instagram`;
+    const scope = [
+      "instagram_business_basic",
+      "instagram_business_content_publish",
+      "pages_show_list",
+      "pages_read_engagement",
+      "business_management",
+    ].join(",");
+    window.location.href = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=instagram&response_type=code`;
   };
 
   const handleDisconnectInstagram = async () => {
-    if (instagramAccount?.id) {
-      await supabase.from("social_accounts" as any).delete().eq("id", instagramAccount.id);
-    }
+    await supabase.functions.invoke("publish-social", {
+      body: { action: "disconnect-account", platform: "instagram" },
+    });
     setInstagramConnected(false);
     setInstagramAccount(null);
     toast({ title: "Instagram desconectado." });
@@ -97,14 +103,19 @@ export default function SocialConnectPage() {
   const handleConnectFacebook = () => {
     const metaAppId = import.meta.env.VITE_META_APP_ID || "YOUR_META_APP_ID";
     const redirectUri = `${window.location.origin}/dashboard/social/callback`;
-    const scope = "pages_manage_posts,pages_read_engagement";
-    window.location.href = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=facebook`;
+    const scope = [
+      "pages_manage_posts",
+      "pages_read_engagement",
+      "pages_show_list",
+      "business_management",
+    ].join(",");
+    window.location.href = `https://www.facebook.com/v21.0/dialog/oauth?client_id=${metaAppId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&state=facebook&response_type=code`;
   };
 
   const handleDisconnectFacebook = async () => {
-    if (facebookAccount?.id) {
-      await supabase.from("social_accounts" as any).delete().eq("id", facebookAccount.id);
-    }
+    await supabase.functions.invoke("publish-social", {
+      body: { action: "disconnect-account", platform: "facebook" },
+    });
     setFacebookConnected(false);
     setFacebookAccount(null);
     toast({ title: "Facebook desconectado." });
@@ -279,7 +290,7 @@ export default function SocialConnectPage() {
             <p>
               Para conectar, seu app Meta precisa das permissoes{" "}
               <code className="bg-gray-200 px-1 py-0.5 rounded text-[11px]">
-                instagram_content_publish
+                instagram_business_content_publish
               </code>{" "}
               e{" "}
               <code className="bg-gray-200 px-1 py-0.5 rounded text-[11px]">

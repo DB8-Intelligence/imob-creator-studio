@@ -42,6 +42,7 @@ import EmptyLotPage from "./pages/EmptyLotPage";
 import LandMarkingPage from "./pages/LandMarkingPage";
 import AIAgentsPage from "./pages/AIAgentsPage";
 import TermsPage from "./pages/TermsPage";
+import DataDeletionPage from "./pages/DataDeletionPage";
 import AnalyticsDashboardPage from "./pages/AnalyticsDashboardPage";
 import AttributionPage from "./pages/AttributionPage";
 import ReferralPage from "./pages/ReferralPage";
@@ -394,6 +395,10 @@ const App = () => (
               <Route path="/admin/funnel-analytics" element={<ProtectedRoute><AdminFunnelAnalyticsPage /></ProtectedRoute>} />
 
               <Route path="/termos" element={<TermsPage />} />
+              <Route path="/privacidade" element={<TermsPage initialTab="privacidade" />} />
+              <Route path="/reembolso" element={<TermsPage initialTab="reembolso" />} />
+              <Route path="/cancelamento" element={<TermsPage initialTab="cancelamento" />} />
+              <Route path="/data-deletion" element={<DataDeletionPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>

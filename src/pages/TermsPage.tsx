@@ -491,8 +491,8 @@ const ComingSoon = ({ label }: { label: string }) => (
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-const TermsPage = () => {
-  const [activeTab, setActiveTab] = useState<Tab>("termos");
+const TermsPage = ({ initialTab = "termos" }: { initialTab?: Tab } = {}) => {
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   return (
     <div className="min-h-screen bg-background">

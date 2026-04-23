@@ -1,5 +1,10 @@
+// publish-social — orquestração de publicação + OAuth Meta (Instagram/Facebook)
+// Graph API v21.0 (LTS). Scopes atualizados para o modelo instagram_business_* (Dec/2024).
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const GRAPH_API = "https://graph.facebook.com/v21.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,15 +28,132 @@ serve(async (req: Request) => {
   const { data: { user } } = await supabaseUser.auth.getUser();
   if (!user) return json({ ok: false, error: "Unauthorized" }, 401);
 
-  const url    = new URL(req.url);
-  const action = url.searchParams.get("action");
-  const body   = await req.json().catch(() => ({}));
+  const body = await req.json().catch(() => ({}));
+  // action pode vir via body (supabase.functions.invoke) OU querystring (compat)
+  const url = new URL(req.url);
+  const action = body.action || url.searchParams.get("action");
 
   const { data: workspace } = await supabase
     .from("workspaces").select("id").eq("owner_user_id", user.id).maybeSingle();
   if (!workspace) return json({ ok: false, error: "Workspace not found" }, 404);
 
   switch (action) {
+
+    // ── CONECTAR CONTA SOCIAL (OAuth callback — recebe code, troca tudo) ─────
+    case "connect-account": {
+      const { code, redirect_uri } = body;
+      if (!code || !redirect_uri) {
+        return json({ ok: false, error: "Missing code or redirect_uri" }, 400);
+      }
+
+      const appId = Deno.env.get("META_APP_ID");
+      const appSecret = Deno.env.get("META_APP_SECRET");
+      if (!appId || !appSecret) {
+        return json({ ok: false, error: "META_APP_ID/META_APP_SECRET not configured" }, 500);
+      }
+
+      // 1. Troca code → short-lived user token
+      const shortRes = await fetch(
+        `${GRAPH_API}/oauth/access_token?` +
+        `client_id=${appId}&` +
+        `client_secret=${appSecret}&` +
+        `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
+        `code=${code}`
+      );
+      const shortData = await shortRes.json();
+      if (!shortData.access_token) {
+        return json({ ok: false, error: "Failed to exchange code", detail: shortData }, 400);
+      }
+
+      // 2. Short-lived → long-lived (60 dias)
+      const longRes = await fetch(
+        `${GRAPH_API}/oauth/access_token?` +
+        `grant_type=fb_exchange_token&` +
+        `client_id=${appId}&` +
+        `client_secret=${appSecret}&` +
+        `fb_exchange_token=${shortData.access_token}`
+      );
+      const longData = await longRes.json();
+      const userAccessToken = longData.access_token ?? shortData.access_token;
+      const expiresAt = longData.expires_in
+        ? new Date(Date.now() + longData.expires_in * 1000).toISOString()
+        : null;
+
+      // 3. Busca meta_user_id
+      const meRes = await fetch(`${GRAPH_API}/me?access_token=${userAccessToken}`);
+      const me = await meRes.json();
+      const metaUserId: string | undefined = me.id;
+      if (!metaUserId) {
+        return json({ ok: false, error: "Failed to fetch Meta user id", detail: me }, 400);
+      }
+
+      // 4. Lista Pages do usuário (cada Page tem seu próprio access_token)
+      const pagesRes = await fetch(
+        `${GRAPH_API}/me/accounts?fields=id,name,access_token,instagram_business_account{id,username,profile_picture_url,name}&access_token=${userAccessToken}`
+      );
+      const pagesData = await pagesRes.json();
+      const pages: any[] = pagesData.data || [];
+      if (pages.length === 0) {
+        return json({ ok: false, error: "Nenhuma Página do Facebook encontrada. Vincule sua conta Instagram Business a uma Página do Facebook." }, 400);
+      }
+
+      // 5. Pega a primeira Page com IG Business conectado (MVP: slot 1)
+      const pageWithIg = pages.find((p) => p.instagram_business_account?.id) || pages[0];
+
+      const pageId = pageWithIg.id;
+      const pageName = pageWithIg.name;
+      const pageAccessToken = pageWithIg.access_token;
+      const ig = pageWithIg.instagram_business_account;
+
+      const upsertRows: any[] = [];
+
+      // Linha Facebook Page
+      upsertRows.push({
+        workspace_id: workspace.id,
+        platform: "facebook",
+        account_id: pageId,
+        account_name: pageName,
+        account_picture: null,
+        access_token: pageAccessToken ?? userAccessToken,
+        token_expires_at: expiresAt,
+        page_id: pageId,
+        page_access_token: pageAccessToken ?? userAccessToken,
+        meta_user_id: metaUserId,
+        profile_slot: 1,
+        status: "active",
+      });
+
+      // Linha Instagram (se Page tem IG Business vinculado)
+      if (ig?.id) {
+        upsertRows.push({
+          workspace_id: workspace.id,
+          platform: "instagram",
+          account_id: ig.id,
+          account_name: ig.username ?? ig.name ?? null,
+          account_picture: ig.profile_picture_url ?? null,
+          access_token: pageAccessToken ?? userAccessToken,
+          token_expires_at: expiresAt,
+          page_id: pageId,
+          page_access_token: pageAccessToken ?? userAccessToken,
+          meta_user_id: metaUserId,
+          profile_slot: 1,
+          status: "active",
+        });
+      }
+
+      const { error: upsertError } = await supabase
+        .from("social_accounts")
+        .upsert(upsertRows, { onConflict: "workspace_id, platform, profile_slot" });
+      if (upsertError) {
+        return json({ ok: false, error: upsertError.message }, 500);
+      }
+
+      return json({
+        ok: true,
+        facebook: { id: pageId, name: pageName },
+        instagram: ig?.id ? { id: ig.id, username: ig.username } : null,
+      });
+    }
 
     // ── PUBLICAR AGORA ────────────────────────────────────────
     case "publish": {
@@ -41,11 +163,12 @@ serve(async (req: Request) => {
         .from("creatives_gallery").select("*").eq("id", creative_id).maybeSingle();
       if (!creative) return json({ ok: false, error: "Creative not found" }, 404);
 
+      const targetPlatform = platform === "both" ? "instagram" : platform;
       const { data: account } = await supabase
         .from("social_accounts")
         .select("*")
         .eq("workspace_id", workspace.id)
-        .eq("platform", platform === "both" ? "instagram" : platform)
+        .eq("platform", targetPlatform)
         .eq("status", "active")
         .limit(1)
         .maybeSingle();
@@ -55,37 +178,41 @@ serve(async (req: Request) => {
       const imageUrl = format === "story" ? creative.format_story : creative.format_feed;
       if (!imageUrl) return json({ ok: false, error: "Image URL not found for format" }, 400);
 
-      // Instagram: 2 steps (container → publish)
       let igPostId: string | null = null;
       if (platform === "instagram" || platform === "both") {
+        // Instagram: 2 steps (container → publish)
         const containerRes = await fetch(
-          `https://graph.facebook.com/v18.0/${account.account_id}/media`,
+          `${GRAPH_API}/${account.account_id}/media`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               image_url: imageUrl,
               caption: fullCaption,
-              access_token: account.access_token,
+              access_token: account.page_access_token ?? account.access_token,
             }),
           }
         );
         const container = await containerRes.json();
-        if (container.id) {
-          const publishRes = await fetch(
-            `https://graph.facebook.com/v18.0/${account.account_id}/media_publish`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                creation_id: container.id,
-                access_token: account.access_token,
-              }),
-            }
-          );
-          const published = await publishRes.json();
-          igPostId = published.id ?? null;
+        if (!container.id) {
+          return json({ ok: false, error: "IG container creation failed", detail: container }, 400);
         }
+        const publishRes = await fetch(
+          `${GRAPH_API}/${account.account_id}/media_publish`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              creation_id: container.id,
+              access_token: account.page_access_token ?? account.access_token,
+            }),
+          }
+        );
+        const published = await publishRes.json();
+        if (!published.id) {
+          return json({ ok: false, error: "IG publish failed", detail: published }, 400);
+        }
+        igPostId = published.id;
       }
 
       await supabase.from("creatives_gallery").update({
@@ -121,38 +248,22 @@ serve(async (req: Request) => {
       return json({ ok: true });
     }
 
-    // ── CONECTAR CONTA SOCIAL (OAuth callback) ────────────────
-    case "connect-account": {
-      const { platform, access_token, account_id, account_name, profile_slot } = body;
-
-      // Exchange for long-lived token
-      const ltRes = await fetch(
-        `https://graph.facebook.com/v18.0/oauth/access_token?` +
-        `grant_type=fb_exchange_token&` +
-        `client_id=${Deno.env.get("META_APP_ID")}&` +
-        `client_secret=${Deno.env.get("META_APP_SECRET")}&` +
-        `fb_exchange_token=${access_token}`
-      );
-      const lt = await ltRes.json();
-
-      await supabase.from("social_accounts").upsert({
-        workspace_id: workspace.id,
-        platform,
-        account_id,
-        account_name,
-        access_token: lt.access_token ?? access_token,
-        token_expires_at: lt.expires_in
-          ? new Date(Date.now() + lt.expires_in * 1000).toISOString()
-          : null,
-        profile_slot: profile_slot ?? 1,
-        status: "active",
-      }, { onConflict: "workspace_id, platform, profile_slot" });
-
+    // ── DESCONECTAR ────────────────────────────────────────────
+    case "disconnect-account": {
+      const { platform } = body;
+      if (!platform || !["instagram", "facebook"].includes(platform)) {
+        return json({ ok: false, error: "Invalid platform" }, 400);
+      }
+      await supabase
+        .from("social_accounts")
+        .delete()
+        .eq("workspace_id", workspace.id)
+        .eq("platform", platform);
       return json({ ok: true });
     }
 
     default:
-      return new Response("Action not found", { status: 404 });
+      return json({ ok: false, error: "Action not found" }, 404);
   }
 });
 
