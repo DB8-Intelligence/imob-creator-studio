@@ -14,6 +14,22 @@ const corsHeaders = {
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  // Debug endpoint publico: confirma qual META_APP_ID/SECRET a function enxerga.
+  // Retorna so fingerprints (nao vaza secret). Remover apos diagnostico.
+  const debugUrl = new URL(req.url);
+  if (debugUrl.searchParams.get("debug") === "meta") {
+    const id = Deno.env.get("META_APP_ID") ?? "";
+    const secret = Deno.env.get("META_APP_SECRET") ?? "";
+    return json({
+      meta_app_id: id || null,
+      meta_app_id_length: id.length,
+      meta_app_secret_set: !!secret,
+      meta_app_secret_length: secret.length,
+      meta_app_secret_first2: secret.slice(0, 2),
+      meta_app_secret_last4: secret.slice(-4),
+    });
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!

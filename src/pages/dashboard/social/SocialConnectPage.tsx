@@ -26,10 +26,12 @@ export default function SocialConnectPage() {
   /* ---- Load connected accounts from Supabase ---- */
   useEffect(() => {
     async function loadAccounts() {
-      const { data } = await supabase
+      console.log("[social-connect] loading accounts for workspace:", workspaceId);
+      const { data, error } = await supabase
         .from("social_accounts" as any)
         .select("*")
         .eq("workspace_id", workspaceId);
+      console.log("[social-connect] query result:", { count: data?.length, error, data });
       if (data) {
         const records = data as any[];
         const ig = records.find((a: any) => a.platform === "instagram");
